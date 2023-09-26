@@ -103,10 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     var topText = Text(imageFileData.fileName, style: style);
     const opacity = 0.3;
-    
 
-    return Expanded(
-      flex: 4,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 43),
       child: Stack(
         children: [
           Center(
