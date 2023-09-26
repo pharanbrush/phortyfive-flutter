@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int fileCount = 0;
   bool isAlwaysOnTop = false;
   bool isSoundsEnabled = true;
+  bool isTouch = false;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
               //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
               _imageSetStats(),
               const SizedBox(width: 15),
-              Phbuttons.bottomButton(() => null, Icons.more_vert, 'Settings'),
+              PopupMenuButton(
+                itemBuilder: _settingsMenuItemBuilder,
+                tooltip: 'Options',
+              ),
               const SizedBox(width: 15),
               _timerControls(),
               const SizedBox(width: 15),
@@ -152,6 +156,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  List<PopupMenuEntry<dynamic>> _settingsMenuItemBuilder(context) {
+    double height = isTouch ? kMinInteractiveDimension : 32;
+
+    return [
+      PopupMenuItem(
+        enabled: false,
+        height: height,
+        child: const Text('Timer Duration'),
+      ),
+      PopupMenuDivider(height: height),
+      PopupMenuItem(height: height, child: const Text('15 seconds')),
+      PopupMenuItem(height: height, child: const Text('30 seconds')),
+      PopupMenuItem(height: height, child: const Text('45 seconds')),
+      PopupMenuItem(height: height, child: const Text('1 minute')),
+      PopupMenuDivider(height: height),
+      PopupMenuItem(height: height, child: const Text('Custom...')),
+    ];
   }
 
   Widget _dockingControls() {
