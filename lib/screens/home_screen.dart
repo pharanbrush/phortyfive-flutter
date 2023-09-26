@@ -36,17 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void openFolder() async {
+  void openFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
-      allowedExtensions: [
-        'jpg',
-        'webp',
-        'png',
-        'jpeg',
-        'jfif',
-        'gif',
-      ],
+      //type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'webp', 'png', 'jpeg', 'jfif', 'gif'],
     );
 
     if (result == null) return;
@@ -96,13 +91,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _imageViewer() {
     const defaultImage = 'C:/Projects/pfs2/assets/83131sf5043558883378.png';
-    final imagePath =
-        fileList.getCount() > 0 ? fileList.getFirst() : defaultImage;
+    final FileData imageFileData = fileList.isPopulated()
+        ? fileList.getFirst()
+        : FileList.fileDataFromPath(defaultImage);
 
-    final File imageFile = File(imagePath);
+    final File imageFile = File(imageFileData.filePath);
 
-    final style = TextStyle(color: Colors.grey.shade800);
-    var topText = Text(imagePath, style: style);
+    final style = TextStyle(
+      color: Colors.grey.shade500,
+      fontSize: 11,
+    );
+    var topText = Text(imageFileData.fileName, style: style);
     const opacity = 0.3;
     
 
@@ -147,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 15),
               _timerControls(),
               const SizedBox(width: 15),
-              Phbuttons.openFolder(() => openFolder()),
+              Phbuttons.openFiles(() => openFiles()),
               const SizedBox(width: 15),
             ],
           ),
@@ -192,7 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _imageSetStats() {
-    String message = '$fileCount images loaded : 45 seconds each';
+    String message =
+        '$fileCount ${fileCount == 1 ? 'image' : 'images'} loaded : 45 seconds each';
     final style = TextStyle(color: Colors.grey.shade800);
 
     var text = Text(message, style: style);
@@ -274,8 +274,8 @@ class Phbuttons {
     );
   }
 
-  static Widget openFolder(Function()? onPressed) {
-    const toolTipText = 'Open Folder (Ctrl+O)';
+  static Widget openFiles(Function()? onPressed) {
+    const toolTipText = 'Open files... (Ctrl+O)';
     const color = Colors.black54;
 
     return Tooltip(

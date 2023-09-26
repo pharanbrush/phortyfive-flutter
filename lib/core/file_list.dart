@@ -5,13 +5,13 @@ class FileList {
 
   int getCount() => files.length;
   bool isPopulated() => getCount() > 0;
-  String getFirst() => get(0);
+  FileData getFirst() => get(0);
 
-  String get(int index) {
+  FileData get(int index) {
     final count = getCount();
-    if (count <= 0) return '';
+    if (count <= 0) return FileData.empty();
     if (index >= count) index = 0;
-    return files[index].filePath;
+    return files[index];
   }
 
   void load(List<String?> filePaths) {
@@ -23,17 +23,19 @@ class FileList {
     int filesAppendedCount = 0;
     for (var filePath in filePaths) {
       if (filePath == null) continue;
-      files.add(FileData(
-        getFileName(filePath),
-        filePath,
-      ));
+      files.add(fileDataFromPath(filePath));
       filesAppendedCount++;
     }
     return filesAppendedCount;
   }
 
-  String getFileName(String filePath) {
+  static String getFileName(String filePath) {
     return File(filePath).uri.pathSegments.last;
+  }
+  
+  static FileData fileDataFromPath(String filePath) {
+    if (filePath.isEmpty) return FileData('', '');
+    return FileData(getFileName(filePath), filePath);
   }
 }
 
@@ -42,4 +44,6 @@ class FileData {
   String filePath;
 
   FileData(this.fileName, this.filePath);
+  
+  static empty() => FileData('', '');
 }
