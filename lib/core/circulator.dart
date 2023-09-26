@@ -1,5 +1,5 @@
 class Circulator {
-  List<int> reorderedIndices = List.empty(growable: true);
+  final reorderedIndices = List<int>.empty(growable: true);
   int currentNumber = 0;
 
   int getCount() => reorderedIndices.length;
