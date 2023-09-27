@@ -19,7 +19,7 @@ class Circulator {
     }
 
     resetToDefaultOrder(count);
-    generateShuffledOrder();
+    _generateShuffledOrder();
     setCurrentNumber(0);
   }
 
@@ -30,7 +30,7 @@ class Circulator {
     }
   }
   
-  void generateShuffledOrder() {    
+  void _generateShuffledOrder() {    
     reorderedIndices.shuffle();
   }
 

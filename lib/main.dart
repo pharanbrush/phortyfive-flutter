@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/screens/home_screen.dart';
+import 'package:pfs2/core/circulator.dart';
+import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/screens/main_screen.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -10,44 +13,45 @@ void main() async {
   WindowOptions windowOptions = const WindowOptions(
     title: 'Phorty-Five Seconds',
   );
-  
+
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     //await windowManager.focus();
   });
 
-  runApp(const MyApp());
+  runApp(MyApp(
+    model: PfsAppModel(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Circulator circulator = Circulator();
+  
+  final PfsAppModel model;
 
-  // This widget is the root of your application.
+  MyApp({Key? key, required this.model}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'PhortyFive Seconds',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade100),
-        useMaterial3: true,
+    return ScopedModel<PfsAppModel>(
+      model: model,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'PhortyFive Seconds',
+        theme: ThemeData(
+          colorScheme: _appColorScheme(),
+          useMaterial3: true,
+        ),
+        home: const MainScreen(),
       ),
-      home: const HomeScreen(),
     );
+  }
+
+  ColorScheme _appColorScheme() {
+    ColorScheme colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.blue.shade100,
+      background: Colors.white,
+    );
+    return colorScheme;
   }
 }

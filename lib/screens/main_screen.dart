@@ -1,23 +1,23 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/widgets/timer_bar.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final Color backgroundColor = Colors.white;
+class _MainScreenState extends State<MainScreen> {
   final Color accentColor = Colors.blueAccent;
-  final FileList fileList = FileList();
+
   bool rightOrientation = true;
-  int fileCount = 0;
   bool isAlwaysOnTop = false;
   bool isSoundsEnabled = true;
   bool isTouch = false;
@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       child: Stack(
         children: [
           _imageViewer(),
@@ -35,22 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }
-
-  void openFiles() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      //type: FileType.image,
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'webp', 'png', 'jpeg', 'jfif', 'gif'],
-    );
-
-    if (result == null) return;
-
-    fileList.load(result.paths);
-    setState(() {
-      fileCount = fileList.getCount();
-    });
   }
 
   Widget _topRightWindowControls() {
@@ -91,38 +75,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _imageViewer() {
-    const defaultImage = 'C:/Projects/pfs2/assets/83131sf5043558883378.png';
-    final FileData imageFileData = fileList.isPopulated()
-        ? fileList.getFirst()
-        : FileList.fileDataFromPath(defaultImage);
-
-    final File imageFile = File(imageFileData.filePath);
-
-    final style = TextStyle(
-      color: Colors.grey.shade500,
-      fontSize: 11,
-    );
-    var topText = Text(imageFileData.fileName, style: style);
-    const opacity = 0.3;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 43),
-      child: Stack(
-        children: [
-          Center(
-            child: Image.file(
-              imageFile,
+      child: Phbuttons.appModelWidget((_, __, model) {
+        const defaultImage = 'C:/Projects/pfs2/assets/83131sf5043558883378.png';
+
+        final FileData imageFileData = model.hasFilesLoaded
+            ? model.getCurrentImageData()
+            : FileList.fileDataFromPath(defaultImage);
+
+        final File imageFile = File(imageFileData.filePath);
+
+        final style = TextStyle(
+          color: Colors.grey.shade500,
+          fontSize: 11,
+        );
+        var topText = Text(imageFileData.fileName, style: style);
+        const opacity = 0.3;
+
+        return Stack(
+          children: [
+            Center(
+              child: Image.file(
+                imageFile,
+              ),
             ),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Material(
-              color: Colors.transparent,
-              child: Opacity(opacity: opacity, child: topText),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: Opacity(opacity: opacity, child: topText),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 
@@ -149,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 15),
               _timerControls(),
               const SizedBox(width: 15),
-              Phbuttons.openFiles(() => openFiles()),
+              Phbuttons.openFiles(),
               const SizedBox(width: 15),
             ],
           ),
@@ -185,46 +172,57 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _timeElapsedBar(double width) {
-    return SizedBox(
-      width: width,
-      height: 2,
-      child: const LinearProgressIndicator(
-        backgroundColor: Colors.black12,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-        value: 0.25,
-      ),
-    );
-  }
-
   Widget _timerControls() {
     return Column(children: [
-      _timeElapsedBar(200),
+      const TimerBar(),
       Row(
         children: [
-          Phbuttons.timerControl(() {}, Icons.refresh, 'Restart Timer (R)'),
-          Phbuttons.timerControl(
-              () {}, Icons.skip_previous, 'Previous Image (K)'),
+          Phbuttons.appModelWidget(
+            (_, __, model) => Phbuttons.timerControl(
+              () => model.restart(),
+              Icons.refresh,
+              'Restart Timer (R)',
+            ),
+          ),
+          Phbuttons.appModelWidget(
+            (_, __, model) => Phbuttons.timerControl(
+              () => model.previousImage(),
+              Icons.skip_previous,
+              'Previous Image (K)',
+            ),
+          ),
           Phbuttons.playPauseTimer(() {}),
-          Phbuttons.timerControl(() {}, Icons.skip_next, 'Next Image (J)'),
+          Phbuttons.appModelWidget(
+            (_, __, model) => Phbuttons.timerControl(
+              () => model.nextImage(),
+              Icons.skip_next,
+              'Next Image (J)',
+            ),
+          ),
         ],
       )
     ]);
   }
 
   Widget _imageSetStats() {
-    String message =
-        '$fileCount ${fileCount == 1 ? 'image' : 'images'} loaded : 45 seconds each';
-    final style = TextStyle(color: Colors.grey.shade800);
+    return Phbuttons.appModelWidget(
+      (context, child, model) {
+        final fileCount = model.fileList.getCount();
 
-    var text = Text(message, style: style);
+        String message =
+            '$fileCount ${fileCount == 1 ? 'image' : 'images'} loaded : 45 seconds each';
+        final style = TextStyle(color: Colors.grey.shade800);
 
-    return Opacity(
-      opacity: 0.7,
-      child: Material(
-        color: Colors.transparent,
-        child: text,
-      ),
+        var text = Text(message, style: style);
+
+        return Opacity(
+          opacity: 0.7,
+          child: Material(
+            color: Colors.transparent,
+            child: text,
+          ),
+        );
+      },
     );
   }
 }
@@ -277,43 +275,51 @@ class Phbuttons {
   }
 
   static Widget playPauseTimer(Function()? onPressed) {
-    const toolTipText = 'Pause/Resume Timer (P)';
-    const playIcon = Icon(Icons.play_arrow);
-    // ignore: unused_local_variable
-    const pauseIcon = Icon(Icons.pause);
-    var style = FilledButton.styleFrom(backgroundColor: accentColor);
+    return Phbuttons.appModelWidget((_, __, model) {
+      const toolTipText = 'Pause/Resume Timer (P)';
+      const playIcon = Icon(Icons.play_arrow);
+      const pauseIcon = Icon(Icons.pause);
+      
+      final icon = model.isTimerRunning ? pauseIcon : playIcon;
+      var style = FilledButton.styleFrom(backgroundColor: accentColor);
 
-    return Tooltip(
-      message: toolTipText,
-      child: FilledButton(
-        style: style,
-        onPressed: onPressed,
-        child: const SizedBox(
-          width: 50,
-          child: playIcon,
+      return Tooltip(
+        message: toolTipText,
+        child: FilledButton(
+          style: style,
+          onPressed: onPressed,
+          child: SizedBox(
+            width: 50,
+            child: icon,
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  static Widget openFiles(Function()? onPressed) {
+  static Widget openFiles() {
     const toolTipText = 'Open files... (Ctrl+O)';
     const color = Colors.black54;
 
-    return Tooltip(
-      message: toolTipText,
-      child: TextButton(
-        onPressed: onPressed,
-        child: const SizedBox(
-          width: 40,
-          child: Icon(
-            Icons.folder_open,
-            color: color,
+    return appModelWidget(
+      (_, __, model) {
+        return Tooltip(
+          message: toolTipText,
+          child: TextButton(
+            onPressed: () => model.openFiles(),
+            child: const SizedBox(
+              width: 40,
+              child: Icon(Icons.folder_open, color: color),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
+
+  static ScopedModelDescendant<PfsAppModel> appModelWidget(
+          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
+      ScopedModelDescendant<PfsAppModel>(builder: builder);
 
   static Widget collapseBottomBarButton(Function()? onPressed) {
     const buttonSize = Size(25, 25);
