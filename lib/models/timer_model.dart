@@ -1,8 +1,8 @@
-import 'package:pfs2/core/timer.dart';
+import 'package:pfs2/core/phtimer.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class TimerModel extends Model {
-  final Timer timer = Timer();
+  final Phtimer timer = Phtimer();
 
   void restart() {
     timer.restart();
