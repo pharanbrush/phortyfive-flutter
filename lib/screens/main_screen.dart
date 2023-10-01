@@ -22,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
       FocusNode(debugLabel: 'Timer settings');
 
   final clicker = AudioPlayer();
+  final _clickSound = AssetSource('sounds/clacktrimmed.wav');
 
   bool rightOrientation = true;
   bool isBottomBarMinimized = false;
@@ -29,20 +30,15 @@ class _MainScreenState extends State<MainScreen> {
   bool isSoundsEnabled = true;
   bool isTouch = false;
 
-  void _clickSound() async {
-    if (!isSoundsEnabled) return;
-    await clicker.play(AssetSource('sounds/clacktrimmed.wav'));
-  }
-
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Theme.of(context).colorScheme.background;
 
     return Phbuttons.appModelWidget((context, child, model) {
       if (model.onTimerElapse == null) {
-        model.onTimerElapse = () => _clickSound();
-        model.onTimerPlayPause = () => _clickSound();
-        model.onTimerReset = () => _clickSound();
+        model.onTimerElapse = () => _playClickSound();
+        model.onTimerPlayPause = () => _playClickSound();
+        model.onTimerReset = () => _playClickSound();
       }
 
       if (!model.hasFilesLoaded) {
@@ -451,6 +447,11 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
     );
+  }
+
+  void _playClickSound() {
+    if (!isSoundsEnabled) return;
+    clicker.play(_clickSound);
   }
 }
 
