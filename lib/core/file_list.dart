@@ -1,6 +1,18 @@
 import 'dart:io';
 
+//import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+
 class FileList {
+  static const List<String> allowedExtensions = [
+    'jpg',
+    'webp',
+    'png',
+    'jpeg',
+    'jfif',
+    'gif'
+  ];
+
   final files = List<FileData>.empty(growable: true);
 
   int getCount() => files.length;
@@ -23,16 +35,30 @@ class FileList {
     int filesAppendedCount = 0;
     for (var filePath in filePaths) {
       if (filePath == null) continue;
+      if (!fileIsImage(filePath)) continue;
+
       files.add(fileDataFromPath(filePath));
       filesAppendedCount++;
     }
     return filesAppendedCount;
   }
 
+  static bool fileIsImage(String filePath) {
+    if (filePath.isEmpty) return false;
+
+    final fileExtension = getFileExtension(filePath);
+    final isImage = FileList.allowedExtensions.contains(fileExtension);   
+    return isImage;
+  }
+
   static String getFileName(String filePath) {
     return File(filePath).uri.pathSegments.last;
   }
-  
+
+  static String getFileExtension(String filePath) {
+    return p.extension(filePath).split('.').last;
+  }
+
   static FileData fileDataFromPath(String filePath) {
     if (filePath.isEmpty) return FileData('', '');
     return FileData(getFileName(filePath), filePath);
@@ -44,6 +70,6 @@ class FileData {
   String filePath;
 
   FileData(this.fileName, this.filePath);
-  
+
   static empty() => FileData('', '');
 }

@@ -15,24 +15,15 @@ class PfsAppModel extends Model {
 
   bool get hasFilesLoaded => fileList.isPopulated();
   bool get isTimerRunning => timer.isActive;
-  
+
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
-  
+
   Function()? onTimerElapse;
   Function()? onTimerReset;
   Function()? onTimerPlayPause;
 
   Timer? ticker;
-
-  List<String> allowedExtensions = [
-    'jpg',
-    'webp',
-    'png',
-    'jpeg',
-    'jfif',
-    'gif'
-  ];
 
   double get progressPercent => timer.percentElapsed;
 
@@ -55,7 +46,7 @@ class PfsAppModel extends Model {
 
   void setTimerActive(bool active) {
     if (!allowTimerPlayPause) return;
-    
+
     timer.setActive(active);
     onTimerPlayPause!();
     notifyListeners();
@@ -69,52 +60,57 @@ class PfsAppModel extends Model {
 
   void _previousImage() {
     if (!allowCirculatorControl) return;
-    
+
     circulator.movePrevious();
     notifyListeners();
   }
 
   void previousImageNewTimer() {
     if (!allowCirculatorControl) return;
-    
+
     timerRestartAndNotifyListeners();
     _previousImage();
   }
 
   void nextImageNewTimer() {
     if (!allowCirculatorControl) return;
-    
+
     timerRestartAndNotifyListeners();
     _nextImage();
   }
 
   void _nextImage() {
     if (!allowCirculatorControl) return;
-    
+
     circulator.moveNext();
     notifyListeners();
   }
-  
-  void setTimerSeconds (int seconds) {
+
+  void setTimerSeconds(int seconds) {
     timer.setDuration(Duration(seconds: seconds));
     timerRestartAndNotifyListeners();
   }
 
-  void openImages() async {
+  void openImagesWithFilePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: allowedExtensions,
+      allowedExtensions: FileList.allowedExtensions,
     );
 
     if (result == null) return;
 
-    fileList.load(result.paths);
+    loadImages(result.paths);
+  }
+
+  void loadImages(List<String?> filePaths) {    
+    if (filePaths.isEmpty) return;
+    
+    fileList.load(filePaths);
     circulator.startNewOrder(fileList.getCount());
 
     _tryInitializeTimer();
-    
-    timerRestartAndNotifyListeners();   
+    timerRestartAndNotifyListeners();
   }
 
   void _tryInitializeTimer() {
@@ -125,6 +121,6 @@ class PfsAppModel extends Model {
       if (startTimerOnFirst) {
         timer.setActive(true);
       }
-    }    
+    }
   }
 }

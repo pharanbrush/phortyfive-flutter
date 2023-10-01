@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
@@ -49,6 +50,7 @@ class _MainScreenState extends State<MainScreen> {
               _firstActionSheet(),
               _topRightWindowControls(),
               _bottomBar(context),
+              _fileDropZone(),
             ],
           ),
         );
@@ -59,10 +61,52 @@ class _MainScreenState extends State<MainScreen> {
         child: Stack(
           children: [
             _imageViewer(),
+            _fileDropZone(),
             _topRightWindowControls(),
             _bottomBar(context),
             _dockingControls(),
           ],
+        ),
+      );
+    });
+  }
+
+  Widget _fileDropZone() {
+    return Phbuttons.appModelWidget((context, child, model) {
+      return Positioned.fill(
+        left: 10,
+        right: 10,
+        bottom: 40,
+        top: 10,
+        child: DropTarget(
+          onDragDone: (details) {
+            if (details.files.isEmpty) return;
+            List<String> filePaths = [];
+            for (var file in details.files) {
+              var filePath = file.path;
+              if (FileList.fileIsImage(filePath)) {
+                filePaths.add(filePath);
+              }
+            }
+            if (filePaths.isEmpty) return;
+
+            model.loadImages(filePaths);
+
+            if (model.hasFilesLoaded) {
+              windowManager.focus();
+            }
+          },
+          child: Container(
+            color: Colors.transparent,
+            child: const Center(
+              child: Material(
+                child: Text(
+                  '',
+                  style: TextStyle(fontSize: 40),
+                ),
+              ),
+            ),
+          ),
         ),
       );
     });
@@ -260,19 +304,10 @@ class _MainScreenState extends State<MainScreen> {
     return Positioned(
       bottom: 2,
       right: 10,
-      child: Container(
-        // decoration: BoxDecoration(
-        //   borderRadius: BorderRadius.circular(20),
-        //   color: Colors.white.withAlpha(10),
-        // ),
-        child: Opacity(
-          opacity: 1,
-          child: Phbuttons.appModelWidget(
-            (context, child, model) {
-              return Row(children: bottomBarItems(model));
-            },
-          ),
-        ),
+      child: Phbuttons.appModelWidget(
+        (context, child, model) {
+          return Row(children: bottomBarItems(model));
+        },
       ),
     );
   }
@@ -345,7 +380,7 @@ class _MainScreenState extends State<MainScreen> {
         return Tooltip(
           message: tooltip,
           child: TextButton(
-            onPressed: () => model.openImages(),
+            onPressed: () => model.openImagesWithFilePicker(),
             child: SizedBox(
               width: 80,
               child: Align(
@@ -542,7 +577,7 @@ class Phbuttons {
           message: toolTipText,
           child: FilledButton(
             style: style,
-            onPressed: () => model.openImages(),
+            onPressed: () => model.openImagesWithFilePicker(),
             child: const SizedBox(
               width: 40,
               child: Icon(Icons.folder_open, color: color),
