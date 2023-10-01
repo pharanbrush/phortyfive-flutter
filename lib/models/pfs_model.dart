@@ -1,15 +1,29 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
-//import 'package:flutter/foundation.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/core/phtimer.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model {
+  static const bool startTimerOnFirst = true;
+
   final Circulator circulator = Circulator();
   final FileList fileList = FileList();
+  final Phtimer timer = Phtimer();
 
   bool get hasFilesLoaded => fileList.isPopulated();
-  bool get isTimerRunning => false;
+  bool get isTimerRunning => timer.isActive;
+  
+  bool get allowTimerPlayPause => hasFilesLoaded;
+  bool get allowCirculatorControl => hasFilesLoaded;
+  
+  Function()? onTimerElapse;
+  Function()? onTimerReset;
+  Function()? onTimerPlayPause;
+
+  Timer? ticker;
 
   List<String> allowedExtensions = [
     'jpg',
@@ -20,38 +34,73 @@ class PfsAppModel extends Model {
     'gif'
   ];
 
-  double _progressPercent = 0.10;
-  double get progressPercent => _progressPercent;
+  double get progressPercent => timer.percentElapsed;
 
   FileData getCurrentImageData() {
     return fileList.get(circulator.getCurrentIndex());
   }
 
-  void restart() {
-    _progressPercent = 0;
+  void handleTimerElapsed() {
+    nextImageNewTimer();
+    onTimerElapse!();
     notifyListeners();
   }
 
-  // void increment(double addedPercent) {
-  //   _progressPercent += addedPercent;
-  //   _progressPercent = clampDouble(_progressPercent, 0, 1);
+  void _handleTick() {
+    if (timer.isActive) {
+      timer.handleTick();
+      notifyListeners();
+    }
+  }
 
-  //   notifyListeners();
-  // }
+  void setTimerActive(bool active) {
+    if (!allowTimerPlayPause) return;
+    
+    timer.setActive(active);
+    onTimerPlayPause!();
+    notifyListeners();
+  }
 
-  void previousImage() {
-    // reset timer
+  void timerRestartAndNotifyListeners() {
+    timer.restart();
+    onTimerReset!();
+    notifyListeners();
+  }
+
+  void _previousImage() {
+    if (!allowCirculatorControl) return;
+    
     circulator.movePrevious();
     notifyListeners();
   }
 
-  void nextImage() {
-    // reset timer
+  void previousImageNewTimer() {
+    if (!allowCirculatorControl) return;
+    
+    timerRestartAndNotifyListeners();
+    _previousImage();
+  }
+
+  void nextImageNewTimer() {
+    if (!allowCirculatorControl) return;
+    
+    timerRestartAndNotifyListeners();
+    _nextImage();
+  }
+
+  void _nextImage() {
+    if (!allowCirculatorControl) return;
+    
     circulator.moveNext();
     notifyListeners();
   }
+  
+  void setTimerSeconds (int seconds) {
+    timer.setDuration(Duration(seconds: seconds));
+    timerRestartAndNotifyListeners();
+  }
 
-  void openFiles() async {
+  void openImages() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -62,6 +111,20 @@ class PfsAppModel extends Model {
 
     fileList.load(result.paths);
     circulator.startNewOrder(fileList.getCount());
-    notifyListeners();
+
+    _tryInitializeTimer();
+    
+    timerRestartAndNotifyListeners();   
+  }
+
+  void _tryInitializeTimer() {
+    ticker ??= Timer.periodic(Phtimer.tickInterval, (timer) => _handleTick());
+
+    if (timer.onElapse == null) {
+      timer.onElapse = () => handleTimerElapsed();
+      if (startTimerOnFirst) {
+        timer.setActive(true);
+      }
+    }    
   }
 }
