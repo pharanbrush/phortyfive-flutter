@@ -15,9 +15,10 @@ class TimerBar extends StatelessWidget {
       height: 2,
       child: Phbuttons.appModelWidget(
         (_, __, model) {
+          Color barColor = model.timer.isActive ? Colors.blueAccent : Colors.yellow.shade600;
           return LinearProgressIndicator(
             backgroundColor: Colors.black12,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+            valueColor: AlwaysStoppedAnimation<Color>(barColor),
             value: model.progressPercent,
           );
         },
