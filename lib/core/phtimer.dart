@@ -52,7 +52,6 @@ class Phtimer {
     final deltaTime = now.difference(lastTime);
 
     timeLeft -= deltaTime;
-
     lastTime = now;
   }
 }
