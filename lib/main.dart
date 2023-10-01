@@ -26,7 +26,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
-  
   final PfsAppModel model;
 
   MyApp({Key? key, required this.model}) : super(key: key);
@@ -49,8 +48,10 @@ class MyApp extends StatelessWidget {
 
   ColorScheme _appColorScheme() {
     ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.blue.shade100,
+      seedColor: Colors.blue,
       background: Colors.white,
+      primaryContainer: Colors.white,
+      secondaryContainer: Colors.white,
     );
     return colorScheme;
   }
