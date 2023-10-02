@@ -29,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   bool isAlwaysOnTop = false;
   bool isSoundsEnabled = true;
   bool isTouch = false;
+  bool isEditingTime = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +65,84 @@ class _MainScreenState extends State<MainScreen> {
             _gestureControls(),
             _topRightWindowControls(),
             _bottomBar(),
+            if (isEditingTime) _setCustomTimeWidget(),
             _dockingControls(),
           ],
+        ),
+      );
+    });
+  }
+
+  Widget _setCustomTimeWidget() {
+    const double diameter = 350;
+    const double fieldHeight = 80;
+    const double rightMargin = 230;
+
+    const Color backgroundColor = Color(0xFF81B6E0);
+    const Color textColor = Colors.white;
+    const Color outlineColor = Color(0xFF0F6892);
+
+    return Phbuttons.appModelWidget((context, child, model) {
+      return Positioned(
+        right: rightMargin,
+        bottom: (-diameter * 0.5) + fieldHeight,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: backgroundColor),
+            child: SizedBox(
+              width: diameter,
+              height: diameter,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Set new timer duration',
+                      style: TextStyle(
+                          color: textColor, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(
+                      width: 80,
+                      child: TextField(
+                        focusNode: timerSettingFocusNode,
+                        autocorrect: false,
+                        maxLength: 4,
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          focusColor: outlineColor,
+                          filled: true,
+                          fillColor: Colors.white,
+                          counterText: '',
+                          counterStyle: TextStyle(fontSize: 1),
+                        ),
+                        onSubmitted: (value) {
+                          model.trySetTimerSecondsInput(value);
+                          setState(() {
+                            isEditingTime = false;
+                          });
+                        },
+                        onTapOutside: (event) {
+                          setState(() {
+                            isEditingTime = false;
+                          });
+                        },
+                      )),
+                  const Text(
+                    'seconds',
+                    style: TextStyle(color: textColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       );
     });
@@ -104,9 +181,15 @@ class _MainScreenState extends State<MainScreen> {
             ),
             Expanded(
                 flex: 4,
-                child: OverlayButton(
-                  onPressed: () => model.setTimerActive(!model.isTimerRunning),
-                  child: playPauseIcon,
+                child: GestureDetector(
+                  onSecondaryTapDown: (details) {
+                    print('right-clicked');
+                  },
+                  child: OverlayButton(
+                    onPressed: () =>
+                        model.setTimerActive(!model.isTimerRunning),
+                    child: playPauseIcon,
+                  ),
                 )),
             SizedBox(
               width: 180,
@@ -517,7 +600,14 @@ class _MainScreenState extends State<MainScreen> {
                   presetItem("2 minutes", seconds: 2 * 60),
                   presetItem("3 minutes", seconds: 3 * 60),
                   const Divider(),
-                  menuItem('Custom...'),
+                  menuItem(
+                    'Custom...',
+                    onPressed: () {
+                      setState(() {
+                        isEditingTime = true;
+                      });
+                    },
+                  ),
                 ],
                 builder: (context, controller, child) {
                   return Tooltip(
