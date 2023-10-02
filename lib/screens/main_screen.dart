@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               _firstActionSheet(),
               _topRightWindowControls(),
-              _bottomBar(context),
+              _bottomBar(),
               _fileDropZone(),
             ],
           ),
@@ -66,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
             _fileDropZone(),
             _gestureControls(),
             _topRightWindowControls(),
-            _bottomBar(context),
+            _bottomBar(),
             _dockingControls(),
           ],
         ),
@@ -302,7 +302,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _bottomBar(BuildContext context) {
+  Widget _bottomBar() {
     if (isBottomBarMinimized) {
       return Phbuttons.appModelWidget((context, child, model) {
         return Positioned(
