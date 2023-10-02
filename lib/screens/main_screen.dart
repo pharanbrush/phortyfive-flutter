@@ -18,8 +18,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final Color accentColor = Colors.blueAccent;
-
   final FocusNode timerSettingFocusNode =
       FocusNode(debugLabel: 'Timer settings');
 
@@ -62,7 +60,6 @@ class _MainScreenState extends State<MainScreen> {
         child: Stack(
           children: [
             _imageViewer(),
-
             _fileDropZone(),
             _gestureControls(),
             _topRightWindowControls(),
@@ -371,11 +368,9 @@ class _MainScreenState extends State<MainScreen> {
       right: 3,
       child: Phbuttons.collapseBottomBarButton(
           isMinimized: isBottomBarMinimized,
-          onPressed: () {
-            setState(() {
-              isBottomBarMinimized = !isBottomBarMinimized;
-            });
-          }),
+          onPressed: () => setState(() {
+                isBottomBarMinimized = !isBottomBarMinimized;
+              })),
     );
   }
 
@@ -471,7 +466,6 @@ class _MainScreenState extends State<MainScreen> {
           String label, {
           double menuWidth = timerMenuWidth,
           Function()? onPressed,
-          //Icon? icon,
         }) {
           return MenuItemButton(
             style: MenuItemButton.styleFrom(
@@ -479,7 +473,6 @@ class _MainScreenState extends State<MainScreen> {
               alignment: Alignment.centerLeft,
             ),
             onPressed: onPressed,
-//          leadingIcon: icon,
             child: SizedBox(
               width: menuWidth,
               child: Text(
