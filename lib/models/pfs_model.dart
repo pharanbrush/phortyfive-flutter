@@ -15,6 +15,7 @@ class PfsAppModel extends Model {
 
   bool get hasFilesLoaded => fileList.isPopulated();
   bool get isTimerRunning => timer.isActive;
+  int get currentTimerDuration => timer.duration.inSeconds;
 
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
@@ -84,6 +85,13 @@ class PfsAppModel extends Model {
 
     circulator.moveNext();
     notifyListeners();
+  }
+  
+  void trySetTimerSecondsInput(String secondsString) {
+    int? seconds = int.tryParse(secondsString);
+    if (seconds != null) {
+      setTimerSeconds(seconds);
+    }
   }
 
   void setTimerSeconds(int seconds) {
