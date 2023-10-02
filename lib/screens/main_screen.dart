@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
@@ -30,6 +31,19 @@ class _MainScreenState extends State<MainScreen> {
   bool isSoundsEnabled = true;
   bool isTouch = false;
   bool isEditingTime = false;
+  
+  @override
+  void initState() {
+    timerSettingFocusNode.onKey = (node, event) {
+      if (event.logicalKey == LogicalKeyboardKey.escape) {
+        _stopEditingCustomTime();
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    };
+    
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +84,12 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
       );
+    });
+  }
+
+  void _stopEditingCustomTime() {
+    setState(() {
+      isEditingTime = false;
     });
   }
 
