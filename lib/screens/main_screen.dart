@@ -167,20 +167,26 @@ class _MainScreenState extends State<MainScreen> {
     final Color boxColor = Colors.grey.shade100;
     final Color borderColor = Colors.grey.shade200;
     const Color contentColor = Colors.black38;
-    const TextStyle textStyle = TextStyle(
+    const TextStyle textStyleMain = TextStyle(
+      color: contentColor,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    );
+    const TextStyle textStyleSecondary = TextStyle(
       color: contentColor,
     );
+
     const Icon icon = Icon(Icons.image, size: iconSize, color: contentColor);
     const Icon downIcon =
-        Icon(Icons.arrow_downward_rounded, color: contentColor);
+        Icon(Icons.keyboard_double_arrow_down_rounded, color: contentColor);
 
     return Align(
       alignment: Alignment.bottomRight,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 20, 40),
+        margin: const EdgeInsets.fromLTRB(0, 0, 25, 45),
         child: SizedBox(
-          width: 300,
-          height: 200,
+          width: 350,
+          height: 250,
           child: Material(
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -191,15 +197,21 @@ class _MainScreenState extends State<MainScreen> {
               ),
               child: Stack(children: [
                 const Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      height: 25,
+                    ),
                     icon,
                     Text(
-                      'Get started by loading images.',
-                      style: textStyle,
+                      'Get started by loading images!',
+                      style: textStyleMain,
+                      textAlign: TextAlign.center,
                     ),
                     Text(
                       'You can also drag & drop images into the window.',
-                      style: textStyle,
+                      style: textStyleSecondary,
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -346,13 +358,13 @@ class _MainScreenState extends State<MainScreen> {
       } else {
         return [
           Phbuttons.openFiles(),
-          const SizedBox(width: 10),
+          const SizedBox(width: 15, height: 43),
         ];
       }
     }
 
     return Positioned(
-      bottom: 2,
+      bottom: 1,
       right: 10,
       child: Phbuttons.appModelWidget(
         (context, child, model) {
@@ -418,11 +430,12 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _imageSetButton() {
     return Phbuttons.appModelWidget((context, child, model) {
-      final fileCount = model.fileList.getCount();
       const double iconSize = 18;
       const Icon icon = Icon(Icons.image, size: iconSize);
+
+      final fileCount = model.fileList.getCount();
       final String tooltip =
-          '${model.fileList.getCount()} images loaded.\nClick to open a different image set...';
+          '$fileCount images loaded.\nClick to open a different image set...';
 
       imageStats() {
         return Tooltip(
