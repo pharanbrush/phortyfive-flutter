@@ -145,14 +145,10 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         onSubmitted: (value) {
                           model.trySetTimerSecondsInput(value);
-                          setState(() {
-                            isEditingTime = false;
-                          });
+                          _stopEditingCustomTime();
                         },
                         onTapOutside: (event) {
-                          setState(() {
-                            isEditingTime = false;
-                          });
+                          _stopEditingCustomTime();
                         },
                       )),
                   const Text(
