@@ -5,6 +5,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
@@ -61,10 +62,62 @@ class _MainScreenState extends State<MainScreen> {
         child: Stack(
           children: [
             _imageViewer(),
+
             _fileDropZone(),
+            _gestureControls(),
             _topRightWindowControls(),
             _bottomBar(context),
             _dockingControls(),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _gestureControls() {
+    const Icon beforeIcon = Icon(
+      Icons.navigate_before,
+      size: 100,
+    );
+    const Icon nextIcon = Icon(
+      Icons.navigate_next,
+      size: 100,
+    );
+
+    const Icon playIcon = Icon(Icons.play_arrow, size: 80);
+    const Icon pauseIcon = Icon(Icons.pause, size: 80);
+
+    return Phbuttons.appModelWidget((context, child, model) {
+      Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
+
+      return Positioned.fill(
+        top: 30,
+        bottom: 50,
+        left: 10,
+        right: 10,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 140,
+              child: OverlayButton(
+                onPressed: () => model.previousImageNewTimer(),
+                child: beforeIcon,
+              ),
+            ),
+            Expanded(
+                flex: 4,
+                child: OverlayButton(
+                  onPressed: () => model.setTimerActive(!model.isTimerRunning),
+                  child: playPauseIcon,
+                )),
+            SizedBox(
+              width: 180,
+              child: OverlayButton(
+                onPressed: () => model.nextImageNewTimer(),
+                child: nextIcon,
+              ),
+            ),
           ],
         ),
       );
