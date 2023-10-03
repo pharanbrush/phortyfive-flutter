@@ -25,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   final FocusNode mainWindowFocus = FocusNode();
 
   final clicker = AudioPlayer();
-  final _clickSound = AssetSource('sounds/clacktrimmed.wav');
+  final _clickSound = AssetSource('sounds/clack.wav');
 
   final TextEditingController timerTextEditorController =
       TextEditingController(text: '');
@@ -373,9 +373,9 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
                 flex: 4,
                 child: GestureDetector(
-                  onSecondaryTapDown: (details) {
-                    print('right-clicked');
-                  },
+                  // onSecondaryTapDown: (details) {
+                  //   print('right-clicked');
+                  // },
                   child: OverlayButton(
                     onPressed: () =>
                         model.setTimerActive(!model.isTimerRunning),
