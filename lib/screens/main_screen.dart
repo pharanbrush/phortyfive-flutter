@@ -122,7 +122,13 @@ class _MainScreenState extends State<MainScreen> {
           ),
           OpenFilesIntent: CallbackAction(
             onInvoke: (intent) => model.openFilePickerForImages(),
-          )
+          ),
+          AlwaysOnTopIntent: CallbackAction(
+            onInvoke: (intent) => _toggleAlwaysOnTop(),
+          ),
+          ToggleSoundIntent: CallbackAction(
+            onInvoke: (intent) => _toggleSounds(),
+          ),
         });
       }
 
@@ -142,6 +148,8 @@ class _MainScreenState extends State<MainScreen> {
           Phshortcuts.restartTimer: RestartTimerIntent(),
           Phshortcuts.help: HelpIntent(),
           Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
+          Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
+          Phshortcuts.toggleSounds: ToggleSoundIntent(),
         },
         child: Actions(
           actions: shortcutActions,
@@ -566,15 +574,15 @@ class _MainScreenState extends State<MainScreen> {
             Phbuttons.topControl(
                 () => _toggleSounds(),
                 isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                isSoundsEnabled ? 'Mute sounds' : 'Unmute sounds.'),
+                isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)'),
             Phbuttons.topControl(
                 () => _toggleAlwaysOnTop(),
                 isAlwaysOnTop
                     ? Icons.push_pin_rounded
                     : Icons.push_pin_outlined,
-                'Keep Window on Top'),
+                'Keep Window on Top (Ctrl+T)'),
             Phbuttons.topControl(() => _setCheatSheetActive(true),
-                Icons.help_rounded, 'Help...'),
+                Icons.help_rounded, 'Help... (F1)'),
             Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
           ],
         ),
@@ -933,7 +941,7 @@ class Phbuttons {
 
     final IconData buttonIcon = isMinimized ? expandIcon : collapseIcon;
     final String tooltip =
-        isMinimized ? 'Expand controls' : 'Minimize controls';
+        isMinimized ? 'Expand controls (H)' : 'Minimize controls (H)';
     const iconColor = Colors.black38;
 
     const double iconSize = 20;

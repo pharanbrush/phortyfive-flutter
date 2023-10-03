@@ -19,9 +19,15 @@ class Phshortcuts {
   static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
   
   static const openFiles = SingleActivator(LogicalKeyboardKey.keyO, control: true);
+  static const alwaysOnTop = SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
+  static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
   static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
+}
+
+class ToggleSoundIntent extends Intent {
+  const ToggleSoundIntent();
 }
 
 class NextImageIntent extends Intent {
@@ -54,4 +60,8 @@ class OpenTimerMenuIntent extends Intent {
 
 class BottomBarToggleIntent extends Intent {
   const BottomBarToggleIntent();
+}
+
+class AlwaysOnTopIntent extends Intent {
+  const AlwaysOnTopIntent();
 }
