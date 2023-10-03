@@ -8,7 +8,7 @@ class OverlayButton extends StatelessWidget {
 
   static Color getIconColor(Set<MaterialState> states) {
     if (states.contains(MaterialState.hovered)) {
-      return Colors.black26;
+      return Colors.black45;
     }
 
     return Colors.transparent;
