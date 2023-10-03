@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
             _topRightWindowControls(),
             _bottomBar(),
             if (isEditingTime) _setTimerDurationWidget(),
-            if (isShowingCheatSheet) _cheatSheetPanel(),
+            if (isShowingCheatSheet) _cheatSheetSheet(),
             _dockingControls(),
           ],
         ),
@@ -442,51 +442,170 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Widget _cheatSheetPanel() {
-    const Color textColor = Colors.white;
+  Widget _cheatSheetSheet() {
+    const Color textColor = Color(0xFFEEEEEE);
     const Color sheetColor = Color(0xEE000000);
     const double sheetHeight = 500;
+
     const Icon headingIcon = Icon(
       Icons.keyboard,
       color: textColor,
       size: 40,
     );
+
     const TextStyle headingStyle = TextStyle(
       color: textColor,
       fontWeight: FontWeight.bold,
       fontSize: 30,
     );
 
+    Widget keySymbol(String key) {
+      const double height = 32;
+      const double minWidth = 32;
+      const double verticalPadding = 3;
+      const double horizontalPadding = 8;
+      const double borderRadius = 5;
+      const Color keyColor = Color(0xFF272727);
+
+      return Container(
+        constraints: const BoxConstraints(minWidth: minWidth, minHeight: height),
+        padding: const EdgeInsets.symmetric(
+          vertical: verticalPadding,
+          horizontal: horizontalPadding,
+        ),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+          color: keyColor,
+        ),
+        child: Text(key),
+      );
+    }
+
+    Widget shortcutItem(String text, String key, {String? key2}) {
+      const double textWidth = 160;
+      const double keysWidth = 100;
+      const double padding = 3;
+
+      return Padding(
+        padding: const EdgeInsets.all(padding),
+        child: Row(
+          children: [
+            SizedBox(
+              width: textWidth,
+              child: Text(text),
+            ),
+            SizedBox(
+              width: keysWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  keySymbol(key),
+                  if (key2 != null) const Text(' + '),
+                  if (key2 != null) keySymbol(key2),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
         _modalUnderlay(() => _setCheatSheetActive(false)),
         Center(
-          child: Container(
-            height: sheetHeight,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: sheetColor,
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Material(
-                  color: Colors.transparent,
-                  child: SizedBox(
+          child: Material(
+            color: Colors.transparent,
+            textStyle: const TextStyle(color: textColor, inherit: true),
+            child: Container(
+              height: sheetHeight,
+              //width: double.infinity,
+              decoration: const BoxDecoration(
+                  color: sheetColor,
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(
                     height: 100,
                     child: Column(
                       children: [
                         headingIcon,
-                        Text(
-                          'Keyboard Shortcuts',
-                          style: headingStyle,
+                        Text('Keyboard Shortcuts', style: headingStyle)
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    //decoration: Debugui.boxDecoration,
+                    width: 720,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  shortcutItem('Open images...', 'Ctrl',
+                                      key2: 'O'),
+                                  const Text(''),
+                                  shortcutItem('Next image', 'J'),
+                                  shortcutItem('Previous image', 'K'),
+                                  const Text(''),
+                                  shortcutItem('Play/Pause', 'P'),
+                                  shortcutItem('Restart timer', 'R'),
+                                  shortcutItem('Change timer duration', 'F2'),
+                                ]),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                shortcutItem('Toggle "Always on top"', 'Ctrl',
+                                    key2: 'T'),
+                                shortcutItem('Show/hide bottom bar', 'H'),
+                                shortcutItem('Open help sheet', 'F1'),
+                                shortcutItem('Mute/unmute sounds', 'M'),
+                              ]),
                         )
                       ],
                     ),
                   ),
-                )
-              ],
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: SizedBox(
+                        width: 600,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Icon(
+                                Icons.file_open_outlined,
+                                color: textColor,
+                                size: 30,
+                              ),
+                            ),
+                            Text(
+                                'You can also load new images using drag and drop.'),
+                            Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: SizedBox(
+                                width: 30,
+                                height: 30,
+                              ),
+                            )
+                          ],
+                        )),
+                  )
+                ],
+              ),
             ),
           ),
         )
