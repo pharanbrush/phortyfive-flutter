@@ -13,6 +13,8 @@ class PfsAppModel extends Model {
   final FileList fileList = FileList();
   final Phtimer timer = Phtimer();
 
+  bool isPickingFiles = false;
+
   bool get hasFilesLoaded => fileList.isPopulated();
   bool get isTimerRunning => timer.isActive;
   int get currentTimerDuration => timer.duration.inSeconds;
@@ -43,6 +45,10 @@ class PfsAppModel extends Model {
       timer.handleTick();
       notifyListeners();
     }
+  }
+
+  void playPauseToggleTimer() {
+    setTimerActive(!timer.isActive);
   }
 
   void setTimerActive(bool active) {
@@ -86,7 +92,7 @@ class PfsAppModel extends Model {
     circulator.moveNext();
     notifyListeners();
   }
-  
+
   void trySetTimerSecondsInput(String secondsString) {
     int? seconds = int.tryParse(secondsString);
     if (seconds != null) {
@@ -99,21 +105,25 @@ class PfsAppModel extends Model {
     timerRestartAndNotifyListeners();
   }
 
-  void openImagesWithFilePicker() async {
+  void openFilePickerForImages() async {
+    if (isPickingFiles) return;
+
+    isPickingFiles = true;
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: FileList.allowedExtensions,
     );
+    isPickingFiles = false;
 
     if (result == null) return;
 
     loadImages(result.paths);
   }
 
-  void loadImages(List<String?> filePaths) {    
+  void loadImages(List<String?> filePaths) {
     if (filePaths.isEmpty) return;
-    
+
     fileList.load(filePaths);
     circulator.startNewOrder(fileList.getCount());
 

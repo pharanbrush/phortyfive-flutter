@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -21,12 +22,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final FocusNode timerSettingFocusNode =
       FocusNode(debugLabel: 'Timer settings');
+  final FocusNode mainWindowFocus = FocusNode();
 
   final clicker = AudioPlayer();
   final _clickSound = AssetSource('sounds/clacktrimmed.wav');
 
   final TextEditingController timerTextEditorController =
       TextEditingController(text: '');
+  final Map<Type, Action<Intent>> shortcutActions = {};
 
   bool rightOrientation = true;
   bool isBottomBarMinimized = false;
@@ -34,7 +37,8 @@ class _MainScreenState extends State<MainScreen> {
   bool isSoundsEnabled = true;
   bool isTouch = false;
   bool isEditingTime = false;
-  
+  bool isShowingCheatSheet = false;
+
   @override
   void initState() {
     timerSettingFocusNode.onKey = (node, event) {
@@ -44,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
       }
       return KeyEventResult.ignored;
     };
-    
+
     super.initState();
   }
 
@@ -73,7 +77,7 @@ class _MainScreenState extends State<MainScreen> {
         );
       }
 
-      return Container(
+      return _shortcutsWrapper(Container(
         color: backgroundColor,
         child: Stack(
           children: [
@@ -83,8 +87,69 @@ class _MainScreenState extends State<MainScreen> {
             _topRightWindowControls(),
             _bottomBar(),
             if (isEditingTime) _setTimerDurationWidget(),
+            if (isShowingCheatSheet) _cheatSheetPanel(),
             _dockingControls(),
           ],
+        ),
+      ));
+    });
+  }
+
+  Widget _shortcutsWrapper(Widget childWidget) {
+    return Phbuttons.appModelWidget((context, child, model) {
+      if (shortcutActions.isEmpty) {
+        shortcutActions.addAll({
+          PreviousImageIntent: CallbackAction(
+            onInvoke: (intent) => model.previousImageNewTimer(),
+          ),
+          NextImageIntent: CallbackAction(
+            onInvoke: (intent) => model.nextImageNewTimer(),
+          ),
+          PlayPauseIntent: CallbackAction(
+            onInvoke: (intent) => model.playPauseToggleTimer(),
+          ),
+          OpenTimerMenuIntent: CallbackAction(
+            onInvoke: (intent) => _startEditingCustomTime(),
+          ),
+          RestartTimerIntent: CallbackAction(
+            onInvoke: (intent) => model.timerRestartAndNotifyListeners(),
+          ),
+          HelpIntent: CallbackAction(
+            onInvoke: (intent) => isShowingCheatSheet = !isShowingCheatSheet,
+          ),
+          BottomBarToggleIntent: CallbackAction(
+            onInvoke: (intent) => _toggleBottomBar(),
+          ),
+          OpenFilesIntent: CallbackAction(
+            onInvoke: (intent) => model.openFilePickerForImages(),
+          )
+        });
+      }
+
+      return Shortcuts(
+        shortcuts: const <ShortcutActivator, Intent>{
+          Phshortcuts.openFiles: OpenFilesIntent(),
+          Phshortcuts.previous: PreviousImageIntent(),
+          Phshortcuts.next: NextImageIntent(),
+          Phshortcuts.previous2: PreviousImageIntent(),
+          Phshortcuts.next2: NextImageIntent(),
+          Phshortcuts.previous3: PreviousImageIntent(),
+          Phshortcuts.next3: NextImageIntent(),
+          Phshortcuts.previous4: PreviousImageIntent(),
+          Phshortcuts.next4: NextImageIntent(),
+          Phshortcuts.playPause: PlayPauseIntent(),
+          Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
+          Phshortcuts.restartTimer: RestartTimerIntent(),
+          Phshortcuts.help: HelpIntent(),
+          Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
+        },
+        child: Actions(
+          actions: shortcutActions,
+          child: Focus(
+            focusNode: mainWindowFocus,
+            autofocus: true,
+            child: childWidget,
+          ),
         ),
       );
     });
@@ -103,6 +168,15 @@ class _MainScreenState extends State<MainScreen> {
     _updateTextControllerText();
     setState(() {
       isEditingTime = active;
+
+      if (active) {
+        timerSettingFocusNode.requestFocus();
+        var textValue = timerTextEditorController.text;
+        timerTextEditorController.selection =
+            TextSelection(baseOffset: 0, extentOffset: textValue.length);
+      } else {
+        mainWindowFocus.requestFocus();
+      }
     });
   }
 
@@ -128,7 +202,6 @@ class _MainScreenState extends State<MainScreen> {
     const Color outlineColor = Color(0xFF0F6892);
 
     return Phbuttons.appModelWidget((context, child, model) {
-      
       Widget preset(String text, int seconds, double left, double top) {
         if (seconds == model.currentTimerDuration) {
           return Positioned(
@@ -205,8 +278,7 @@ class _MainScreenState extends State<MainScreen> {
                                     autocorrect: false,
                                     maxLength: 4,
                                     textAlign: TextAlign.center,
-                                    textAlignVertical:
-                                        TextAlignVertical.center,
+                                    textAlignVertical: TextAlignVertical.center,
                                     style: const TextStyle(fontSize: 32),
                                     autofocus: true,
                                     decoration: const InputDecoration(
@@ -284,7 +356,7 @@ class _MainScreenState extends State<MainScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              width: 140,
+              width: 100,
               child: OverlayButton(
                 onPressed: () => model.previousImageNewTimer(),
                 child: beforeIcon,
@@ -303,7 +375,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 )),
             SizedBox(
-              width: 180,
+              width: 140,
               child: OverlayButton(
                 onPressed: () => model.nextImageNewTimer(),
                 child: nextIcon,
@@ -354,6 +426,64 @@ class _MainScreenState extends State<MainScreen> {
         ),
       );
     });
+  }
+
+  void _setCheatSheetActive(bool active) {
+    setState(() {
+      isShowingCheatSheet = active;
+    });
+  }
+
+  Widget _cheatSheetPanel() {
+    const Color textColor = Colors.white;
+    const Color sheetColor = Color(0xEE000000);
+    const double sheetHeight = 500;
+    const Icon headingIcon = Icon(
+      Icons.keyboard,
+      color: textColor,
+      size: 40,
+    );
+    const TextStyle headingStyle = TextStyle(
+      color: textColor,
+      fontWeight: FontWeight.bold,
+      fontSize: 30,
+    );
+
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: [
+        _modalUnderlay(() => _setCheatSheetActive(false)),
+        Center(
+          child: Container(
+            height: sheetHeight,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: sheetColor,
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: SizedBox(
+                    height: 100,
+                    child: Column(
+                      children: [
+                        headingIcon,
+                        Text(
+                          'Keyboard Shortcuts',
+                          style: headingStyle,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
   }
 
   Widget _firstActionSheet() {
@@ -443,7 +573,8 @@ class _MainScreenState extends State<MainScreen> {
                     ? Icons.push_pin_rounded
                     : Icons.push_pin_outlined,
                 'Keep Window on Top'),
-            Phbuttons.topControl(() {}, Icons.help_rounded, 'Help...'),
+            Phbuttons.topControl(() => _setCheatSheetActive(true),
+                Icons.help_rounded, 'Help...'),
             Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
           ],
         ),
@@ -568,15 +699,19 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  void _toggleBottomBar() {
+    setState(() {
+      isBottomBarMinimized = !isBottomBarMinimized;
+    });
+  }
+
   Widget _dockingControls() {
     return Positioned(
       bottom: 3,
       right: 3,
       child: Phbuttons.collapseBottomBarButton(
           isMinimized: isBottomBarMinimized,
-          onPressed: () => setState(() {
-                isBottomBarMinimized = !isBottomBarMinimized;
-              })),
+          onPressed: () => _toggleBottomBar()),
     );
   }
 
@@ -629,13 +764,13 @@ class _MainScreenState extends State<MainScreen> {
 
       final fileCount = model.fileList.getCount();
       final String tooltip =
-          '$fileCount images loaded.\nClick to open a different image set...';
+          '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)';
 
       imageStats() {
         return Tooltip(
           message: tooltip,
           child: TextButton(
-            onPressed: () => model.openImagesWithFilePicker(),
+            onPressed: () => model.openFilePickerForImages(),
             child: SizedBox(
               width: 80,
               child: Align(
@@ -671,7 +806,7 @@ class _MainScreenState extends State<MainScreen> {
           opacity: opacity,
           child: Tooltip(
             message:
-                '${model.timer.duration.inSeconds} seconds per image. Click to edit timer.',
+                '${model.timer.duration.inSeconds} seconds per image.\nClick to edit timer. (F2)',
             child: TextButton(
                 onPressed: () => _startEditingCustomTime(),
                 child: textThenIcon('${currentTimerSeconds}s',
@@ -775,7 +910,7 @@ class Phbuttons {
           message: toolTipText,
           child: FilledButton(
             style: style,
-            onPressed: () => model.openImagesWithFilePicker(),
+            onPressed: () => model.openFilePickerForImages(),
             child: const SizedBox(
               width: 40,
               child: Icon(Icons.folder_open, color: color),
