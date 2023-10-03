@@ -25,6 +25,9 @@ class _MainScreenState extends State<MainScreen> {
   final clicker = AudioPlayer();
   final _clickSound = AssetSource('sounds/clacktrimmed.wav');
 
+  final TextEditingController timerTextEditorController =
+      TextEditingController(text: '');
+
   bool rightOrientation = true;
   bool isBottomBarMinimized = false;
   bool isAlwaysOnTop = false;
@@ -79,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
             _gestureControls(),
             _topRightWindowControls(),
             _bottomBar(),
-            if (isEditingTime) _setCustomTimeWidget(),
+            if (isEditingTime) _setTimerDurationWidget(),
             _dockingControls(),
           ],
         ),
@@ -87,79 +90,171 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _stopEditingCustomTime() {
+  void _updateTextControllerText() {
+    var model = ScopedModel.of<PfsAppModel>(context, rebuildOnChange: true);
+    timerTextEditorController.text = model.currentTimerDuration.toString();
+  }
+
+  void _startEditingCustomTime() => _setEditingCustomTimeActive(true);
+
+  void _stopEditingCustomTime() => _setEditingCustomTimeActive(false);
+
+  void _setEditingCustomTimeActive(bool active) {
+    _updateTextControllerText();
     setState(() {
-      isEditingTime = false;
+      isEditingTime = active;
     });
   }
 
-  Widget _setCustomTimeWidget() {
-    const double diameter = 350;
-    const double fieldHeight = 80;
-    const double rightMargin = 230;
+  Widget _modalUnderlay(Function()? onTapOnUnderlay) {
+    return Positioned.fill(
+      child: GestureDetector(
+        onTapDown: (details) => onTapOnUnderlay!(),
+        child:
+            Container(decoration: const BoxDecoration(color: Colors.white60)),
+      ),
+    );
+  }
 
-    const Color backgroundColor = Color(0xFF81B6E0);
+  Widget _setTimerDurationWidget() {
+    const double diameter = 350;
+    const double radius = diameter * 0.5;
+    const double containerPadding = 100;
+    const double bottomOffset = 90 - (containerPadding * 0.5);
+    const double rightMargin = 230 - (containerPadding * 0.5);
+
+    const Color backgroundColor = Color(0xAA81B6E0);
     const Color textColor = Colors.white;
     const Color outlineColor = Color(0xFF0F6892);
 
     return Phbuttons.appModelWidget((context, child, model) {
-      return Positioned(
-        right: rightMargin,
-        bottom: (-diameter * 0.5) + fieldHeight,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: backgroundColor),
-            child: SizedBox(
-              width: diameter,
-              height: diameter,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Set new timer duration',
-                      style: TextStyle(
-                          color: textColor, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(
-                      width: 80,
-                      child: TextField(
-                        focusNode: timerSettingFocusNode,
-                        autocorrect: false,
-                        maxLength: 4,
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.center,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          focusColor: outlineColor,
-                          filled: true,
-                          fillColor: Colors.white,
-                          counterText: '',
-                          counterStyle: TextStyle(fontSize: 1),
+      
+      Widget preset(String text, int seconds, double left, double top) {
+        if (seconds == model.currentTimerDuration) {
+          return Positioned(
+            left: left,
+            top: top,
+            child: FilledButton(
+              style: FilledButton.styleFrom(padding: const EdgeInsets.all(10)),
+              onPressed: () {
+                model.setTimerSeconds(seconds);
+                _stopEditingCustomTime();
+              },
+              child: Text(text),
+            ),
+          );
+        }
+
+        return Positioned(
+          left: left,
+          top: top,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(10)),
+            onPressed: () {
+              model.setTimerSeconds(seconds);
+              _stopEditingCustomTime();
+            },
+            child: Text(text),
+          ),
+        );
+      }
+
+      return Stack(
+        children: [
+          _modalUnderlay(() => _stopEditingCustomTime()),
+          Positioned(
+            right: rightMargin,
+            bottom: (-radius) + bottomOffset,
+            child: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: diameter + containerPadding,
+                height: diameter + containerPadding,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    GestureDetector(
+                      onTapDown: (details) {
+                        _stopEditingCustomTime();
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                            shape: BoxShape.circle, color: backgroundColor),
+                        child: SizedBox(
+                          width: diameter,
+                          height: diameter,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Timer duration',
+                                  style: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ),
+                              ),
+                              SizedBox(
+                                  width: 100,
+                                  child: TextField(
+                                    controller: timerTextEditorController,
+                                    focusNode: timerSettingFocusNode,
+                                    autocorrect: false,
+                                    maxLength: 4,
+                                    textAlign: TextAlign.center,
+                                    textAlignVertical:
+                                        TextAlignVertical.center,
+                                    style: const TextStyle(fontSize: 32),
+                                    autofocus: true,
+                                    decoration: const InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 5),
+                                      border: OutlineInputBorder(),
+                                      focusColor: outlineColor,
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      counterText: '',
+                                      counterStyle: TextStyle(fontSize: 1),
+                                    ),
+                                    onSubmitted: (value) {
+                                      model.trySetTimerSecondsInput(value);
+                                      _stopEditingCustomTime();
+                                    },
+                                  )),
+                              const SizedBox(height: 3),
+                              const Text(
+                                'seconds',
+                                style: TextStyle(color: textColor),
+                              ),
+                            ],
+                          ),
                         ),
-                        onSubmitted: (value) {
-                          model.trySetTimerSecondsInput(value);
-                          _stopEditingCustomTime();
-                        },
-                        onTapOutside: (event) {
-                          _stopEditingCustomTime();
-                        },
-                      )),
-                  const Text(
-                    'seconds',
-                    style: TextStyle(color: textColor),
-                  ),
-                ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: diameter,
+                      width: diameter,
+                      child: Stack(
+                        children: [
+                          preset('15s', 15, 5, 80),
+                          preset('30s', 30, 50, 30),
+                          preset('45s', 45, 115, 0),
+                          preset('60s', 60, 195, 5),
+                          preset('90s', 90, 255, 35),
+                          preset('2m', 2 * 60, 290, 80),
+                          preset('3m', 3 * 60, 293, 130),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       );
     });
   }
@@ -441,7 +536,7 @@ class _MainScreenState extends State<MainScreen> {
         return [
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
-          _timerStatButton(),
+          _timerButton(),
           const SizedBox(width: 15),
           Phbuttons.appModelWidget((context, child, model) {
             double opacity = model.allowTimerPlayPause ? 0.4 : 0.2;
@@ -565,84 +660,22 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Widget _timerStatButton() {
+  Widget _timerButton() {
     return Phbuttons.appModelWidget(
       (context, child, model) {
-        const double timerMenuWidth = 130;
-        const double textSize = 14;
-        const double menuItemHeight = 40;
         final currentTimerSeconds = model.timer.duration.inSeconds;
         const double iconSize = 18;
-
-        menuItem(
-          String label, {
-          double menuWidth = timerMenuWidth,
-          Function()? onPressed,
-        }) {
-          return MenuItemButton(
-            style: MenuItemButton.styleFrom(
-              minimumSize: Size(menuWidth, menuItemHeight),
-              alignment: Alignment.centerLeft,
-            ),
-            onPressed: onPressed,
-            child: SizedBox(
-              width: menuWidth,
-              child: Text(
-                label,
-                style: const TextStyle(fontSize: textSize),
-              ),
-            ),
-          );
-        }
-
-        presetItem(String label, {required int seconds}) {
-          return menuItem(label,
-              onPressed: () => model.setTimerSeconds(seconds));
-        }
+        const opacity = 0.4;
 
         return Opacity(
-          opacity: 0.4,
-          child: Row(
-            children: [
-              MenuAnchor(
-                menuChildren: [
-                  menuItem('Timer duration'),
-                  const Divider(),
-                  presetItem("15 seconds", seconds: 15),
-                  presetItem("30 seconds", seconds: 30),
-                  presetItem("45 seconds", seconds: 45),
-                  presetItem("60 seconds", seconds: 60),
-                  presetItem("90 seconds", seconds: 90),
-                  presetItem("2 minutes", seconds: 2 * 60),
-                  presetItem("3 minutes", seconds: 3 * 60),
-                  const Divider(),
-                  menuItem(
-                    'Custom...',
-                    onPressed: () {
-                      setState(() {
-                        isEditingTime = true;
-                      });
-                    },
-                  ),
-                ],
-                builder: (context, controller, child) {
-                  return Tooltip(
-                    message:
-                        '${model.timer.duration.inSeconds} seconds per image. Click to edit timer.',
-                    child: TextButton(
-                        onPressed: () {
-                          if (controller.isOpen) {
-                            controller.close();
-                          } else {
-                            controller.open();
-                          }
-                        },
-                        child: textThenIcon('${currentTimerSeconds}s',
-                            const Icon(Icons.timer_outlined, size: iconSize))),
-                  );
-                },
-              ),
-            ],
+          opacity: opacity,
+          child: Tooltip(
+            message:
+                '${model.timer.duration.inSeconds} seconds per image. Click to edit timer.',
+            child: TextButton(
+                onPressed: () => _startEditingCustomTime(),
+                child: textThenIcon('${currentTimerSeconds}s',
+                    const Icon(Icons.timer_outlined, size: iconSize))),
           ),
         );
       },
