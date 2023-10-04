@@ -49,6 +49,7 @@ class _MainScreenState extends State<MainScreen> {
       model.onTimerElapse = () => _playClickSound();
       model.onTimerPlayPause = () => _playClickSound();
       model.onTimerReset = () => _playClickSound();
+      model.onFilesChanged = () => setState(() {});
     }
     super.initState();
   }

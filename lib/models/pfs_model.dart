@@ -25,6 +25,7 @@ class PfsAppModel extends Model {
   Function()? onTimerElapse;
   Function()? onTimerReset;
   Function()? onTimerPlayPause;
+  Function()? onFilesChanged;
 
   Timer? ticker;
 
@@ -127,6 +128,7 @@ class PfsAppModel extends Model {
     fileList.load(filePaths);
     circulator.startNewOrder(fileList.getCount());
 
+    onFilesChanged!();
     _tryInitializeTimer();
     timerRestartAndNotifyListeners();
   }
