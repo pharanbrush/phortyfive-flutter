@@ -438,7 +438,7 @@ class _MainScreenState extends State<MainScreen> {
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPadding),
       child: Phbuttons.appModelWidget((_, __, model) {
-        const defaultImage = 'C:/Projects/pfs2/assets/83131sf5043558883378.png';
+        const defaultImage = '';
 
         final FileData imageFileData = model.hasFilesLoaded
             ? model.getCurrentImageData()
