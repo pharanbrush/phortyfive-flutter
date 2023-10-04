@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
@@ -21,15 +20,7 @@ class TimerDurationPanel extends StatelessWidget {
   final FocusNode timerTextEditorFocusNode =
       FocusNode(debugLabel: 'Timer Text Editor');
 
-  TimerDurationPanel({super.key, required this.onCloseIntent}) {
-    timerTextEditorFocusNode.onKey = (node, event) {
-      if (event.logicalKey == LogicalKeyboardKey.escape) {
-        onCloseIntent!();
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
-    };
-  }
+  TimerDurationPanel({super.key, required this.onCloseIntent});
 
   @override
   Widget build(BuildContext context) {

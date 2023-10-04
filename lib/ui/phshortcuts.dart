@@ -24,6 +24,12 @@ class Phshortcuts {
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
   static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
+  
+  static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
+}
+
+class ReturnHomeIntent extends Intent {
+  const ReturnHomeIntent();
 }
 
 class ToggleSoundIntent extends Intent {

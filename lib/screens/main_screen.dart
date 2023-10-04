@@ -124,6 +124,9 @@ class _MainScreenState extends State<MainScreen> {
           ToggleSoundIntent: CallbackAction(
             onInvoke: (intent) => _doToggleSounds(),
           ),
+          ReturnHomeIntent: CallbackAction(
+            onInvoke: (intent) => _tryReturnHome(),
+          ),
         });
       }
 
@@ -145,6 +148,7 @@ class _MainScreenState extends State<MainScreen> {
           Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
           Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
           Phshortcuts.toggleSounds: ToggleSoundIntent(),
+          Phshortcuts.returnHome: ReturnHomeIntent(),
         },
         child: Actions(
           actions: shortcutActions,
@@ -166,6 +170,10 @@ class _MainScreenState extends State<MainScreen> {
     if (isEditingTime) {
       _doStopEditingCustomTime();
     }
+  }
+
+  void _tryReturnHome() {
+    _cancelAllModals();
   }
 
   void _doStartEditingCustomTime() => _setEditingCustomTimeActive(true);
