@@ -14,8 +14,8 @@ class HelpSheet extends StatelessWidget {
 
   static const TextStyle headingStyle = TextStyle(
     color: textColor,
-    fontWeight: FontWeight.bold,
-    fontSize: 30,
+    fontWeight: FontWeight.w600,
+    fontSize: 24,
   );
 
   static const BoxDecoration sheetDecoration = BoxDecoration(
@@ -28,6 +28,18 @@ class HelpSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final windowSize = MediaQuery.of(context).size;
+
+    final bool isWindowShort = windowSize.height < 520;
+    final bool isWindowVeryShort = windowSize.height < 420;
+    final bool isWindowNarrow = windowSize.width < 680;
+    final bool isWindowVeryNarrow = windowSize.width < 580;
+
+    const normalPadding = EdgeInsets.symmetric(horizontal: 30);
+    const narrowPadding = EdgeInsets.symmetric(horizontal: 7);
+
+    final padding = isWindowNarrow ? narrowPadding : normalPadding;
+
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
@@ -43,81 +55,99 @@ class HelpSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(
-                    height: 100,
-                    child: Column(
-                      children: [
-                        headingIcon,
-                        Text('Keyboard Shortcuts', style: headingStyle)
-                      ],
+                  if (!isWindowVeryShort)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 25),
+                      child: SizedBox(
+                        child: Column(
+                          children: [
+                            if (!isWindowShort) headingIcon,
+                            const Text('Keyboard Shortcuts',
+                                style: headingStyle)
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
                   SizedBox(
                     width: 720,
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                        const Expanded(child: Text('')),
+                        Padding(
+                          padding: padding,
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                _shortcutItem('Next image', 'J'),
+                                _shortcutItem('Previous image', 'K'),
+                                const Text(''),
+                                _shortcutItem('Play/Pause', 'P'),
+                                _shortcutItem('Restart timer', 'R'),
+                                _shortcutItem('Change timer duration', 'F2'),
+                              ]),
+                        ),
+                        if (!isWindowVeryNarrow)
+                          Padding(
+                            padding: padding,
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   _shortcutItem('Open images...', 'O',
                                       modifier: 'Ctrl'),
-                                  const Text(''),
-                                  _shortcutItem('Next image', 'J'),
-                                  _shortcutItem('Previous image', 'K'),
-                                  const Text(''),
-                                  _shortcutItem('Play/Pause', 'P'),
-                                  _shortcutItem('Restart timer', 'R'),
-                                  _shortcutItem('Change timer duration', 'F2'),
+                                  _shortcutItem('Toggle "Always on top"', 'T',
+                                      modifier: 'Ctrl'),
+                                  _shortcutItem('Show/hide bottom bar', 'H'),
+                                  _shortcutItem('Open help sheet', 'F1'),
+                                  _shortcutItem('Mute/unmute sounds', 'M'),
                                 ]),
                           ),
-                        ),
-                        Expanded(
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _shortcutItem('Toggle "Always on top"', 'T',
-                                    modifier: 'Ctrl'),
-                                _shortcutItem('Show/hide bottom bar', 'H'),
-                                _shortcutItem('Open help sheet', 'F1'),
-                                _shortcutItem('Mute/unmute sounds', 'M'),
-                              ]),
-                        )
+                        if (isWindowVeryNarrow)
+                          Padding(
+                            padding: padding,
+                            child: const Center(
+                                widthFactor: 5,
+                                heightFactor: 5,
+                                child: Text(
+                                  '...',
+                                  style: headingStyle,
+                                )),
+                          ),
+                        const Expanded(child: Text('')),
                       ],
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: SizedBox(
-                        width: 600,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: Icon(
-                                Icons.file_open_outlined,
-                                color: textColor,
-                                size: 30,
+                  if (!isWindowVeryShort)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: SizedBox(
+                          width: 600,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: Icon(
+                                  Icons.file_open_outlined,
+                                  color: textColor,
+                                  size: 30,
+                                ),
                               ),
-                            ),
-                            Text(
-                                'You can also load new images using drag and drop.'),
-                            Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: SizedBox(
-                                width: 30,
-                                height: 30,
-                              ),
-                            )
-                          ],
-                        )),
-                  )
+                              const Text(
+                                  'You can also load new images using drag and drop.'),
+                              if (!isWindowVeryNarrow)
+                                const Padding(
+                                  padding: EdgeInsets.all(20.0),
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                )
+                            ],
+                          )),
+                    )
                 ],
               ),
             ),
@@ -147,7 +177,7 @@ class HelpSheet extends StatelessWidget {
               children: [
                 if (modifier != null) _keySymbol(modifier),
                 if (modifier != null) const Text(' + '),
-                _keySymbol(key),                
+                _keySymbol(key),
               ],
             ),
           ),
