@@ -37,7 +37,7 @@ class PfsAppModel extends Model {
 
   void handleTimerElapsed() {
     nextImageNewTimer();
-    onTimerElapse!();
+    onTimerElapse?.call();    
     notifyListeners();
   }
 
@@ -56,13 +56,13 @@ class PfsAppModel extends Model {
     if (!allowTimerPlayPause) return;
 
     timer.setActive(active);
-    onTimerPlayPause!();
+    onTimerPlayPause?.call();
     notifyListeners();
   }
 
   void timerRestartAndNotifyListeners() {
     timer.restart();
-    onTimerReset!();
+    onTimerReset?.call();
     notifyListeners();
   }
 
@@ -128,7 +128,7 @@ class PfsAppModel extends Model {
     fileList.load(filePaths);
     circulator.startNewOrder(fileList.getCount());
 
-    onFilesChanged!();
+    onFilesChanged?.call();
     _tryInitializeTimer();
     timerRestartAndNotifyListeners();
   }
