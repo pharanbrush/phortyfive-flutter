@@ -435,6 +435,8 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Center(
               child: Image.file(
+                gaplessPlayback: true,
+                filterQuality: FilterQuality.medium,
                 imageFile,
               ),
             ),
