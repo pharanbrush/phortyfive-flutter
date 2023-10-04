@@ -11,7 +11,7 @@ void main() async {
 
   const WindowOptions windowOptions = WindowOptions(
     minimumSize: Size(460, 320),
-    size: Size(800, 860),
+    size: Size(720, 860),
     title: 'Phorty-Five Seconds',
   );
 
