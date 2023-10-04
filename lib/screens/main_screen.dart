@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
@@ -220,6 +221,23 @@ class _MainScreenState extends State<MainScreen> {
     return Phbuttons.appModelWidget((context, child, model) {
       Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
 
+      Widget nextPreviousOnScrollListener({Widget? child}) {
+        return Listener(
+          onPointerSignal: (pointerEvent) {
+            if (pointerEvent is PointerScrollEvent) {
+              PointerScrollEvent scroll = pointerEvent;
+              final dy = scroll.scrollDelta.dy;
+              if (dy > 0) {
+                model.nextImageNewTimer();
+              } else if (dy < 0) {
+                model.previousImageNewTimer();
+              }
+            }
+          },
+          child: child,
+        );
+      }
+
       return Positioned.fill(
         top: 30,
         bottom: 50,
@@ -230,9 +248,11 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             SizedBox(
               width: 100,
-              child: OverlayButton(
-                onPressed: () => model.previousImageNewTimer(),
-                child: beforeIcon,
+              child: nextPreviousOnScrollListener(
+                child: OverlayButton(
+                  onPressed: () => model.previousImageNewTimer(),
+                  child: beforeIcon,
+                ),
               ),
             ),
             Expanded(
@@ -249,9 +269,11 @@ class _MainScreenState extends State<MainScreen> {
                 )),
             SizedBox(
               width: 140,
-              child: OverlayButton(
-                onPressed: () => model.nextImageNewTimer(),
-                child: nextIcon,
+              child: nextPreviousOnScrollListener(
+                child: OverlayButton(
+                  onPressed: () => model.nextImageNewTimer(),
+                  child: nextIcon,
+                ),
               ),
             ),
           ],
