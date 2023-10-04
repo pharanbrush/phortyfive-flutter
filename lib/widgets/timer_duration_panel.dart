@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
@@ -7,7 +9,8 @@ class TimerDurationPanel extends StatelessWidget {
   static const double radius = diameter * 0.5;
   static const double containerPadding = 100;
   static const double bottomOffset = 90 - (containerPadding * 0.5);
-  static const double rightMargin = 110 - (containerPadding * 0.5);
+  static const double rightMarginNormal = 240 - (containerPadding * 0.5);
+  static const double rightMarginNarrow = 100 - (containerPadding * 0.5);
   static const Color backgroundColor = Color(0xDD81B6E0);
   static const Color textColor = Colors.white;
   static const Color outlineColor = Color(0xFF0F6892);
@@ -29,7 +32,7 @@ class TimerDurationPanel extends StatelessWidget {
 
   void setActive(bool active, int currentTimerDuration) {
     timerTextEditorController.text = currentTimerDuration.toString();
-    
+
     if (active) {
       timerTextEditorFocusNode.requestFocus();
       _selectAllText();
@@ -37,7 +40,25 @@ class TimerDurationPanel extends StatelessWidget {
   }
 
   Widget _setTimerDurationWidget() {
-    return Phbuttons.appModelWidget((_, __, model) {
+    return Phbuttons.appModelWidget((context, __, model) {
+      final windowSize = MediaQuery.of(context).size;
+
+      const double narrowWindowWidth = 600;
+      const double minimumWindowWidth = 450;
+
+      double inverseLerp(double a, double b, double v) => (v - a) / (b - a);
+      double remap(
+          double iMin, double iMax, double oMin, double oMax, double v) {
+        double t = inverseLerp(iMin, iMax, v);
+        return lerpDouble(oMin, oMax, t) ?? oMin;
+      }
+
+      final bool isWindowNarrow = windowSize.width < narrowWindowWidth;
+      final double rightMargin = isWindowNarrow
+          ? remap(minimumWindowWidth, narrowWindowWidth, rightMarginNarrow,
+              rightMarginNormal, windowSize.width)
+          : rightMarginNormal;
+
       Widget preset(String text, int seconds, double left, double top) {
         if (seconds == model.currentTimerDuration) {
           return Positioned(
