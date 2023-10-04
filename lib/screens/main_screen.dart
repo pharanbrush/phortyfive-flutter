@@ -9,6 +9,7 @@ import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/help_sheet.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
+import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:pfs2/widgets/timer_duration_panel.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -18,6 +19,60 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.model});
 
   final PfsAppModel model;
+
+  static SnackBar topSnackBar(BuildContext context, {required Widget content}) {
+    const double sideMargin = 200;
+    const Duration duration = Duration(milliseconds: 1500);
+    const Color toastColor = Color(0xFF91AECC);
+
+    return SnackBar(
+      dismissDirection: DismissDirection.up,
+      behavior: SnackBarBehavior.floating,
+      duration: duration,
+      backgroundColor: toastColor,      
+      margin: const EdgeInsets.only(
+        bottom: 50,
+        left: sideMargin,
+        right: sideMargin,
+      ),
+      content: Center(child: content),
+    );
+  }
+
+  static SnackBar topSnackBarTextWithBold(BuildContext context, String text,
+      {String? boldText, String? lastText}) {
+    return topSnackBar(context,
+        content: Text.rich(
+          TextSpan(
+            text: text,
+            children: [
+              TextSpan(
+                  text: boldText,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: lastText),
+            ],
+          ),
+        ));
+  }
+
+  static Text textWithMultiBold(
+      {required String text1,
+      String? boldText1,
+      String? text2,
+      String? boldText2,
+      String? text3}) {
+    return Text.rich(
+      TextSpan(
+        text: text1,
+        children: [
+          TextSpan(
+              text: boldText1,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: text2),
+        ],
+      ),
+    );
+  }
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -46,13 +101,48 @@ class _MainScreenState extends State<MainScreen> {
         TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
 
     final model = widget.model;
-    if (model.onTimerElapse == null) {
-      model.onTimerElapse = () => _playClickSound();
-      model.onTimerPlayPause = () => _playClickSound();
-      model.onTimerReset = () => _playClickSound();
-      model.onFilesChanged = () => setState(() {});
-    }
+    model.onTimerElapse ??= () => _playClickSound();
+    model.onTimerPlayPause ??= () => _handleTimerPlayPause();
+    model.onTimerReset ??= () => _playClickSound();
+    model.onFilesChanged ??= () => setState(() {});
+    model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
+    model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
+
     super.initState();
+  }
+
+  void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
+    final imageNoun = filesLoaded == 1 ? 'image' : 'images';
+
+    if (filesSkipped == 0) {
+      _showSnackBarWithBoldText(
+        text: '',
+        boldText: '$filesLoaded $imageNoun',
+        lastText: ' loaded.',
+      );
+    } else {
+      final fileSkippedNoun = filesSkipped == 1 ? 'file' : 'files';
+
+      _showSnackBar(
+        content: MainScreen.textWithMultiBold(
+            text1: '',
+            boldText1: '$filesLoaded $imageNoun',
+            text2: 'loaded.',
+            boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
+      );
+    }
+  }
+
+  void _handleTimerChangeSuccess() {
+    _showSnackBarWithBoldText(
+      text: 'Timer is set to ',
+      boldText: '${widget.model.currentTimerDuration} seconds',
+      lastText: '.',
+    );
+  }
+
+  void _handleTimerPlayPause() {
+    _playClickSound();
   }
 
   @override
@@ -181,8 +271,38 @@ class _MainScreenState extends State<MainScreen> {
 
   void _doStopEditingCustomTime() => _setEditingCustomTimeActive(false);
 
+  void _showSnackBar({required Widget content}) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    scaffoldMessenger.clearSnackBars();
+    scaffoldMessenger.showSnackBar(
+      MainScreen.topSnackBar(
+        context,
+        content: content,
+      ),
+    );
+  }
+
+  void _showSnackBarWithBoldText(
+      {required String text, String? boldText, String? lastText}) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    scaffoldMessenger.clearSnackBars();
+    scaffoldMessenger.showSnackBar(
+      MainScreen.topSnackBarTextWithBold(
+        context,
+        text,
+        boldText: boldText,
+        lastText: lastText,
+      ),
+    );
+  }
+
   void _setEditingCustomTimeActive(bool active) {
-    if (active) _cancelAllModals();
+    if (active) {
+      _cancelAllModals();
+      ScaffoldMessenger.of(context).clearSnackBars();
+    }
 
     setState(() {
       isEditingTime = active;
@@ -393,15 +513,43 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _doToggleAlwaysOnTop() {
+    showAlwaysOnTopToggleSnackbar() {
+      _showSnackBar(
+          content: isAlwaysOnTop
+              ? const SnackbarPhmessage(
+                  text: '"Always on top" enabled',
+                  icon: Icons.push_pin,
+                )
+              : const SnackbarPhmessage(
+                  text: '"Always on top" disabled',
+                  icon: Icons.push_pin_outlined,
+                ));
+    }
+
     setState(() {
       isAlwaysOnTop = !isAlwaysOnTop;
       windowManager.setAlwaysOnTop(isAlwaysOnTop);
+      showAlwaysOnTopToggleSnackbar();
     });
   }
 
   void _doToggleSounds() {
+    showSoundToggleSnackbar() {
+      _showSnackBar(
+          content: isSoundsEnabled
+              ? const SnackbarPhmessage(
+                  text: 'Sounds enabled',
+                  icon: Icons.volume_up,
+                )
+              : const SnackbarPhmessage(
+                  text: 'Sounds muted',
+                  icon: Icons.volume_off,
+                ));
+    }
+
     setState(() {
       isSoundsEnabled = !isSoundsEnabled;
+      showSoundToggleSnackbar();
     });
   }
 
@@ -672,20 +820,25 @@ class Phbuttons {
 
   static Widget playPauseTimer() {
     return Phbuttons.appModelWidget((_, __, model) {
-      const toolTipText = 'Pause/Resume Timer (P)';
+      const playButtonTooltip = 'Timer paused. Press to resume (P)';
+      const pauseButtonTooltip = 'Timer running. Press to pause (P)';
       const playIcon = Icon(Icons.play_arrow);
       const pauseIcon = Icon(Icons.pause);
-
-      final icon = model.isTimerRunning ? pauseIcon : playIcon;
+      const Color pausedColor = Color.fromARGB(255, 255, 196, 0);
+      const Color playingColor = accentColor;
 
       bool allowTimerControl = model.allowTimerPlayPause;
-      Color buttonColor =
-          allowTimerControl ? accentColor : Colors.grey.shade500;
+      Color buttonColor = allowTimerControl
+          ? (model.isTimerRunning ? playingColor : pausedColor)
+          : Colors.grey.shade500;
 
-      var style = FilledButton.styleFrom(backgroundColor: buttonColor);
+      final icon = model.isTimerRunning ? pauseIcon : playIcon;
+      final style = FilledButton.styleFrom(backgroundColor: buttonColor);
+      final tooltipText =
+          model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
 
       return Tooltip(
-        message: toolTipText,
+        message: tooltipText,
         child: FilledButton(
           style: style,
           onPressed: () => model.setTimerActive(!model.isTimerRunning),

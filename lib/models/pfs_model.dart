@@ -22,10 +22,14 @@ class PfsAppModel extends Model {
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
 
-  Function()? onTimerElapse;
-  Function()? onTimerReset;
-  Function()? onTimerPlayPause;
-  Function()? onFilesChanged;
+  void Function()? onTimerElapse;
+  void Function()? onTimerReset;
+  void Function()? onTimerPlayPause;
+  void Function()? onTimerChangeSuccess;
+  
+  void Function()? onFilesChanged;
+  
+  void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
 
   Timer? ticker;
 
@@ -103,6 +107,7 @@ class PfsAppModel extends Model {
 
   void setTimerSeconds(int seconds) {
     timer.setDuration(Duration(seconds: seconds));
+    onTimerChangeSuccess?.call();
     timerRestartAndNotifyListeners();
   }
 
@@ -126,9 +131,12 @@ class PfsAppModel extends Model {
     if (filePaths.isEmpty) return;
 
     fileList.load(filePaths);
-    circulator.startNewOrder(fileList.getCount());
+    
+    final int loadedCount = fileList.getCount();
+    circulator.startNewOrder(loadedCount);
 
     onFilesChanged?.call();
+    onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
     _tryInitializeTimer();
     timerRestartAndNotifyListeners();
   }

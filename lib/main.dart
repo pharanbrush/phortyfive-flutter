@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           colorScheme: _appColorScheme(),
           useMaterial3: true,
         ),
-        home: MainScreen(model: model),
+        home: Scaffold(appBar: null, body: MainScreen(model: model)),
       ),
     );
   }
