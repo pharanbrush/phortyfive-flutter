@@ -7,8 +7,8 @@ class TimerDurationPanel extends StatelessWidget {
   static const double radius = diameter * 0.5;
   static const double containerPadding = 100;
   static const double bottomOffset = 90 - (containerPadding * 0.5);
-  static const double rightMargin = 230 - (containerPadding * 0.5);
-  static const Color backgroundColor = Color(0xAA81B6E0);
+  static const double rightMargin = 110 - (containerPadding * 0.5);
+  static const Color backgroundColor = Color(0xDD81B6E0);
   static const Color textColor = Colors.white;
   static const Color outlineColor = Color(0xFF0F6892);
 

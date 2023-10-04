@@ -7,10 +7,11 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
+  const WindowOptions windowOptions = WindowOptions(
+    minimumSize: Size(460, 320),
+    size: Size(800, 860),
     title: 'Phorty-Five Seconds',
   );
 
