@@ -42,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     timerDurationWidget =
-        TimerDurationPanel(onCloseIntent: _stopEditingCustomTime);
+        TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
 
     final model = widget.model;
     if (model.onTimerElapse == null) {
@@ -110,7 +110,7 @@ class _MainScreenState extends State<MainScreen> {
             onInvoke: (intent) => model.timerRestartAndNotifyListeners(),
           ),
           HelpIntent: CallbackAction(
-            onInvoke: (intent) => isShowingCheatSheet = !isShowingCheatSheet,
+            onInvoke: (intent) => _doToggleCheatSheet(),
           ),
           BottomBarToggleIntent: CallbackAction(
             onInvoke: (intent) => _doToggleBottomBar(),
@@ -158,17 +158,41 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _cancelAllModals() {
+    if (isShowingCheatSheet) {
+      _setCheatSheetActive(false);
+    }
+
+    if (isEditingTime) {
+      _doStopEditingCustomTime();
+    }
+  }
+
   void _doStartEditingCustomTime() => _setEditingCustomTimeActive(true);
 
-  void _stopEditingCustomTime() => _setEditingCustomTimeActive(false);
+  void _doStopEditingCustomTime() => _setEditingCustomTimeActive(false);
 
   void _setEditingCustomTimeActive(bool active) {
+    if (active) _cancelAllModals();
+
     setState(() {
       isEditingTime = active;
       if (!active) {
         mainWindowFocus.requestFocus();
       }
       timerDurationWidget!.setActive(active, widget.model.currentTimerDuration);
+    });
+  }
+
+  void _doToggleCheatSheet() {
+    _setCheatSheetActive(!isShowingCheatSheet);
+  }
+
+  void _setCheatSheetActive(bool active) {
+    if (active) _cancelAllModals();
+
+    setState(() {
+      isShowingCheatSheet = active;
     });
   }
 
@@ -266,12 +290,6 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       );
-    });
-  }
-
-  void _setCheatSheetActive(bool active) {
-    setState(() {
-      isShowingCheatSheet = active;
     });
   }
 
