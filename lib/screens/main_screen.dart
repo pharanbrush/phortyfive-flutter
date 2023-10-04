@@ -92,7 +92,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _shortcutsWrapper(Widget childWidget) {
-    return Phbuttons.appModelWidget((context, child, model) {
+    return Phbuttons.appModelWidget((_, __, model) {
       if (shortcutActions.isEmpty) {
         shortcutActions.addAll({
           PreviousImageIntent: CallbackAction(
@@ -218,7 +218,7 @@ class _MainScreenState extends State<MainScreen> {
     const Icon playIcon = Icon(Icons.play_arrow, size: 80);
     const Icon pauseIcon = Icon(Icons.pause, size: 80);
 
-    return Phbuttons.appModelWidget((context, child, model) {
+    return Phbuttons.appModelWidget((_, __, model) {
       Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
 
       Widget nextPreviousOnScrollListener({Widget? child}) {
@@ -227,9 +227,11 @@ class _MainScreenState extends State<MainScreen> {
             if (pointerEvent is PointerScrollEvent) {
               PointerScrollEvent scroll = pointerEvent;
               final dy = scroll.scrollDelta.dy;
-              if (dy > 0) {
+              final bool isScrollDown = dy > 0;
+              final bool isScrollUp = dy < 0;
+              if (isScrollDown) {
                 model.nextImageNewTimer();
-              } else if (dy < 0) {
+              } else if (isScrollUp) {
                 model.previousImageNewTimer();
               }
             }
@@ -283,17 +285,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _fileDropZone() {
-    return Phbuttons.appModelWidget((context, child, model) {
-      return Positioned.fill(
-        left: 10,
-        right: 10,
-        bottom: 40,
-        top: 10,
-        child: ImageDropTarget(
-          onDragSuccess: () => windowManager.focus(),
-        ),
-      );
-    });
+    return Positioned.fill(
+      left: 10,
+      right: 10,
+      bottom: 40,
+      top: 10,
+      child: ImageDropTarget(
+        onDragSuccess: () => windowManager.focus(),
+      ),
+    );
   }
 
   Widget _firstActionSheet() {
@@ -450,28 +450,19 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _bottomBar() {
     if (isBottomBarMinimized) {
-      return Phbuttons.appModelWidget((context, child, model) {
-        return Positioned(
-          bottom: 1,
-          right: 10,
-          child: Opacity(
-            opacity: 1,
-            child: Phbuttons.appModelWidget(
-              (context, child, model) {
-                return const Opacity(
-                  opacity: 0.5,
-                  child: Row(children: [
-                    TimerBar(),
-                    SizedBox(
-                      width: 140,
-                    )
-                  ]),
-                );
-              },
-            ),
-          ),
-        );
-      });
+      return const Positioned(
+        bottom: 1,
+        right: 10,
+        child: Opacity(
+          opacity: 0.5,
+          child: Row(children: [
+            TimerBar(),
+            SizedBox(
+              width: 140,
+            )
+          ]),
+        ),
+      );
     }
 
     List<Widget> bottomBarItems(PfsAppModel model) {
@@ -481,13 +472,10 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(width: 15),
           _timerButton(),
           const SizedBox(width: 15),
-          Phbuttons.appModelWidget((context, child, model) {
-            double opacity = model.allowTimerPlayPause ? 0.4 : 0.2;
-            return Opacity(
-              opacity: opacity,
-              child: _timerControls(),
-            );
-          }),
+          Opacity(
+            opacity: model.allowTimerPlayPause ? 0.4 : 0.2,
+            child: _timerControls(),
+          ),
           const SizedBox(width: 20),
           _imageSetButton(),
           const SizedBox(width: 10),
@@ -504,7 +492,7 @@ class _MainScreenState extends State<MainScreen> {
       bottom: 1,
       right: 10,
       child: Phbuttons.appModelWidget(
-        (context, child, model) {
+        (_, __, model) {
           return Row(children: bottomBarItems(model));
         },
       ),
@@ -570,7 +558,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _imageSetButton() {
-    return Phbuttons.appModelWidget((context, child, model) {
+    return Phbuttons.appModelWidget((_, __, model) {
       const double iconSize = 18;
       const Icon icon = Icon(Icons.image, size: iconSize);
 
@@ -609,7 +597,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _timerButton() {
     return Phbuttons.appModelWidget(
-      (context, child, model) {
+      (_, __, model) {
         final currentTimerSeconds = model.timer.duration.inSeconds;
         const double iconSize = 18;
         const opacity = 0.4;

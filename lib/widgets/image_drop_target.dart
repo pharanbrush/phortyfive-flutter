@@ -59,7 +59,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
 
   @override
   Widget build(BuildContext context) {
-    return Phbuttons.appModelWidget((context, child, model) {
+    return Phbuttons.appModelWidget((_, __, model) {
       return DropTarget(
         onDragDone: (details) {
           _setDraggingActive(false);

@@ -37,7 +37,7 @@ class TimerDurationPanel extends StatelessWidget {
   }
 
   Widget _setTimerDurationWidget() {
-    return Phbuttons.appModelWidget((context, child, model) {
+    return Phbuttons.appModelWidget((_, __, model) {
       Widget preset(String text, int seconds, double left, double top) {
         if (seconds == model.currentTimerDuration) {
           return Positioned(
