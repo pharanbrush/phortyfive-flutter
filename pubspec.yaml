@@ -42,6 +42,7 @@ dependencies:
   audioplayers: ^5.1.0
   desktop_drop: ^0.4.4
   path: ^1.8.3
+  msix: ^3.16.4
 
 dev_dependencies:
   flutter_test:
@@ -99,3 +100,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  
+msix_config:
+  display_name: PhortyFive Seconds  
+  publisher_display_name: PharanBrush
+  identity_name: pharanbrush.tools.phortyfive
+  msix_version: 0.3.10.4
+  logo_path: C:\Projects\pfs-assets\PhortyFiveIconv2.png
+  publisher: CN=PharanBrush, O=PharanBrush
+  
+  app_installer:
+    publish_folder_path: publish
+  
