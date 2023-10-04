@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/help_sheet.dart';
+import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:pfs2/widgets/timer_duration_panel.dart';
@@ -289,35 +289,8 @@ class _MainScreenState extends State<MainScreen> {
         right: 10,
         bottom: 40,
         top: 10,
-        child: DropTarget(
-          onDragDone: (details) {
-            if (details.files.isEmpty) return;
-            List<String> filePaths = [];
-            for (var file in details.files) {
-              var filePath = file.path;
-              if (FileList.fileIsImage(filePath)) {
-                filePaths.add(filePath);
-              }
-            }
-            if (filePaths.isEmpty) return;
-
-            model.loadImages(filePaths);
-
-            if (model.hasFilesLoaded) {
-              windowManager.focus();
-            }
-          },
-          child: Container(
-            color: Colors.transparent,
-            child: const Center(
-              child: Material(
-                child: Text(
-                  '',
-                  style: TextStyle(fontSize: 40),
-                ),
-              ),
-            ),
-          ),
+        child: ImageDropTarget(
+          onDragSuccess: () => windowManager.focus(),
         ),
       );
     });
