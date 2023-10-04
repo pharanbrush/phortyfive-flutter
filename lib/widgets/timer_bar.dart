@@ -19,7 +19,7 @@ class TimerBar extends StatelessWidget {
           return LinearProgressIndicator(
             backgroundColor: Colors.black12,
             valueColor: AlwaysStoppedAnimation<Color>(barColor),
-            value: model.progressPercent,
+            value: (1.0 - model.progressPercent),
           );
         },
       ),
