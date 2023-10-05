@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/gestures.dart';
@@ -29,7 +30,7 @@ class MainScreen extends StatefulWidget {
       dismissDirection: DismissDirection.up,
       behavior: SnackBarBehavior.floating,
       duration: duration,
-      backgroundColor: toastColor,      
+      backgroundColor: toastColor,
       margin: const EdgeInsets.only(
         bottom: 50,
         left: sideMargin,
@@ -94,6 +95,9 @@ class _MainScreenState extends State<MainScreen> {
   bool isTouch = false;
   bool isEditingTime = false;
   bool isShowingCheatSheet = false;
+
+  bool imageGrayscale = false;
+  double imageBlurLevel = 0;
 
   @override
   void initState() {
@@ -554,6 +558,32 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _imageViewer() {
+    const Widget matrixGrayscale = BackdropFilter(
+      filter: ColorFilter.matrix(<double>[
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]),
+      child: SizedBox.expand(),
+    );
+
     final double bottomPadding = isBottomBarMinimized ? 5 : 45;
 
     return Padding(
@@ -583,6 +613,13 @@ class _MainScreenState extends State<MainScreen> {
                 imageFile,
               ),
             ),
+            if (imageBlurLevel > 0)
+              BackdropFilter(
+                filter: ImageFilter.blur(
+                    sigmaX: imageBlurLevel, sigmaY: imageBlurLevel),
+                child: const SizedBox.expand(),
+              ),
+            if (imageGrayscale) matrixGrayscale,
             Align(
               alignment: Alignment.topCenter,
               child: Material(
@@ -616,6 +653,38 @@ class _MainScreenState extends State<MainScreen> {
     List<Widget> bottomBarItems(PfsAppModel model) {
       if (model.hasFilesLoaded) {
         return [
+          Row(
+            children: [
+              Checkbox(
+                value: imageGrayscale,
+                onChanged: (value) {
+                  setState(() {
+                    imageGrayscale = value ?? false;
+                  });
+                },
+                semanticLabel: 'Grayscale checkbox',
+              ),
+              const Text('Grayscale'),
+            ],
+          ),
+          const SizedBox(width: 15),
+          Row(
+            children: [
+              const Text('Blur'),
+              Slider(
+                min: 0,
+                max: 20,
+                divisions: 20,
+                label: imageBlurLevel.toInt().toString(),
+                onChanged: (value) {
+                  setState(() {
+                    imageBlurLevel = value;
+                  });
+                },
+                value: imageBlurLevel,
+              ),
+            ],
+          ),
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
           _timerButton(),
