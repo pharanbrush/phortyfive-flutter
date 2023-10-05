@@ -9,6 +9,7 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/help_sheet.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
+import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
@@ -103,7 +104,9 @@ class _MainScreenState extends State<MainScreen> {
   bool isTouch = false;
   bool isEditingTime = false;
   bool isShowingCheatSheet = false;
+  bool isShowingFiltersMenu = true;
 
+  bool get isEffectActive => (imageGrayscale || imageBlurLevel > 0);
   bool imageGrayscale = false;
   double imageBlurLevel = 0;
 
@@ -153,10 +156,107 @@ class _MainScreenState extends State<MainScreen> {
           if (isEditingTime) timerDurationWidget!,
           if (isShowingCheatSheet)
             HelpSheet(onTapUnderlay: () => _setCheatSheetActive(false)),
+          if (isShowingFiltersMenu) _filterMenu(),
           _dockingControls(),
         ],
       ),
     ));
+  }
+
+  Widget _blurSlider() {
+    return Row(
+      children: [
+        const Text('Blur'),
+        Slider(
+          min: 0,
+          max: 20,
+          divisions: 20,
+          label: imageBlurLevel.toInt().toString(),
+          onChanged: (value) {
+            setState(() {
+              imageBlurLevel = value;
+            });
+          },
+          value: imageBlurLevel,
+        ),
+      ],
+    );
+  }
+
+  Widget _grayscaleCheckbox() {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              imageGrayscale = !imageGrayscale;
+            });
+          },
+          child: const Text('Grayscale'),
+        ),
+        const SizedBox(width: 10),
+        Checkbox(
+          value: imageGrayscale,
+          onChanged: (value) {
+            setState(() {
+              imageGrayscale = value ?? false;
+            });
+          },
+          semanticLabel: 'Grayscale checkbox',
+        ),
+      ],
+    );
+  }
+
+  Widget _filterMenu() {
+    const decoration = BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)]);
+    const padding = EdgeInsets.symmetric(horizontal: 30, vertical: 15);
+
+    return Stack(
+      children: [
+        ModalUnderlay(
+          isTransparent: true,
+          onTapDown: () => setState(() => isShowingFiltersMenu = false),
+        ),
+        Positioned(
+          bottom: 10,
+          right: 280,
+          child: SizedBox(
+            child: Container(
+              decoration: decoration,
+              child: Padding(
+                padding: padding,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.contrast, color: Color(0xFFE4E4E4), size: 14),
+                          SizedBox(width: 7),
+                          Text(
+                            'Filters',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                          
+                          
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      _grayscaleCheckbox(),
+                      _blurSlider(),
+                    ]),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _shortcutsWrapper(Widget childWidget) {
@@ -659,40 +759,22 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     List<Widget> bottomBarItems(PfsAppModel model) {
+      final filtersButton = Opacity(
+        opacity: 0.4,
+        child: IconButton(
+          onPressed: () {
+            setState(() => isShowingFiltersMenu = true);
+          },
+          tooltip: 'Filters',
+          icon: Icon(Icons.contrast,
+              color: isEffectActive ? Colors.orange : Colors.grey,
+              size: 20,),
+        ),
+      );
+
       if (model.hasFilesLoaded) {
         return [
-          Row(
-            children: [
-              Checkbox(
-                value: imageGrayscale,
-                onChanged: (value) {
-                  setState(() {
-                    imageGrayscale = value ?? false;
-                  });
-                },
-                semanticLabel: 'Grayscale checkbox',
-              ),
-              const Text('Grayscale'),
-            ],
-          ),
-          const SizedBox(width: 15),
-          Row(
-            children: [
-              const Text('Blur'),
-              Slider(
-                min: 0,
-                max: 20,
-                divisions: 20,
-                label: imageBlurLevel.toInt().toString(),
-                onChanged: (value) {
-                  setState(() {
-                    imageBlurLevel = value;
-                  });
-                },
-                value: imageBlurLevel,
-              ),
-            ],
-          ),
+          filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
           _timerButton(),
