@@ -4,22 +4,31 @@ import 'package:pfs2/screens/main_screen.dart';
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
 
+  static const Color pausedColor = Color(0xFFFDD835);
+  static const Color runningColor = Colors.blueAccent;
+  static const Color almostZeroColor = Color(0xFF0D47A1);
+  static const double almostZeroThreshold = 0.1;
+
+  static const double barWidth = 200;
+
   @override
   Widget build(BuildContext context) {
-    return _timeElapsedBar(200);
-  }
-
-  Widget _timeElapsedBar(double width) {
     return SizedBox(
-      width: width,
+      width: TimerBar.barWidth,
       height: 2,
       child: Phbuttons.appModelWidget(
         (_, __, model) {
-          Color barColor = model.timer.isActive ? Colors.blueAccent : Colors.yellow.shade600;
+          final barValue = (1.0 - model.progressPercent);
+          Color barColor = model.timer.isActive
+              ? (barValue < TimerBar.almostZeroThreshold
+                  ? TimerBar.almostZeroColor
+                  : TimerBar.runningColor)
+              : TimerBar.pausedColor;
+
           return LinearProgressIndicator(
             backgroundColor: Colors.black12,
             valueColor: AlwaysStoppedAnimation<Color>(barColor),
-            value: (1.0 - model.progressPercent),
+            value: barValue,
           );
         },
       ),
