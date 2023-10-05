@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -169,8 +170,8 @@ class _MainScreenState extends State<MainScreen> {
         const Text('Blur'),
         Slider(
           min: 0,
-          max: 20,
-          divisions: 20,
+          max: 12,
+          divisions: 12,
           label: imageBlurLevel.toInt().toString(),
           onChanged: (value) {
             setState(() {
@@ -724,7 +725,7 @@ class _MainScreenState extends State<MainScreen> {
             if (imageBlurLevel > 0)
               BackdropFilter(
                 filter: ImageFilter.blur(
-                    sigmaX: imageBlurLevel, sigmaY: imageBlurLevel),
+                    sigmaX: pow(1.3, imageBlurLevel).toDouble(), sigmaY: pow(1.3, imageBlurLevel).toDouble()),
                 child: const SizedBox.expand(),
               ),
             if (imageGrayscale) matrixGrayscale,
