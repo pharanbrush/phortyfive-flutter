@@ -96,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
   final _clickSound = AssetSource('sounds/clack.wav');
   final Map<Type, Action<Intent>> shortcutActions = {};
 
-  TimerDurationPanel? timerDurationWidget;
+  late TimerDurationPanel timerDurationWidget = TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
 
   bool rightControlsOrientation = true;
   bool isBottomBarMinimized = false;
@@ -113,9 +113,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    timerDurationWidget =
-        TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
-
     final model = widget.model;
     model.onTimerElapse ??= () => _playClickSound();
     model.onTimerPlayPause ??= () => _handleTimerPlayPause();
@@ -154,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
           _gestureControls(),
           _topRightWindowControls(),
           _bottomBar(),
-          if (isEditingTime) timerDurationWidget!,
+          if (isEditingTime) timerDurationWidget,
           if (isShowingCheatSheet)
             HelpSheet(onTapUnderlay: () => _setCheatSheetActive(false)),
           if (isShowingFiltersMenu) _filterMenu(),
@@ -422,7 +419,7 @@ class _MainScreenState extends State<MainScreen> {
       if (!active) {
         mainWindowFocus.requestFocus();
       }
-      timerDurationWidget!.setActive(active, widget.model.currentTimerDuration);
+      timerDurationWidget.setActive(active, widget.model.currentTimerDuration);
     });
   }
 
