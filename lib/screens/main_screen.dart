@@ -1,15 +1,11 @@
-import 'dart:io';
-import 'dart:math';
-import 'dart:ui';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/help_sheet.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
+import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
@@ -97,6 +93,7 @@ class _MainScreenState extends State<MainScreen> {
   final Map<Type, Action<Intent>> shortcutActions = {};
 
   late TimerDurationPanel timerDurationWidget = TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
+  final ImagePhviewer imagePhviewer = ImagePhviewer();
 
   bool rightControlsOrientation = true;
   bool isBottomBarMinimized = false;
@@ -107,10 +104,6 @@ class _MainScreenState extends State<MainScreen> {
   bool isShowingCheatSheet = false;
   bool isShowingFiltersMenu = false;
 
-  bool get isEffectActive => (imageGrayscale || imageBlurLevel > 0);
-  bool imageGrayscale = false;
-  double imageBlurLevel = 0;
-
   @override
   void initState() {
     final model = widget.model;
@@ -120,8 +113,13 @@ class _MainScreenState extends State<MainScreen> {
     model.onFilesChanged ??= () => setState(() {});
     model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
+    model.onImageChange ??= _handleOnImageChange;
 
     super.initState();
+  }
+
+  void _handleOnImageChange() {
+    setState(() => imagePhviewer.resetZoomLevel());
   }
 
   @override
@@ -146,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
       color: backgroundColor,
       child: Stack(
         children: [
-          _imageViewer(),
+          imagePhviewer.widget(isBottomBarMinimized),
           _fileDropZone(),
           _gestureControls(),
           _topRightWindowControls(),
@@ -169,13 +167,13 @@ class _MainScreenState extends State<MainScreen> {
           min: 0,
           max: 12,
           divisions: 12,
-          label: imageBlurLevel.toInt().toString(),
+          label: imagePhviewer.blurLevel.toInt().toString(),
           onChanged: (value) {
             setState(() {
-              imageBlurLevel = value;
+              imagePhviewer.blurLevel = value;
             });
           },
-          value: imageBlurLevel,
+          value: imagePhviewer.blurLevel,
         ),
       ],
     );
@@ -187,17 +185,17 @@ class _MainScreenState extends State<MainScreen> {
         GestureDetector(
           onTap: () {
             setState(() {
-              imageGrayscale = !imageGrayscale;
+              imagePhviewer.toggleGrayscale();
             });
           },
           child: const Text('Grayscale'),
         ),
         const SizedBox(width: 10),
         Checkbox(
-          value: imageGrayscale,
+          value: imagePhviewer.isUsingGrayscale,
           onChanged: (value) {
             setState(() {
-              imageGrayscale = value ?? false;
+              imagePhviewer.isUsingGrayscale = value ?? false;
             });
           },
           semanticLabel: 'Grayscale checkbox',
@@ -232,7 +230,8 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.invert_colors, color: Color(0xFFE4E4E4), size: 14),
+                          Icon(Icons.invert_colors,
+                              color: Color(0xFFE4E4E4), size: 14),
                           SizedBox(width: 7),
                           Text(
                             'Filters',
@@ -241,8 +240,6 @@ class _MainScreenState extends State<MainScreen> {
                               fontSize: 14,
                             ),
                           ),
-                          
-                          
                         ],
                       ),
                       const SizedBox(height: 15),
@@ -470,6 +467,28 @@ class _MainScreenState extends State<MainScreen> {
         );
       }
 
+      Widget zoomOnScrollListener({Widget? child}) {
+        void incrementZoomLevel(int increment) =>
+            setState(() => imagePhviewer.incrementZoomLevel(increment));
+
+        return Listener(
+          onPointerSignal: (pointerEvent) {
+            if (pointerEvent is PointerScrollEvent) {
+              PointerScrollEvent scroll = pointerEvent;
+              final dy = scroll.scrollDelta.dy;
+              final bool isScrollDown = dy > 0;
+              final bool isScrollUp = dy < 0;
+              if (isScrollDown) {
+                incrementZoomLevel(1);
+              } else if (isScrollUp) {
+                incrementZoomLevel(-1);
+              }
+            }
+          },
+          child: child,
+        );
+      }
+
       return Positioned.fill(
         top: 30,
         bottom: 50,
@@ -489,14 +508,16 @@ class _MainScreenState extends State<MainScreen> {
             ),
             Expanded(
                 flex: 4,
-                child: GestureDetector(
-                  // onSecondaryTapDown: (details) {
-                  //   print('right-clicked');
-                  // },
-                  child: OverlayButton(
-                    onPressed: () =>
-                        model.setTimerActive(!model.isTimerRunning),
-                    child: playPauseIcon,
+                child: zoomOnScrollListener(
+                  child: GestureDetector(
+                    // onSecondaryTapDown: (details) {
+                    //   print('right-clicked');
+                    // },
+                    child: OverlayButton(
+                      onPressed: () =>
+                          model.setTimerActive(!model.isTimerRunning),
+                      child: playPauseIcon,
+                    ),
                   ),
                 )),
             SizedBox(
@@ -663,82 +684,6 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Widget _imageViewer() {
-    const Widget matrixGrayscale = BackdropFilter(
-      filter: ColorFilter.matrix(<double>[
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0.2126,
-        0.7152,
-        0.0722,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0
-      ]),
-      child: SizedBox.expand(),
-    );
-
-    final double bottomPadding = isBottomBarMinimized ? 5 : 45;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: Phbuttons.appModelWidget((_, __, model) {
-        const defaultImage = '';
-
-        final FileData imageFileData = model.hasFilesLoaded
-            ? model.getCurrentImageData()
-            : FileList.fileDataFromPath(defaultImage);
-
-        final File imageFile = File(imageFileData.filePath);
-
-        final style = TextStyle(
-          color: Colors.grey.shade500,
-          fontSize: 11,
-        );
-        var topText = Text(imageFileData.fileName, style: style);
-        const opacity = 0.3;
-
-        return Stack(
-          children: [
-            Center(
-              child: Image.file(
-                gaplessPlayback: true,
-                filterQuality: FilterQuality.medium,
-                imageFile,
-              ),
-            ),
-            if (imageBlurLevel > 0)
-              BackdropFilter(
-                filter: ImageFilter.blur(
-                    sigmaX: pow(1.3, imageBlurLevel).toDouble(), sigmaY: pow(1.3, imageBlurLevel).toDouble()),
-                child: const SizedBox.expand(),
-              ),
-            if (imageGrayscale) matrixGrayscale,
-            Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: Colors.transparent,
-                child: Opacity(opacity: opacity, child: topText),
-              ),
-            ),
-          ],
-        );
-      }),
-    );
-  }
-
   Widget _bottomBar() {
     if (isBottomBarMinimized) {
       return const Positioned(
@@ -764,9 +709,11 @@ class _MainScreenState extends State<MainScreen> {
             setState(() => isShowingFiltersMenu = true);
           },
           tooltip: 'Filters',
-          icon: Icon(Icons.contrast,
-              color: isEffectActive ? Colors.orange : Colors.grey,
-              size: 20,),
+          icon: Icon(
+            Icons.contrast,
+            color: imagePhviewer.isEffectActive ? Colors.orange : Colors.grey,
+            size: 20,
+          ),
         ),
       );
 

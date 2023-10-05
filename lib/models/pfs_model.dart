@@ -27,6 +27,8 @@ class PfsAppModel extends Model {
   void Function()? onTimerPlayPause;
   void Function()? onTimerChangeSuccess;
   
+  void Function()? onImageChange;
+  
   void Function()? onFilesChanged;
   
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
@@ -81,6 +83,7 @@ class PfsAppModel extends Model {
     if (!allowCirculatorControl) return;
 
     timerRestartAndNotifyListeners();
+    onImageChange?.call();
     _previousImage();
   }
 
@@ -88,6 +91,7 @@ class PfsAppModel extends Model {
     if (!allowCirculatorControl) return;
 
     timerRestartAndNotifyListeners();
+    onImageChange?.call();
     _nextImage();
   }
 
