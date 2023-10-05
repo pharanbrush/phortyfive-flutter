@@ -22,20 +22,28 @@ class MainScreen extends StatefulWidget {
   final PfsAppModel model;
 
   static SnackBar topSnackBar(BuildContext context, {required Widget content}) {
-    const double sideMargin = 200;
+    const double sideMarginNormal = 200;
+    const double sideMarginNarrow = 20;
+    const marginNormal = EdgeInsets.only(
+        bottom: 50, left: sideMarginNormal, right: sideMarginNormal);
+
+    const marginNarrow = EdgeInsets.only(
+        bottom: 50, left: sideMarginNarrow, right: sideMarginNarrow);
+
+    const double windowNarrowWidth = 700;
     const Duration duration = Duration(milliseconds: 1500);
     const Color toastColor = Color(0xFF91AECC);
+
+    final bool isWindowNarrow =
+        MediaQuery.of(context).size.width < windowNarrowWidth;
+    final EdgeInsets margin = isWindowNarrow ? marginNarrow : marginNormal;
 
     return SnackBar(
       dismissDirection: DismissDirection.up,
       behavior: SnackBarBehavior.floating,
       duration: duration,
       backgroundColor: toastColor,
-      margin: const EdgeInsets.only(
-        bottom: 50,
-        left: sideMargin,
-        right: sideMargin,
-      ),
+      margin: margin,
       content: Center(child: content),
     );
   }
