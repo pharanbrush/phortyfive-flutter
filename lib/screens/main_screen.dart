@@ -98,14 +98,14 @@ class _MainScreenState extends State<MainScreen> {
 
   TimerDurationPanel? timerDurationWidget;
 
-  bool rightOrientation = true;
+  bool rightControlsOrientation = true;
   bool isBottomBarMinimized = false;
   bool isAlwaysOnTop = false;
   bool isSoundsEnabled = true;
   bool isTouch = false;
   bool isEditingTime = false;
   bool isShowingCheatSheet = false;
-  bool isShowingFiltersMenu = true;
+  bool isShowingFiltersMenu = false;
 
   bool get isEffectActive => (imageGrayscale || imageBlurLevel > 0);
   bool imageGrayscale = false;
@@ -235,7 +235,7 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.contrast, color: Color(0xFFE4E4E4), size: 14),
+                          Icon(Icons.invert_colors, color: Color(0xFFE4E4E4), size: 14),
                           SizedBox(width: 7),
                           Text(
                             'Filters',
