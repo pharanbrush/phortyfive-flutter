@@ -123,40 +123,6 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
   }
 
-  void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
-    final imageNoun = filesLoaded == 1 ? 'image' : 'images';
-
-    if (filesSkipped == 0) {
-      _showSnackBarWithBoldText(
-        text: '',
-        boldText: '$filesLoaded $imageNoun',
-        lastText: ' loaded.',
-      );
-    } else {
-      final fileSkippedNoun = filesSkipped == 1 ? 'file' : 'files';
-
-      _showSnackBar(
-        content: MainScreen.textWithMultiBold(
-            text1: '',
-            boldText1: '$filesLoaded $imageNoun',
-            text2: 'loaded.',
-            boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
-      );
-    }
-  }
-
-  void _handleTimerChangeSuccess() {
-    _showSnackBarWithBoldText(
-      text: 'Timer is set to ',
-      boldText: '${widget.model.currentTimerDuration} seconds',
-      lastText: '.',
-    );
-  }
-
-  void _handleTimerPlayPause() {
-    _playClickSound();
-  }
-
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Theme.of(context).colorScheme.background;
@@ -277,6 +243,40 @@ class _MainScreenState extends State<MainScreen> {
 
   void _tryReturnHome() {
     _cancelAllModals();
+  }
+
+  void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
+    final imageNoun = filesLoaded == 1 ? 'image' : 'images';
+
+    if (filesSkipped == 0) {
+      _showSnackBarWithBoldText(
+        text: '',
+        boldText: '$filesLoaded $imageNoun',
+        lastText: ' loaded.',
+      );
+    } else {
+      final fileSkippedNoun = filesSkipped == 1 ? 'file' : 'files';
+
+      _showSnackBar(
+        content: MainScreen.textWithMultiBold(
+            text1: '',
+            boldText1: '$filesLoaded $imageNoun',
+            text2: 'loaded.',
+            boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
+      );
+    }
+  }
+
+  void _handleTimerChangeSuccess() {
+    _showSnackBarWithBoldText(
+      text: 'Timer is set to ',
+      boldText: '${widget.model.currentTimerDuration} seconds',
+      lastText: '.',
+    );
+  }
+
+  void _handleTimerPlayPause() {
+    _playClickSound();
   }
 
   void _doStartEditingCustomTime() => _setEditingCustomTimeActive(true);
