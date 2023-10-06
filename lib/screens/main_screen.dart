@@ -1,7 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/help_sheet.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
@@ -421,6 +423,8 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  final MenuController _imageRightClickMenuController = MenuController();
+
   Widget _gestureControls() {
     const Icon beforeIcon = Icon(Icons.navigate_before, size: 100);
     const Icon nextIcon = Icon(Icons.navigate_next, size: 100);
@@ -430,6 +434,41 @@ class _MainScreenState extends State<MainScreen> {
 
     return PfsAppModel.scope((_, __, model) {
       Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
+
+      Widget imageRightClick({Widget? child}) {
+        return GestureDetector(
+          onSecondaryTapDown: (details) {
+            _imageRightClickMenuController.open(
+                position: details.localPosition);
+          },
+          child: MenuAnchor(
+            anchorTapClosesMenu: true,
+            controller: _imageRightClickMenuController,
+            menuChildren: [
+              PhcontextMenu.menuItemButton(
+                text: 'Reveal in File Explorer',
+                //icon: Icons.folder_open,
+                onPressed: () =>
+                    imagePhviewer.revealInExplorer(model.getCurrentImageData()),
+              ),
+              PhcontextMenu.menuItemButton(
+                text: 'Copy file path',
+                icon: Icons.copy,
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(
+                      text: model.getCurrentImageData().filePath));
+                  _showSnackBar(
+                      content: const SnackbarPhmessage(
+                    text: 'File path copied to clipboard.',
+                    icon: Icons.copy,
+                  ));
+                },
+              ),
+            ],
+            child: child,
+          ),
+        );
+      }
 
       Widget scrollListener({
         Function()? onScrollUp,
@@ -503,10 +542,7 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
                 flex: 4,
                 child: zoomOnScrollListener(
-                  child: GestureDetector(
-                    // onSecondaryTapDown: (details) {
-                    //   print('right-clicked');
-                    // },
+                  child: imageRightClick(
                     child: OverlayButton(
                       onPressed: () =>
                           model.setTimerActive(!model.isTimerRunning),
@@ -535,7 +571,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-  
+
   void _handleFileDropped() {
     windowManager.focus();
   }
