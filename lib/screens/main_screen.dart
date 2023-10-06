@@ -201,7 +201,9 @@ class _MainScreenState extends State<MainScreen> {
     model.onTimerElapse ??= () => _playClickSound();
     model.onTimerPlayPause ??= () => _handleTimerPlayPause();
     model.onTimerReset ??= () => _playClickSound();
-    model.onFilesChanged ??= () => setState(() {});
+    model.onFilesChanged ??= () => setState(() {
+          /* make the window repaint after loading the first image set */
+        });
     model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
@@ -413,14 +415,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _gestureControls() {
-    const Icon beforeIcon = Icon(
-      Icons.navigate_before,
-      size: 100,
-    );
-    const Icon nextIcon = Icon(
-      Icons.navigate_next,
-      size: 100,
-    );
+    const Icon beforeIcon = Icon(Icons.navigate_before, size: 100);
+    const Icon nextIcon = Icon(Icons.navigate_next, size: 100);
 
     const Icon playIcon = Icon(Icons.play_arrow, size: 80);
     const Icon pauseIcon = Icon(Icons.pause, size: 80);
@@ -428,7 +424,11 @@ class _MainScreenState extends State<MainScreen> {
     return PfsAppModel.scope((_, __, model) {
       Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
 
-      Widget nextPreviousOnScrollListener({Widget? child}) {
+      Widget scrollListener({
+        Function()? onScrollUp,
+        Function()? onScrollDown,
+        Widget? child,
+      }) {
         return Listener(
           onPointerSignal: (pointerEvent) {
             if (pointerEvent is PointerScrollEvent) {
@@ -437,12 +437,20 @@ class _MainScreenState extends State<MainScreen> {
               final bool isScrollDown = dy > 0;
               final bool isScrollUp = dy < 0;
               if (isScrollDown) {
-                model.nextImageNewTimer();
+                onScrollDown?.call();
               } else if (isScrollUp) {
-                model.previousImageNewTimer();
+                onScrollUp?.call();
               }
             }
           },
+          child: child,
+        );
+      }
+
+      Widget nextPreviousOnScrollListener({Widget? child}) {
+        return scrollListener(
+          onScrollDown: () => model.nextImageNewTimer(),
+          onScrollUp: () => model.previousImageNewTimer(),
           child: child,
         );
       }
@@ -451,20 +459,9 @@ class _MainScreenState extends State<MainScreen> {
         void incrementZoomLevel(int increment) =>
             setState(() => imagePhviewer.incrementZoomLevel(increment));
 
-        return Listener(
-          onPointerSignal: (pointerEvent) {
-            if (pointerEvent is PointerScrollEvent) {
-              PointerScrollEvent scroll = pointerEvent;
-              final dy = scroll.scrollDelta.dy;
-              final bool isScrollDown = dy > 0;
-              final bool isScrollUp = dy < 0;
-              if (isScrollDown) {
-                incrementZoomLevel(1);
-              } else if (isScrollUp) {
-                incrementZoomLevel(-1);
-              }
-            }
-          },
+        return scrollListener(
+          onScrollDown: () => incrementZoomLevel(1),
+          onScrollUp: () => incrementZoomLevel(-1),
           child: child,
         );
       }
