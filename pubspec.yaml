@@ -43,6 +43,7 @@ dependencies:
   desktop_drop: ^0.4.4
   path: ^1.8.3
   msix: ^3.16.4
+  url_launcher: ^6.1.14
 
 dev_dependencies:
   flutter_test:
