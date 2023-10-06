@@ -34,7 +34,7 @@ class ImagePhviewer {
   Function(IconData icon, String text)? onNotify;
 
   void setBlurLevel(double newBlurLevel) {
-    _blurLevel = blurLevel;
+    _blurLevel = newBlurLevel;
   }
 
   void setGrayscaleActive(bool active) {
