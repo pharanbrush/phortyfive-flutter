@@ -19,7 +19,7 @@ class MainScreen extends StatefulWidget {
 
   final PfsAppModel model;
 
-  static SnackBar topSnackBar(BuildContext context, {required Widget content}) {
+  static SnackBar snackBar(BuildContext context, {required Widget content}) {
     const double sideMarginNormal = 200;
     const double sideMarginNarrow = 20;
     const marginNormal = EdgeInsets.only(
@@ -46,9 +46,9 @@ class MainScreen extends StatefulWidget {
     );
   }
 
-  static SnackBar topSnackBarTextWithBold(BuildContext context, String text,
+  static SnackBar snackBarTextWithBold(BuildContext context, String text,
       {String? boldText, String? lastText}) {
-    return topSnackBar(context,
+    return snackBar(context,
         content: Text.rich(
           TextSpan(
             text: text,
@@ -365,7 +365,7 @@ class _MainScreenState extends State<MainScreen> {
 
     scaffoldMessenger.clearSnackBars();
     scaffoldMessenger.showSnackBar(
-      MainScreen.topSnackBar(
+      MainScreen.snackBar(
         context,
         content: content,
       ),
@@ -378,7 +378,7 @@ class _MainScreenState extends State<MainScreen> {
 
     scaffoldMessenger.clearSnackBars();
     scaffoldMessenger.showSnackBar(
-      MainScreen.topSnackBarTextWithBold(
+      MainScreen.snackBarTextWithBold(
         context,
         text,
         boldText: boldText,
