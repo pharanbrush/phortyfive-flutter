@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
 class TimerDurationPanel extends StatelessWidget {

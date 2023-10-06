@@ -141,20 +141,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    final model = widget.model;
-    model.onTimerElapse ??= () => _playClickSound();
-    model.onTimerPlayPause ??= () => _handleTimerPlayPause();
-    model.onTimerReset ??= () => _playClickSound();
-    model.onFilesChanged ??= () => setState(() {});
-    model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
-    model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
-    model.onImageChange ??= _handleOnImageChange;
-
+    _bindModelCallbacks();
     super.initState();
-  }
-
-  void _handleOnImageChange() {
-    setState(() => imagePhviewer.resetZoomLevel());
   }
 
   @override
@@ -175,7 +163,21 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    return _shortcutsWrapper(Container(
+    Widget shortcutsWrapper(Widget childWidget) {
+      return Shortcuts(
+        shortcuts: Phshortcuts.intentMap,
+        child: Actions(
+          actions: shortcutActions,
+          child: Focus(
+            focusNode: mainWindowFocus,
+            autofocus: true,
+            child: childWidget,
+          ),
+        ),
+      );
+    }
+
+    return shortcutsWrapper(Container(
       color: backgroundColor,
       child: Stack(
         children: [
@@ -192,6 +194,17 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
     ));
+  }
+
+  void _bindModelCallbacks() {
+    final model = widget.model;
+    model.onTimerElapse ??= () => _playClickSound();
+    model.onTimerPlayPause ??= () => _handleTimerPlayPause();
+    model.onTimerReset ??= () => _playClickSound();
+    model.onFilesChanged ??= () => setState(() {});
+    model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
+    model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
+    model.onImageChange ??= _handleOnImageChange;
   }
 
   Widget _blurSlider() {
@@ -289,20 +302,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _shortcutsWrapper(Widget childWidget) {
-    return Shortcuts(
-      shortcuts: Phshortcuts.intentMap,
-      child: Actions(
-        actions: shortcutActions,
-        child: Focus(
-          focusNode: mainWindowFocus,
-          autofocus: true,
-          child: childWidget,
-        ),
-      ),
-    );
-  }
-
   void _cancelAllModals() {
     if (isShowingCheatSheet) {
       _setCheatSheetActive(false);
@@ -345,6 +344,10 @@ class _MainScreenState extends State<MainScreen> {
       boldText: '${widget.model.currentTimerDuration} seconds',
       lastText: '.',
     );
+  }
+
+  void _handleOnImageChange() {
+    setState(() => imagePhviewer.resetZoomLevel());
   }
 
   void _handleTimerPlayPause() {
