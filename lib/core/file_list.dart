@@ -21,7 +21,7 @@ class FileList {
 
   FileData get(int index) {
     final count = getCount();
-    if (count <= 0) return FileData.empty();
+    if (count <= 0) return FileData.empty;
     if (index >= count) index = 0;
     return files[index];
   }
@@ -60,16 +60,18 @@ class FileList {
   }
 
   static FileData fileDataFromPath(String filePath) {
-    if (filePath.isEmpty) return FileData('', '');
-    return FileData(getFileName(filePath), filePath);
+    if (filePath.isEmpty) return FileData.empty;
+    return FileData(filePath);
   }
 }
 
 class FileData {
-  String fileName;
-  String filePath;
+  final String filePath;
 
-  FileData(this.fileName, this.filePath);
+  const FileData(this.filePath);
+  
+  String get fileName => File(filePath).uri.pathSegments.last;
+  String get fileFolder => File(filePath).parent.path;
 
-  static empty() => FileData('', '');
+  static const empty = FileData('');
 }
