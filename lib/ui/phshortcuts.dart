@@ -20,6 +20,8 @@ class Phshortcuts {
 
   static const openFiles =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
+  static const openFolder =
+      SingleActivator(LogicalKeyboardKey.keyO, control: true, shift: true);
   static const alwaysOnTop =
       SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
@@ -31,6 +33,7 @@ class Phshortcuts {
 
   static const intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFiles: OpenFilesIntent(),
+    Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousImageIntent(),
     Phshortcuts.next: NextImageIntent(),
     Phshortcuts.previous2: PreviousImageIntent(),
@@ -76,6 +79,10 @@ class RestartTimerIntent extends Intent {
 
 class OpenFilesIntent extends Intent {
   const OpenFilesIntent();
+}
+
+class OpenFolderIntent extends Intent {
+  const OpenFolderIntent();
 }
 
 class HelpIntent extends Intent {

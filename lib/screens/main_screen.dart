@@ -117,6 +117,9 @@ class _MainScreenState extends State<MainScreen> {
     OpenFilesIntent: CallbackAction(
       onInvoke: (intent) => widget.model.openFilePickerForImages(),
     ),
+    OpenFolderIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.openFilePickerForFolder(),
+    ),
     AlwaysOnTopIntent: CallbackAction(
       onInvoke: (intent) => _doToggleAlwaysOnTop(),
     ),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 
@@ -83,7 +82,7 @@ class Phbuttons {
   }
 
   static Widget openFiles() {
-    const toolTipText = 'Open images... (Ctrl+O)';
+    const toolTipText = 'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
     const color = Colors.white;
 
     var style = FilledButton.styleFrom(backgroundColor: accentColor);
@@ -92,19 +91,22 @@ class Phbuttons {
       (_, __, model) {
         return Tooltip(
           message: toolTipText,
-          child: FilledButton(
-            style: style,
-            onPressed: () => model.openFilePickerForImages(),
-            child: const SizedBox(
-              width: 40,
-              child: Icon(Icons.folder_open, color: color),
+          child: GestureDetector(
+            onSecondaryTap: () => model.openFilePickerForFolder(),
+            child: FilledButton(
+              style: style,
+              onPressed: () => model.openFilePickerForImages(),
+              child: const SizedBox(
+                width: 40,
+                child: Icon(Icons.folder_open, color: color),
+              ),
             ),
           ),
         );
       },
     );
   }
-  
+
   static Widget textThenIcon(String text, Icon icon, {double spacing = 3}) {
     return Row(
       children: [
@@ -114,7 +116,7 @@ class Phbuttons {
       ],
     );
   }
-  
+
   static Widget timerButton({required Function() onPressed}) {
     return PfsAppModel.scope(
       (_, __, model) {
@@ -136,7 +138,7 @@ class Phbuttons {
       },
     );
   }
-  
+
   static Widget imageSetButton() {
     return PfsAppModel.scope((_, __, model) {
       const double iconSize = 18;
@@ -144,23 +146,26 @@ class Phbuttons {
 
       final fileCount = model.fileList.getCount();
       final String tooltip =
-          '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)';
+          '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)\nRight-click to open an image folder... (Ctrl+Shift+O)';
 
       imageStats() {
         return Tooltip(
           message: tooltip,
-          child: TextButton(
-            onPressed: () => model.openFilePickerForImages(),
-            child: SizedBox(
-              width: 80,
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    textThenIcon(fileCount.toString(), icon),
-                    const Spacer(),
-                  ],
+          child: GestureDetector(
+            onSecondaryTap: () => model.openFilePickerForFolder(),
+            child: TextButton(
+              onPressed: () => model.openFilePickerForImages(),
+              child: SizedBox(
+                width: 80,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      textThenIcon(fileCount.toString(), icon),
+                      const Spacer(),
+                    ],
+                  ),
                 ),
               ),
             ),
