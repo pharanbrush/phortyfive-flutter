@@ -41,7 +41,6 @@ class Circulator {
 
   void setCurrentNumber(int newNumber) {
     currentNumber = newNumber;
-    //event OnCurrentNumberChanged
   }
 
   void moveCurrentNumberBy(int increment) {

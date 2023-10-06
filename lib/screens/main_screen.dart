@@ -286,7 +286,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ],
     );
-    
+
     return Stack(
       children: [
         ModalUnderlay(
