@@ -104,11 +104,14 @@ class ImagePhviewer {
                 color: Colors.transparent,
                 child: Opacity(
                   opacity: opacity,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => revealInExplorer(imageFileData),
-                      child: topText,
+                  child: Tooltip(
+                    message: 'Reveal in File Explorer',
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => revealInExplorer(imageFileData),
+                        child: topText,
+                      ),
                     ),
                   ),
                 ),
