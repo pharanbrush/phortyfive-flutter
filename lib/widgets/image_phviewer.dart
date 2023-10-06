@@ -15,12 +15,14 @@ class ImagePhviewer {
     0.5,
     0.75,
     1.0,
+    1.0,
+    1.0,
     1.5,
     2.0,
     3.0,
     4.0
   ];
-  static const _defaultZoomLevel = 3;
+  static const _defaultZoomLevel = 4;
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
@@ -82,12 +84,27 @@ class ImagePhviewer {
         return Stack(
           children: [
             SizedBox.expand(
-              child: Image.file(
-                scale: _zoomLevels[currentZoomLevel],
-                gaplessPlayback: true,
-                filterQuality: FilterQuality.medium,
-                //fit: BoxFit.scaleDown,
-                imageFile,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 400),
+                scale: 1.0 / _zoomLevels[currentZoomLevel],
+                curve: Curves.easeOutExpo,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    );
+                  },
+                  switchInCurve: Curves.easeOutExpo,
+                  switchOutCurve: Curves.easeInExpo,
+                  child: Image.file(
+                    key: Key('i${model.currentImageIndex.toString()}'),
+                    gaplessPlayback: true,
+                    filterQuality: FilterQuality.medium,
+                    imageFile,
+                  ),
+                ),
               ),
             ),
             if (_blurLevel > 0)
