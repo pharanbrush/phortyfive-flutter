@@ -27,11 +27,16 @@ class ImagePhviewer {
 
   int currentZoomLevel = _defaultZoomLevel;
 
-  bool get isEffectActive => (_isUsingGrayscale || _blurLevel > 0);
+  bool get isFilterActive => (_isUsingGrayscale || _blurLevel > 0);
   bool get isUsingGrayscale => _isUsingGrayscale;
   double get blurLevel => _blurLevel;
 
   Function(IconData icon, String text)? onNotify;
+
+  void resetAllFilters() {
+    _isUsingGrayscale = false;
+    _blurLevel = 0;
+  }
 
   void setBlurLevel(double newBlurLevel) {
     _blurLevel = newBlurLevel;
@@ -56,7 +61,7 @@ class ImagePhviewer {
 
   Widget widget(bool isBottomBarMinimized) {
     const filenameTextStyle = TextStyle(color: Color(0xFF9E9E9E), fontSize: 11);
-    
+
     const minimizedPadding = EdgeInsets.only(bottom: 5);
     const normalPadding = EdgeInsets.only(bottom: 45);
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;

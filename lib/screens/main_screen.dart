@@ -268,8 +268,22 @@ class _MainScreenState extends State<MainScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(10)),
         boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)]);
-    const padding = EdgeInsets.symmetric(horizontal: 30, vertical: 15);
+    const padding = EdgeInsets.symmetric(horizontal: 25, vertical: 15);
 
+    const heading = Row(
+      children: [
+        Icon(Icons.invert_colors, color: Color(0xFFE4E4E4), size: 14),
+        SizedBox(width: 7),
+        Text(
+          'Filters',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+    
     return Stack(
       children: [
         ModalUnderlay(
@@ -287,19 +301,21 @@ class _MainScreenState extends State<MainScreen> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.invert_colors,
-                              color: Color(0xFFE4E4E4), size: 14),
-                          SizedBox(width: 7),
-                          Text(
-                            'Filters',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        width: 220,
+                        child: Row(
+                          children: [
+                            heading,
+                            const Expanded(child: Text('')),
+                            IconButton(
+                                tooltip: 'Reset all filters',
+                                onPressed: imagePhviewer.isFilterActive
+                                    ? () => setState(
+                                        () => imagePhviewer.resetAllFilters())
+                                    : null,
+                                icon: const Icon(Icons.format_color_reset)),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 15),
                       _grayscaleCheckbox(),
@@ -763,7 +779,7 @@ class _MainScreenState extends State<MainScreen> {
             setState(() => isShowingFiltersMenu = true);
           },
           tooltip: 'Filters',
-          icon: imagePhviewer.isEffectActive ? filterIconOn : filterIconOff,
+          icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
         ),
       );
 
