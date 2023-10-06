@@ -603,22 +603,35 @@ class _MainScreenState extends State<MainScreen> {
       padding: const EdgeInsets.all(2.0),
       child: Opacity(
         opacity: 0.8,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Phbuttons.topControl(
-                () => _doToggleSounds(),
-                isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)'),
-            Phbuttons.topControl(
-                () => _doToggleAlwaysOnTop(),
-                isAlwaysOnTop
-                    ? Icons.push_pin_rounded
-                    : Icons.push_pin_outlined,
-                'Keep Window on Top (Ctrl+T)'),
-            Phbuttons.topControl(() => _setCheatSheetActive(true),
-                Icons.help_rounded, 'Help... (F1)'),
-            Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Phbuttons.topControl(
+                    () => _doToggleSounds(),
+                    isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
+                    isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)'),
+                Phbuttons.topControl(
+                    () => _doToggleAlwaysOnTop(),
+                    isAlwaysOnTop
+                        ? Icons.push_pin_rounded
+                        : Icons.push_pin_outlined,
+                    'Keep Window on Top (Ctrl+T)'),
+                Phbuttons.topControl(() => _setCheatSheetActive(true),
+                    Icons.help_rounded, 'Help... (F1)'),
+                //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.all(2.0),
+              child: Text(
+                'For testing only\n0.5.20231006a',
+                textAlign: TextAlign.right,
+                style: TextStyle(color: Color(0x55555555), fontSize: 12),
+              ),
+            )
           ],
         ),
       ),
