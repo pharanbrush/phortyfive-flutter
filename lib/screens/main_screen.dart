@@ -359,7 +359,7 @@ class _MainScreenState extends State<MainScreen> {
         content: MainScreen.textWithMultiBold(
             text1: '',
             boldText1: '$filesLoaded $imageNoun',
-            text2: 'loaded.',
+            text2: ' loaded. ',
             boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
       );
     }
