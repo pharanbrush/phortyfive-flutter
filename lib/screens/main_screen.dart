@@ -524,9 +524,13 @@ class _MainScreenState extends State<MainScreen> {
       bottom: 40,
       top: 30,
       child: ImageDropTarget(
-        onDragSuccess: () => windowManager.focus(),
+        onDragSuccess: _handleFileDropped,
       ),
     );
+  }
+  
+  void _handleFileDropped() {
+    windowManager.focus();
   }
 
   Widget _firstActionSheet() {
