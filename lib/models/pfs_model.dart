@@ -22,6 +22,8 @@ class PfsAppModel extends Model {
 
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
+  
+  int get currentImageIndex => circulator.getCurrentIndex();
 
   void Function()? onTimerElapse;
   void Function()? onTimerReset;
