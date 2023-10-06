@@ -26,16 +26,20 @@ class PfsAppModel extends Model {
   void Function()? onTimerReset;
   void Function()? onTimerPlayPause;
   void Function()? onTimerChangeSuccess;
-  
+
   void Function()? onImageChange;
-  
+
   void Function()? onFilesChanged;
-  
+
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
 
   Timer? ticker;
 
   double get progressPercent => timer.percentElapsed;
+
+  static ScopedModelDescendant<PfsAppModel> scope(
+          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
+      ScopedModelDescendant<PfsAppModel>(builder: builder);
 
   FileData getCurrentImageData() {
     return fileList.get(circulator.getCurrentIndex());
@@ -43,7 +47,7 @@ class PfsAppModel extends Model {
 
   void handleTimerElapsed() {
     nextImageNewTimer();
-    onTimerElapse?.call();    
+    onTimerElapse?.call();
     notifyListeners();
   }
 
@@ -135,7 +139,7 @@ class PfsAppModel extends Model {
     if (filePaths.isEmpty) return;
 
     fileList.load(filePaths);
-    
+
     final int loadedCount = fileList.getCount();
     circulator.startNewOrder(loadedCount);
 

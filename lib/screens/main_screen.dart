@@ -8,10 +8,10 @@ import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:pfs2/widgets/timer_duration_panel.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
@@ -90,9 +90,44 @@ class _MainScreenState extends State<MainScreen> {
 
   final clicker = AudioPlayer();
   final _clickSound = AssetSource('sounds/clack.wav');
-  final Map<Type, Action<Intent>> shortcutActions = {};
+  late Map<Type, Action<Intent>> shortcutActions = {
+    PreviousImageIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.previousImageNewTimer(),
+    ),
+    NextImageIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.nextImageNewTimer(),
+    ),
+    PlayPauseIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.playPauseToggleTimer(),
+    ),
+    OpenTimerMenuIntent: CallbackAction(
+      onInvoke: (intent) => _doStartEditingCustomTime(),
+    ),
+    RestartTimerIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.timerRestartAndNotifyListeners(),
+    ),
+    HelpIntent: CallbackAction(
+      onInvoke: (intent) => _doToggleCheatSheet(),
+    ),
+    BottomBarToggleIntent: CallbackAction(
+      onInvoke: (intent) => _doToggleBottomBar(),
+    ),
+    OpenFilesIntent: CallbackAction(
+      onInvoke: (intent) => widget.model.openFilePickerForImages(),
+    ),
+    AlwaysOnTopIntent: CallbackAction(
+      onInvoke: (intent) => _doToggleAlwaysOnTop(),
+    ),
+    ToggleSoundIntent: CallbackAction(
+      onInvoke: (intent) => _doToggleSounds(),
+    ),
+    ReturnHomeIntent: CallbackAction(
+      onInvoke: (intent) => _tryReturnHome(),
+    ),
+  };
 
-  late TimerDurationPanel timerDurationWidget = TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
+  late TimerDurationPanel timerDurationWidget =
+      TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
   final ImagePhviewer imagePhviewer = ImagePhviewer();
 
   bool rightControlsOrientation = true;
@@ -255,75 +290,17 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _shortcutsWrapper(Widget childWidget) {
-    return Phbuttons.appModelWidget((_, __, model) {
-      if (shortcutActions.isEmpty) {
-        shortcutActions.addAll({
-          PreviousImageIntent: CallbackAction(
-            onInvoke: (intent) => model.previousImageNewTimer(),
-          ),
-          NextImageIntent: CallbackAction(
-            onInvoke: (intent) => model.nextImageNewTimer(),
-          ),
-          PlayPauseIntent: CallbackAction(
-            onInvoke: (intent) => model.playPauseToggleTimer(),
-          ),
-          OpenTimerMenuIntent: CallbackAction(
-            onInvoke: (intent) => _doStartEditingCustomTime(),
-          ),
-          RestartTimerIntent: CallbackAction(
-            onInvoke: (intent) => model.timerRestartAndNotifyListeners(),
-          ),
-          HelpIntent: CallbackAction(
-            onInvoke: (intent) => _doToggleCheatSheet(),
-          ),
-          BottomBarToggleIntent: CallbackAction(
-            onInvoke: (intent) => _doToggleBottomBar(),
-          ),
-          OpenFilesIntent: CallbackAction(
-            onInvoke: (intent) => model.openFilePickerForImages(),
-          ),
-          AlwaysOnTopIntent: CallbackAction(
-            onInvoke: (intent) => _doToggleAlwaysOnTop(),
-          ),
-          ToggleSoundIntent: CallbackAction(
-            onInvoke: (intent) => _doToggleSounds(),
-          ),
-          ReturnHomeIntent: CallbackAction(
-            onInvoke: (intent) => _tryReturnHome(),
-          ),
-        });
-      }
-
-      return Shortcuts(
-        shortcuts: const <ShortcutActivator, Intent>{
-          Phshortcuts.openFiles: OpenFilesIntent(),
-          Phshortcuts.previous: PreviousImageIntent(),
-          Phshortcuts.next: NextImageIntent(),
-          Phshortcuts.previous2: PreviousImageIntent(),
-          Phshortcuts.next2: NextImageIntent(),
-          Phshortcuts.previous3: PreviousImageIntent(),
-          Phshortcuts.next3: NextImageIntent(),
-          Phshortcuts.previous4: PreviousImageIntent(),
-          Phshortcuts.next4: NextImageIntent(),
-          Phshortcuts.playPause: PlayPauseIntent(),
-          Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
-          Phshortcuts.restartTimer: RestartTimerIntent(),
-          Phshortcuts.help: HelpIntent(),
-          Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
-          Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
-          Phshortcuts.toggleSounds: ToggleSoundIntent(),
-          Phshortcuts.returnHome: ReturnHomeIntent(),
-        },
-        child: Actions(
-          actions: shortcutActions,
-          child: Focus(
-            focusNode: mainWindowFocus,
-            autofocus: true,
-            child: childWidget,
-          ),
+    return Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: shortcutActions,
+        child: Focus(
+          focusNode: mainWindowFocus,
+          autofocus: true,
+          child: childWidget,
         ),
-      );
-    });
+      ),
+    );
   }
 
   void _cancelAllModals() {
@@ -445,7 +422,7 @@ class _MainScreenState extends State<MainScreen> {
     const Icon playIcon = Icon(Icons.play_arrow, size: 80);
     const Icon pauseIcon = Icon(Icons.pause, size: 80);
 
-    return Phbuttons.appModelWidget((_, __, model) {
+    return PfsAppModel.scope((_, __, model) {
       Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
 
       Widget nextPreviousOnScrollListener({Widget? child}) {
@@ -489,6 +466,21 @@ class _MainScreenState extends State<MainScreen> {
         );
       }
 
+      Widget nextPreviousGestureButton(
+          {required double width,
+          required Function()? onPressed,
+          required Widget child}) {
+        return SizedBox(
+          width: 100,
+          child: nextPreviousOnScrollListener(
+            child: OverlayButton(
+              onPressed: () => model.previousImageNewTimer(),
+              child: beforeIcon,
+            ),
+          ),
+        );
+      }
+
       return Positioned.fill(
         top: 30,
         bottom: 50,
@@ -497,15 +489,10 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              width: 100,
-              child: nextPreviousOnScrollListener(
-                child: OverlayButton(
-                  onPressed: () => model.previousImageNewTimer(),
-                  child: beforeIcon,
-                ),
-              ),
-            ),
+            nextPreviousGestureButton(
+                width: 100,
+                onPressed: () => model.previousImageNewTimer(),
+                child: beforeIcon),
             Expanded(
                 flex: 4,
                 child: zoomOnScrollListener(
@@ -520,15 +507,10 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 )),
-            SizedBox(
-              width: 140,
-              child: nextPreviousOnScrollListener(
-                child: OverlayButton(
-                  onPressed: () => model.nextImageNewTimer(),
-                  child: nextIcon,
-                ),
-              ),
-            ),
+            nextPreviousGestureButton(
+                width: 140,
+                onPressed: () => model.nextImageNewTimer(),
+                child: nextIcon),
           ],
         ),
       );
@@ -722,14 +704,14 @@ class _MainScreenState extends State<MainScreen> {
           filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
-          _timerButton(),
+          Phbuttons.timerButton(onPressed: () => _doStartEditingCustomTime()),
           const SizedBox(width: 15),
           Opacity(
             opacity: model.allowTimerPlayPause ? 0.4 : 0.2,
             child: _timerControls(),
           ),
           const SizedBox(width: 20),
-          _imageSetButton(),
+          Phbuttons.imageSetButton(),
           const SizedBox(width: 10),
         ];
       } else {
@@ -743,7 +725,7 @@ class _MainScreenState extends State<MainScreen> {
     return Positioned(
       bottom: 1,
       right: 10,
-      child: Phbuttons.appModelWidget(
+      child: PfsAppModel.scope(
         (_, __, model) {
           return Row(children: bottomBarItems(model));
         },
@@ -772,14 +754,14 @@ class _MainScreenState extends State<MainScreen> {
       const TimerBar(),
       Row(
         children: [
-          Phbuttons.appModelWidget(
+          PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.timerRestartAndNotifyListeners(),
               Icons.refresh,
               'Restart Timer (R)',
             ),
           ),
-          Phbuttons.appModelWidget(
+          PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.previousImageNewTimer(),
               Icons.skip_previous,
@@ -787,7 +769,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
           Phbuttons.playPauseTimer(),
-          Phbuttons.appModelWidget(
+          PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.nextImageNewTimer(),
               Icons.skip_next,
@@ -799,219 +781,8 @@ class _MainScreenState extends State<MainScreen> {
     ]);
   }
 
-  Widget textThenIcon(String text, Icon icon, {double spacing = 3}) {
-    return Row(
-      children: [
-        Text(text),
-        SizedBox(width: spacing),
-        icon,
-      ],
-    );
-  }
-
-  Widget _imageSetButton() {
-    return Phbuttons.appModelWidget((_, __, model) {
-      const double iconSize = 18;
-      const Icon icon = Icon(Icons.image, size: iconSize);
-
-      final fileCount = model.fileList.getCount();
-      final String tooltip =
-          '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)';
-
-      imageStats() {
-        return Tooltip(
-          message: tooltip,
-          child: TextButton(
-            onPressed: () => model.openFilePickerForImages(),
-            child: SizedBox(
-              width: 80,
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    textThenIcon(fileCount.toString(), icon),
-                    const Spacer(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-
-      return Opacity(
-        opacity: 0.4,
-        child: imageStats(),
-      );
-    });
-  }
-
-  Widget _timerButton() {
-    return Phbuttons.appModelWidget(
-      (_, __, model) {
-        final currentTimerSeconds = model.timer.duration.inSeconds;
-        const double iconSize = 18;
-        const opacity = 0.4;
-
-        return Opacity(
-          opacity: opacity,
-          child: Tooltip(
-            message:
-                '${model.timer.duration.inSeconds} seconds per image.\nClick to edit timer. (F2)',
-            child: TextButton(
-                onPressed: () => _doStartEditingCustomTime(),
-                child: textThenIcon('${currentTimerSeconds}s',
-                    const Icon(Icons.timer_outlined, size: iconSize))),
-          ),
-        );
-      },
-    );
-  }
-
   void _playClickSound() {
     if (!isSoundsEnabled) return;
     clicker.play(_clickSound);
-  }
-}
-
-class Phbuttons {
-  static const Color accentColor = Colors.blueAccent;
-  static const Color topBarButtonColor = Colors.black12;
-
-  static Widget topControl(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    const double buttonSpacing = 5;
-    const double iconSize = 20;
-    const size = Size(25, 25);
-    final style = TextButton.styleFrom(
-      minimumSize: size,
-      maximumSize: size,
-      padding: const EdgeInsets.all(0),
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(right: buttonSpacing),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: iconSize),
-        color: topBarButtonColor,
-        tooltip: tooltip,
-        style: style,
-      ),
-    );
-  }
-
-  static Widget timerControl(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      tooltip: tooltip,
-      focusColor: const Color(0xFFFFE4C0),
-    );
-  }
-
-  static Widget bottomButton(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      tooltip: tooltip,
-      focusColor: const Color(0xFFFFE4C0),
-    );
-  }
-
-  static Widget playPauseTimer() {
-    return Phbuttons.appModelWidget((_, __, model) {
-      const playButtonTooltip = 'Timer paused. Press to resume (P)';
-      const pauseButtonTooltip = 'Timer running. Press to pause (P)';
-      const playIcon = Icon(Icons.play_arrow);
-      const pauseIcon = Icon(Icons.pause);
-      const Color pausedColor = Color.fromARGB(255, 255, 196, 0);
-      const Color playingColor = accentColor;
-
-      bool allowTimerControl = model.allowTimerPlayPause;
-      Color buttonColor = allowTimerControl
-          ? (model.isTimerRunning ? playingColor : pausedColor)
-          : Colors.grey.shade500;
-
-      final icon = model.isTimerRunning ? pauseIcon : playIcon;
-      final style = FilledButton.styleFrom(backgroundColor: buttonColor);
-      final tooltipText =
-          model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
-
-      return Tooltip(
-        message: tooltipText,
-        child: FilledButton(
-          style: style,
-          onPressed: () => model.setTimerActive(!model.isTimerRunning),
-          child: SizedBox(
-            width: 50,
-            child: icon,
-          ),
-        ),
-      );
-    });
-  }
-
-  static Widget openFiles() {
-    const toolTipText = 'Open images... (Ctrl+O)';
-    const color = Colors.white;
-
-    var style = FilledButton.styleFrom(backgroundColor: accentColor);
-
-    return appModelWidget(
-      (_, __, model) {
-        return Tooltip(
-          message: toolTipText,
-          child: FilledButton(
-            style: style,
-            onPressed: () => model.openFilePickerForImages(),
-            child: const SizedBox(
-              width: 40,
-              child: Icon(Icons.folder_open, color: color),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  static ScopedModelDescendant<PfsAppModel> appModelWidget(
-          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
-      ScopedModelDescendant<PfsAppModel>(builder: builder);
-
-  static Widget collapseBottomBarButton(
-      {required bool isMinimized, Function()? onPressed}) {
-    const buttonSize = Size(25, 25);
-    const collapseIcon = Icons.expand_more_rounded;
-    const expandIcon = Icons.expand_less_rounded;
-
-    final IconData buttonIcon = isMinimized ? expandIcon : collapseIcon;
-    final String tooltip =
-        isMinimized ? 'Expand controls (H)' : 'Minimize controls (H)';
-    const iconColor = Colors.black38;
-
-    const double iconSize = 20;
-
-    final style = TextButton.styleFrom(
-      minimumSize: buttonSize,
-      maximumSize: buttonSize,
-      padding: const EdgeInsets.all(0),
-    );
-
-    return Tooltip(
-      message: tooltip,
-      child: TextButton(
-        style: style,
-        onPressed: onPressed,
-        child: Icon(
-          buttonIcon,
-          size: iconSize,
-          color: iconColor,
-        ),
-      ),
-    );
   }
 }

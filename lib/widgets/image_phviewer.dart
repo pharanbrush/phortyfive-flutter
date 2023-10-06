@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
-import 'package:pfs2/screens/main_screen.dart';
+import 'package:pfs2/models/pfs_model.dart';
 
 class ImagePhviewer {
   static const List<double> zoomLevels = [
@@ -69,7 +69,7 @@ class ImagePhviewer {
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPadding),
-      child: Phbuttons.appModelWidget((_, __, model) {
+      child: PfsAppModel.scope((_, __, model) {
         const defaultImage = '';
 
         final FileData imageFileData = model.hasFilesLoaded

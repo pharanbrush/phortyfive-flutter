@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/screens/main_screen.dart';
+import 'package:pfs2/models/pfs_model.dart';
 
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
@@ -16,7 +16,7 @@ class TimerBar extends StatelessWidget {
     return SizedBox(
       width: TimerBar.barWidth,
       height: 2,
-      child: Phbuttons.appModelWidget(
+      child: PfsAppModel.scope(
         (_, __, model) {
           final barValue = (1.0 - model.progressPercent);
           Color barColor = model.timer.isActive

@@ -1,7 +1,7 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
-import 'package:pfs2/screens/main_screen.dart';
+import 'package:pfs2/models/pfs_model.dart';
 
 class ImageDropTarget extends StatefulWidget {
   const ImageDropTarget({super.key, this.onDragSuccess});
@@ -59,7 +59,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
 
   @override
   Widget build(BuildContext context) {
-    return Phbuttons.appModelWidget((_, __, model) {
+    return PfsAppModel.scope((_, __, model) {
       return DropTarget(
         onDragDone: (details) {
           _setDraggingActive(false);
