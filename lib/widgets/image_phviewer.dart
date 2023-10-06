@@ -5,8 +5,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
+  ImagePhviewer({this.onNotify});
+
   static const List<double> _zoomLevels = [
     0.25,
     0.5,
@@ -28,10 +31,12 @@ class ImagePhviewer {
   bool get isUsingGrayscale => _isUsingGrayscale;
   double get blurLevel => _blurLevel;
 
+  Function(IconData icon, String text)? onNotify;
+
   void setBlurLevel(double newBlurLevel) {
     _blurLevel = blurLevel;
   }
-  
+
   void setGrayscaleActive(bool active) {
     _isUsingGrayscale = active;
   }
@@ -50,10 +55,11 @@ class ImagePhviewer {
   }
 
   Widget widget(bool isBottomBarMinimized) {
+    const filenameTextStyle = TextStyle(color: Color(0xFF9E9E9E), fontSize: 11);
+    
     const minimizedPadding = EdgeInsets.only(bottom: 5);
     const normalPadding = EdgeInsets.only(bottom: 45);
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
-    const filenameTextStyle = TextStyle(color: Color(0xFF9E9E9E), fontSize: 11);
 
     return Padding(
       padding: padding,
@@ -93,7 +99,10 @@ class ImagePhviewer {
                 color: Colors.transparent,
                 child: Opacity(
                   opacity: opacity,
-                  child: topText,
+                  child: GestureDetector(
+                    onDoubleTap: () => revealInExplorer(imageFileData),
+                    child: topText,
+                  ),
                 ),
               ),
             ),
@@ -101,6 +110,16 @@ class ImagePhviewer {
         );
       }),
     );
+  }
+
+  void revealInExplorer(FileData fileData) async {
+    if (Platform.isWindows) {
+      final windowsFilePath = fileData.filePath.replaceAll('/', '\\');
+      await Process.start('explorer', ['/select,', windowsFilePath]);
+    } else {
+      Uri fileFolder = Uri.file(fileData.fileFolder);
+      await launchUrl(fileFolder);
+    }
   }
 
   static const Widget _matrixGrayscale = BackdropFilter(

@@ -128,7 +128,14 @@ class _MainScreenState extends State<MainScreen> {
 
   late TimerDurationPanel timerDurationWidget =
       TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
-  final ImagePhviewer imagePhviewer = ImagePhviewer();
+  late ImagePhviewer imagePhviewer =
+      ImagePhviewer(onNotify: (iconData, message) {
+    _showSnackBar(
+        content: SnackbarPhmessage(
+      text: message,
+      icon: iconData,
+    ));
+  });
 
   bool rightControlsOrientation = true;
   bool isBottomBarMinimized = false;
