@@ -220,7 +220,7 @@ class _MainScreenState extends State<MainScreen> {
           label: imagePhviewer.blurLevel.toInt().toString(),
           onChanged: (value) {
             setState(() {
-              imagePhviewer.blurLevel = value;
+              imagePhviewer.setBlurLevel(value);
             });
           },
           value: imagePhviewer.blurLevel,
@@ -245,7 +245,7 @@ class _MainScreenState extends State<MainScreen> {
           value: imagePhviewer.isUsingGrayscale,
           onChanged: (value) {
             setState(() {
-              imagePhviewer.isUsingGrayscale = value ?? false;
+              imagePhviewer.setGrayscaleActive(value ?? false);
             });
           },
           semanticLabel: 'Grayscale checkbox',
@@ -475,7 +475,7 @@ class _MainScreenState extends State<MainScreen> {
           child: nextPreviousOnScrollListener(
             child: OverlayButton(
               onPressed: () => model.previousImageNewTimer(),
-              child: beforeIcon,
+              child: child,
             ),
           ),
         );
