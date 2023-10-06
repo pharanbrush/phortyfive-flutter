@@ -99,9 +99,12 @@ class ImagePhviewer {
                 color: Colors.transparent,
                 child: Opacity(
                   opacity: opacity,
-                  child: GestureDetector(
-                    onDoubleTap: () => revealInExplorer(imageFileData),
-                    child: topText,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => revealInExplorer(imageFileData),
+                      child: topText,
+                    ),
                   ),
                 ),
               ),
