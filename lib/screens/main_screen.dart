@@ -519,10 +519,10 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _fileDropZone() {
     return Positioned.fill(
-      left: 10,
-      right: 10,
+      left: 20,
+      right: 20,
       bottom: 40,
-      top: 10,
+      top: 30,
       child: ImageDropTarget(
         onDragSuccess: () => windowManager.focus(),
       ),
