@@ -709,15 +709,16 @@ class _MainScreenState extends State<MainScreen> {
   void _doToggleSounds() {
     showSoundToggleSnackbar() {
       _showSnackBar(
-          content: isSoundsEnabled
-              ? const SnackbarPhmessage(
-                  text: 'Sounds enabled',
-                  icon: Icons.volume_up,
-                )
-              : const SnackbarPhmessage(
-                  text: 'Sounds muted',
-                  icon: Icons.volume_off,
-                ));
+        content: isSoundsEnabled
+            ? const SnackbarPhmessage(
+                text: 'Sounds enabled',
+                icon: Icons.volume_up,
+              )
+            : const SnackbarPhmessage(
+                text: 'Sounds muted',
+                icon: Icons.volume_off,
+              ),
+      );
     }
 
     setState(() {
@@ -744,6 +745,17 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     List<Widget> bottomBarItems(PfsAppModel model) {
+      const filterIconOff = Icon(
+        Icons.contrast,
+        color: Colors.grey,
+        size: 20,
+      );
+      const filterIconOn = Icon(
+        Icons.contrast,
+        color: Colors.orange,
+        size: 20,
+      );
+
       final filtersButton = Opacity(
         opacity: 0.4,
         child: IconButton(
@@ -751,11 +763,7 @@ class _MainScreenState extends State<MainScreen> {
             setState(() => isShowingFiltersMenu = true);
           },
           tooltip: 'Filters',
-          icon: Icon(
-            Icons.contrast,
-            color: imagePhviewer.isEffectActive ? Colors.orange : Colors.grey,
-            size: 20,
-          ),
+          icon: imagePhviewer.isEffectActive ? filterIconOn : filterIconOff,
         ),
       );
 
