@@ -242,27 +242,34 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _grayscaleCheckbox() {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              imagePhviewer.toggleGrayscale();
-            });
-          },
-          child: const Text('Grayscale'),
-        ),
-        const SizedBox(width: 10),
-        Checkbox(
-          value: imagePhviewer.isUsingGrayscale,
-          onChanged: (value) {
-            setState(() {
-              imagePhviewer.setGrayscaleActive(value ?? false);
-            });
-          },
-          semanticLabel: 'Grayscale checkbox',
-        ),
-      ],
+    return SizedBox(
+      width: 250,
+      child: SegmentedButton<ImageColorMode>(
+        emptySelectionAllowed: false,
+        multiSelectionEnabled: false,
+        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+        segments: const [
+          ButtonSegment<ImageColorMode>(
+              value: ImageColorMode.color,
+              label: Text('Color'),
+              icon: Icon(Icons.color_lens)),
+          ButtonSegment<ImageColorMode>(
+              value: ImageColorMode.grayscale,
+              label: Text('Grayscale'),
+              icon: Icon(Icons.invert_colors)),
+        ],
+        selected: imagePhviewer.isUsingGrayscale
+            ? {ImageColorMode.grayscale}
+            : {ImageColorMode.color},
+        onSelectionChanged: (Set<ImageColorMode> newSelection) {
+          setState(() {
+            final isSelectionGrayscale =
+                newSelection.contains(ImageColorMode.grayscale);
+            imagePhviewer.setGrayscaleActive(isSelectionGrayscale);
+          });
+        },
+        
+      ),
     );
   }
 
@@ -305,7 +312,7 @@ class _MainScreenState extends State<MainScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: 220,
+                        width: 250,
                         child: Row(
                           children: [
                             heading,

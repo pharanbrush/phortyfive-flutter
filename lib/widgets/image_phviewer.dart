@@ -176,3 +176,5 @@ class ImagePhviewer {
     child: SizedBox.expand(),
   );
 }
+
+enum ImageColorMode { color, grayscale }
