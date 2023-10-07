@@ -20,7 +20,7 @@ class ImagePhviewer {
     3.0,
     4.0
   ];
-  static const _defaultZoomLevel = 4;
+  static const _defaultZoomLevel = 3;
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
