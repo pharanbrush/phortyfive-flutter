@@ -201,6 +201,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
+    Widget modalMenu(
+        {required bool isOpen, required Widget Function() builder}) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 120),
+        child: isOpen ? builder() : null,
+      );
+    }
+
     return shortcutsWrapper(Container(
       color: backgroundColor,
       child: Stack(
@@ -210,10 +218,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           _gestureControls(),
           _topRightWindowControls(),
           _bottomBar(),
-          if (isEditingTime) timerDurationWidget,
-          if (isShowingCheatSheet)
-            HelpSheet(onTapUnderlay: () => _setCheatSheetActive(false)),
-          if (isShowingFiltersMenu) _filterMenu(),
+          modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
+          modalMenu(
+            isOpen: isShowingCheatSheet,
+            builder: () =>
+                HelpSheet(onTapUnderlay: () => _setCheatSheetActive(false)),
+          ),
+          modalMenu(isOpen: isShowingFiltersMenu, builder: _filterMenu),
           _dockingControls(),
         ],
       ),
