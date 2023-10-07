@@ -16,13 +16,15 @@ class PfsAppModel extends Model {
 
   bool isPickerOpen = false;
 
+  int lastIncrement = 1;
+
   bool get hasFilesLoaded => fileList.isPopulated();
   bool get isTimerRunning => timer.isActive;
   int get currentTimerDuration => timer.duration.inSeconds;
 
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
-  
+
   int get currentImageIndex => circulator.getCurrentIndex();
 
   void Function()? onTimerElapse;
@@ -79,13 +81,6 @@ class PfsAppModel extends Model {
     notifyListeners();
   }
 
-  void _previousImage() {
-    if (!allowCirculatorControl) return;
-
-    circulator.movePrevious();
-    notifyListeners();
-  }
-
   void previousImageNewTimer() {
     if (!allowCirculatorControl) return;
 
@@ -102,10 +97,19 @@ class PfsAppModel extends Model {
     _nextImage();
   }
 
+  void _previousImage() {
+    if (!allowCirculatorControl) return;
+
+    circulator.movePrevious();
+    lastIncrement = -1;
+    notifyListeners();
+  }
+
   void _nextImage() {
     if (!allowCirculatorControl) return;
 
     circulator.moveNext();
+    lastIncrement = 1;
     notifyListeners();
   }
 
