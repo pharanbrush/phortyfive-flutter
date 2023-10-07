@@ -83,6 +83,28 @@ class ImagePhviewer {
         var topText = Text(imageFileData.fileName, style: filenameTextStyle);
         const opacity = 0.3;
 
+        final imageWidget = Image.file(
+          key: Key('i${model.currentImageIndex.toString()}'),
+          gaplessPlayback: true,
+          filterQuality: FilterQuality.medium,
+          imageFile,
+        );
+
+        // Widget scaleSwitcher() {
+        //   return AnimatedSwitcher(
+        //     duration: const Duration(milliseconds: 180),
+        //     transitionBuilder: (child, animation) {
+        //       return ScaleTransition(
+        //         scale: animation,
+        //         child: child,
+        //       );
+        //     },
+        //     switchInCurve: Curves.easeOutExpo,
+        //     switchOutCurve: Curves.easeInExpo,
+        //     child: imageWidget,
+        //   );
+        // }
+
         return Stack(
           children: [
             SizedBox.expand(
@@ -90,23 +112,7 @@ class ImagePhviewer {
                 duration: const Duration(milliseconds: 400),
                 scale: _zoomScales[currentZoomLevel],
                 curve: Curves.easeOutExpo,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
-                  transitionBuilder: (child, animation) {
-                    return ScaleTransition(
-                      scale: animation,
-                      child: child,
-                    );
-                  },
-                  switchInCurve: Curves.easeOutExpo,
-                  switchOutCurve: Curves.easeInExpo,
-                  child: Image.file(
-                    key: Key('i${model.currentImageIndex.toString()}'),
-                    gaplessPlayback: true,
-                    filterQuality: FilterQuality.medium,
-                    imageFile,
-                  ),
-                ),
+                child: imageWidget,
               ),
             ),
             if (_blurLevel > 0)
