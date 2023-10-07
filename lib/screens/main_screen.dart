@@ -483,6 +483,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             _imageRightClickMenuController.open(
                 position: details.localPosition);
           },
+          onTertiaryTapDown: (details) {
+            setState(() {
+              imagePhviewer.resetZoomLevel();
+            });
+          },
           child: MenuAnchor(
             anchorTapClosesMenu: true,
             controller: _imageRightClickMenuController,
@@ -572,8 +577,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
 
       return Positioned.fill(
-        top: 30,
-        bottom: 50,
+        top: 50,
+        bottom: 80,
         left: 10,
         right: 10,
         child: Row(
@@ -689,6 +694,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _topRightWindowControls() {
+    const textStyle = TextStyle(color: Color(0x55555555), fontSize: 12);
+
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Opacity(
@@ -719,9 +726,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               child: Text(
                 'For testing only\n0.5.20231006a',
                 textAlign: TextAlign.right,
-                style: TextStyle(color: Color(0x55555555), fontSize: 12),
+                style: textStyle,
               ),
-            )
+            ),
+            if (imagePhviewer.currentZoomScale != 1.0)
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Text(
+                  'Zoom ${imagePhviewer.currentZoomScalePercent}%',
+                  textAlign: TextAlign.right,
+                  style: textStyle,
+                ),
+              )
           ],
         ),
       ),
@@ -771,6 +787,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _bottomBar() {
+    const double buttonOpacity = 0.4;
     if (isBottomBarMinimized) {
       return const Positioned(
         bottom: 1,
@@ -800,18 +817,30 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
 
       final filtersButton = Opacity(
-        opacity: 0.4,
+        opacity: buttonOpacity,
         child: IconButton(
-          onPressed: () {
-            setState(() => isShowingFiltersMenu = true);
-          },
+          onPressed: () => setState(() => isShowingFiltersMenu = true),
           tooltip: 'Filters',
           icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
         ),
       );
 
+      final resetZoomButton = Opacity(
+        opacity: buttonOpacity,
+        child: IconButton(
+          tooltip: 'Reset zoom',
+          onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
+          icon: const Icon(
+            Icons.youtube_searched_for,
+            color: Colors.grey,
+            //size: 20,
+          ),
+        ),
+      );
+
       if (model.hasFilesLoaded) {
         return [
+          if (!imagePhviewer.isZoomLevelDefault) resetZoomButton,
           filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),

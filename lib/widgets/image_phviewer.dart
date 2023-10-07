@@ -27,7 +27,8 @@ class ImagePhviewer {
 
   int currentZoomLevel = _defaultZoomLevel;
   double get currentZoomScale => _zoomScales[currentZoomLevel];
-  
+  bool get isZoomLevelDefault => (currentZoomLevel == _defaultZoomLevel);
+
   int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
 
   bool get isFilterActive => (_isUsingGrayscale || _blurLevel > 0);
@@ -35,6 +36,10 @@ class ImagePhviewer {
   double get blurLevel => _blurLevel;
 
   Function(IconData icon, String text)? onNotify;
+
+  void resetZoomLevel() {
+    currentZoomLevel = _defaultZoomLevel;
+  }
 
   void resetAllFilters() {
     _isUsingGrayscale = false;
@@ -47,10 +52,6 @@ class ImagePhviewer {
 
   void setGrayscaleActive(bool active) {
     _isUsingGrayscale = active;
-  }
-
-  void resetZoomLevel() {
-    currentZoomLevel = _defaultZoomLevel;
   }
 
   void toggleGrayscale() {
