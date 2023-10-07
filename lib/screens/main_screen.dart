@@ -399,6 +399,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleTimerPlayPause() {
+    if (widget.model.isTimerRunning) {
+      _playPauseIconStateAnimator.forward();
+    } else {
+      _playPauseIconStateAnimator.reverse();
+    }
     _playClickSound();
   }
 
@@ -472,12 +477,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
 
     return PfsAppModel.scope((_, __, model) {
-      if (model.isTimerRunning) {
-        _playPauseIconStateAnimator.forward();
-      } else {
-        _playPauseIconStateAnimator.reverse();
-      }
-
       Widget imageRightClick({Widget? child}) {
         return GestureDetector(
           onSecondaryTapDown: (details) {
