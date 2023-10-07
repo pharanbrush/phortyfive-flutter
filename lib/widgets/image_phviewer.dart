@@ -70,7 +70,9 @@ class ImagePhviewer {
     const normalPadding = EdgeInsets.only(bottom: 45);
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
 
-    return Padding(
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutExpo,
       padding: padding,
       child: PfsAppModel.scope((_, __, model) {
         const defaultImage = '';
