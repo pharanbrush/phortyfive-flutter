@@ -923,6 +923,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _playClickSound() {
     if (!isSoundsEnabled) return;
+    if (!widget.model.isTimerRunning) return;
     clicker.play(_clickSound);
   }
 }
