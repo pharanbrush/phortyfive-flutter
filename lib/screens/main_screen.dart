@@ -244,57 +244,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     model.onImageChange ??= _handleOnImageChange;
   }
 
-  Widget _blurSlider() {
-    return Row(
-      children: [
-        const Text('Blur'),
-        Slider(
-          min: 0,
-          max: 12,
-          divisions: 12,
-          label: imagePhviewer.blurLevel.toInt().toString(),
-          onChanged: (value) {
-            setState(() {
-              imagePhviewer.setBlurLevel(value);
-            });
-          },
-          value: imagePhviewer.blurLevel,
-        ),
-      ],
-    );
-  }
-
-  Widget _grayscaleCheckbox() {
-    return SizedBox(
-      width: 250,
-      child: SegmentedButton<ImageColorMode>(
-        emptySelectionAllowed: false,
-        multiSelectionEnabled: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: const [
-          ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.color,
-              label: Text('Color'),
-              icon: Icon(Icons.color_lens)),
-          ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.grayscale,
-              label: Text('Grayscale'),
-              icon: Icon(Icons.invert_colors)),
-        ],
-        selected: imagePhviewer.isUsingGrayscale
-            ? {ImageColorMode.grayscale}
-            : {ImageColorMode.color},
-        onSelectionChanged: (Set<ImageColorMode> newSelection) {
-          setState(() {
-            final isSelectionGrayscale =
-                newSelection.contains(ImageColorMode.grayscale);
-            imagePhviewer.setGrayscaleActive(isSelectionGrayscale);
-          });
-        },
-      ),
-    );
-  }
-
   Widget _filterMenu() {
     const decoration = BoxDecoration(
         color: Colors.white,
@@ -350,8 +299,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      _grayscaleCheckbox(),
-                      _blurSlider(),
+                      ColorModeButtons(
+                        imagePhviewer: imagePhviewer,
+                        onSelectionChanged: (Set<ImageColorMode> newSelection) {
+                          setState(() {
+                            final isSelectionGrayscale =
+                                newSelection.contains(ImageColorMode.grayscale);
+                            imagePhviewer
+                                .setGrayscaleActive(isSelectionGrayscale);
+                          });
+                        },
+                      ),
+                      BlurSlider(
+                        imagePhviewer: imagePhviewer,
+                        onChanged: (value) {
+                          setState(() {
+                            imagePhviewer.setBlurLevel(value);
+                          });
+                        },
+                      ),
                     ]),
               ),
             ),
@@ -936,5 +902,70 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     if (!isSoundsEnabled) return;
     if (!widget.model.isTimerRunning) return;
     clicker.play(_clickSound);
+  }
+}
+
+class BlurSlider extends StatelessWidget {
+  const BlurSlider(
+      {super.key, required this.imagePhviewer, required this.onChanged});
+
+  final ImagePhviewer imagePhviewer;
+  final Function(double) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Blur'),
+        Slider(
+          min: 0,
+          max: 12,
+          divisions: 12,
+          label: imagePhviewer.blurLevel.toInt().toString(),
+          onChanged: (value) {
+            onChanged(value);
+          },
+          value: imagePhviewer.blurLevel,
+        ),
+      ],
+    );
+  }
+}
+
+class ColorModeButtons extends StatelessWidget {
+  const ColorModeButtons(
+      {super.key,
+      required this.imagePhviewer,
+      required this.onSelectionChanged});
+
+  final ImagePhviewer imagePhviewer;
+  final Function(Set<ImageColorMode> newSelection) onSelectionChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 250,
+      child: SegmentedButton<ImageColorMode>(
+        emptySelectionAllowed: false,
+        multiSelectionEnabled: false,
+        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+        segments: const [
+          ButtonSegment<ImageColorMode>(
+              value: ImageColorMode.color,
+              label: Text('Color'),
+              icon: Icon(Icons.color_lens)),
+          ButtonSegment<ImageColorMode>(
+              value: ImageColorMode.grayscale,
+              label: Text('Grayscale'),
+              icon: Icon(Icons.invert_colors)),
+        ],
+        selected: imagePhviewer.isUsingGrayscale
+            ? {ImageColorMode.grayscale}
+            : {ImageColorMode.color},
+        onSelectionChanged: (Set<ImageColorMode> newSelection) {
+          onSelectionChanged(newSelection);
+        },
+      ),
+    );
   }
 }
