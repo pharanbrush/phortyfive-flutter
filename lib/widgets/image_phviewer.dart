@@ -10,12 +10,10 @@ import 'package:url_launcher/url_launcher.dart';
 class ImagePhviewer {
   ImagePhviewer({this.onNotify});
 
-  static const List<double> _zoomLevels = [
+  static const List<double> _zoomScales = [
     0.25,
     0.5,
     0.75,
-    1.0,
-    1.0,
     1.0,
     1.5,
     2.0,
@@ -28,6 +26,9 @@ class ImagePhviewer {
   double _blurLevel = 0;
 
   int currentZoomLevel = _defaultZoomLevel;
+  double get currentZoomScale => _zoomScales[currentZoomLevel];
+  
+  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
 
   bool get isFilterActive => (_isUsingGrayscale || _blurLevel > 0);
   bool get isUsingGrayscale => _isUsingGrayscale;
@@ -58,7 +59,7 @@ class ImagePhviewer {
 
   void incrementZoomLevel(int increment) {
     currentZoomLevel += increment;
-    currentZoomLevel = currentZoomLevel.clamp(0, _zoomLevels.length - 1);
+    currentZoomLevel = currentZoomLevel.clamp(0, _zoomScales.length - 1);
   }
 
   Widget widget(bool isBottomBarMinimized) {
@@ -86,7 +87,7 @@ class ImagePhviewer {
             SizedBox.expand(
               child: AnimatedScale(
                 duration: const Duration(milliseconds: 400),
-                scale: 1.0 / _zoomLevels[currentZoomLevel],
+                scale: _zoomScales[currentZoomLevel],
                 curve: Curves.easeOutExpo,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 180),

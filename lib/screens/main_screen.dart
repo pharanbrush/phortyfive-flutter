@@ -545,12 +545,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
 
       Widget zoomOnScrollListener({Widget? child}) {
-        void incrementZoomLevel(int increment) =>
-            setState(() => imagePhviewer.incrementZoomLevel(increment));
+        void incrementZoomLevel(int increment) => setState(() {
+              imagePhviewer.incrementZoomLevel(increment);
+              //_showSnackBar(content: SnackbarPhmessage(text: 'Zoom ${imagePhviewer.currentZoomScalePercent}%'));
+            });
 
         return scrollListener(
-          onScrollDown: () => incrementZoomLevel(1),
-          onScrollUp: () => incrementZoomLevel(-1),
+          onScrollDown: () => incrementZoomLevel(-1),
+          onScrollUp: () => incrementZoomLevel(1),
           child: child,
         );
       }
