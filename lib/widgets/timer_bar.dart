@@ -25,10 +25,17 @@ class TimerBar extends StatelessWidget {
                   : TimerBar.runningColor)
               : TimerBar.pausedColor;
 
-          return LinearProgressIndicator(
-            backgroundColor: Colors.black12,
-            valueColor: AlwaysStoppedAnimation<Color>(barColor),
-            value: barValue,
+          return TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutQuart,
+            tween: Tween<double>(begin: 0, end: barValue),
+            builder: (_, value, __) {
+              return LinearProgressIndicator(
+                backgroundColor: Colors.black12,
+                valueColor: AlwaysStoppedAnimation<Color>(barColor),
+                value: value,
+              );
+            },
           );
         },
       ),
