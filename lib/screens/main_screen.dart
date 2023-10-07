@@ -569,7 +569,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           width: 100,
           child: nextPreviousOnScrollListener(
             child: OverlayButton(
-              onPressed: () => model.previousImageNewTimer(),
+              onPressed: onPressed,
               child: child,
             ),
           ),
