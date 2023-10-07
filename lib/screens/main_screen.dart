@@ -494,31 +494,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         );
       }
 
-      Widget scrollListener({
-        Function()? onScrollUp,
-        Function()? onScrollDown,
-        Widget? child,
-      }) {
-        return Listener(
-          onPointerSignal: (pointerEvent) {
-            if (pointerEvent is PointerScrollEvent) {
-              PointerScrollEvent scroll = pointerEvent;
-              final dy = scroll.scrollDelta.dy;
-              final bool isScrollDown = dy > 0;
-              final bool isScrollUp = dy < 0;
-              if (isScrollDown) {
-                onScrollDown?.call();
-              } else if (isScrollUp) {
-                onScrollUp?.call();
-              }
-            }
-          },
-          child: child,
-        );
-      }
-
       Widget nextPreviousOnScrollListener({Widget? child}) {
-        return scrollListener(
+        return ScrollListener(
           onScrollDown: () => model.nextImageNewTimer(),
           onScrollUp: () => model.previousImageNewTimer(),
           child: child,
@@ -531,7 +508,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               //_showSnackBar(content: SnackbarPhmessage(text: 'Zoom ${imagePhviewer.currentZoomScalePercent}%'));
             });
 
-        return scrollListener(
+        return ScrollListener(
           onScrollDown: () => incrementZoomLevel(-1),
           onScrollUp: () => incrementZoomLevel(1),
           child: child,
@@ -966,6 +943,34 @@ class ColorModeButtons extends StatelessWidget {
           onSelectionChanged(newSelection);
         },
       ),
+    );
+  }
+}
+
+class ScrollListener extends StatelessWidget {
+  const ScrollListener(
+      {super.key, this.onScrollDown, this.onScrollUp, required this.child});
+
+  final Function()? onScrollUp, onScrollDown;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerSignal: (pointerEvent) {
+        if (pointerEvent is PointerScrollEvent) {
+          PointerScrollEvent scroll = pointerEvent;
+          final dy = scroll.scrollDelta.dy;
+          final bool isScrollDown = dy > 0;
+          final bool isScrollUp = dy < 0;
+          if (isScrollDown) {
+            onScrollDown?.call();
+          } else if (isScrollUp) {
+            onScrollUp?.call();
+          }
+        }
+      },
+      child: child,
     );
   }
 }
