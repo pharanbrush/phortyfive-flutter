@@ -48,12 +48,14 @@ class Phbuttons {
     );
   }
 
-  static Widget playPauseTimer() {
+  static Widget playPauseTimer(Animation<double> progress) {
     return PfsAppModel.scope((_, __, model) {
       const playButtonTooltip = 'Timer paused. Press to resume (P)';
       const pauseButtonTooltip = 'Timer running. Press to pause (P)';
-      const playIcon = Icon(Icons.play_arrow);
-      const pauseIcon = Icon(Icons.pause);
+      var icon = AnimatedIcon(
+        icon: AnimatedIcons.play_pause,
+        progress: progress,
+      );
       const Color pausedColor = Color.fromARGB(255, 255, 196, 0);
       const Color playingColor = accentColor;
 
@@ -62,7 +64,6 @@ class Phbuttons {
           ? (model.isTimerRunning ? playingColor : pausedColor)
           : Colors.grey.shade500;
 
-      final icon = model.isTimerRunning ? pauseIcon : playIcon;
       final style = FilledButton.styleFrom(backgroundColor: buttonColor);
       final tooltipText =
           model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
@@ -74,7 +75,7 @@ class Phbuttons {
           onPressed: () => model.playPauseToggleTimer(),
           child: SizedBox(
             width: 50,
-            child: icon,
+            child: Align(alignment: Alignment.center, child: icon),
           ),
         ),
       );
@@ -82,7 +83,8 @@ class Phbuttons {
   }
 
   static Widget openFiles() {
-    const toolTipText = 'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
+    const toolTipText =
+        'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
     const color = Colors.white;
 
     var style = FilledButton.styleFrom(backgroundColor: accentColor);

@@ -8,7 +8,7 @@ class OverlayButton extends StatelessWidget {
 
   static Color getIconColor(Set<MaterialState> states) {
     if (states.contains(MaterialState.hovered)) {
-      return Colors.black45;
+      return const Color(0xFF242424);
     }
 
     return Colors.transparent;
@@ -16,7 +16,7 @@ class OverlayButton extends StatelessWidget {
 
   static Color getButtonColor(Set<MaterialState> states) {
     if (states.contains(MaterialState.hovered)) {
-      return const Color(0x11DDDDDD);
+      return const Color(0x22DDDDDD);
     }
 
     return Colors.transparent;
@@ -34,10 +34,13 @@ class OverlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      style: style,
-      onPressed: onPressed,
-      child: child,
+    return Opacity(
+      opacity: 0.4,
+      child: TextButton(
+        style: style,
+        onPressed: onPressed,
+        child: child,
+      ),
     );
   }
 }

@@ -87,7 +87,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode();
 
   final clicker = AudioPlayer();
@@ -151,10 +151,22 @@ class _MainScreenState extends State<MainScreen> {
   bool isShowingCheatSheet = false;
   bool isShowingFiltersMenu = false;
 
+  late AnimationController _playPauseIconStateAnimator;
+
   @override
   void initState() {
+    _playPauseIconStateAnimator = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
     _bindModelCallbacks();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _playPauseIconStateAnimator.dispose();
+    super.dispose();
   }
 
   @override
@@ -268,7 +280,6 @@ class _MainScreenState extends State<MainScreen> {
             imagePhviewer.setGrayscaleActive(isSelectionGrayscale);
           });
         },
-        
       ),
     );
   }
@@ -454,12 +465,18 @@ class _MainScreenState extends State<MainScreen> {
   Widget _gestureControls() {
     const Icon beforeIcon = Icon(Icons.navigate_before, size: 100);
     const Icon nextIcon = Icon(Icons.navigate_next, size: 100);
-
-    const Icon playIcon = Icon(Icons.play_arrow, size: 80);
-    const Icon pauseIcon = Icon(Icons.pause, size: 80);
+    AnimatedIcon playPauseIcon = AnimatedIcon(
+      icon: AnimatedIcons.play_pause,
+      size: 80,
+      progress: _playPauseIconStateAnimator,
+    );
 
     return PfsAppModel.scope((_, __, model) {
-      Icon playPauseIcon = model.isTimerRunning ? pauseIcon : playIcon;
+      if (model.isTimerRunning) {
+        _playPauseIconStateAnimator.forward();
+      } else {
+        _playPauseIconStateAnimator.reverse();
+      }
 
       Widget imageRightClick({Widget? child}) {
         return GestureDetector(
@@ -570,8 +587,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: zoomOnScrollListener(
                   child: imageRightClick(
                     child: OverlayButton(
-                      onPressed: () =>
-                          model.setTimerActive(!model.isTimerRunning),
+                      onPressed: () => model.playPauseToggleTimer(),
                       child: playPauseIcon,
                     ),
                   ),
@@ -862,7 +878,7 @@ class _MainScreenState extends State<MainScreen> {
               'Previous Image (K)',
             ),
           ),
-          Phbuttons.playPauseTimer(),
+          Phbuttons.playPauseTimer(_playPauseIconStateAnimator),
           PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.nextImageNewTimer(),
