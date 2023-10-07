@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pfs2/models/pfs_model.dart';
@@ -14,6 +13,7 @@ import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
 import 'package:pfs2/widgets/timer_duration_panel.dart';
+import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
@@ -947,30 +947,4 @@ class ColorModeButtons extends StatelessWidget {
   }
 }
 
-class ScrollListener extends StatelessWidget {
-  const ScrollListener(
-      {super.key, this.onScrollDown, this.onScrollUp, required this.child});
 
-  final Function()? onScrollUp, onScrollDown;
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Listener(
-      onPointerSignal: (pointerEvent) {
-        if (pointerEvent is PointerScrollEvent) {
-          PointerScrollEvent scroll = pointerEvent;
-          final dy = scroll.scrollDelta.dy;
-          final bool isScrollDown = dy > 0;
-          final bool isScrollUp = dy < 0;
-          if (isScrollDown) {
-            onScrollDown?.call();
-          } else if (isScrollUp) {
-            onScrollUp?.call();
-          }
-        }
-      },
-      child: child,
-    );
-  }
-}
