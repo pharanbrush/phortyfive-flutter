@@ -4,15 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
-import 'package:pfs2/widgets/help_sheet.dart';
-import 'package:pfs2/widgets/image_drop_target.dart';
+import 'package:pfs2/widgets/panels/help_sheet.dart';
+import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/timer_bar.dart';
-import 'package:pfs2/widgets/timer_duration_panel.dart';
+import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
