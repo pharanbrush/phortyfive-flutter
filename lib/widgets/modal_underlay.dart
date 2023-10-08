@@ -6,17 +6,14 @@ class ModalUnderlay extends StatelessWidget {
   final Function()? onTapDown;
   final bool isTransparent;
 
-  static const fadeStyle = BoxDecoration(color: Colors.white60);
-  static const transparentStyle = BoxDecoration(color: Colors.transparent);
+  static const fadeColor = Colors.white60;
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: GestureDetector(
-        onTapDown: (details) => onTapDown!(),
-        child:
-            Container(decoration: isTransparent ? transparentStyle : fadeStyle),
-      ),
+    return ModalBarrier(
+      dismissible: true,
+      onDismiss: onTapDown,
+      color: isTransparent ? Colors.transparent : fadeColor,
     );
   }
 }
