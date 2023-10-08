@@ -23,8 +23,8 @@ class HelpSheet extends StatelessWidget {
     borderRadius: BorderRadius.all(Radius.circular(20)),
   );
 
-  const HelpSheet({super.key, this.onTapUnderlay});
-  final Function()? onTapUnderlay;
+  const HelpSheet({super.key, this.onDismiss});
+  final Function()? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class HelpSheet extends StatelessWidget {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        ModalUnderlay(onTapDown: onTapUnderlay),
+        ModalUnderlay(onTapDown: onDismiss),
         Center(
           child: Material(
             color: Colors.transparent,

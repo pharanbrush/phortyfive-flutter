@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/widgets/panels/filter_menu.dart';
 import 'package:pfs2/widgets/panels/help_sheet.dart';
 import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
@@ -132,15 +132,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   };
 
   late TimerDurationPanel timerDurationWidget =
-      TimerDurationPanel(onCloseIntent: _doStopEditingCustomTime);
-  late ImagePhviewer imagePhviewer =
-      ImagePhviewer(onNotify: (iconData, message) {
-    _showSnackBar(
-        content: SnackbarPhmessage(
-      text: message,
-      icon: iconData,
-    ));
-  });
+      TimerDurationPanel(onDismiss: _doStopEditingCustomTime);
+  late ImagePhviewer imagePhviewer = ImagePhviewer(
+    onNotify: (iconData, message) {
+      _showSnackBar(
+          content: SnackbarPhmessage(
+        text: message,
+        icon: iconData,
+      ));
+    },
+    onStateChange: _handleStateChange,
+  );
 
   bool rightControlsOrientation = true;
   bool isBottomBarMinimized = false;
@@ -151,14 +153,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   bool isShowingCheatSheet = false;
   bool isShowingFiltersMenu = false;
 
-  late AnimationController _playPauseIconStateAnimator;
+  late final AnimationController _playPauseIconStateAnimator =
+      AnimationController(
+    duration: const Duration(milliseconds: 200),
+    vsync: this,
+  );
 
   @override
   void initState() {
-    _playPauseIconStateAnimator = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
     _bindModelCallbacks();
     super.initState();
   }
@@ -222,9 +224,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           modalMenu(
             isOpen: isShowingCheatSheet,
             builder: () =>
-                HelpSheet(onTapUnderlay: () => _setCheatSheetActive(false)),
+                HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
           ),
-          modalMenu(isOpen: isShowingFiltersMenu, builder: _filterMenu),
+          modalMenu(
+            isOpen: isShowingFiltersMenu,
+            builder: () => FilterMenu(
+              imagePhviewer: imagePhviewer,
+              onDismiss: () {
+                setState(() {
+                  isShowingFiltersMenu = false;
+                });
+              },
+            ),
+          ),
           _dockingControls(),
         ],
       ),
@@ -242,89 +254,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
-  }
-
-  Widget _filterMenu() {
-    const decoration = BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)]);
-    const padding = EdgeInsets.symmetric(horizontal: 25, vertical: 15);
-
-    const heading = Row(
-      children: [
-        Icon(Icons.invert_colors, color: Color(0xFFE4E4E4), size: 14),
-        SizedBox(width: 7),
-        Text(
-          'Filters',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-
-    return Stack(
-      children: [
-        ModalUnderlay(
-          isTransparent: true,
-          onTapDown: () => setState(() => isShowingFiltersMenu = false),
-        ),
-        Positioned(
-          bottom: 10,
-          right: 280,
-          child: SizedBox(
-            child: Container(
-              decoration: decoration,
-              child: Padding(
-                padding: padding,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 250,
-                        child: Row(
-                          children: [
-                            heading,
-                            const Expanded(child: Text('')),
-                            IconButton(
-                                tooltip: 'Reset all filters',
-                                onPressed: imagePhviewer.isFilterActive
-                                    ? () => setState(
-                                        () => imagePhviewer.resetAllFilters())
-                                    : null,
-                                icon: const Icon(Icons.format_color_reset)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      ColorModeButtons(
-                        imagePhviewer: imagePhviewer,
-                        onSelectionChanged: (Set<ImageColorMode> newSelection) {
-                          setState(() {
-                            final isSelectionGrayscale =
-                                newSelection.contains(ImageColorMode.grayscale);
-                            imagePhviewer
-                                .setGrayscaleActive(isSelectionGrayscale);
-                          });
-                        },
-                      ),
-                      BlurSlider(
-                        imagePhviewer: imagePhviewer,
-                        onChanged: (value) {
-                          setState(() {
-                            imagePhviewer.setBlurLevel(value);
-                          });
-                        },
-                      ),
-                    ]),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   void _cancelAllModals() {
@@ -373,6 +302,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _handleOnImageChange() {
     setState(() => imagePhviewer.resetZoomLevel());
+  }
+
+  void _handleStateChange() {
+    setState(() {});
   }
 
   void _handleTimerPlayPause() {
@@ -881,70 +814,3 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     clicker.play(_clickSound);
   }
 }
-
-class BlurSlider extends StatelessWidget {
-  const BlurSlider(
-      {super.key, required this.imagePhviewer, required this.onChanged});
-
-  final ImagePhviewer imagePhviewer;
-  final Function(double) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Blur'),
-        Slider(
-          min: 0,
-          max: 12,
-          divisions: 12,
-          label: imagePhviewer.blurLevel.toInt().toString(),
-          onChanged: (value) {
-            onChanged(value);
-          },
-          value: imagePhviewer.blurLevel,
-        ),
-      ],
-    );
-  }
-}
-
-class ColorModeButtons extends StatelessWidget {
-  const ColorModeButtons(
-      {super.key,
-      required this.imagePhviewer,
-      required this.onSelectionChanged});
-
-  final ImagePhviewer imagePhviewer;
-  final Function(Set<ImageColorMode> newSelection) onSelectionChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 250,
-      child: SegmentedButton<ImageColorMode>(
-        emptySelectionAllowed: false,
-        multiSelectionEnabled: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: const [
-          ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.color,
-              label: Text('Color'),
-              icon: Icon(Icons.color_lens)),
-          ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.grayscale,
-              label: Text('Grayscale'),
-              icon: Icon(Icons.invert_colors)),
-        ],
-        selected: imagePhviewer.isUsingGrayscale
-            ? {ImageColorMode.grayscale}
-            : {ImageColorMode.color},
-        onSelectionChanged: (Set<ImageColorMode> newSelection) {
-          onSelectionChanged(newSelection);
-        },
-      ),
-    );
-  }
-}
-
-

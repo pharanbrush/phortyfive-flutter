@@ -15,7 +15,7 @@ class TimerDurationPanel extends StatelessWidget {
   static const Color textColor = Colors.white;
   static const Color outlineColor = Color(0xFF0F6892);
 
-  final Function()? onCloseIntent;
+  final Function()? onDismiss;
 
   final TextEditingController timerTextEditorController =
       TextEditingController(text: '');
@@ -23,7 +23,7 @@ class TimerDurationPanel extends StatelessWidget {
   final FocusNode timerTextEditorFocusNode =
       FocusNode(debugLabel: 'Timer Text Editor');
 
-  TimerDurationPanel({super.key, required this.onCloseIntent});
+  TimerDurationPanel({super.key, required this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +68,7 @@ class TimerDurationPanel extends StatelessWidget {
               style: FilledButton.styleFrom(padding: const EdgeInsets.all(10)),
               onPressed: () {
                 model.setTimerSeconds(seconds);
-                onCloseIntent!();
+                onDismiss!();
               },
               child: Text(text),
             ),
@@ -82,7 +82,7 @@ class TimerDurationPanel extends StatelessWidget {
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(10)),
             onPressed: () {
               model.setTimerSeconds(seconds);
-              onCloseIntent!();
+              onDismiss!();
             },
             child: Text(text),
           ),
@@ -91,7 +91,7 @@ class TimerDurationPanel extends StatelessWidget {
 
       return Stack(
         children: [
-          ModalUnderlay(onTapDown: () => onCloseIntent!()),
+          ModalUnderlay(onTapDown: () => onDismiss!()),
           Positioned(
             right: rightMargin,
             bottom: (-radius) + bottomOffset,
@@ -105,7 +105,7 @@ class TimerDurationPanel extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTapDown: (details) {
-                        onCloseIntent!();
+                        onDismiss!();
                       },
                       child: Container(
                         decoration: const BoxDecoration(
@@ -150,7 +150,7 @@ class TimerDurationPanel extends StatelessWidget {
                                     ),
                                     onSubmitted: (value) {
                                       model.trySetTimerSecondsInput(value);
-                                      onCloseIntent!();
+                                      onDismiss!();
                                     },
                                   )),
                               const SizedBox(height: 3),

@@ -8,7 +8,7 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
-  ImagePhviewer({this.onNotify});
+  ImagePhviewer({this.onNotify, required this.onStateChange});
 
   static const List<double> _zoomScales = [
     0.25,
@@ -36,26 +36,29 @@ class ImagePhviewer {
   double get blurLevel => _blurLevel;
 
   Function(IconData icon, String text)? onNotify;
+  Function()? onStateChange;
 
   void resetZoomLevel() {
     currentZoomLevel = _defaultZoomLevel;
   }
 
   void resetAllFilters() {
-    _isUsingGrayscale = false;
-    _blurLevel = 0;
+    setGrayscaleActive(false);
+    setBlurLevel(0);
+  }
+
+  void toggleGrayscale() {
+    setGrayscaleActive(!_isUsingGrayscale);
   }
 
   void setBlurLevel(double newBlurLevel) {
     _blurLevel = newBlurLevel;
+    onStateChange?.call();
   }
 
   void setGrayscaleActive(bool active) {
     _isUsingGrayscale = active;
-  }
-
-  void toggleGrayscale() {
-    _isUsingGrayscale = !_isUsingGrayscale;
+    onStateChange?.call();
   }
 
   void incrementZoomLevel(int increment) {
