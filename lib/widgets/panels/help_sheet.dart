@@ -175,9 +175,9 @@ class HelpSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (modifier != null) _keySymbol(modifier),
+                if (modifier != null) KeySymbol(modifier),
                 if (modifier != null) const Text(' + '),
-                _keySymbol(key),
+                KeySymbol(key),
               ],
             ),
           ),
@@ -186,14 +186,22 @@ class HelpSheet extends StatelessWidget {
     );
   }
 
-  Widget _keySymbol(String key) {
-    const double height = 32;
-    const double minWidth = 32;
-    const double verticalPadding = 3;
-    const double horizontalPadding = 8;
-    const double borderRadius = 5;
-    const Color keyColor = Color(0xFF272727);
+}
 
+class KeySymbol extends StatelessWidget {
+  const KeySymbol(this.label, {super.key,});
+
+  final String label;
+
+  static const double height = 32;
+  static const double minWidth = 32;
+  static const double verticalPadding = 3;
+  static const double horizontalPadding = 8;
+  static const double borderRadius = 5;
+  static const Color keyColor = Color(0xFF272727);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(minWidth: minWidth, minHeight: height),
       padding: const EdgeInsets.symmetric(
@@ -204,7 +212,7 @@ class HelpSheet extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         color: keyColor,
       ),
-      child: Text(key),
+      child: Text(label),
     );
   }
 }
