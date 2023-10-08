@@ -77,31 +77,29 @@ class HelpSheet extends StatelessWidget {
                         const Expanded(child: Text('')),
                         Padding(
                           padding: padding,
-                          child: Column(
+                          child: const Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                _shortcutItem('Next image', 'J'),
-                                _shortcutItem('Previous image', 'K'),
-                                const Text(''),
-                                _shortcutItem('Play/Pause', 'P'),
-                                _shortcutItem('Restart timer', 'R'),
-                                _shortcutItem('Change timer duration', 'F2'),
+                                ShortcutListItem(text: 'Next image', keyLabel: 'J'),
+                                ShortcutListItem(text: 'Previous image', keyLabel: 'K'),
+                                Text(''),
+                                ShortcutListItem(text: 'Play/Pause', keyLabel: 'P'),
+                                ShortcutListItem(text: 'Restart timer', keyLabel: 'R'),
+                                ShortcutListItem(text: 'Change timer duration', keyLabel: 'F2'),
                               ]),
                         ),
                         if (!isWindowVeryNarrow)
                           Padding(
                             padding: padding,
-                            child: Column(
+                            child: const Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  _shortcutItem('Open images...', 'O',
-                                      modifier: 'Ctrl'),
-                                  _shortcutItem('Toggle "Always on top"', 'T',
-                                      modifier: 'Ctrl'),
-                                  _shortcutItem('Show/hide bottom bar', 'H'),
-                                  _shortcutItem('Open help sheet', 'F1'),
-                                  _shortcutItem('Mute/unmute sounds', 'M'),
+                                  ShortcutListItem(text: 'Open images...', modifier: 'Ctrl', keyLabel: 'O',),
+                                  ShortcutListItem(text: 'Toggle "Always on top"', modifier: 'Ctrl', keyLabel: 'T',),
+                                  ShortcutListItem(text: 'Show/hide bottom bar', keyLabel: 'H'),
+                                  ShortcutListItem(text: 'Open help sheet', keyLabel: 'F1'),
+                                  ShortcutListItem(text: 'Mute/unmute sounds', keyLabel: 'M'),
                                 ]),
                           ),
                         if (isWindowVeryNarrow)
@@ -156,8 +154,16 @@ class HelpSheet extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _shortcutItem(String text, String key, {String? modifier}) {
+class ShortcutListItem extends StatelessWidget {
+  const ShortcutListItem(
+      {super.key, this.text, this.keyLabel, this.modifier, this.modifier2});
+
+  final String? text, keyLabel, modifier, modifier2;
+
+  @override
+  Widget build(BuildContext context) {
     const double textWidth = 160;
     const double keysWidth = 100;
     const double padding = 3;
@@ -166,18 +172,21 @@ class HelpSheet extends StatelessWidget {
       padding: const EdgeInsets.all(padding),
       child: Row(
         children: [
-          SizedBox(
-            width: textWidth,
-            child: Text(text),
-          ),
+          if (text != null)
+            SizedBox(
+              width: textWidth,
+              child: Text(text!),
+            ),
           SizedBox(
             width: keysWidth,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (modifier != null) KeySymbol(modifier),
+                if (modifier != null) KeySymbol(modifier!),
                 if (modifier != null) const Text(' + '),
-                KeySymbol(key),
+                if (modifier2 != null) KeySymbol(modifier2!),
+                if (modifier2 != null) const Text(' + '),
+                KeySymbol(keyLabel!),
               ],
             ),
           ),
@@ -185,11 +194,13 @@ class HelpSheet extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class KeySymbol extends StatelessWidget {
-  const KeySymbol(this.label, {super.key,});
+  const KeySymbol(
+    this.label, {
+    super.key,
+  });
 
   final String label;
 
