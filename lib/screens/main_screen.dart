@@ -2,7 +2,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
 import 'package:pfs2/widgets/panels/help_sheet.dart';
@@ -376,8 +375,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  final MenuController _imageRightClickMenuController = MenuController();
-
   Widget _gestureControls() {
     const Icon beforeIcon = Icon(Icons.navigate_before, size: 100);
     const Icon nextIcon = Icon(Icons.navigate_next, size: 100);
@@ -388,46 +385,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
 
     return PfsAppModel.scope((_, __, model) {
-      Widget imageRightClick({Widget? child}) {
-        return GestureDetector(
-          onSecondaryTapDown: (details) {
-            _imageRightClickMenuController.open(
-                position: details.localPosition);
-          },
-          onTertiaryTapDown: (details) {
-            setState(() {
-              imagePhviewer.resetZoomLevel();
-            });
-          },
-          child: MenuAnchor(
-            anchorTapClosesMenu: true,
-            controller: _imageRightClickMenuController,
-            menuChildren: [
-              PhcontextMenu.menuItemButton(
-                text: 'Reveal in File Explorer',
-                //icon: Icons.folder_open,
-                onPressed: () =>
-                    imagePhviewer.revealInExplorer(model.getCurrentImageData()),
-              ),
-              PhcontextMenu.menuItemButton(
-                text: 'Copy file path',
-                icon: Icons.copy,
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(
-                      text: model.getCurrentImageData().filePath));
-                  _showSnackBar(
-                      content: const SnackbarPhmessage(
-                    text: 'File path copied to clipboard.',
-                    icon: Icons.copy,
-                  ));
-                },
-              ),
-            ],
-            child: child,
-          ),
-        );
-      }
-
       Widget nextPreviousOnScrollListener({Widget? child}) {
         return ScrollListener(
           onScrollDown: () => model.nextImageNewTimer(),
@@ -479,7 +436,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             Expanded(
                 flex: 4,
                 child: zoomOnScrollListener(
-                  child: imageRightClick(
+                  child: imagePhviewer.imageRightClick(
+                    clipboardCopyHandler: _clipboardCopyHandler,
                     child: OverlayButton(
                       onPressed: () => model.playPauseToggleTimer(),
                       child: playPauseIcon,
@@ -494,6 +452,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ),
       );
     });
+  }
+
+  void _clipboardCopyHandler({newClipboardText, snackbarMessage}) => _setClipboardText(text: newClipboardText, snackbarMessage: snackbarMessage);
+
+  void _setClipboardText(
+      {required String text,
+      String? snackbarMessage,
+      IconData? icon = Icons.copy}) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (snackbarMessage != null) {
+      _showSnackBar(
+          content: SnackbarPhmessage(
+        text: snackbarMessage,
+        icon: icon,
+      ));
+    }
   }
 
   Widget _fileDropZone() {

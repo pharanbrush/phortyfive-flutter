@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -21,6 +22,8 @@ class ImagePhviewer {
     4.0
   ];
   static const _defaultZoomLevel = 3;
+
+  final MenuController imageMenuRightClickController = MenuController();
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
@@ -64,6 +67,40 @@ class ImagePhviewer {
   void incrementZoomLevel(int increment) {
     currentZoomLevel += increment;
     currentZoomLevel = currentZoomLevel.clamp(0, _zoomScales.length - 1);
+  }
+
+  Widget imageRightClick({Widget? child, void Function({required String newClipboardText, String? snackbarMessage})? clipboardCopyHandler}) {
+    return PfsAppModel.scope((_, __, model) {
+      return GestureDetector(
+        onSecondaryTapDown: (details) {
+          imageMenuRightClickController.open(position: details.localPosition);
+        },
+        onTertiaryTapDown: (details) {
+          () => resetZoomLevel();
+          onStateChange?.call();
+        },
+        child: MenuAnchor(
+          anchorTapClosesMenu: true,
+          controller: imageMenuRightClickController,
+          menuChildren: [
+            PhcontextMenu.menuItemButton(
+              text: 'Reveal in File Explorer',
+              //icon: Icons.folder_open,
+              onPressed: () => revealInExplorer(model.getCurrentImageData()),
+            ),
+            PhcontextMenu.menuItemButton(
+              text: 'Copy file path',
+              icon: Icons.copy,
+              onPressed: () => clipboardCopyHandler?.call(
+                newClipboardText: model.getCurrentImageData().filePath,
+                snackbarMessage: 'File path copied to clipboard.',
+              ),
+            ),
+          ],
+          child: child,
+        ),
+      );
+    });
   }
 
   Widget widget(bool isBottomBarMinimized) {
