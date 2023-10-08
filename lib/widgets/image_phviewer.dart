@@ -89,7 +89,7 @@ class ImagePhviewer {
         const opacity = 0.3;
 
         final imageWidget = Image.file(
-          key: Key('i${model.currentImageIndex.toString()}'),
+          //key: Key('i${model.currentImageIndex.toString()}'),
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           imageFile,
