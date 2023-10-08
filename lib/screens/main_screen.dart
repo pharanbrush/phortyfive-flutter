@@ -457,7 +457,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _clipboardCopyHandler({newClipboardText, snackbarMessage}) => _setClipboardText(text: newClipboardText, snackbarMessage: snackbarMessage);
+  void _clipboardCopyHandler({newClipboardText, snackbarMessage}) =>
+      _setClipboardText(
+          text: newClipboardText, snackbarMessage: snackbarMessage);
 
   void _setClipboardText(
       {required String text,
