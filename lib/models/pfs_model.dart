@@ -61,7 +61,7 @@ class PfsAppModel extends Model {
     return fileList.get(circulator.getCurrentIndex());
   }
 
-  void startCountdown() {
+  void tryStartCountdown() {
     if (_isCountdownEnabled) {
       _countdownRoutine();
     } else {
@@ -96,7 +96,7 @@ class PfsAppModel extends Model {
   void handleTimerElapsed() {
     nextImageNewTimer();
     onTimerElapse?.call();
-    startCountdown();
+    tryStartCountdown();
     notifyListeners();
   }
 
@@ -234,6 +234,7 @@ class PfsAppModel extends Model {
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
     _tryInitializeTimer();
+    tryStartCountdown();
     timerRestartAndNotifyListeners();
   }
 
