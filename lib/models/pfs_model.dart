@@ -12,9 +12,12 @@ class PfsAppModel extends Model {
 
   final Circulator circulator = Circulator();
   final FileList fileList = FileList();
-  final Phtimer timer = Phtimer();
+  final Phtimer timer = Phtimer();  
 
   bool isPickerOpen = false;
+  bool _isCountdownEnabled = true;
+  
+  bool get isCountdownEnabled => _isCountdownEnabled;
 
   int lastIncrement = 1;
 
@@ -24,6 +27,11 @@ class PfsAppModel extends Model {
 
   bool get allowTimerPlayPause => hasFilesLoaded;
   bool get allowCirculatorControl => hasFilesLoaded;
+
+  static const int countdownStart = 3;
+  int countdownLeft = 0;
+
+  bool get isCountingDown => countdownLeft > 0;
 
   int get currentImageIndex => circulator.getCurrentIndex();
 
@@ -35,6 +43,9 @@ class PfsAppModel extends Model {
   void Function()? onImageChange;
 
   void Function()? onFilesChanged;
+  void Function()? onCountdownStart;
+  void Function()? onCountdownElapsed;
+  void Function()? onCountdownUpdate;
 
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
 
@@ -50,15 +61,51 @@ class PfsAppModel extends Model {
     return fileList.get(circulator.getCurrentIndex());
   }
 
+  void startCountdown() {
+    if (_isCountdownEnabled) {
+      _countdownRoutine();
+    } else {
+      _countdownElapse();
+    }
+  }
+  
+  void setCountdownActive(bool active) {
+    _isCountdownEnabled = active;
+  }
+
+  void _countdownRoutine() async {
+    countdownLeft = countdownStart;
+    onCountdownStart?.call();
+
+    for (int i = 30; i > 0; i++) {
+      await Future.delayed(const Duration(seconds: 1));
+      countdownLeft--;
+      onCountdownUpdate?.call();
+      notifyListeners();
+      if (countdownLeft <= 0) break;
+    }
+    
+    timer.restart();
+    _countdownElapse();
+  }
+
+  void _countdownElapse() {
+    onCountdownElapsed?.call();
+  }
+
   void handleTimerElapsed() {
     nextImageNewTimer();
     onTimerElapse?.call();
+    startCountdown();
     notifyListeners();
   }
 
   void _handleTick() {
     if (timer.isActive) {
-      timer.handleTick();
+      if (!isCountingDown) {
+        timer.handleTick();
+      }
+
       notifyListeners();
     }
   }
