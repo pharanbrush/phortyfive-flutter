@@ -156,6 +156,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
     duration: const Duration(milliseconds: 200),
+    value: 1,   // BUG: the default 0 causes the icon to have the wrong initial state when the timer first plays.
     vsync: this,
   );
 
