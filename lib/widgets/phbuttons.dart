@@ -49,10 +49,10 @@ class Phbuttons {
   }
 
   static Widget playPauseTimer(Animation<double> progress) {
-    return PfsAppModel.scope((_, __, model) {
+    return PfsAppModel.scope((_, __, model) {      
       const playButtonTooltip = 'Timer paused. Press to resume (P)';
       const pauseButtonTooltip = 'Timer running. Press to pause (P)';
-      var icon = AnimatedIcon(
+      final icon = AnimatedIcon(
         icon: AnimatedIcons.play_pause,
         progress: progress,
       );
