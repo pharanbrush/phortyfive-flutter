@@ -140,7 +140,7 @@ class BlurSlider extends StatelessWidget {
     return Row(
       children: [
         const Text('Blur'),
-        Slider(
+        Slider.adaptive(
           min: 0,
           max: 12,
           divisions: 12,
