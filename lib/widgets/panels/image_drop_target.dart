@@ -12,8 +12,9 @@ class ImageDropTarget extends StatefulWidget {
     color: boxColor,
     borderRadius: BorderRadius.all(Radius.circular(5)),
   );
-  static const BoxDecoration hiddenBoxDecoration =
-      BoxDecoration(color: Colors.transparent);
+  static const BoxDecoration hiddenBoxDecoration = BoxDecoration(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.all(Radius.circular(15)));
 
   static const TextStyle textStyle =
       TextStyle(fontSize: 40, color: textColor, inherit: true);
@@ -82,7 +83,12 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
         },
         onDragEntered: (details) => _setDraggingActive(true),
         onDragExited: (details) => _setDraggingActive(false),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutQuart,
+          key: const Key('dropContainer'),
+          margin:
+              _isDragging ? const EdgeInsets.all(8) : const EdgeInsets.all(20),
           decoration: _isDragging
               ? ImageDropTarget.activeBoxDecoration
               : ImageDropTarget.hiddenBoxDecoration,
