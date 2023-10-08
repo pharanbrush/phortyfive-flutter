@@ -69,7 +69,11 @@ class ImagePhviewer {
     currentZoomLevel = currentZoomLevel.clamp(0, _zoomScales.length - 1);
   }
 
-  Widget imageRightClick({Widget? child, void Function({required String newClipboardText, String? snackbarMessage})? clipboardCopyHandler}) {
+  Widget imageRightClick(
+      {Widget? child,
+      void Function(
+              {required String newClipboardText, String? snackbarMessage})?
+          clipboardCopyHandler}) {
     return PfsAppModel.scope((_, __, model) {
       return GestureDetector(
         onSecondaryTapDown: (details) {
@@ -173,6 +177,8 @@ class ImagePhviewer {
                   opacity: opacity,
                   child: Tooltip(
                     message: 'Reveal in File Explorer',
+                    waitDuration: const Duration(milliseconds: 200),
+                    preferBelow: true,
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
