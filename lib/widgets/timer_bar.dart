@@ -18,9 +18,9 @@ class TimerBar extends StatelessWidget {
       height: 2,
       child: PfsAppModel.scope(
         (_, __, model) {
-          final barValue = (1.0 - model.progressPercent);
+          final barValueFromModel = (1.0 - model.progressPercent);
           Color barColor = model.timer.isActive
-              ? (barValue < TimerBar.almostZeroThreshold
+              ? (barValueFromModel < TimerBar.almostZeroThreshold
                   ? TimerBar.almostZeroColor
                   : TimerBar.runningColor)
               : TimerBar.pausedColor;
@@ -28,7 +28,7 @@ class TimerBar extends StatelessWidget {
           return TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutQuart,
-            tween: Tween<double>(begin: 0, end: barValue),
+            tween: Tween<double>(begin: 0, end: barValueFromModel),
             builder: (_, value, __) {
               return LinearProgressIndicator(
                 backgroundColor: Colors.black12,
