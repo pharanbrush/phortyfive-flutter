@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 
 class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});
@@ -29,7 +31,13 @@ class FirstActionSheet extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: Container(
         margin: windowAlignmentMargin,
-        child: box(),
+        child: Animate(
+          effects: const [
+            Phanimations.slideUpEffect,
+            Phanimations.growBottomEffect
+          ],
+          child: box(),
+        ),
       ),
     );
   }
@@ -70,7 +78,11 @@ class FirstActionSheet extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                child: downIcon,
+                child: Animate(
+                  effects: const [Phanimations.slideUpEffect],
+                  onPlay: (controller) => controller.repeat(reverse: true),
+                  child: downIcon,
+                ),
               ),
             ),
           ]),
