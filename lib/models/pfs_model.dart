@@ -62,7 +62,7 @@ class PfsAppModel extends Model {
   }
 
   void tryStartCountdown() {
-    if (_isCountdownEnabled) {
+    if (_isCountdownEnabled && timer.isActive) {
       _countdownRoutine();
     } else {
       _countdownElapse();
