@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
 import 'package:pfs2/widgets/panels/help_sheet.dart';
 import 'package:pfs2/widgets/panels/image_drop_target.dart';
@@ -803,53 +804,5 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     if (!isSoundsEnabled) return;
     if (!widget.model.isTimerRunning) return;
     clicker.play(_clickSound);
-  }
-}
-
-class CountdownSheet extends StatelessWidget {
-  const CountdownSheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const countdownStyle = TextStyle(
-      fontSize: 120,
-      color: Colors.grey,
-      fontWeight: FontWeight.bold,
-    );
-
-    return PfsAppModel.scope((_, __, model) {
-      if (!model.isCountingDown) {
-        return const SizedBox(
-          width: 2,
-          height: 2,
-        );
-      }
-
-      int countdownNumber = model.countdownLeft;
-      String countdownString = countdownNumber.toString();
-
-      return Stack(
-        children: [
-          const ModalBarrier(
-            color: Colors.white,
-            dismissible: false,
-          ),
-          Center(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 100),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              switchInCurve: Curves.easeOutQuart,
-              child: Text(
-                countdownString,
-                key: Key('countdown$countdownString'),
-                style: countdownStyle,
-              ),
-            ),
-          ),
-        ],
-      );
-    });
   }
 }
