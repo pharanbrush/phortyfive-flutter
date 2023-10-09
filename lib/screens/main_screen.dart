@@ -737,11 +737,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       child: Animate(
         effects: const [
           SlideEffect(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.easeOutQuart,
-            begin: Offset(0, 1),
-            end: Offset(0, 0)
-          )
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeOutQuart,
+              begin: Offset(0, 1),
+              end: Offset(0, 0))
         ],
         child: PfsAppModel.scope(
           (_, __, model) {
