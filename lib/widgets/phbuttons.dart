@@ -4,6 +4,8 @@ import 'package:pfs2/models/pfs_model.dart';
 class Phbuttons {
   static const Color accentColor = Colors.blueAccent;
   static const Color topBarButtonColor = Colors.black12;
+  
+  static const String revealInExplorerText = 'Show in Explorer';
 
   static Widget topControl(
       Function()? onPressed, IconData icon, String? tooltip) {
