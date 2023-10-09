@@ -12,11 +12,11 @@ class PfsAppModel extends Model {
 
   final Circulator circulator = Circulator();
   final FileList fileList = FileList();
-  final Phtimer timer = Phtimer();  
+  final Phtimer timer = Phtimer();
 
   bool isPickerOpen = false;
   bool _isCountdownEnabled = true;
-  
+
   bool get isCountdownEnabled => _isCountdownEnabled;
 
   int lastIncrement = 1;
@@ -68,7 +68,7 @@ class PfsAppModel extends Model {
       _countdownElapse();
     }
   }
-  
+
   void setCountdownActive(bool active) {
     _isCountdownEnabled = active;
   }
@@ -84,7 +84,7 @@ class PfsAppModel extends Model {
       notifyListeners();
       if (countdownLeft <= 0) break;
     }
-    
+
     timer.restart();
     _countdownElapse();
   }
@@ -223,14 +223,13 @@ class PfsAppModel extends Model {
     }
   }
 
-  void loadImages(List<String?> filePaths) {
+  void loadImages(List<String?> filePaths) async {
     if (filePaths.isEmpty) return;
 
-    fileList.load(filePaths);
+    await fileList.load(filePaths);
 
-    final int loadedCount = fileList.getCount();
+    final loadedCount = fileList.getCount();
     circulator.startNewOrder(loadedCount);
-
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
     _tryInitializeTimer();

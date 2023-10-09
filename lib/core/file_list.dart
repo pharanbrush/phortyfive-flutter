@@ -26,12 +26,12 @@ class FileList {
     return files[index];
   }
 
-  void load(List<String?> filePaths) {
+  Future load(List<String?> filePaths) async {
     files.clear();
-    append(filePaths);
+    await append(filePaths);
   }
 
-  int append(List<String?> filePaths) {
+  Future<int> append(List<String?> filePaths) async {
     int filesAppendedCount = 0;
     for (var filePath in filePaths) {
       if (filePath == null) continue;
@@ -40,6 +40,7 @@ class FileList {
       files.add(fileDataFromPath(filePath));
       filesAppendedCount++;
     }
+    
     return filesAppendedCount;
   }
 
