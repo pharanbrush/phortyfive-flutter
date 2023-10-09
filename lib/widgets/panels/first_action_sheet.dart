@@ -5,44 +5,44 @@ import 'package:pfs2/widgets/animation/phanimations.dart';
 class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});
 
-  static const windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
+  static const _windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
 
-  static const double iconSize = 100;
-  static const Color boxColor = Color(0xFFF5F5F5);
-  static const Color borderColor = Color(0xFFEEEEEE);
-  static const Color contentColor = Colors.black38;
-  static const TextStyle textStyleMain = TextStyle(
-    color: contentColor,
+  static const double _iconSize = 100;
+  static const Color _boxColor = Color(0xFFF5F5F5);
+  static const Color _borderColor = Color(0xFFEEEEEE);
+  static const Color _contentColor = Colors.black38;
+  static const TextStyle _textStyleMain = TextStyle(
+    color: _contentColor,
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
-  static const TextStyle textStyleSecondary = TextStyle(
-    color: contentColor,
+  static const TextStyle _textStyleSecondary = TextStyle(
+    color: _contentColor,
   );
 
-  static const Icon icon =
-      Icon(Icons.image, size: iconSize, color: contentColor);
-  static const Icon downIcon =
-      Icon(Icons.keyboard_double_arrow_down_rounded, color: contentColor);
+  static const Icon _icon =
+      Icon(Icons.image, size: _iconSize, color: _contentColor);
+  static const Icon _downIcon =
+      Icon(Icons.keyboard_double_arrow_down_rounded, color: _contentColor);
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.bottomRight,
       child: Container(
-        margin: windowAlignmentMargin,
+        margin: _windowAlignmentMargin,
         child: Animate(
           effects: const [
             Phanimations.slideUpEffect,
             Phanimations.growBottomEffect
           ],
-          child: box(),
+          child: _box(),
         ),
       ),
     );
   }
 
-  Widget box() {
+  Widget _box() {
     return SizedBox(
       width: 350,
       height: 250,
@@ -51,8 +51,8 @@ class FirstActionSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: borderColor),
-            color: boxColor,
+            border: Border.all(color: _borderColor),
+            color: _boxColor,
           ),
           child: Stack(children: [
             const Column(
@@ -61,15 +61,15 @@ class FirstActionSheet extends StatelessWidget {
                 SizedBox(
                   height: 25,
                 ),
-                icon,
+                _icon,
                 Text(
                   'Get started by loading images!',
-                  style: textStyleMain,
+                  style: _textStyleMain,
                   textAlign: TextAlign.center,
                 ),
                 Text(
                   'You can also drag & drop images into the window.',
-                  style: textStyleSecondary,
+                  style: _textStyleSecondary,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -81,7 +81,7 @@ class FirstActionSheet extends StatelessWidget {
                 child: Animate(
                   effects: const [Phanimations.slideUpEffect],
                   onPlay: (controller) => controller.repeat(reverse: true),
-                  child: downIcon,
+                  child: _downIcon,
                 ),
               ),
             ),
