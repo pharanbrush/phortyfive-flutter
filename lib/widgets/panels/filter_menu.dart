@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
@@ -41,46 +43,50 @@ class FilterMenu extends StatelessWidget {
         Positioned(
           bottom: 10,
           right: 280,
-          child: SizedBox(
-            child: Container(
-              decoration: decoration,
-              child: Padding(
-                padding: padding,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 250,
-                        child: Row(
-                          children: [
-                            heading,
-                            const Expanded(child: Text('')),
-                            IconButton(
-                                tooltip: 'Reset all filters',
-                                onPressed: imagePhviewer.isFilterActive
-                                    ? () => imagePhviewer.resetAllFilters()
-                                    : null,
-                                icon: const Icon(Icons.format_color_reset)),
-                          ],
+          child: Animate(
+            effects: Phanimations.bottomMenuEffects,
+            child: SizedBox(
+              child: Container(
+                decoration: decoration,
+                child: Padding(
+                  padding: padding,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 250,
+                          child: Row(
+                            children: [
+                              heading,
+                              const Expanded(child: Text('')),
+                              IconButton(
+                                  tooltip: 'Reset all filters',
+                                  onPressed: imagePhviewer.isFilterActive
+                                      ? () => imagePhviewer.resetAllFilters()
+                                      : null,
+                                  icon: const Icon(Icons.format_color_reset)),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 15),
-                      ColorModeButtons(
-                        imagePhviewer: imagePhviewer,
-                        onSelectionChanged: (Set<ImageColorMode> newSelection) {
-                          final isSelectionGrayscale =
-                              newSelection.contains(ImageColorMode.grayscale);
-                          imagePhviewer
-                              .setGrayscaleActive(isSelectionGrayscale);
-                        },
-                      ),
-                      BlurSlider(
-                        imagePhviewer: imagePhviewer,
-                        onChanged: (value) {
-                          imagePhviewer.setBlurLevel(value);
-                        },
-                      ),
-                    ]),
+                        const SizedBox(height: 15),
+                        ColorModeButtons(
+                          imagePhviewer: imagePhviewer,
+                          onSelectionChanged:
+                              (Set<ImageColorMode> newSelection) {
+                            final isSelectionGrayscale =
+                                newSelection.contains(ImageColorMode.grayscale);
+                            imagePhviewer
+                                .setGrayscaleActive(isSelectionGrayscale);
+                          },
+                        ),
+                        BlurSlider(
+                          imagePhviewer: imagePhviewer,
+                          onChanged: (value) {
+                            imagePhviewer.setBlurLevel(value);
+                          },
+                        ),
+                      ]),
+                ),
               ),
             ),
           ),
