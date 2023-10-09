@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 
 class Phbuttons {
   static const Color accentColor = Colors.blueAccent;
   static const Color topBarButtonColor = Colors.black12;
-  
+
   static const String revealInExplorerText = 'Show in Explorer';
 
   static Widget topControl(
@@ -51,20 +52,20 @@ class Phbuttons {
   }
 
   static Widget playPauseTimer(Animation<double> progress) {
-    return PfsAppModel.scope((_, __, model) {      
+    return PfsAppModel.scope((_, __, model) {
       const playButtonTooltip = 'Timer paused. Press to resume (P)';
       const pauseButtonTooltip = 'Timer running. Press to pause (P)';
       final icon = AnimatedIcon(
         icon: AnimatedIcons.play_pause,
         progress: progress,
       );
-      const Color pausedColor = Color.fromARGB(255, 255, 196, 0);
-      const Color playingColor = accentColor;
 
       bool allowTimerControl = model.allowTimerPlayPause;
       Color buttonColor = allowTimerControl
-          ? (model.isTimerRunning ? playingColor : pausedColor)
-          : Colors.grey.shade500;
+          ? (model.isTimerRunning
+              ? PfsTheme.timerRunningColor
+              : PfsTheme.timerPausedColor)
+          : PfsTheme.timerDisabledColor;
 
       final style = FilledButton.styleFrom(backgroundColor: buttonColor);
       final tooltipText =
@@ -87,7 +88,7 @@ class Phbuttons {
   static Widget openFiles() {
     const toolTipText =
         'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
-    const color = Colors.white;
+    
 
     var style = FilledButton.styleFrom(backgroundColor: accentColor);
 
@@ -102,7 +103,7 @@ class Phbuttons {
               onPressed: () => model.openFilePickerForImages(),
               child: const SizedBox(
                 width: 40,
-                child: Icon(Icons.folder_open, color: color),
+                child: Icon(Icons.folder_open, color: PfsTheme.filledButtonContentColor),
               ),
             ),
           ),
@@ -193,7 +194,7 @@ class Phbuttons {
     final IconData buttonIcon = isMinimized ? expandIcon : collapseIcon;
     final String tooltip =
         isMinimized ? 'Expand controls (H)' : 'Minimize controls (H)';
-    const iconColor = Colors.black38;
+    const iconColor = PfsTheme.minorWindowControlColor;
 
     const double iconSize = 20;
 

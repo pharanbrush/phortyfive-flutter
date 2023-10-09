@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/screens/main_screen.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -38,22 +39,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'PhortyFive Seconds',
-        theme: ThemeData(
-          colorScheme: _appColorScheme(),
-          useMaterial3: true,
-        ),
-        home: Scaffold(appBar: null, body: MainScreen(model: model)),
+        theme: PfsTheme.themeData,
+        home: Scaffold(body: MainScreen(model: model)),
       ),
     );
-  }
-
-  ColorScheme _appColorScheme() {
-    ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.blue,
-      background: Colors.white,
-      primaryContainer: Colors.white,
-      secondaryContainer: Colors.white,
-    );
-    return colorScheme;
   }
 }

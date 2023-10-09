@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
@@ -494,7 +495,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _topRightWindowControls() {
-    const textStyle = TextStyle(color: Color(0x55555555), fontSize: 12);
+    const textStyle = TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
 
     return Padding(
       padding: const EdgeInsets.all(2.0),
@@ -607,12 +608,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     List<Widget> bottomBarItems(PfsAppModel model) {
       const filterIconOff = Icon(
         Icons.contrast,
-        color: Colors.grey,
+        color: PfsTheme.bottomBarButtonContentColor,
         size: 20,
       );
       const filterIconOn = Icon(
         Icons.contrast,
-        color: Colors.orange,
+        color: PfsTheme.bottomBarButtonActiveColor,
         size: 20,
       );
 

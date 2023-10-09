@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
@@ -15,7 +16,6 @@ class TimerDurationPanel extends StatelessWidget {
   static const double rightMarginNarrow = 100 - (containerPadding * 0.5);
   static const Color backgroundColor = Color(0xDD81B6E0);
   static const Color textColor = Colors.white;
-  static const Color outlineColor = Color(0xFF0F6892);
 
   final Function()? onDismiss;
 
@@ -147,16 +147,7 @@ class TimerDurationPanel extends StatelessWidget {
                                           TextAlignVertical.center,
                                       style: const TextStyle(fontSize: 32),
                                       autofocus: true,
-                                      decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 5),
-                                        border: OutlineInputBorder(),
-                                        focusColor: outlineColor,
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        counterText: '',
-                                        counterStyle: TextStyle(fontSize: 1),
-                                      ),
+                                      decoration: PfsTheme.largeBoxInputDecoration,
                                       onSubmitted: (value) {
                                         model.trySetTimerSecondsInput(value);
                                         onDismiss!();

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
-
-  static const Color pausedColor = Color(0xFFFDD835);
-  static const Color runningColor = Colors.blueAccent;
-  static const Color almostZeroColor = Color(0xFF0D47A1);
   static const double almostZeroThreshold = 0.1;
 
   static const double barWidth = 200;
@@ -21,9 +18,9 @@ class TimerBar extends StatelessWidget {
           final barValueFromModel = (1.0 - model.progressPercent);
           Color barColor = model.timer.isActive
               ? (barValueFromModel < TimerBar.almostZeroThreshold
-                  ? TimerBar.almostZeroColor
-                  : TimerBar.runningColor)
-              : TimerBar.pausedColor;
+                  ? PfsTheme.timerAlmostZeroColor
+                  : PfsTheme.timerRunningColor)
+              : PfsTheme.timerPausedColor;
 
           return TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 400),
@@ -31,7 +28,7 @@ class TimerBar extends StatelessWidget {
             tween: Tween<double>(begin: 0, end: barValueFromModel),
             builder: (_, value, __) {
               return LinearProgressIndicator(
-                backgroundColor: Colors.black12,
+                backgroundColor: PfsTheme.timerBarBackgroundColor,
                 valueColor: AlwaysStoppedAnimation<Color>(barColor),
                 value: value,
               );

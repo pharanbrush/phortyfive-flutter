@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
@@ -13,22 +14,19 @@ class FilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const decoration = BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)]);
     const padding = EdgeInsets.symmetric(horizontal: 25, vertical: 15);
 
     const heading = Row(
       children: [
-        Icon(Icons.invert_colors, color: Color(0xFFE4E4E4), size: 14),
+        Icon(
+          Icons.invert_colors,
+          color: PfsTheme.subtleHeadingIconColor,
+          size: PfsTheme.subtleHeadingIconSize,
+        ),
         SizedBox(width: 7),
         Text(
           'Filters',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
+          style: PfsTheme.subtleHeadingStyle,
         ),
       ],
     );
@@ -37,8 +35,7 @@ class FilterMenu extends StatelessWidget {
       children: [
         ModalUnderlay(
           isTransparent: true,
-          onTapDown:
-              onDismiss, //onTapDown: () => setState(() => isShowingFiltersMenu = false),
+          onTapDown: onDismiss,
         ),
         Positioned(
           bottom: 10,
@@ -47,7 +44,7 @@ class FilterMenu extends StatelessWidget {
             effects: Phanimations.bottomMenuEffects,
             child: SizedBox(
               child: Container(
-                decoration: decoration,
+                decoration: PfsTheme.popupPanelBoxDecoration,
                 child: Padding(
                   padding: padding,
                   child: Column(
