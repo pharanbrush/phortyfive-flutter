@@ -88,7 +88,7 @@ class ImagePhviewer {
           controller: imageMenuRightClickController,
           menuChildren: [
             PhcontextMenu.menuItemButton(
-              text: 'Reveal in File Explorer',
+              text: Phbuttons.revealInExplorerText,
               //icon: Icons.folder_open,
               onPressed: () => revealInExplorer(model.getCurrentImageData()),
             ),
