@@ -111,8 +111,6 @@ class ImagePhviewer {
   }
 
   Widget widget(bool isBottomBarMinimized) {
-    const filenameTextStyle = TextStyle(color: Color(0xFF9E9E9E), fontSize: 11);
-
     const minimizedPadding = EdgeInsets.only(bottom: 5);
     const normalPadding = EdgeInsets.only(bottom: 45);
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
@@ -129,42 +127,17 @@ class ImagePhviewer {
             : FileList.fileDataFromPath(defaultImage);
 
         final File imageFile = File(imageFileData.filePath);
-        var topText = Text(imageFileData.fileName, style: filenameTextStyle);
-        const opacity = 0.3;
         final imageWidget = Image.file(
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           imageFile,
         );
 
-        const double imageSlideOriginX = 0.05;
-        final imageSwapOrigin = model.lastIncrement > 0
-            ? const Offset(imageSlideOriginX, 0)
-            : const Offset(-imageSlideOriginX, 0);
-
-        final keyString = model.isCountingDown
-            ? 'countingDownImage'
-            : 'i$currentImageIndexString';
-
         final imageFilenameLayer = Align(
           alignment: Alignment.topCenter,
-          child: Material(
-            color: Colors.transparent,
-            child: Opacity(
-              opacity: opacity,
-              child: Tooltip(
-                message: Phbuttons.revealInExplorerText,
-                waitDuration: const Duration(milliseconds: 200),
-                preferBelow: true,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => revealInExplorer(imageFileData),
-                    child: topText,
-                  ),
-                ),
-              ),
-            ),
+          child: ImageClickableLabel(
+            label: imageFileData.fileName,
+            onTap: () => revealInExplorer(imageFileData),
           ),
         );
 
@@ -205,7 +178,7 @@ class ImagePhviewer {
     );
   }
 
-  void revealInExplorer(FileData fileData) async {
+  static void revealInExplorer(FileData fileData) async {
     if (Platform.isWindows) {
       final windowsFilePath = fileData.filePath.replaceAll('/', '\\');
       await Process.start('explorer', ['/select,', windowsFilePath]);
@@ -243,3 +216,65 @@ class ImagePhviewer {
 }
 
 enum ImageColorMode { color, grayscale }
+
+class ImageClickableLabel extends StatelessWidget {
+  const ImageClickableLabel({super.key, required this.label, this.onTap});
+
+  final String label;
+  final Function()? onTap;
+
+  static Color getButtonColor(Set<MaterialState> states) {
+    if (states.contains(MaterialState.hovered)) {
+      return const Color(0xFFFFFFFF);
+    }
+    return Colors.transparent;
+  }
+
+  static Color getTextColor(Set<MaterialState> states) {
+    if (states.contains(MaterialState.hovered)) {
+      return Colors.blue;
+    }
+    return const Color(0x66C0C0C0);
+  }
+
+  static TextStyle getTextStyle(Set<MaterialState> states) {
+    const double fontSize = 11;
+    if (states.contains(MaterialState.hovered)) {
+      return const TextStyle(
+        decoration: TextDecoration.underline,
+        fontSize: fontSize,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return const TextStyle(
+      decoration: TextDecoration.none,
+      fontSize: fontSize,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const padding = EdgeInsets.symmetric(vertical: 0, horizontal: 14);
+    const double maxWidth = 380;
+
+    final ButtonStyle style = ButtonStyle(
+      maximumSize: const MaterialStatePropertyAll(Size(maxWidth, 50)),
+      backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
+      foregroundColor: MaterialStateProperty.resolveWith(getTextColor),
+      textStyle: MaterialStateProperty.resolveWith(getTextStyle),
+      padding: const MaterialStatePropertyAll(padding),
+      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+    );
+
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: Phbuttons.revealInExplorerText,
+        preferBelow: true,
+        child: TextButton(style: style, onPressed: onTap, child: Text(label)),
+      ),
+    );
+  }
+}
