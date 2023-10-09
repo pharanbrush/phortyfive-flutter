@@ -101,14 +101,8 @@ class TimerDurationPanel extends StatelessWidget {
               color: Colors.transparent,
               child: Animate(
                 effects: const [
-                  Phanimations.bottomMenuSlideEffect,
-                  ScaleEffect(
-                    duration: Duration(milliseconds: 110),
-                    alignment: FractionalOffset(.5, .5),
-                    begin: Offset(0.5, 0.5),
-                    end: Offset(1, 1),
-                    curve: Curves.easeOutQuad,
-                  ),
+                  Phanimations.slideUpEffect,
+                  Phanimations.growBottomEffect,
                 ],
                 child: SizedBox(
                   width: diameter + containerPadding,
