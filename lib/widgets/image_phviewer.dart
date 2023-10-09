@@ -3,9 +3,11 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -129,20 +131,64 @@ class ImagePhviewer {
         var topText = Text(imageFileData.fileName, style: filenameTextStyle);
         const opacity = 0.3;
 
+        final currentImageIndexString = model.currentImageIndex.toString();
+
         final imageWidget = Image.file(
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           imageFile,
         );
 
+        const double imageSlideOriginX = 0.05;
+        final imageSwapOrigin = model.lastIncrement > 0
+            ? const Offset(imageSlideOriginX, 0)
+            : const Offset(-imageSlideOriginX, 0);
+
+        final keyString = model.isCountingDown
+            ? 'countingDownImage'
+            : 'i$currentImageIndexString';
+
+        final imageFilenameLayer = Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Opacity(
+              opacity: opacity,
+              child: Tooltip(
+                message: Phbuttons.revealInExplorerText,
+                waitDuration: const Duration(milliseconds: 200),
+                preferBelow: true,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => revealInExplorer(imageFileData),
+                    child: topText,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        
         return Stack(
           children: [
-            SizedBox.expand(
-              child: AnimatedScale(
-                duration: const Duration(milliseconds: 400),
-                scale: _zoomScales[currentZoomLevel],
-                curve: Curves.easeOutExpo,
-                child: imageWidget,
+            Animate(
+              key: Key(keyString),
+              effects: [
+                SlideEffect(
+                  begin: imageSwapOrigin,
+                  end: Offset.zero,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutQuint,
+                )
+              ],
+              child: SizedBox.expand(
+                child: AnimatedScale(
+                  duration: const Duration(milliseconds: 400),
+                  scale: _zoomScales[currentZoomLevel],
+                  curve: Curves.easeOutExpo,
+                  child: imageWidget,
+                ),
               ),
             ),
             if (_blurLevel > 0)
@@ -153,27 +199,7 @@ class ImagePhviewer {
                 child: const SizedBox.expand(),
               ),
             if (_isUsingGrayscale) _matrixGrayscale,
-            Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: Colors.transparent,
-                child: Opacity(
-                  opacity: opacity,
-                  child: Tooltip(
-                    message: 'Reveal in File Explorer',
-                    waitDuration: const Duration(milliseconds: 200),
-                    preferBelow: true,
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => revealInExplorer(imageFileData),
-                        child: topText,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            imageFilenameLayer,
           ],
         );
       }),
