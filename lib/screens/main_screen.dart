@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
@@ -732,10 +733,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return Positioned(
       bottom: 1,
       right: 10,
-      child: PfsAppModel.scope(
-        (_, __, model) {
-          return Row(children: bottomBarItems(model));
-        },
+      child: Animate(
+        effects: const [
+          SlideEffect(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeOutQuart,
+            begin: Offset(0, 1),
+            end: Offset(0, 0)
+          )
+        ],
+        child: PfsAppModel.scope(
+          (_, __, model) {
+            return Row(children: bottomBarItems(model));
+          },
+        ),
       ),
     );
   }
