@@ -37,7 +37,7 @@ class TimerDurationPanel extends StatelessWidget {
 
     if (active) {
       timerTextEditorFocusNode.requestFocus();
-      _selectAllText();
+      _selectAllText(timerTextEditorController);
     }
   }
 
@@ -189,8 +189,8 @@ class TimerDurationPanel extends StatelessWidget {
     });
   }
 
-  void _selectAllText() {
-    timerTextEditorController.selection = TextSelection(
-        baseOffset: 0, extentOffset: timerTextEditorController.text.length);
+  static void _selectAllText(TextEditingController controller) {
+    controller.selection =
+        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
   }
 }
