@@ -257,10 +257,12 @@ class ImageClickableLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const padding = EdgeInsets.symmetric(vertical: 0, horizontal: 14);
-    const double maxWidth = 380;
+    const Size minSize = Size(280, 36);
+    const Size maxSize = Size(380, 50);
 
     final ButtonStyle style = ButtonStyle(
-      maximumSize: const MaterialStatePropertyAll(Size(maxWidth, 50)),
+      minimumSize: const MaterialStatePropertyAll(minSize),
+      maximumSize: const MaterialStatePropertyAll(maxSize),
       backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
       foregroundColor: MaterialStateProperty.resolveWith(getTextColor),
       textStyle: MaterialStateProperty.resolveWith(getTextStyle),
