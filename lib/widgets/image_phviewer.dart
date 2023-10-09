@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -130,9 +131,6 @@ class ImagePhviewer {
         final File imageFile = File(imageFileData.filePath);
         var topText = Text(imageFileData.fileName, style: filenameTextStyle);
         const opacity = 0.3;
-
-        final currentImageIndexString = model.currentImageIndex.toString();
-
         final imageWidget = Image.file(
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
@@ -169,24 +167,25 @@ class ImagePhviewer {
             ),
           ),
         );
-        
+
+        final isNextImageTransition = model.lastIncrement > 0;
+        final currentImageIndexString = model.currentImageIndex.toString();
+        final slideKeyString = model.isCountingDown
+            ? 'countingDownImage'
+            : 'i$currentImageIndexString';
+
         return Stack(
           children: [
             Animate(
-              key: Key(keyString),
-              effects: [
-                SlideEffect(
-                  begin: imageSwapOrigin,
-                  end: Offset.zero,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutQuint,
-                )
-              ],
+              key: Key(slideKeyString),
+              effects: isNextImageTransition
+                  ? Phanimations.imageNext
+                  : Phanimations.imagePrevious,
               child: SizedBox.expand(
                 child: AnimatedScale(
-                  duration: const Duration(milliseconds: 400),
+                  duration: Phanimations.zoomTransitionDuration,
+                  curve: Phanimations.zoomTransitionCurve,
                   scale: _zoomScales[currentZoomLevel],
-                  curve: Curves.easeOutExpo,
                   child: imageWidget,
                 ),
               ),
