@@ -62,7 +62,8 @@ class TimerDurationPanel extends StatelessWidget {
           : rightMarginNormal;
 
       Widget preset(String text, int seconds, double left, double top) {
-        if (seconds == model.currentTimerDuration) {
+        final isCurrentSelectedButton = (seconds == model.currentTimerDuration);
+        if (isCurrentSelectedButton) {
           return Positioned(
             left: left,
             top: top,
