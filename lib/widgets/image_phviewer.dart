@@ -136,21 +136,6 @@ class ImagePhviewer {
           imageFile,
         );
 
-        // Widget scaleSwitcher() {
-        //   return AnimatedSwitcher(
-        //     duration: const Duration(milliseconds: 180),
-        //     transitionBuilder: (child, animation) {
-        //       return ScaleTransition(
-        //         scale: animation,
-        //         child: child,
-        //       );
-        //     },
-        //     switchInCurve: Curves.easeOutExpo,
-        //     switchOutCurve: Curves.easeInExpo,
-        //     child: imageWidget,
-        //   );
-        // }
-
         return Stack(
           children: [
             SizedBox.expand(
