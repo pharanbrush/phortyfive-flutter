@@ -1,8 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
@@ -90,9 +90,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode();
+  final Phclicker clicker = Phclicker();
 
-  final clicker = AudioPlayer();
-  final _clickSound = AssetSource('sounds/clack.wav');
   late Map<Type, Action<Intent>> shortcutActions = {
     PreviousImageIntent: CallbackAction(
       onInvoke: (intent) => widget.model.previousImageNewTimer(),
@@ -802,6 +801,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _playClickSound() {
     if (!isSoundsEnabled) return;
     if (!widget.model.isTimerRunning) return;
-    clicker.play(_clickSound);
+    clicker.playSound();
   }
 }
