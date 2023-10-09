@@ -5,26 +5,37 @@ class FirstActionSheet extends StatelessWidget {
 
   static const windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
 
+  static const double iconSize = 100;
+  static const Color boxColor = Color(0xFFF5F5F5);
+  static const Color borderColor = Color(0xFFEEEEEE);
+  static const Color contentColor = Colors.black38;
+  static const TextStyle textStyleMain = TextStyle(
+    color: contentColor,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
+  static const TextStyle textStyleSecondary = TextStyle(
+    color: contentColor,
+  );
+
+  static const Icon icon =
+      Icon(Icons.image, size: iconSize, color: contentColor);
+  static const Icon downIcon =
+      Icon(Icons.keyboard_double_arrow_down_rounded, color: contentColor);
+
   @override
   Widget build(BuildContext context) {
-    const double iconSize = 100;
-    final Color boxColor = Colors.grey.shade100;
-    final Color borderColor = Colors.grey.shade200;
-    const Color contentColor = Colors.black38;
-    const TextStyle textStyleMain = TextStyle(
-      color: contentColor,
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Container(
+        margin: windowAlignmentMargin,
+        child: box(),
+      ),
     );
-    const TextStyle textStyleSecondary = TextStyle(
-      color: contentColor,
-    );
-
-    const Icon icon = Icon(Icons.image, size: iconSize, color: contentColor);
-    const Icon downIcon =
-        Icon(Icons.keyboard_double_arrow_down_rounded, color: contentColor);
-
-    final box = SizedBox(
+  }
+  
+    Widget box() {
+    return SizedBox(
       width: 350,
       height: 250,
       child: Material(
@@ -64,14 +75,6 @@ class FirstActionSheet extends StatelessWidget {
             ),
           ]),
         ),
-      ),
-    );
-
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Container(
-        margin: windowAlignmentMargin,
-        child: box,
       ),
     );
   }
