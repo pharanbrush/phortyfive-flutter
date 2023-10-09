@@ -33,8 +33,8 @@ class FirstActionSheet extends StatelessWidget {
       ),
     );
   }
-  
-    Widget box() {
+
+  Widget box() {
     return SizedBox(
       width: 350,
       height: 250,
