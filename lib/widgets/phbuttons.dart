@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class Phbuttons {
   static const String revealInExplorerText = 'Show in Explorer';
@@ -43,54 +42,6 @@ class Phbuttons {
       icon: Icon(icon),
       tooltip: tooltip,
     );
-  }
-
-  static Widget playPauseTimer(BuildContext context, Animation<double> progress) {
-    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ?? PhtimerTheme.defaultTheme;
-    
-    return PfsAppModel.scope((_, __, model) {
-      const playButtonTooltip = 'Timer paused. Press to resume (P)';
-      const pauseButtonTooltip = 'Timer running. Press to pause (P)';
-      final icon = AnimatedIcon(
-        icon: AnimatedIcons.play_pause,
-        progress: progress,
-      );
-
-      bool allowTimerControl = model.allowTimerPlayPause;
-      Color buttonColor = allowTimerControl
-          ? (model.isTimerRunning
-              ? timerTheme.runningColor
-              : timerTheme.pausedColor)
-          : timerTheme.disabledColor;
-
-      final style = ButtonStyle(
-        animationDuration: const Duration(milliseconds: 300),
-        backgroundColor: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-          if (states.contains(MaterialState.hovered)) {
-            return buttonColor.withOpacity(1);
-          }
-          return buttonColor;
-        }),
-        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-        elevation: const MaterialStatePropertyAll(0),
-      );
-
-      final tooltipText =
-          model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
-
-      return Tooltip(
-        message: tooltipText,
-        child: FilledButton(
-          style: style,
-          onPressed: () => model.playPauseToggleTimer(),
-          child: Container(
-            alignment: Alignment.center,
-            width: 50,
-            child: icon,
-          ),
-        ),
-      );
-    });
   }
 
   static Widget openFiles() {

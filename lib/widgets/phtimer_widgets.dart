@@ -8,7 +8,8 @@ class TimerBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ?? PhtimerTheme.defaultTheme;
+    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
+        PhtimerTheme.defaultTheme;
 
     return SizedBox(
       width: TimerBar.barWidth,
@@ -37,6 +38,63 @@ class TimerBar extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class PlayPauseTimerButton extends StatelessWidget {
+  const PlayPauseTimerButton({super.key, required this.iconProgress});
+
+  final Animation<double> iconProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
+        PhtimerTheme.defaultTheme;
+
+    return PfsAppModel.scope((_, __, model) {
+      const playButtonTooltip = 'Timer paused. Press to resume (P)';
+      const pauseButtonTooltip = 'Timer running. Press to pause (P)';
+      final icon = AnimatedIcon(
+        icon: AnimatedIcons.play_pause,
+        progress: iconProgress,
+      );
+
+      bool allowTimerControl = model.allowTimerPlayPause;
+      Color buttonColor = allowTimerControl
+          ? (model.isTimerRunning
+              ? timerTheme.runningColor
+              : timerTheme.pausedColor)
+          : timerTheme.disabledColor;
+
+      final style = ButtonStyle(
+        animationDuration: const Duration(milliseconds: 300),
+        backgroundColor:
+            MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return buttonColor.withOpacity(1);
+          }
+          return buttonColor;
+        }),
+        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        elevation: const MaterialStatePropertyAll(0),
+      );
+
+      final tooltipText =
+          model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
+
+      return Tooltip(
+        message: tooltipText,
+        child: FilledButton(
+          style: style,
+          onPressed: () => model.playPauseToggleTimer(),
+          child: Container(
+            alignment: Alignment.center,
+            width: 50,
+            child: icon,
+          ),
+        ),
+      );
+    });
   }
 }
 

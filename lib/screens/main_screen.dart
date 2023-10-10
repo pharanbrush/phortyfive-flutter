@@ -702,7 +702,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               'Previous Image (K)',
             ),
           ),
-          Phbuttons.playPauseTimer(context, _playPauseIconStateAnimator),
+          PlayPauseTimerButton(iconProgress: _playPauseIconStateAnimator),
           PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.nextImageNewTimer(),
