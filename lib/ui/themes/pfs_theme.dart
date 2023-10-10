@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/ui/themes/phtimer_theme.dart';
+import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
   static ThemeData get themeData => _getThemeData();
