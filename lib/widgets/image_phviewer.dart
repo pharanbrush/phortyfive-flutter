@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/ui/pfs_theme.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';

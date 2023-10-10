@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/screens/main_screen.dart';
-import 'package:pfs2/ui/pfs_theme.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 

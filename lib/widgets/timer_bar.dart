@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/ui/pfs_theme.dart';
+import 'package:pfs2/ui/themes/phtimer_theme.dart';
 
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});

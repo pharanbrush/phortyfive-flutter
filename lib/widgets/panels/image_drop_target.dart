@@ -2,7 +2,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/ui/pfs_theme.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class ImageDropTarget extends StatefulWidget {
   const ImageDropTarget({super.key, this.onDragSuccess});
