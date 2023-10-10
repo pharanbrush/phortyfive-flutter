@@ -1,29 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 
 class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});
 
   static const _windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
-
-  static const double _iconSize = 100;
-  static const Color _boxColor = Color(0xFFF5F5F5);
-  static const Color _borderColor = Color(0xFFEEEEEE);
-  static const Color _contentColor = Colors.black38;
-  static const TextStyle _textStyleMain = TextStyle(
-    color: _contentColor,
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  );
-  static const TextStyle _textStyleSecondary = TextStyle(
-    color: _contentColor,
-  );
-
-  static const Icon _icon =
-      Icon(Icons.image, size: _iconSize, color: _contentColor);
-  static const Icon _downIcon =
-      Icon(Icons.keyboard_double_arrow_down_rounded, color: _contentColor);
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +32,7 @@ class FirstActionSheet extends StatelessWidget {
       child: Material(
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: _borderColor),
-            color: _boxColor,
-          ),
+          decoration: PfsTheme.firstActionBoxDecoration,
           child: Stack(children: [
             const Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -61,15 +40,15 @@ class FirstActionSheet extends StatelessWidget {
                 SizedBox(
                   height: 25,
                 ),
-                _icon,
+                PfsTheme.firstActionIcon,
                 Text(
                   'Get started by loading images!',
-                  style: _textStyleMain,
+                  style: PfsTheme.firstActionTextStyle,
                   textAlign: TextAlign.center,
                 ),
                 Text(
                   'You can also drag & drop images into the window.',
-                  style: _textStyleSecondary,
+                  style: PfsTheme.firstActionTextStyleSecondary,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -81,7 +60,7 @@ class FirstActionSheet extends StatelessWidget {
                 child: Animate(
                   effects: const [Phanimations.slideUpEffect],
                   onPlay: (controller) => controller.repeat(reverse: true),
-                  child: _downIcon,
+                  child: PfsTheme.downIcon,
                 ),
               ),
             ),

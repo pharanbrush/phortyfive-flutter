@@ -3,9 +3,6 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_theme.dart';
 
 class Phbuttons {
-  static const Color accentColor = Colors.blueAccent;
-  static const Color topBarButtonColor = Colors.black12;
-
   static const String revealInExplorerText = 'Show in Explorer';
 
   static Widget topControl(
@@ -24,7 +21,7 @@ class Phbuttons {
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(icon, size: iconSize),
-        color: topBarButtonColor,
+        color: PfsTheme.topBarButtonColor,
         tooltip: tooltip,
         style: style,
       ),
@@ -88,9 +85,8 @@ class Phbuttons {
   static Widget openFiles() {
     const toolTipText =
         'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
-    
 
-    var style = FilledButton.styleFrom(backgroundColor: accentColor);
+    var style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
 
     return PfsAppModel.scope(
       (_, __, model) {

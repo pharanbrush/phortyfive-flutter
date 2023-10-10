@@ -2,36 +2,25 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_theme.dart';
 
 class ImageDropTarget extends StatefulWidget {
   const ImageDropTarget({super.key, this.onDragSuccess});
 
-  static const Color boxColor = Color(0xAA000000);
-  static const Color textColor = Colors.white60;
-  static const BoxDecoration activeBoxDecoration = BoxDecoration(
-    color: boxColor,
-    borderRadius: BorderRadius.all(Radius.circular(5)),
-  );
-  static const BoxDecoration hiddenBoxDecoration = BoxDecoration(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.all(Radius.circular(15)));
-
-  static const TextStyle textStyle =
-      TextStyle(fontSize: 40, color: textColor, inherit: true);
-
-  static const Widget hiddenDropWidget =
-      Center(child: Material(textStyle: textStyle, child: Text('')));
+  static const Widget hiddenDropWidget = Center(
+      child:
+          Material(textStyle: PfsTheme.dropTargetTextStyle, child: Text('')));
 
   static const Widget visibleDropWidget = Center(
     child: Material(
-      textStyle: textStyle,
+      textStyle: PfsTheme.dropTargetTextStyle,
       color: Colors.transparent,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.image_outlined,
-            color: textColor,
+            color: PfsTheme.dropTargetTextColor,
             size: 80,
           ),
           SizedBox(height: 15),
@@ -90,8 +79,8 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
           margin:
               _isDragging ? const EdgeInsets.all(8) : const EdgeInsets.all(20),
           decoration: _isDragging
-              ? ImageDropTarget.activeBoxDecoration
-              : ImageDropTarget.hiddenBoxDecoration,
+              ? PfsTheme.dropActiveBoxDecoration
+              : PfsTheme.dropHiddenBoxDecoration,
           child: _isDragging
               ? ImageDropTarget.visibleDropWidget
               : ImageDropTarget.hiddenDropWidget,

@@ -5,6 +5,13 @@ class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutExpo;
 
+  static const bottomBarSlideUpEffect = SlideEffect(
+    duration: Duration(milliseconds: 200),
+    curve: Curves.easeOutQuart,
+    begin: Offset(0, 1),
+    end: Offset(0, 0),
+  );
+
   static const slideUpEffect = SlideEffect(
     duration: Duration(milliseconds: 200),
     begin: Offset(0, 0.2),

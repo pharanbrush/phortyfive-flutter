@@ -14,8 +14,7 @@ class TimerDurationPanel extends StatelessWidget {
   static const double bottomOffset = 90 - (containerPadding * 0.5);
   static const double rightMarginNormal = 240 - (containerPadding * 0.5);
   static const double rightMarginNarrow = 100 - (containerPadding * 0.5);
-  static const Color backgroundColor = Color(0xDD81B6E0);
-  static const Color textColor = Colors.white;
+  static const Color textColor = Colors.grey;
 
   final Function()? onDismiss;
 
@@ -68,7 +67,7 @@ class TimerDurationPanel extends StatelessWidget {
             left: left,
             top: top,
             child: FilledButton(
-              style: FilledButton.styleFrom(padding: const EdgeInsets.all(10)),
+              //style: FilledButton.styleFrom(padding: const EdgeInsets.all(10)),
               onPressed: () {
                 model.setTimerSeconds(seconds);
                 onDismiss?.call();
@@ -81,8 +80,8 @@ class TimerDurationPanel extends StatelessWidget {
         return Positioned(
           left: left,
           top: top,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(10)),
+          child: TextButton(
+            //style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(10)),
             onPressed: () {
               model.setTimerSeconds(seconds);
               onDismiss?.call();
@@ -92,9 +91,28 @@ class TimerDurationPanel extends StatelessWidget {
         );
       }
 
+      var secondsTextField = SizedBox(
+        width: 100,
+        child: TextField(
+          controller: timerTextEditorController,
+          focusNode: timerTextEditorFocusNode,
+          autofocus: true,
+          autocorrect: false,
+          maxLength: 4,
+          textAlign: TextAlign.center,
+          textAlignVertical: TextAlignVertical.center,
+          decoration: PfsTheme.largeTextFieldInputDecoration,
+          style: PfsTheme.largeTextFieldTextStyle,
+          onSubmitted: (value) {
+            model.trySetTimerSecondsInput(value);
+            onDismiss?.call();
+          },
+        ),
+      );
+
       return Stack(
         children: [
-          ModalUnderlay(onTapDown: () => onDismiss!()),
+          ModalUnderlay(onTapDown: () => onDismiss?.call()),
           Positioned(
             right: rightMargin,
             bottom: (-radius) + bottomOffset,
@@ -112,12 +130,9 @@ class TimerDurationPanel extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       GestureDetector(
-                        onTapDown: (details) {
-                          onDismiss!();
-                        },
+                        onTapDown: (details) => onDismiss?.call(),
                         child: Container(
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle, color: backgroundColor),
+                          decoration: PfsTheme.popupPanelBoxDecorationPaw,
                           child: SizedBox(
                             width: diameter,
                             height: diameter,
@@ -135,24 +150,7 @@ class TimerDurationPanel extends StatelessWidget {
                                         fontSize: 18),
                                   ),
                                 ),
-                                SizedBox(
-                                    width: 100,
-                                    child: TextField(
-                                      controller: timerTextEditorController,
-                                      focusNode: timerTextEditorFocusNode,
-                                      autocorrect: false,
-                                      maxLength: 4,
-                                      textAlign: TextAlign.center,
-                                      textAlignVertical:
-                                          TextAlignVertical.center,
-                                      style: const TextStyle(fontSize: 32),
-                                      autofocus: true,
-                                      decoration: PfsTheme.largeBoxInputDecoration,
-                                      onSubmitted: (value) {
-                                        model.trySetTimerSecondsInput(value);
-                                        onDismiss!();
-                                      },
-                                    )),
+                                secondsTextField,
                                 const SizedBox(height: 3),
                                 const Text(
                                   'seconds',

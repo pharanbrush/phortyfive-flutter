@@ -5,6 +5,7 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
 import 'package:pfs2/widgets/panels/first_action_sheet.dart';
@@ -594,7 +595,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         bottom: 1,
         right: 10,
         child: Opacity(
-          opacity: 0.5,
+          opacity: buttonOpacity,
           child: Row(children: [
             TimerBar(),
             SizedBox(width: 140),
@@ -631,7 +632,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
           icon: const Icon(
             Icons.youtube_searched_for,
-            color: Colors.grey,
+            color: PfsTheme.bottomBarButtonContentColor,
             //size: 20,
           ),
         ),
@@ -665,13 +666,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       bottom: 1,
       right: 10,
       child: Animate(
-        effects: const [
-          SlideEffect(
-              duration: Duration(milliseconds: 200),
-              curve: Curves.easeOutQuart,
-              begin: Offset(0, 1),
-              end: Offset(0, 0))
-        ],
+        effects: const [Phanimations.bottomBarSlideUpEffect],
         child: PfsAppModel.scope(
           (_, __, model) {
             return Row(children: bottomBarItems(model));
