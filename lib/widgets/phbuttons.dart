@@ -112,35 +112,28 @@ class Phbuttons {
       final String tooltip =
           '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)\nRight-click to open an image folder... (Ctrl+Shift+O)';
 
-      imageStats() {
-        return Tooltip(
-          message: tooltip,
-          child: GestureDetector(
-            onSecondaryTap: () => model.openFilePickerForFolder(),
-            child: TextButton(
-              style: PfsTheme.bottomBarButtonStyle,
-              onPressed: () => model.openFilePickerForImages(),
-              child: SizedBox(
-                width: 80,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      textThenIcon(fileCount.toString(), icon),
-                      const Spacer(),
-                    ],
-                  ),
+      return Tooltip(
+        message: tooltip,
+        child: GestureDetector(
+          onSecondaryTap: () => model.openFilePickerForFolder(),
+          child: TextButton(
+            style: PfsTheme.bottomBarButtonStyle,
+            onPressed: () => model.openFilePickerForImages(),
+            child: SizedBox(
+              width: 80,
+              child: Align(
+                alignment: Alignment.center,
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    textThenIcon(fileCount.toString(), icon),
+                    const Spacer(),
+                  ],
                 ),
               ),
             ),
           ),
-        );
-      }
-
-      return Opacity(
-        opacity: 1, //0.4,
-        child: imageStats(),
+        ),
       );
     });
   }
