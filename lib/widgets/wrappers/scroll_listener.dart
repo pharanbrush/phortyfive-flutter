@@ -2,8 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class ScrollListener extends StatelessWidget {
-  const ScrollListener(
-      {super.key, this.onScrollDown, this.onScrollUp, required this.child});
+  const ScrollListener({
+    super.key,
+    this.onScrollDown,
+    this.onScrollUp,
+    required this.child,
+  });
 
   final Function()? onScrollUp, onScrollDown;
   final Widget? child;
@@ -13,13 +17,10 @@ class ScrollListener extends StatelessWidget {
     return Listener(
       onPointerSignal: (pointerEvent) {
         if (pointerEvent is PointerScrollEvent) {
-          PointerScrollEvent scroll = pointerEvent;
-          final dy = scroll.scrollDelta.dy;
-          final bool isScrollDown = dy > 0;
-          final bool isScrollUp = dy < 0;
-          if (isScrollDown) {
+          final dy = pointerEvent.scrollDelta.dy;
+          if (dy > 0) {
             onScrollDown?.call();
-          } else if (isScrollUp) {
+          } else if (dy < 0) {
             onScrollUp?.call();
           }
         }
