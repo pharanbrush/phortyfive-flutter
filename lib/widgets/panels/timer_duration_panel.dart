@@ -10,10 +10,9 @@ import 'package:pfs2/widgets/modal_underlay.dart';
 class TimerDurationPanel extends StatelessWidget {
   static const double diameter = 350;
   static const double radius = diameter * 0.5;
-  static const double containerPadding = 100;
-  static const double bottomOffset = 90 - (containerPadding * 0.5);
-  static const double rightMarginNormal = 240 - (containerPadding * 0.5);
-  static const double rightMarginNarrow = 100 - (containerPadding * 0.5);
+  static const double bottomOffset = 20;
+  static const double rightMarginNormal = 160;
+  static const double rightMarginNarrow = 20;
   static const Color textColor = Colors.grey;
 
   final Function()? onDismiss;
@@ -55,18 +54,29 @@ class TimerDurationPanel extends StatelessWidget {
       }
 
       final bool isWindowNarrow = windowSize.width < narrowWindowWidth;
-      final double rightMargin = isWindowNarrow
+      final double rightOffset = isWindowNarrow
           ? remap(minimumWindowWidth, narrowWindowWidth, rightMarginNarrow,
               rightMarginNormal, windowSize.width)
           : rightMarginNormal;
 
+      const presetButtonStyle = ButtonStyle(        
+        shape: MaterialStatePropertyAll(CircleBorder()),
+        fixedSize: MaterialStatePropertyAll(Size(50, 50)),
+        padding: MaterialStatePropertyAll(EdgeInsets.zero),
+      );
+
       Widget preset(String text, int seconds, double left, double top) {
         final isCurrentSelectedButton = (seconds == model.currentTimerDuration);
         if (isCurrentSelectedButton) {
+          var selectedButtonStyle = presetButtonStyle.copyWith(
+            backgroundColor: const MaterialStatePropertyAll(PfsTheme.primaryColor),
+          );
+          
           return Positioned(
             left: left,
             top: top,
             child: FilledButton(
+              style: selectedButtonStyle,
               onPressed: () {
                 model.setTimerSeconds(seconds);
                 onDismiss?.call();
@@ -80,6 +90,7 @@ class TimerDurationPanel extends StatelessWidget {
           left: left,
           top: top,
           child: TextButton(
+            style: presetButtonStyle,
             onPressed: () {
               model.setTimerSeconds(seconds);
               onDismiss?.call();
@@ -108,75 +119,89 @@ class TimerDurationPanel extends StatelessWidget {
         ),
       );
 
+      Widget tapToDismiss({Widget? child}) {
+        return GestureDetector(
+          onTap: () => onDismiss?.call(),
+          behavior: HitTestBehavior.translucent,
+          child: child,
+        );
+      }
+      
+      const double leftOffset = 75;
+      const double topOffset = 70;
+
       return Stack(
         children: [
           ModalUnderlay(onTapDown: () => onDismiss?.call()),
           Positioned(
-            right: rightMargin,
+            right: rightOffset,
             bottom: (-radius) + bottomOffset,
             child: Material(
               color: Colors.transparent,
-              child: Animate(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  tapToDismiss(
+                    child: Container(
+                      decoration: PfsTheme.popupPanelBoxDecorationPaw,
+                      child: SizedBox(
+                        width: diameter,
+                        height: diameter,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Timer duration',
+                                style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
+                              ),
+                            ),
+                            secondsTextField,
+                            const SizedBox(height: 3),
+                            const Text(
+                              'seconds',
+                              style: TextStyle(color: textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  tapToDismiss(
+                    child: SizedBox(
+                      height: 500,
+                      width: 500,
+                      child: Stack(
+                        children: [
+                          preset('15s', 15, leftOffset + 13, topOffset + 84),
+                          preset('30s', 30, leftOffset + 54, topOffset + 34),
+                          preset('45s', 45, leftOffset + 113, topOffset + 3),
+                          preset('60s', 60, leftOffset + 187, topOffset + 4),
+                          preset('90s', 90, leftOffset + 246, topOffset + 38),
+                          preset('2m', 2 * 60, leftOffset + 283, topOffset + 84),
+                          preset('3m', 3 * 60, leftOffset + 298, topOffset + 140),
+                        ].animate(
+                          interval: const Duration(milliseconds: 40),
+                          delay: const Duration(milliseconds: 120),
+                          effects: const [
+                            Phanimations.slideUpEffect,
+                            Phanimations.fadeInEffect,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ).animate(
                 effects: const [
                   Phanimations.slideUpEffect,
                   Phanimations.growBottomEffect,
                 ],
-                child: SizedBox(
-                  width: diameter + containerPadding,
-                  height: diameter + containerPadding,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      GestureDetector(
-                        onTapDown: (details) => onDismiss?.call(),
-                        child: Container(
-                          decoration: PfsTheme.popupPanelBoxDecorationPaw,
-                          child: SizedBox(
-                            width: diameter,
-                            height: diameter,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Timer duration',
-                                    style: TextStyle(
-                                        color: textColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18),
-                                  ),
-                                ),
-                                secondsTextField,
-                                const SizedBox(height: 3),
-                                const Text(
-                                  'seconds',
-                                  style: TextStyle(color: textColor),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: diameter,
-                        width: diameter,
-                        child: Stack(
-                          children: [
-                            preset('15s', 15, 5, 80),
-                            preset('30s', 30, 50, 30),
-                            preset('45s', 45, 115, 0),
-                            preset('60s', 60, 195, 5),
-                            preset('90s', 90, 255, 35),
-                            preset('2m', 2 * 60, 290, 80),
-                            preset('3m', 3 * 60, 293, 130),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
           ),

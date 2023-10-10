@@ -36,7 +36,6 @@ class MainScreen extends StatefulWidget {
 
     const double windowNarrowWidth = 700;
     const Duration duration = Duration(milliseconds: 1500);
-    const Color toastColor = Color(0xFF91AECC);
 
     final bool isWindowNarrow =
         MediaQuery.of(context).size.width < windowNarrowWidth;
@@ -46,7 +45,6 @@ class MainScreen extends StatefulWidget {
       dismissDirection: DismissDirection.up,
       behavior: SnackBarBehavior.floating,
       duration: duration,
-      backgroundColor: toastColor,
       margin: margin,
       content: Center(child: content),
     );
@@ -489,48 +487,55 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget _topRightWindowControls() {
     return Padding(
       padding: const EdgeInsets.all(2.0),
-      child: Opacity(
-        opacity: 0.8,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Phbuttons.topControl(
-                    () => _doToggleSounds(),
-                    isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                    isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)'),
+                  onPressed: () => _doToggleSounds(),
+                  icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
+                  tooltip:
+                      isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)',
+                ),
                 Phbuttons.topControl(
-                    () => _doToggleAlwaysOnTop(),
-                    isAlwaysOnTop
-                        ? Icons.push_pin_rounded
-                        : Icons.push_pin_outlined,
-                    'Keep Window on Top (Ctrl+T)'),
-                Phbuttons.topControl(() => _setCheatSheetActive(true),
-                    Icons.help_rounded, 'Help... (F1)'),
+                  onPressed: () => _doToggleAlwaysOnTop(),
+                  icon: isAlwaysOnTop
+                      ? Icons.push_pin_rounded
+                      : Icons.push_pin_outlined,
+                  tooltip: 'Keep Window on Top (Ctrl+T)',
+                  isSelected: isAlwaysOnTop,
+                ),
+                Phbuttons.topControl(
+                  onPressed: () => _setCheatSheetActive(true),
+                  icon: Icons.help_rounded,
+                  tooltip: 'Help... (F1)',
+                ),
                 //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
               ],
             ),
-            const Padding(
-              padding: EdgeInsets.all(2.0),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            child: Text(
+              'For testing only\n0.5.20231006a',
+              textAlign: TextAlign.right,
+              style: PfsTheme.topRightWatermarkTextStyle,
+            ),
+          ),
+          if (imagePhviewer.currentZoomScale != 1.0)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               child: Text(
-                'For testing only\n0.5.20231006a',
+                'Zoom ${imagePhviewer.currentZoomScalePercent}%',
                 textAlign: TextAlign.right,
                 style: PfsTheme.topRightWatermarkTextStyle,
               ),
-            ),
-            if (imagePhviewer.currentZoomScale != 1.0)
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text(
-                  'Zoom ${imagePhviewer.currentZoomScalePercent}%',
-                  textAlign: TextAlign.right,
-                  style: PfsTheme.topRightWatermarkTextStyle,
-                ),
-              )
-          ],
-        ),
+            )
+        ],
       ),
     );
   }
@@ -578,13 +583,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _bottomBar() {
-    const double buttonOpacity = 0.4;
     if (isBottomBarMinimized) {
       return const Positioned(
         bottom: 1,
         right: 10,
         child: Opacity(
-          opacity: buttonOpacity,
+          opacity: PfsTheme.bottomBarButtonOpacity,
           child: Row(children: [
             TimerBar(),
             SizedBox(width: 140),
@@ -594,35 +598,30 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     List<Widget> bottomBarItems(PfsAppModel model) {
+      const double filterIconSize = 20;
       const filterIconOff = Icon(
         Icons.contrast,
-        color: PfsTheme.bottomBarButtonContentColor,
-        size: 20,
+        size: filterIconSize,
       );
       const filterIconOn = Icon(
         Icons.contrast,
-        color: PfsTheme.bottomBarButtonActiveColor,
-        size: 20,
+        size: filterIconSize,
       );
 
-      final filtersButton = Opacity(
-        opacity: buttonOpacity,
-        child: IconButton(
-          onPressed: () => _setFiltersMenuActive(true),
-          tooltip: 'Filters',
-          icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
-        ),
+      final filtersButton = IconButton(
+        onPressed: () => _setFiltersMenuActive(true),
+        style: PfsTheme.bottomBarButtonStyle,
+        isSelected: imagePhviewer.isFilterActive,
+        tooltip: 'Filters',
+        icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
       );
 
-      final resetZoomButton = Opacity(
-        opacity: buttonOpacity,
-        child: IconButton(
-          tooltip: 'Reset zoom',
-          onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
-          icon: const Icon(
-            Icons.youtube_searched_for,
-            color: PfsTheme.bottomBarButtonContentColor,
-          ),
+      final resetZoomButton = IconButton(
+        tooltip: 'Reset zoom',
+        onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
+        icon: const Icon(
+          Icons.youtube_searched_for,
+          color: PfsTheme.bottomBarButtonContentColor,
         ),
       );
 
@@ -632,10 +631,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
-          Phbuttons.timerButton(onPressed: () => _doStartEditingCustomTime()),
+          Phbuttons.timerSettingsButton(
+              onPressed: () => _doStartEditingCustomTime()),
           const SizedBox(width: 15),
           Opacity(
-            opacity: model.allowTimerPlayPause ? 0.4 : 0.2,
+            opacity: model.allowTimerPlayPause ? 1 : 0.5,
             child: _timerControls(),
           ),
           const SizedBox(width: 20),
@@ -653,11 +653,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return Positioned(
       bottom: 1,
       right: 10,
-      child: Animate(
-        effects: const [Phanimations.bottomBarSlideUpEffect],
-        child: PfsAppModel.scope(
-          (_, __, model) => Row(children: bottomBarItems(model)),
-        ),
+      child: PfsAppModel.scope(
+        (_, __, model) {
+          return Row(
+            children: bottomBarItems(model).animate(
+              interval: const Duration(milliseconds: 25),
+              effects: [Phanimations.bottomBarSlideUpEffect],
+            ),
+          );
+        },
       ),
     );
   }

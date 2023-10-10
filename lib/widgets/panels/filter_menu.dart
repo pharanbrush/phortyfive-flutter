@@ -58,6 +58,7 @@ class FilterMenu extends StatelessWidget {
                               const Expanded(child: Text('')),
                               IconButton(
                                   tooltip: 'Reset all filters',
+                                  color: PfsTheme.bottomBarButtonActiveColor.withOpacity(1),
                                   onPressed: imagePhviewer.isFilterActive
                                       ? () => imagePhviewer.resetAllFilters()
                                       : null,

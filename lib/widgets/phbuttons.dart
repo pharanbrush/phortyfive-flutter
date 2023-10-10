@@ -6,24 +6,21 @@ class Phbuttons {
   static const String revealInExplorerText = 'Show in Explorer';
 
   static Widget topControl(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    const double buttonSpacing = 5;
+      {Function()? onPressed,
+      required IconData icon,
+      String? tooltip,
+      bool isSelected = false}) {
+    const double buttonSpacing = 0;
     const double iconSize = 20;
-    const size = Size(25, 25);
-    final style = TextButton.styleFrom(
-      minimumSize: size,
-      maximumSize: size,
-      padding: const EdgeInsets.all(0),
-    );
 
     return Container(
       margin: const EdgeInsets.only(right: buttonSpacing),
       child: IconButton(
+        style: PfsTheme.topControlStyle,
         onPressed: onPressed,
         icon: Icon(icon, size: iconSize),
-        color: PfsTheme.topBarButtonColor,
         tooltip: tooltip,
-        style: style,
+        isSelected: isSelected,
       ),
     );
   }
@@ -31,10 +28,10 @@ class Phbuttons {
   static Widget timerControl(
       Function()? onPressed, IconData icon, String? tooltip) {
     return IconButton(
+      style: PfsTheme.bottomBarButtonStyle,
       onPressed: onPressed,
       icon: Icon(icon),
       tooltip: tooltip,
-      focusColor: const Color(0xFFFFE4C0),
     );
   }
 
@@ -44,7 +41,6 @@ class Phbuttons {
       onPressed: onPressed,
       icon: Icon(icon),
       tooltip: tooltip,
-      focusColor: const Color(0xFFFFE4C0),
     );
   }
 
@@ -64,7 +60,18 @@ class Phbuttons {
               : PfsTheme.timerPausedColor)
           : PfsTheme.timerDisabledColor;
 
-      final style = FilledButton.styleFrom(backgroundColor: buttonColor);
+      final style = ButtonStyle(
+        animationDuration: const Duration(milliseconds: 300),
+        backgroundColor: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return buttonColor.withOpacity(1);
+          }
+          return buttonColor;
+        }),
+        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        elevation: const MaterialStatePropertyAll(0),
+      );
+
       final tooltipText =
           model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
 
@@ -73,9 +80,10 @@ class Phbuttons {
         child: FilledButton(
           style: style,
           onPressed: () => model.playPauseToggleTimer(),
-          child: SizedBox(
+          child: Container(
+            alignment: Alignment.center,
             width: 50,
-            child: Align(alignment: Alignment.center, child: icon),
+            child: icon,
           ),
         ),
       );
@@ -99,7 +107,10 @@ class Phbuttons {
               onPressed: () => model.openFilePickerForImages(),
               child: const SizedBox(
                 width: 40,
-                child: Icon(Icons.folder_open, color: PfsTheme.filledButtonContentColor),
+                child: Icon(
+                  Icons.folder_open,
+                  //color: PfsTheme.filledButtonContentColor,
+                ),
               ),
             ),
           ),
@@ -118,22 +129,20 @@ class Phbuttons {
     );
   }
 
-  static Widget timerButton({required Function() onPressed}) {
+  static Widget timerSettingsButton({required Function() onPressed}) {
     return PfsAppModel.scope(
       (_, __, model) {
         final currentTimerSeconds = model.timer.duration.inSeconds;
-        const double iconSize = 18;
-        const opacity = 0.4;
+        const iconSize = PfsTheme.timerBarIconSize;
 
-        return Opacity(
-          opacity: opacity,
-          child: Tooltip(
-            message:
-                '${model.timer.duration.inSeconds} seconds per image.\nClick to edit timer. (F2)',
-            child: TextButton(
-                onPressed: onPressed,
-                child: textThenIcon('${currentTimerSeconds}s',
-                    const Icon(Icons.timer_outlined, size: iconSize))),
+        return Tooltip(
+          message:
+              '${model.timer.duration.inSeconds} seconds per image.\nClick to edit timer. (F2)',
+          child: TextButton(
+            onPressed: onPressed,
+            style: PfsTheme.bottomBarButtonStyle,
+            child: textThenIcon('${currentTimerSeconds}s',
+                const Icon(Icons.timer_outlined, size: iconSize)),
           ),
         );
       },
@@ -155,6 +164,7 @@ class Phbuttons {
           child: GestureDetector(
             onSecondaryTap: () => model.openFilePickerForFolder(),
             child: TextButton(
+              style: PfsTheme.bottomBarButtonStyle,
               onPressed: () => model.openFilePickerForImages(),
               child: SizedBox(
                 width: 80,
@@ -175,7 +185,7 @@ class Phbuttons {
       }
 
       return Opacity(
-        opacity: 0.4,
+        opacity: 1, //0.4,
         child: imageStats(),
       );
     });
@@ -183,32 +193,21 @@ class Phbuttons {
 
   static Widget collapseBottomBarButton(
       {required bool isMinimized, Function()? onPressed}) {
-    const buttonSize = Size(25, 25);
     const collapseIcon = Icons.expand_more_rounded;
     const expandIcon = Icons.expand_less_rounded;
 
     final IconData buttonIcon = isMinimized ? expandIcon : collapseIcon;
     final String tooltip =
         isMinimized ? 'Expand controls (H)' : 'Minimize controls (H)';
-    const iconColor = PfsTheme.minorWindowControlColor;
-
-    const double iconSize = 20;
-
-    final style = TextButton.styleFrom(
-      minimumSize: buttonSize,
-      maximumSize: buttonSize,
-      padding: const EdgeInsets.all(0),
-    );
 
     return Tooltip(
       message: tooltip,
       child: TextButton(
-        style: style,
+        style: PfsTheme.minorWindowControlButtonStyle,
         onPressed: onPressed,
         child: Icon(
           buttonIcon,
-          size: iconSize,
-          color: iconColor,
+          size: PfsTheme.minorWindowControlIconSize,
         ),
       ),
     );

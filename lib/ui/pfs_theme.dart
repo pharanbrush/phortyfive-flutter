@@ -3,27 +3,39 @@ import 'package:flutter/material.dart';
 class PfsTheme {
   static ThemeData get themeData => _getThemeData();
 
+  static const Color primaryColor = Color.fromARGB(255, 105, 91, 87);
+  static const Color accentColor = Color.fromARGB(255, 146, 109, 88);
+  static const Color seedColor = Color.fromARGB(255, 255, 174, 0);
+  static const Color backgroundColor = Color.fromARGB(255, 255, 255, 255);
+
   static ThemeData _getThemeData() {
     return ThemeData(
-      scaffoldBackgroundColor: Colors.white,
-      snackBarTheme:
-          const SnackBarThemeData(backgroundColor: Color(0x00000000)),
+      useMaterial3: true,
+      scaffoldBackgroundColor: PfsTheme.backgroundColor,
+      //snackBarTheme: const SnackBarThemeData(backgroundColor: primaryColor),
       colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
-        seedColor: Colors.blue,
+        seedColor: PfsTheme.seedColor,
+        background: PfsTheme.backgroundColor,
+        primary: PfsTheme.primaryColor,
         secondary: Colors.brown,
-        background: Colors.white,
-        outline: const Color(0x44000000),
+        onSecondary: Colors.white,
+        outline: const Color.fromARGB(82, 94, 76, 53),
       ),
-      //textTheme: TextTheme()
     );
   }
-  
+
+  static const double bottomBarButtonOpacity = 0.4;
+  static const double timerBarIconSize = 18;
+
   static const double _nextPreviousLargeButtonSize = 100;
-  static const Icon beforeGestureIcon = Icon(Icons.navigate_before, size: _nextPreviousLargeButtonSize);
-  static const Icon nextGestureIcon = Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
-  
-  static const topRightWatermarkTextStyle = TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
+  static const Icon beforeGestureIcon =
+      Icon(Icons.navigate_before, size: _nextPreviousLargeButtonSize);
+  static const Icon nextGestureIcon =
+      Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
+
+  static const topRightWatermarkTextStyle =
+      TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
 
   static const Color firstActionBoxColor = Color(0xFFF5F5F5);
   static const Color firstActionBorderColor = Color(0xFFEEEEEE);
@@ -56,17 +68,58 @@ class PfsTheme {
 
   static const Color watermarkColor = Color(0x55555555);
 
-  static const Color timerPausedColor = Color(0xFFB99700);
-  static const Color timerRunningColor = Colors.blueGrey;
-  static const Color timerAlmostZeroColor = Color(0xFFCE0C0C);
+  static const Color timerPausedColor = Color.fromARGB(150, 255, 198, 73);
+  static const Color timerRunningColor = Color.fromARGB(131, 167, 148, 140);
+  static const Color timerAlmostZeroColor = Color.fromARGB(195, 206, 12, 12);
   static const Color timerDisabledColor = Color(0xFF9E9E9E);
   static const Color timerBarBackgroundColor = Colors.black12;
 
-  static const Color bottomBarButtonContentColor = Colors.grey;
-  static const Color bottomBarButtonActiveColor = Colors.orange;
+  static const int bottomBarButtonOpacityByte = 100;
+  static const Color bottomBarButtonContentColor =
+      Color.fromARGB(bottomBarButtonOpacityByte, 158, 158, 158);
+  static const Color bottomBarButtonActiveColor =
+      Color.fromARGB(120, 231, 173, 85);
+  static const Color bottomBarButtonHoverColor =
+      Color.fromARGB(169, 29, 29, 29);
 
-  static const Color accentColor = Color(0xFF634E42);
+  static Color getBottomBarIconColor(Set<MaterialState> states) {
+    if (states.contains(MaterialState.hovered)) {
+      return PfsTheme.bottomBarButtonHoverColor;
+    } else if (states.contains(MaterialState.selected)) {
+      return PfsTheme.bottomBarButtonActiveColor;
+    }
+
+    return PfsTheme.bottomBarButtonContentColor;
+  }
+
+  static final ButtonStyle bottomBarButtonStyle = ButtonStyle(
+    foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
+  );
+
+  static const Color timerBarButtonContentColor = Colors.grey;
+
   static const Color topBarButtonColor = Colors.black12;
+  static const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
+
+  static Color getTopIconColor(Set<MaterialState> states) {
+    if (states.contains(MaterialState.hovered)) {
+      return Colors.black;
+    } else if (states.contains(MaterialState.selected)) {
+      return PfsTheme.topBarButtonActiveColor;
+    }
+
+    return PfsTheme.topBarButtonColor;
+  }
+
+  static const double topControlDiameter = 15;
+  static const Size topControlSize =
+      Size(topControlDiameter, topControlDiameter);
+  static final topControlStyle = ButtonStyle(
+    fixedSize: const MaterialStatePropertyAll(topControlSize),
+    iconColor: MaterialStateProperty.resolveWith(getTopIconColor),
+    backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
+    padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+  );
 
   static const TextStyle subtleHeadingStyle =
       TextStyle(fontSize: 14, color: Colors.grey);
@@ -74,6 +127,16 @@ class PfsTheme {
   static const double subtleHeadingIconSize = 14;
 
   static const Color minorWindowControlColor = Colors.black38;
+  static const double minorWindowControlIconSize = 20;
+  static const minorWindowControlButtonSize = Size(25, 25);
+  static const minorWindowControlButtonStyle = ButtonStyle(
+    shape: MaterialStatePropertyAll(CircleBorder()),
+    minimumSize: MaterialStatePropertyAll(minorWindowControlButtonSize),
+    maximumSize: MaterialStatePropertyAll(minorWindowControlButtonSize),
+    padding: MaterialStatePropertyAll(EdgeInsets.all(0)),
+    foregroundColor: MaterialStatePropertyAll(PfsTheme.minorWindowControlColor),
+  );
+
   static const Color filledButtonContentColor = Colors.white;
 
   static const Color hyperlinkColorHovered = Colors.blue;
@@ -107,8 +170,10 @@ class PfsTheme {
 
   static const largeTextFieldInputDecoration = InputDecoration(
     contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-    border: OutlineInputBorder(),
-    focusColor: Color(0xFF0F6892),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(30)),
+    ),
+    focusColor: PfsTheme.accentColor,
     filled: true,
     fillColor: Colors.white,
     counterText: '',
