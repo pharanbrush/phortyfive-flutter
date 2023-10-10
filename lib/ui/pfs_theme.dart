@@ -23,7 +23,7 @@ class PfsTheme {
         outline: const Color.fromARGB(82, 94, 76, 53),
       ),
       extensions: const {
-        PhtimerStyle(
+        PhtimerTheme(
           pausedColor: Color.fromARGB(150, 255, 198, 73),
           runningColor: Color.fromARGB(131, 167, 148, 140),
           almostZeroColor: Color.fromARGB(195, 206, 12, 12),
@@ -186,8 +186,8 @@ class PfsTheme {
   );
 }
 
-class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
-  const PhtimerStyle({
+class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
+  const PhtimerTheme({
     required this.pausedColor,
     required this.runningColor,
     required this.almostZeroColor,
@@ -195,7 +195,7 @@ class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
     required this.barBackgroundColor,
   });
 
-  static const defaultStyle = PhtimerStyle(
+  static const defaultTheme = PhtimerTheme(
     pausedColor: Colors.orange,
     runningColor: Colors.blue,
     almostZeroColor: Colors.red,
@@ -204,14 +204,14 @@ class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
   );
 
   @override
-  ThemeExtension<PhtimerStyle> copyWith({
+  ThemeExtension<PhtimerTheme> copyWith({
     Color? pausedColor,
     Color? runningColor,
     Color? almostZeroColor,
     Color? disabledColor,
     Color? barBackgroundColor,
   }) {
-    return PhtimerStyle(
+    return PhtimerTheme(
       pausedColor: pausedColor ?? this.pausedColor,
       runningColor: runningColor ?? this.runningColor,
       almostZeroColor: almostZeroColor ?? this.almostZeroColor,
@@ -221,13 +221,13 @@ class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
   }
 
   @override
-  ThemeExtension<PhtimerStyle> lerp(
-      covariant ThemeExtension<PhtimerStyle>? other, double t) {
-    if (other is! PhtimerStyle) {
+  ThemeExtension<PhtimerTheme> lerp(
+      covariant ThemeExtension<PhtimerTheme>? other, double t) {
+    if (other is! PhtimerTheme) {
       return this;
     }
 
-    return PhtimerStyle(
+    return PhtimerTheme(
       pausedColor: Color.lerp(pausedColor, other.pausedColor, t)!,
       runningColor: Color.lerp(runningColor, other.runningColor, t)!,
       almostZeroColor: Color.lerp(almostZeroColor, other.almostZeroColor, t)!,

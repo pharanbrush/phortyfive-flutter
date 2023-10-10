@@ -45,7 +45,7 @@ class Phbuttons {
   }
 
   static Widget playPauseTimer(BuildContext context, Animation<double> progress) {
-    final timerStyle = Theme.of(context).extension<PhtimerStyle>() ?? PhtimerStyle.defaultStyle;
+    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ?? PhtimerTheme.defaultTheme;
     
     return PfsAppModel.scope((_, __, model) {
       const playButtonTooltip = 'Timer paused. Press to resume (P)';
@@ -58,9 +58,9 @@ class Phbuttons {
       bool allowTimerControl = model.allowTimerPlayPause;
       Color buttonColor = allowTimerControl
           ? (model.isTimerRunning
-              ? timerStyle.runningColor
-              : timerStyle.pausedColor)
-          : timerStyle.disabledColor;
+              ? timerTheme.runningColor
+              : timerTheme.pausedColor)
+          : timerTheme.disabledColor;
 
       final style = ButtonStyle(
         animationDuration: const Duration(milliseconds: 300),
