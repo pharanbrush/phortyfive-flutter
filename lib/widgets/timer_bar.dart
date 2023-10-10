@@ -5,7 +5,6 @@ import 'package:pfs2/ui/pfs_theme.dart';
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
   static const double almostZeroThreshold = 0.1;
-
   static const double barWidth = 200;
 
   @override

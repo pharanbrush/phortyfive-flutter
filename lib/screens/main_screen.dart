@@ -597,9 +597,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           opacity: 0.5,
           child: Row(children: [
             TimerBar(),
-            SizedBox(
-              width: 140,
-            )
+            SizedBox(width: 140),
           ]),
         ),
       );

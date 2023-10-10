@@ -78,7 +78,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
           model.loadImages(filePaths);
 
           if (model.hasFilesLoaded) {
-            widget.onDragSuccess!(); //windowManager.focus();
+            widget.onDragSuccess!();
           }
         },
         onDragEntered: (details) => _setDraggingActive(true),
