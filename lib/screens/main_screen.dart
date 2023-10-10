@@ -295,7 +295,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _showSnackBarWithBoldText(
       text: 'Timer is set to ',
       boldText: '${widget.model.currentTimerDuration} seconds',
-      lastText: '.',
+      lastText: ' per image.',
     );
   }
 
