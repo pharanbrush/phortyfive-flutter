@@ -263,6 +263,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     model.onCountdownUpdate ??= () => _playClickSound();
   }
 
+  void _setFiltersMenuActive(bool active) {
+    setState(() {
+      isShowingFiltersMenu = active;
+    });
+  }
+
   void _cancelAllModals() {
     if (isShowingCheatSheet) {
       _setCheatSheetActive(false);
@@ -619,7 +625,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       final filtersButton = Opacity(
         opacity: buttonOpacity,
         child: IconButton(
-          onPressed: () => setState(() => isShowingFiltersMenu = true),
+          onPressed: () => _setFiltersMenuActive(true),
           tooltip: 'Filters',
           icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
         ),
