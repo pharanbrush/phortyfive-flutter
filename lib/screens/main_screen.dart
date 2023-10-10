@@ -15,7 +15,7 @@ import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
-import 'package:pfs2/widgets/timer_bar.dart';
+import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:window_manager/window_manager.dart';
