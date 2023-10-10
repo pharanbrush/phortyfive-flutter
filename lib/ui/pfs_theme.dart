@@ -5,6 +5,7 @@ class PfsTheme {
 
   static ThemeData _getThemeData() {
     return ThemeData(
+      scaffoldBackgroundColor: Colors.white,
       snackBarTheme:
           const SnackBarThemeData(backgroundColor: Color(0x00000000)),
       colorScheme: ColorScheme.fromSeed(
@@ -17,6 +18,12 @@ class PfsTheme {
       //textTheme: TextTheme()
     );
   }
+  
+  static const double _nextPreviousLargeButtonSize = 100;
+  static const Icon beforeGestureIcon = Icon(Icons.navigate_before, size: _nextPreviousLargeButtonSize);
+  static const Icon nextGestureIcon = Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
+  
+  static const topRightWatermarkTextStyle = TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
 
   static const Color firstActionBoxColor = Color(0xFFF5F5F5);
   static const Color firstActionBorderColor = Color(0xFFEEEEEE);
@@ -26,9 +33,8 @@ class PfsTheme {
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
-  static const TextStyle firstActionTextStyleSecondary = TextStyle(
-    color: firstActionContentColor,
-  );
+  static const TextStyle firstActionTextStyleSecondary =
+      TextStyle(color: firstActionContentColor);
 
   static const Border firstActionBoxBorder = Border(
     bottom: BorderSide(color: firstActionBorderColor),

@@ -178,19 +178,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Theme.of(context).colorScheme.background;
-
     if (!widget.model.hasFilesLoaded) {
-      return Container(
-        color: backgroundColor,
-        child: Stack(
-          children: [
-            const FirstActionSheet(),
-            _topRightWindowControls(),
-            _bottomBar(),
-            _fileDropZone(),
-          ],
-        ),
+      return Stack(
+        children: [
+          const FirstActionSheet(),
+          _topRightWindowControls(),
+          _bottomBar(),
+          _fileDropZone(),
+        ],
       );
     }
 
@@ -216,36 +211,29 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    return shortcutsWrapper(Container(
-      color: backgroundColor,
-      child: Stack(
-        children: [
-          imagePhviewer.widget(isBottomBarMinimized),
-          _fileDropZone(),
-          _gestureControls(),
-          const CountdownSheet(),
-          _topRightWindowControls(),
-          _bottomBar(),
-          modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
-          modalMenu(
-            isOpen: isShowingCheatSheet,
-            builder: () =>
-                HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+    return shortcutsWrapper(Stack(
+      children: [
+        imagePhviewer.widget(isBottomBarMinimized),
+        _fileDropZone(),
+        _gestureControls(),
+        const CountdownSheet(),
+        _topRightWindowControls(),
+        _bottomBar(),
+        modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
+        modalMenu(
+          isOpen: isShowingCheatSheet,
+          builder: () =>
+              HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+        ),
+        modalMenu(
+          isOpen: isShowingFiltersMenu,
+          builder: () => FilterMenu(
+            imagePhviewer: imagePhviewer,
+            onDismiss: () => _setFiltersMenuActive(false),
           ),
-          modalMenu(
-            isOpen: isShowingFiltersMenu,
-            builder: () => FilterMenu(
-              imagePhviewer: imagePhviewer,
-              onDismiss: () {
-                setState(() {
-                  isShowingFiltersMenu = false;
-                });
-              },
-            ),
-          ),
-          _dockingControls(),
-        ],
-      ),
+        ),
+        _dockingControls(),
+      ],
     ));
   }
 
@@ -389,8 +377,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _gestureControls() {
-    const Icon beforeIcon = Icon(Icons.navigate_before, size: 100);
-    const Icon nextIcon = Icon(Icons.navigate_next, size: 100);
     AnimatedIcon playPauseIcon = AnimatedIcon(
       icon: AnimatedIcons.play_pause,
       size: 80,
@@ -409,7 +395,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       Widget zoomOnScrollListener({Widget? child}) {
         void incrementZoomLevel(int increment) => setState(() {
               imagePhviewer.incrementZoomLevel(increment);
-              //_showSnackBar(content: SnackbarPhmessage(text: 'Zoom ${imagePhviewer.currentZoomScalePercent}%'));
             });
 
         return ScrollListener(
@@ -445,7 +430,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             nextPreviousGestureButton(
                 width: 100,
                 onPressed: () => model.previousImageNewTimer(),
-                child: beforeIcon),
+                child: PfsTheme.beforeGestureIcon),
             Expanded(
                 flex: 4,
                 child: zoomOnScrollListener(
@@ -460,7 +445,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             nextPreviousGestureButton(
                 width: 140,
                 onPressed: () => model.nextImageNewTimer(),
-                child: nextIcon),
+                child: PfsTheme.beforeGestureIcon),
           ],
         ),
       );
@@ -502,8 +487,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _topRightWindowControls() {
-    const textStyle = TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
-
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Opacity(
@@ -534,7 +517,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               child: Text(
                 'For testing only\n0.5.20231006a',
                 textAlign: TextAlign.right,
-                style: textStyle,
+                style: PfsTheme.topRightWatermarkTextStyle,
               ),
             ),
             if (imagePhviewer.currentZoomScale != 1.0)
@@ -543,7 +526,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 child: Text(
                   'Zoom ${imagePhviewer.currentZoomScalePercent}%',
                   textAlign: TextAlign.right,
-                  style: textStyle,
+                  style: PfsTheme.topRightWatermarkTextStyle,
                 ),
               )
           ],
@@ -639,7 +622,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           icon: const Icon(
             Icons.youtube_searched_for,
             color: PfsTheme.bottomBarButtonContentColor,
-            //size: 20,
           ),
         ),
       );
@@ -674,9 +656,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       child: Animate(
         effects: const [Phanimations.bottomBarSlideUpEffect],
         child: PfsAppModel.scope(
-          (_, __, model) {
-            return Row(children: bottomBarItems(model));
-          },
+          (_, __, model) => Row(children: bottomBarItems(model)),
         ),
       ),
     );
@@ -693,8 +673,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       bottom: 3,
       right: 3,
       child: Phbuttons.collapseBottomBarButton(
-          isMinimized: isBottomBarMinimized,
-          onPressed: () => _doToggleBottomBar()),
+        isMinimized: isBottomBarMinimized,
+        onPressed: () => _doToggleBottomBar(),
+      ),
     );
   }
 
