@@ -5,18 +5,18 @@ class PfsTheme {
 
   static const Color primaryColor = Color.fromARGB(255, 105, 91, 87);
   static const Color accentColor = Color.fromARGB(255, 146, 109, 88);
-  static const Color seedColor = Color.fromARGB(255, 255, 174, 0);
-  static const Color backgroundColor = Color.fromARGB(255, 255, 255, 255);
+  static const Color lightSeedColor = Color.fromARGB(255, 255, 174, 0);
+  static const Color lightBackgroundColor = Color.fromARGB(255, 255, 255, 255);
 
   static ThemeData _getThemeData() {
     var newData = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: PfsTheme.backgroundColor,
+      scaffoldBackgroundColor: PfsTheme.lightBackgroundColor,
       //snackBarTheme: const SnackBarThemeData(backgroundColor: primaryColor),
       colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
-        seedColor: PfsTheme.seedColor,
-        background: PfsTheme.backgroundColor,
+        seedColor: PfsTheme.lightSeedColor,
+        background: PfsTheme.lightBackgroundColor,
         primary: PfsTheme.primaryColor,
         secondary: Colors.brown,
         onSecondary: Colors.white,
@@ -37,7 +37,6 @@ class PfsTheme {
   }
 
   static const double bottomBarButtonOpacity = 0.4;
-  static const double timerBarIconSize = 18;
 
   static const double _nextPreviousLargeButtonSize = 100;
   static const Icon beforeGestureIcon =
@@ -101,6 +100,7 @@ class PfsTheme {
     foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
   );
 
+  static const double timerBarIconSize = 18;
   static const Color timerBarButtonContentColor = Colors.grey;
 
   static const Color topBarButtonColor = Colors.black12;
@@ -194,7 +194,7 @@ class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
     required this.disabledColor,
     required this.barBackgroundColor,
   });
-  
+
   static const defaultStyle = PhtimerStyle(
     pausedColor: Colors.orange,
     runningColor: Colors.blue,
