@@ -67,7 +67,6 @@ class TimerDurationPanel extends StatelessWidget {
             left: left,
             top: top,
             child: FilledButton(
-              //style: FilledButton.styleFrom(padding: const EdgeInsets.all(10)),
               onPressed: () {
                 model.setTimerSeconds(seconds);
                 onDismiss?.call();
@@ -81,7 +80,6 @@ class TimerDurationPanel extends StatelessWidget {
           left: left,
           top: top,
           child: TextButton(
-            //style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(10)),
             onPressed: () {
               model.setTimerSeconds(seconds);
               onDismiss?.call();
