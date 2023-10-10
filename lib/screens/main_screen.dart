@@ -445,7 +445,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             nextPreviousGestureButton(
                 width: 140,
                 onPressed: () => model.nextImageNewTimer(),
-                child: PfsTheme.beforeGestureIcon),
+                child: PfsTheme.nextGestureIcon),
           ],
         ),
       );
