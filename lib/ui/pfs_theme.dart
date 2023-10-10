@@ -9,7 +9,7 @@ class PfsTheme {
   static const Color backgroundColor = Color.fromARGB(255, 255, 255, 255);
 
   static ThemeData _getThemeData() {
-    return ThemeData(
+    var newData = ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: PfsTheme.backgroundColor,
       //snackBarTheme: const SnackBarThemeData(backgroundColor: primaryColor),
@@ -22,7 +22,18 @@ class PfsTheme {
         onSecondary: Colors.white,
         outline: const Color.fromARGB(82, 94, 76, 53),
       ),
+      extensions: const {
+        PhtimerStyle(
+          pausedColor: Color.fromARGB(150, 255, 198, 73),
+          runningColor: Color.fromARGB(131, 167, 148, 140),
+          almostZeroColor: Color.fromARGB(195, 206, 12, 12),
+          disabledColor: Color(0xFF9E9E9E),
+          barBackgroundColor: Colors.black12,
+        )
+      },
     );
+
+    return newData;
   }
 
   static const double bottomBarButtonOpacity = 0.4;
@@ -67,12 +78,6 @@ class PfsTheme {
   );
 
   static const Color watermarkColor = Color(0x55555555);
-
-  static const Color timerPausedColor = Color.fromARGB(150, 255, 198, 73);
-  static const Color timerRunningColor = Color.fromARGB(131, 167, 148, 140);
-  static const Color timerAlmostZeroColor = Color.fromARGB(195, 206, 12, 12);
-  static const Color timerDisabledColor = Color(0xFF9E9E9E);
-  static const Color timerBarBackgroundColor = Colors.black12;
 
   static const int bottomBarButtonOpacityByte = 100;
   static const Color bottomBarButtonContentColor =
@@ -179,4 +184,62 @@ class PfsTheme {
     counterText: '',
     counterStyle: TextStyle(fontSize: 1),
   );
+}
+
+class PhtimerStyle extends ThemeExtension<PhtimerStyle> {
+  const PhtimerStyle({
+    required this.pausedColor,
+    required this.runningColor,
+    required this.almostZeroColor,
+    required this.disabledColor,
+    required this.barBackgroundColor,
+  });
+  
+  static const defaultStyle = PhtimerStyle(
+    pausedColor: Colors.orange,
+    runningColor: Colors.blue,
+    almostZeroColor: Colors.red,
+    disabledColor: Color(0xFF9E9E9E),
+    barBackgroundColor: Colors.black12,
+  );
+
+  @override
+  ThemeExtension<PhtimerStyle> copyWith({
+    Color? pausedColor,
+    Color? runningColor,
+    Color? almostZeroColor,
+    Color? disabledColor,
+    Color? barBackgroundColor,
+  }) {
+    return PhtimerStyle(
+      pausedColor: pausedColor ?? this.pausedColor,
+      runningColor: runningColor ?? this.runningColor,
+      almostZeroColor: almostZeroColor ?? this.almostZeroColor,
+      disabledColor: disabledColor ?? this.disabledColor,
+      barBackgroundColor: barBackgroundColor ?? this.barBackgroundColor,
+    );
+  }
+
+  @override
+  ThemeExtension<PhtimerStyle> lerp(
+      covariant ThemeExtension<PhtimerStyle>? other, double t) {
+    if (other is! PhtimerStyle) {
+      return this;
+    }
+
+    return PhtimerStyle(
+      pausedColor: Color.lerp(pausedColor, other.pausedColor, t)!,
+      runningColor: Color.lerp(runningColor, other.runningColor, t)!,
+      almostZeroColor: Color.lerp(almostZeroColor, other.almostZeroColor, t)!,
+      disabledColor: Color.lerp(disabledColor, other.disabledColor, t)!,
+      barBackgroundColor:
+          Color.lerp(barBackgroundColor, other.barBackgroundColor, t)!,
+    );
+  }
+
+  final Color pausedColor;
+  final Color runningColor;
+  final Color almostZeroColor;
+  final Color disabledColor;
+  final Color barBackgroundColor;
 }

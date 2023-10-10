@@ -181,7 +181,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         children: [
           const FirstActionSheet(),
           _topRightWindowControls(),
-          _bottomBar(),
+          _bottomBar(context),
           _fileDropZone(),
         ],
       );
@@ -216,7 +216,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         _gestureControls(),
         const CountdownSheet(),
         _topRightWindowControls(),
-        _bottomBar(),
+        _bottomBar(context),
         modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
         modalMenu(
           isOpen: isShowingCheatSheet,
@@ -582,7 +582,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  Widget _bottomBar() {
+  Widget _bottomBar(BuildContext context) {
     if (isBottomBarMinimized) {
       return const Positioned(
         bottom: 1,
@@ -636,7 +636,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           const SizedBox(width: 15),
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
-            child: _timerControls(),
+            child: _timerControls(context),
           ),
           const SizedBox(width: 20),
           Phbuttons.imageSetButton(),
@@ -683,7 +683,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _timerControls() {
+  Widget _timerControls(BuildContext context) {
     return Column(children: [
       const TimerBar(),
       Row(
@@ -702,7 +702,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               'Previous Image (K)',
             ),
           ),
-          Phbuttons.playPauseTimer(_playPauseIconStateAnimator),
+          Phbuttons.playPauseTimer(context, _playPauseIconStateAnimator),
           PfsAppModel.scope(
             (_, __, model) => Phbuttons.timerControl(
               () => model.nextImageNewTimer(),

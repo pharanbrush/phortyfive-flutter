@@ -9,6 +9,8 @@ class TimerBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final timerStyle = Theme.of(context).extension<PhtimerStyle>() ?? PhtimerStyle.defaultStyle;
+
     return SizedBox(
       width: TimerBar.barWidth,
       height: 2,
@@ -17,9 +19,9 @@ class TimerBar extends StatelessWidget {
           final barValueFromModel = (1.0 - model.progressPercent);
           Color barColor = model.timer.isActive
               ? (barValueFromModel < TimerBar.almostZeroThreshold
-                  ? PfsTheme.timerAlmostZeroColor
-                  : PfsTheme.timerRunningColor)
-              : PfsTheme.timerPausedColor;
+                  ? timerStyle.almostZeroColor
+                  : timerStyle.runningColor)
+              : timerStyle.pausedColor;
 
           return TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 400),
@@ -27,7 +29,7 @@ class TimerBar extends StatelessWidget {
             tween: Tween<double>(begin: 0, end: barValueFromModel),
             builder: (_, value, __) {
               return LinearProgressIndicator(
-                backgroundColor: PfsTheme.timerBarBackgroundColor,
+                backgroundColor: timerStyle.barBackgroundColor,
                 valueColor: AlwaysStoppedAnimation<Color>(barColor),
                 value: value,
               );
