@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -492,6 +493,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _topRightWindowControls() {
+    final soundShortcut =
+        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Column(
@@ -505,21 +509,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 Phbuttons.topControl(
                   onPressed: () => _doToggleSounds(),
                   icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                  tooltip:
-                      isSoundsEnabled ? 'Mute sounds (M)' : 'Unmute sounds (M)',
+                  tooltip: isSoundsEnabled
+                      ? 'Mute sounds ($soundShortcut)'
+                      : 'Unmute sounds ($soundShortcut)',
                 ),
                 Phbuttons.topControl(
                   onPressed: () => _doToggleAlwaysOnTop(),
                   icon: isAlwaysOnTop
                       ? Icons.push_pin_rounded
                       : Icons.push_pin_outlined,
-                  tooltip: 'Keep Window on Top (Ctrl+T)',
+                  tooltip: PfsLocalization.buttonTooltip(
+                    commandName: PfsLocalization.alwaysOnTop,
+                    shortcut: Phshortcuts.alwaysOnTop,
+                  ),
                   isSelected: isAlwaysOnTop,
                 ),
                 Phbuttons.topControl(
                   onPressed: () => _setCheatSheetActive(true),
                   icon: Icons.help_rounded,
-                  tooltip: 'Help... (F1)',
+                  tooltip: PfsLocalization.buttonTooltip(
+                    commandName: PfsLocalization.help,
+                    shortcut: Phshortcuts.help,
+                  ),
                 ),
                 //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
               ],
@@ -552,11 +563,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       _showSnackBar(
           content: isAlwaysOnTop
               ? const SnackbarPhmessage(
-                  text: '"Always on top" enabled',
+                  text: '"${PfsLocalization.alwaysOnTop}" enabled',
                   icon: Icons.push_pin,
                 )
               : const SnackbarPhmessage(
-                  text: '"Always on top" disabled',
+                  text: '"${PfsLocalization.alwaysOnTop}" disabled',
                   icon: Icons.push_pin_outlined,
                 ));
     }
@@ -699,14 +710,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             (_, __, model) => BottomBarTimerControl(
               onPressed: () => model.restartTimer(),
               icon: Icons.refresh,
-              tooltip: 'Restart Timer (R)',
+              tooltip: PfsLocalization.buttonTooltip(
+                commandName: 'Restart timer',
+                shortcut: Phshortcuts.restartTimer,
+              ),
             ),
           ),
           PfsAppModel.scope(
             (_, __, model) => BottomBarTimerControl(
               onPressed: () => model.previousImageNewTimer(),
               icon: Icons.skip_previous,
-              tooltip: 'Previous Image (K)',
+              tooltip: PfsLocalization.buttonTooltip(
+                commandName: 'Previous Image',
+                shortcut: Phshortcuts.previous2,
+              ),
             ),
           ),
           PlayPauseTimerButton(iconProgress: _playPauseIconStateAnimator),
@@ -714,7 +731,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             (_, __, model) => BottomBarTimerControl(
               onPressed: () => model.nextImageNewTimer(),
               icon: Icons.skip_next,
-              tooltip: 'Next Image (J)',
+              tooltip: PfsLocalization.buttonTooltip(
+                commandName: 'Next Image',
+                shortcut: Phshortcuts.next2,
+              ),
             ),
           ),
         ],

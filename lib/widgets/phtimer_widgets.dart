@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
@@ -51,11 +53,13 @@ class PlayPauseTimerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
         PhtimerTheme.defaultTheme;
+    
+    final shortcutLabel = PfsLocalization.tooltipShortcut(Phshortcuts.playPause);
 
     return PfsAppModel.scope((_, __, model) {
       return PhtimerModel.scope((_, __, timerModel) {
-        const playButtonTooltip = 'Timer paused. Press to resume (P)';
-        const pauseButtonTooltip = 'Timer running. Press to pause (P)';
+        final playButtonTooltip = 'Timer paused. Press to resume ($shortcutLabel)';
+        final pauseButtonTooltip = 'Timer running. Press to pause ($shortcutLabel)';
         final icon = AnimatedIcon(
           icon: AnimatedIcons.play_pause,
           progress: iconProgress,

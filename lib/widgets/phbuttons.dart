@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class Phbuttons {
@@ -36,8 +38,8 @@ class Phbuttons {
   }
 
   static Widget openFiles() {
-    const toolTipText =
-        'Open images... (Ctrl+O)\nRight-click to open image folder... (Ctrl+Shift+O)';
+    final toolTipText =
+        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\nRight-click to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
     var style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
 
@@ -54,7 +56,6 @@ class Phbuttons {
                 width: 40,
                 child: Icon(
                   Icons.folder_open,
-                  //color: PfsTheme.filledButtonContentColor,
                 ),
               ),
             ),
@@ -82,7 +83,7 @@ class Phbuttons {
 
         return Tooltip(
           message:
-              '$currentTimerSeconds seconds per image.\nClick to edit timer. (F2)',
+              '$currentTimerSeconds seconds per image.\nClick to edit timer. (${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
           child: TextButton(
             onPressed: onPressed,
             style: PfsTheme.bottomBarButtonStyle,
