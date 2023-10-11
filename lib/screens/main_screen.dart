@@ -221,8 +221,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
         modalMenu(
           isOpen: isShowingCheatSheet,
-          builder: () =>
-              HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+          builder: () => Theme(
+            data: ThemeData.dark(useMaterial3: true),
+            child: HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+          ),
         ),
         modalMenu(
           isOpen: isShowingFiltersMenu,

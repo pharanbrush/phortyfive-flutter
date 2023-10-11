@@ -2,25 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
 class HelpSheet extends StatelessWidget {
-  static const Color textColor = Color(0xFFEEEEEE);
-  static const Color sheetColor = Color(0xEE000000);
   static const double sheetHeight = 500;
 
   static const Icon headingIcon = Icon(
     Icons.keyboard,
-    color: textColor,
     size: 40,
   );
 
   static const TextStyle headingStyle = TextStyle(
-    color: textColor,
     fontWeight: FontWeight.w600,
     fontSize: 24,
-  );
-
-  static const BoxDecoration sheetDecoration = BoxDecoration(
-    color: sheetColor,
-    borderRadius: BorderRadius.all(Radius.circular(20)),
   );
 
   const HelpSheet({super.key, this.onDismiss});
@@ -47,10 +38,12 @@ class HelpSheet extends StatelessWidget {
         Center(
           child: Material(
             color: Colors.transparent,
-            textStyle: const TextStyle(color: textColor, inherit: true),
             child: Container(
               height: sheetHeight,
-              decoration: sheetDecoration,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface.withAlpha(0xEE),
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,12 +73,18 @@ class HelpSheet extends StatelessWidget {
                           child: const Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                ShortcutListItem(text: 'Next image', keyLabel: 'J'),
-                                ShortcutListItem(text: 'Previous image', keyLabel: 'K'),
+                                ShortcutListItem(
+                                    text: 'Next image', keyLabel: 'J'),
+                                ShortcutListItem(
+                                    text: 'Previous image', keyLabel: 'K'),
                                 Text(''),
-                                ShortcutListItem(text: 'Play/Pause', keyLabel: 'P'),
-                                ShortcutListItem(text: 'Restart timer', keyLabel: 'R'),
-                                ShortcutListItem(text: 'Change timer duration', keyLabel: 'F2'),
+                                ShortcutListItem(
+                                    text: 'Play/Pause', keyLabel: 'P'),
+                                ShortcutListItem(
+                                    text: 'Restart timer', keyLabel: 'R'),
+                                ShortcutListItem(
+                                    text: 'Change timer duration',
+                                    keyLabel: 'F2'),
                               ]),
                         ),
                         if (!isWindowVeryNarrow)
@@ -95,11 +94,24 @@ class HelpSheet extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  ShortcutListItem(text: 'Open images...', modifier: 'Ctrl', keyLabel: 'O',),
-                                  ShortcutListItem(text: 'Toggle "Always on top"', modifier: 'Ctrl', keyLabel: 'T',),
-                                  ShortcutListItem(text: 'Show/hide bottom bar', keyLabel: 'H'),
-                                  ShortcutListItem(text: 'Open help sheet', keyLabel: 'F1'),
-                                  ShortcutListItem(text: 'Mute/unmute sounds', keyLabel: 'M'),
+                                  ShortcutListItem(
+                                    text: 'Open images...',
+                                    modifier: 'Ctrl',
+                                    keyLabel: 'O',
+                                  ),
+                                  ShortcutListItem(
+                                    text: 'Toggle "Always on top"',
+                                    modifier: 'Ctrl',
+                                    keyLabel: 'T',
+                                  ),
+                                  ShortcutListItem(
+                                      text: 'Show/hide bottom bar',
+                                      keyLabel: 'H'),
+                                  ShortcutListItem(
+                                      text: 'Open help sheet', keyLabel: 'F1'),
+                                  ShortcutListItem(
+                                      text: 'Mute/unmute sounds',
+                                      keyLabel: 'M'),
                                 ]),
                           ),
                         if (isWindowVeryNarrow)
@@ -129,7 +141,6 @@ class HelpSheet extends StatelessWidget {
                                 padding: EdgeInsets.all(20.0),
                                 child: Icon(
                                   Icons.file_open_outlined,
-                                  color: textColor,
                                   size: 30,
                                 ),
                               ),
@@ -210,6 +221,10 @@ class KeySymbol extends StatelessWidget {
   static const double horizontalPadding = 8;
   static const double borderRadius = 5;
   static const Color keyColor = Color(0xFF272727);
+  static const Color keyLegendColor = Color.fromARGB(255, 235, 235, 235);
+  static const Border border = Border.fromBorderSide(BorderSide(
+    color: Color.fromARGB(87, 114, 114, 114),
+  ));
 
   @override
   Widget build(BuildContext context) {
@@ -221,9 +236,13 @@ class KeySymbol extends StatelessWidget {
       ),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+        border: border,
         color: keyColor,
       ),
-      child: Text(label),
+      child: Text(
+        label,
+        style: const TextStyle(color: keyLegendColor),
+      ),
     );
   }
 }
