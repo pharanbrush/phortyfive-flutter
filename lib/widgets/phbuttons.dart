@@ -25,16 +25,6 @@ class Phbuttons {
     );
   }
 
-  static Widget timerControl(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    return IconButton(
-      style: PfsTheme.bottomBarButtonStyle,
-      onPressed: onPressed,
-      icon: Icon(icon),
-      tooltip: tooltip,
-    );
-  }
-
   static Widget bottomButton(
       Function()? onPressed, IconData icon, String? tooltip) {
     return IconButton(
@@ -138,24 +128,78 @@ class Phbuttons {
     });
   }
 
-  static Widget collapseBottomBarButton(
-      {required bool isMinimized, Function()? onPressed}) {
+  static Widget collapseBottomBarButton({
+    required bool isMinimized,
+    Function()? onPressed,
+  }) {
     const collapseIcon = Icons.expand_more_rounded;
     const expandIcon = Icons.expand_less_rounded;
 
-    final IconData buttonIcon = isMinimized ? expandIcon : collapseIcon;
-    final String tooltip =
-        isMinimized ? 'Expand controls (H)' : 'Minimize controls (H)';
+    if (isMinimized) {
+      return MinorWindowControlButton(
+        icon: expandIcon,
+        tooltip: 'Expand controls (H)',
+        onPressed: onPressed,
+      );
+    } else {
+      return MinorWindowControlButton(
+        icon: collapseIcon,
+        tooltip: 'Minimize controls (H)',
+        onPressed: onPressed,
+      );
+    }
+  }
+}
 
+class MinorWindowControlButton extends StatelessWidget {
+  const MinorWindowControlButton({
+    super.key,
+    this.onPressed,
+    required this.icon,
+    this.tooltip,
+  });
+
+  final Function()? onPressed;
+  final IconData icon;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
       child: TextButton(
         style: PfsTheme.minorWindowControlButtonStyle,
         onPressed: onPressed,
         child: Icon(
-          buttonIcon,
+          icon,
           size: PfsTheme.minorWindowControlIconSize,
         ),
+      ),
+    );
+  }
+}
+
+class BottomBarTimerControl extends StatelessWidget {
+  const BottomBarTimerControl({
+    super.key,
+    this.onPressed,
+    required this.icon,
+    required this.tooltip,
+  });
+
+  final Function()? onPressed;
+  final IconData icon;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      showDuration: const Duration(seconds: 5),
+      child: IconButton(
+        style: PfsTheme.bottomBarButtonStyle,
+        onPressed: onPressed,
+        icon: Icon(icon),
       ),
     );
   }

@@ -689,25 +689,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       Row(
         children: [
           PfsAppModel.scope(
-            (_, __, model) => Phbuttons.timerControl(
-              () => model.timerRestartAndNotifyListeners(),
-              Icons.refresh,
-              'Restart Timer (R)',
+            (_, __, model) => BottomBarTimerControl(
+              onPressed: () => model.timerRestartAndNotifyListeners(),
+              icon: Icons.refresh,
+              tooltip: 'Restart Timer (R)',
             ),
           ),
           PfsAppModel.scope(
-            (_, __, model) => Phbuttons.timerControl(
-              () => model.previousImageNewTimer(),
-              Icons.skip_previous,
-              'Previous Image (K)',
+            (_, __, model) => BottomBarTimerControl(
+              onPressed: () => model.previousImageNewTimer(),
+              icon: Icons.skip_previous,
+              tooltip: 'Previous Image (K)',
             ),
           ),
           PlayPauseTimerButton(iconProgress: _playPauseIconStateAnimator),
           PfsAppModel.scope(
-            (_, __, model) => Phbuttons.timerControl(
-              () => model.nextImageNewTimer(),
-              Icons.skip_next,
-              'Next Image (J)',
+            (_, __, model) => BottomBarTimerControl(
+              onPressed: () => model.nextImageNewTimer(),
+              icon: Icons.skip_next,
+              tooltip: 'Next Image (J)',
             ),
           ),
         ],
