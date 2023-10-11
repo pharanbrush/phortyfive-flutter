@@ -84,7 +84,6 @@ class Phbuttons {
               '$currentTimerSeconds seconds per image.\n${PfsLocalization.pressCapital} to edit timer. (${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
           child: TextButton(
             onPressed: onPressed,
-            style: PfsTheme.bottomBarButtonStyle,
             child: textThenIcon('${currentTimerSeconds}s',
                 const Icon(Icons.timer_outlined, size: iconSize)),
           ),
@@ -107,7 +106,6 @@ class Phbuttons {
         child: GestureDetector(
           onSecondaryTap: () => model.openFilePickerForFolder(),
           child: TextButton(
-            style: PfsTheme.bottomBarButtonStyle,
             onPressed: () => model.openFilePickerForImages(),
             child: SizedBox(
               width: 80,
@@ -196,7 +194,6 @@ class BottomBarTimerControl extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: IconButton(
-        style: PfsTheme.bottomBarButtonStyle,
         onPressed: onPressed,
         icon: Icon(icon),
       ),

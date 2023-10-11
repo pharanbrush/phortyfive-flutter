@@ -628,7 +628,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
       final filtersButton = IconButton(
         onPressed: () => _setFiltersMenuActive(true),
-        style: PfsTheme.bottomBarButtonStyle,
         isSelected: imagePhviewer.isFilterActive,
         tooltip: 'Filters',
         icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
@@ -637,10 +636,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       final resetZoomButton = IconButton(
         tooltip: 'Reset zoom',
         onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
-        icon: const Icon(
-          Icons.youtube_searched_for,
-          color: PfsTheme.bottomBarButtonContentColor,
-        ),
+        icon: const Icon(Icons.youtube_searched_for),
       );
 
       if (model.hasFilesLoaded) {
@@ -668,7 +664,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
-    return Positioned(
+    final normalBottomBar = Positioned(
       bottom: 1,
       right: 10,
       child: PfsAppModel.scope(
@@ -682,6 +678,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         },
       ),
     );
+
+    return normalBottomBar;
   }
 
   void _doToggleBottomBar() {

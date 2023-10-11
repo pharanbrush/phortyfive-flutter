@@ -2,18 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
-  static ThemeData get themeData => _getThemeData();
+  static ThemeData get themeData => _getKPhashionTheme();
 
   static const Color primaryColor = Color.fromARGB(255, 105, 91, 87);
   static const Color accentColor = Color.fromARGB(255, 146, 109, 88);
   static const Color lightSeedColor = Color.fromARGB(255, 255, 174, 0);
   static const Color lightBackgroundColor = Color.fromARGB(255, 255, 255, 255);
 
-  static ThemeData _getThemeData() {
+  static ThemeData _getKPhashionTheme() {
+    Color getBottomBarIconColor(Set<MaterialState> states) {
+      const Color bottomBarButtonContentColor =
+          Color.fromARGB(110, 158, 158, 158);
+      const Color bottomBarButtonActiveColor =
+          Color.fromARGB(120, 231, 173, 85);
+      const Color bottomBarButtonHoverColor = Color.fromARGB(169, 29, 29, 29);
+
+      if (states.contains(MaterialState.hovered)) {
+        return bottomBarButtonHoverColor;
+      } else if (states.contains(MaterialState.selected)) {
+        return bottomBarButtonActiveColor;
+      }
+
+      return bottomBarButtonContentColor;
+    }
+
+    final ButtonStyle bottomBarButtonStyle = ButtonStyle(
+      foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
+    );
+
     var newData = ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: PfsTheme.lightBackgroundColor,
-      //snackBarTheme: const SnackBarThemeData(backgroundColor: primaryColor),
       colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
         seedColor: PfsTheme.lightSeedColor,
@@ -22,6 +41,13 @@ class PfsTheme {
         secondary: Colors.brown,
         onSecondary: Colors.white,
         outline: const Color.fromARGB(82, 94, 76, 53),
+      ),
+      textButtonTheme: TextButtonThemeData(style: bottomBarButtonStyle),
+      iconButtonTheme: IconButtonThemeData(style: bottomBarButtonStyle),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(Colors.white),
+        ),
       ),
       extensions: const {
         PhtimerTheme(
@@ -78,28 +104,6 @@ class PfsTheme {
   );
 
   static const Color watermarkColor = Color(0x55555555);
-
-  static const int bottomBarButtonOpacityByte = 100;
-  static const Color bottomBarButtonContentColor =
-      Color.fromARGB(bottomBarButtonOpacityByte, 158, 158, 158);
-  static const Color bottomBarButtonActiveColor =
-      Color.fromARGB(120, 231, 173, 85);
-  static const Color bottomBarButtonHoverColor =
-      Color.fromARGB(169, 29, 29, 29);
-
-  static Color getBottomBarIconColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return PfsTheme.bottomBarButtonHoverColor;
-    } else if (states.contains(MaterialState.selected)) {
-      return PfsTheme.bottomBarButtonActiveColor;
-    }
-
-    return PfsTheme.bottomBarButtonContentColor;
-  }
-
-  static final ButtonStyle bottomBarButtonStyle = ButtonStyle(
-    foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
-  );
 
   static const double timerBarIconSize = 18;
   static const Color timerBarButtonContentColor = Colors.grey;
@@ -186,5 +190,3 @@ class PfsTheme {
     counterStyle: TextStyle(fontSize: 1),
   );
 }
-
-
