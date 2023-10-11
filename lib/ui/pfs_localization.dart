@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PfsLocalization {
+  static const String version = '0.5.20231012a';
+  
   static const String alwaysOnTop = 'Keep window on top';
   static const String help = 'Help...';
 

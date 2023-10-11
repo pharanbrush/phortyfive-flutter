@@ -539,7 +539,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
             child: Text(
-              'For testing only\n0.5.20231006a',
+              'For testing only\n${PfsLocalization.version}',
               textAlign: TextAlign.right,
               style: PfsTheme.topRightWatermarkTextStyle,
             ),
