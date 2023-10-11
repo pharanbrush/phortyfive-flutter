@@ -6,8 +6,6 @@ import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class Phbuttons {
-  static const String revealInExplorerText = 'Show in Explorer';
-
   static Widget topControl(
       {Function()? onPressed,
       required IconData icon,
@@ -39,7 +37,7 @@ class Phbuttons {
 
   static Widget openFiles() {
     final toolTipText =
-        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\nRight-click to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
     final style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
 
@@ -83,7 +81,7 @@ class Phbuttons {
 
         return Tooltip(
           message:
-              '$currentTimerSeconds seconds per image.\nClick to edit timer. (${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
+              '$currentTimerSeconds seconds per image.\n${PfsLocalization.pressCapital} to edit timer. (${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
           child: TextButton(
             onPressed: onPressed,
             style: PfsTheme.bottomBarButtonStyle,
@@ -102,7 +100,7 @@ class Phbuttons {
 
       final fileCount = model.fileList.getCount();
       final String tooltip =
-          '$fileCount images loaded.\nClick to open a different image set... (Ctrl+O)\nRight-click to open an image folder... (Ctrl+Shift+O)';
+          '$fileCount images loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
       return Tooltip(
         message: tooltip,

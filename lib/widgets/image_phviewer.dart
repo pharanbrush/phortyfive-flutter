@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -92,7 +92,7 @@ class ImagePhviewer {
           controller: imageMenuRightClickController,
           menuChildren: [
             PhcontextMenu.menuItemButton(
-              text: Phbuttons.revealInExplorerText,
+              text: PfsLocalization.revealInExplorer,
               //icon: Icons.folder_open,
               onPressed: () => revealInExplorer(model.getCurrentImageData()),
             ),
@@ -274,7 +274,7 @@ class ImageClickableLabel extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Tooltip(
-        message: Phbuttons.revealInExplorerText,
+        message: PfsLocalization.revealInExplorer,
         preferBelow: true,
         child: TextButton(style: style, onPressed: onTap, child: Text(label)),
       ),

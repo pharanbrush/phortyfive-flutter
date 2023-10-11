@@ -55,11 +55,12 @@ class PlayPauseTimerButton extends StatelessWidget {
         PhtimerTheme.defaultTheme;
     
     final shortcutLabel = PfsLocalization.tooltipShortcut(Phshortcuts.playPause);
+    final pressLabel = PfsLocalization.pressCapital;
 
     return PfsAppModel.scope((_, __, model) {
       return PhtimerModel.scope((_, __, timerModel) {
-        final playButtonTooltip = 'Timer paused. Press to resume ($shortcutLabel)';
-        final pauseButtonTooltip = 'Timer running. Press to pause ($shortcutLabel)';
+        final playButtonTooltip = 'Timer paused. $pressLabel to resume ($shortcutLabel)';
+        final pauseButtonTooltip = 'Timer running. $pressLabel to pause ($shortcutLabel)';
         final icon = AnimatedIcon(
           icon: AnimatedIcons.play_pause,
           progress: iconProgress,
