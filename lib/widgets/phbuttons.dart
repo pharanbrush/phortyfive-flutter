@@ -41,7 +41,7 @@ class Phbuttons {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\nRight-click to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
-    var style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
+    final style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
 
     return PfsAppModel.scope(
       (_, __, model) {
