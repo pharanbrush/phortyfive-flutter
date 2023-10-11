@@ -195,7 +195,6 @@ class BottomBarTimerControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
-      showDuration: const Duration(seconds: 5),
       child: IconButton(
         style: PfsTheme.bottomBarButtonStyle,
         onPressed: onPressed,
