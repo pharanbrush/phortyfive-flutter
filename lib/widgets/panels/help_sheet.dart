@@ -55,8 +55,10 @@ class HelpSheet extends StatelessWidget {
                         child: Column(
                           children: [
                             if (!isWindowShort) headingIcon,
-                            const Text('Keyboard Shortcuts',
-                                style: headingStyle)
+                            const Text(
+                              'Keyboard Shortcuts',
+                              style: headingStyle,
+                            ),
                           ],
                         ),
                       ),
