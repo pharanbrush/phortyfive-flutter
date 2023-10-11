@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
@@ -40,7 +40,7 @@ class TimerDurationPanel extends StatelessWidget {
   }
 
   Widget _setTimerDurationWidget() {
-    return PfsAppModel.scope((context, __, model) {
+    return PhtimerModel.scope((context, __, model) {
       final windowSize = MediaQuery.of(context).size;
 
       const double narrowWindowWidth = 600;
@@ -59,26 +59,27 @@ class TimerDurationPanel extends StatelessWidget {
               rightMarginNormal, windowSize.width)
           : rightMarginNormal;
 
-      const presetButtonStyle = ButtonStyle(        
+      const presetButtonStyle = ButtonStyle(
         shape: MaterialStatePropertyAll(CircleBorder()),
         fixedSize: MaterialStatePropertyAll(Size(50, 50)),
         padding: MaterialStatePropertyAll(EdgeInsets.zero),
       );
 
       Widget preset(String text, int seconds, double left, double top) {
-        final isCurrentSelectedButton = (seconds == model.currentTimerDuration);
+        final isCurrentSelectedButton = (seconds == model.currentDurationSeconds);
         if (isCurrentSelectedButton) {
           var selectedButtonStyle = presetButtonStyle.copyWith(
-            backgroundColor: const MaterialStatePropertyAll(PfsTheme.primaryColor),
+            backgroundColor:
+                const MaterialStatePropertyAll(PfsTheme.primaryColor),
           );
-          
+
           return Positioned(
             left: left,
             top: top,
             child: FilledButton(
               style: selectedButtonStyle,
               onPressed: () {
-                model.setTimerSeconds(seconds);
+                model.setDurationSeconds(seconds);
                 onDismiss?.call();
               },
               child: Text(text),
@@ -92,7 +93,7 @@ class TimerDurationPanel extends StatelessWidget {
           child: TextButton(
             style: presetButtonStyle,
             onPressed: () {
-              model.setTimerSeconds(seconds);
+              model.setDurationSeconds(seconds);
               onDismiss?.call();
             },
             child: Text(text),
@@ -113,7 +114,7 @@ class TimerDurationPanel extends StatelessWidget {
           decoration: PfsTheme.largeTextFieldInputDecoration,
           style: PfsTheme.largeTextFieldTextStyle,
           onSubmitted: (value) {
-            model.trySetTimerSecondsInput(value);
+            model.trySetDurationSecondsInput(value);
             onDismiss?.call();
           },
         ),
@@ -126,7 +127,7 @@ class TimerDurationPanel extends StatelessWidget {
           child: child,
         );
       }
-      
+
       const double leftOffset = 75;
       const double topOffset = 70;
 
@@ -183,8 +184,10 @@ class TimerDurationPanel extends StatelessWidget {
                           preset('45s', 45, leftOffset + 113, topOffset + 3),
                           preset('60s', 60, leftOffset + 187, topOffset + 4),
                           preset('90s', 90, leftOffset + 246, topOffset + 38),
-                          preset('2m', 2 * 60, leftOffset + 283, topOffset + 84),
-                          preset('3m', 3 * 60, leftOffset + 298, topOffset + 140),
+                          preset(
+                              '2m', 2 * 60, leftOffset + 283, topOffset + 84),
+                          preset(
+                              '3m', 3 * 60, leftOffset + 298, topOffset + 140),
                         ].animate(
                           interval: const Duration(milliseconds: 40),
                           delay: const Duration(milliseconds: 120),

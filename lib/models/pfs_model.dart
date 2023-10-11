@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_list.dart';
-import 'package:pfs2/core/phtimer.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model {
@@ -12,26 +12,11 @@ class PfsAppModel extends Model {
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  static const bool startTimerOnFirst = true;
-  bool get isTimerRunning => timer.isActive;
-  int get currentTimerDuration => timer.duration.inSeconds;
-  final Phtimer timer = Phtimer();
-  double get progressPercent => timer.percentElapsed;
-  void Function()? onTimerElapse;
-  void Function()? onTimerReset;
-  void Function()? onTimerPlayPause;
-  void Function()? onTimerChangeSuccess;
-  void timerRestartAndNotifyListeners() {
-    timer.restart();
-    onTimerReset?.call();
-    notifyListeners();
-  }
-
   bool get allowTimerPlayPause => hasFilesLoaded;
 
   final Circulator circulator = Circulator();
   final FileList fileList = FileList();
-  //final PhtimerModel timerModel = PhtimerModel();
+  final PhtimerModel timerModel = PhtimerModel();
 
   bool isPickerOpen = false;
 
@@ -50,17 +35,22 @@ class PfsAppModel extends Model {
   void Function()? onCountdownStart;
   void Function()? onCountdownElapsed;
   void Function()? onCountdownUpdate;
+  void Function()? onImageDurationElapse;
 
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
-
-  Timer? ticker;
 
   FileData getCurrentImageData() {
     return fileList.get(circulator.getCurrentIndex());
   }
 
+  void tryTogglePlayPauseTimer() {
+    if (!allowTimerPlayPause) return;
+
+    timerModel.playPauseToggleTimer();
+  }
+
   void tryStartCountdown() {
-    if (_isCountdownEnabled && timer.isActive) {
+    if (_isCountdownEnabled && timerModel.isRunning) {
       _countdownRoutine();
     } else {
       _countdownElapse();
@@ -74,6 +64,7 @@ class PfsAppModel extends Model {
 
   void _countdownRoutine() async {
     countdownLeft = countdownStart;
+    timerModel.registerPauser(this);
     onCountdownStart?.call();
 
     for (int i = 30; i > 0; i++) {
@@ -84,7 +75,8 @@ class PfsAppModel extends Model {
       if (countdownLeft <= 0) break;
     }
 
-    timer.restart();
+    timerModel.deregisterPauser(this);
+    timerModel.restartTimer();
     _countdownElapse();
   }
 
@@ -92,39 +84,10 @@ class PfsAppModel extends Model {
     onCountdownElapsed?.call();
   }
 
-  void handleTimerElapsed() {
-    nextImageNewTimer();
-    onTimerElapse?.call();
-    tryStartCountdown();
-    notifyListeners();
-  }
-
-  void _handleTick() {
-    if (timer.isActive) {
-      if (!isCountingDown) {
-        timer.handleTick();
-      }
-
-      notifyListeners();
-    }
-  }
-
-  void playPauseToggleTimer() {
-    setTimerActive(!timer.isActive);
-  }
-
-  void setTimerActive(bool active) {
-    if (!allowTimerPlayPause) return;
-
-    timer.setActive(active);
-    onTimerPlayPause?.call();
-    notifyListeners();
-  }
-
   void previousImageNewTimer() {
     if (!allowCirculatorControl) return;
 
-    timerRestartAndNotifyListeners();
+    timerModel.restartTimer();
     onImageChange?.call();
     _previousImage();
   }
@@ -132,7 +95,7 @@ class PfsAppModel extends Model {
   void nextImageNewTimer() {
     if (!allowCirculatorControl) return;
 
-    timerRestartAndNotifyListeners();
+    timerModel.restartTimer();
     onImageChange?.call();
     _nextImage();
   }
@@ -151,19 +114,6 @@ class PfsAppModel extends Model {
     circulator.moveNext();
     lastIncrement = 1;
     notifyListeners();
-  }
-
-  void trySetTimerSecondsInput(String secondsString) {
-    int? seconds = int.tryParse(secondsString);
-    if (seconds != null) {
-      setTimerSeconds(seconds);
-    }
-  }
-
-  void setTimerSeconds(int seconds) {
-    timer.setDuration(Duration(seconds: seconds));
-    onTimerChangeSuccess?.call();
-    timerRestartAndNotifyListeners();
   }
 
   void openFilePickerForImages() async {
@@ -225,19 +175,19 @@ class PfsAppModel extends Model {
     circulator.startNewOrder(loadedCount);
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
-    _tryInitializeTimer();
+    
+    timerModel.tryInitialize();
+    timerModel.onElapse ??= () => _handleTimerElapsed();
+    
     tryStartCountdown();
-    timerRestartAndNotifyListeners();
+    timerModel.restartTimer();
+    notifyListeners();
   }
 
-  void _tryInitializeTimer() {
-    ticker ??= Timer.periodic(Phtimer.tickInterval, (timer) => _handleTick());
-
-    if (timer.onElapse == null) {
-      timer.onElapse = () => handleTimerElapsed();
-      if (startTimerOnFirst) {
-        timer.setActive(true);
-      }
-    }
+  void _handleTimerElapsed() {
+    nextImageNewTimer();
+    onImageDurationElapse?.call;
+    tryStartCountdown();
+    notifyListeners();
   }
 }

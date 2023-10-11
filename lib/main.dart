@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -36,11 +37,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModel<PfsAppModel>(
       model: appModel,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'PhortyFive Seconds',
-        theme: PfsTheme.themeData,
-        home: Scaffold(body: MainScreen(model: appModel)),
+      child: ScopedModel<PhtimerModel>(
+        model: appModel.timerModel,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'PhortyFive Seconds',
+          theme: PfsTheme.themeData,
+          home: Scaffold(body: MainScreen(model: appModel)),
+        ),
       ),
     );
   }

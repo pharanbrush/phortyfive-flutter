@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
@@ -14,10 +15,10 @@ class TimerBar extends StatelessWidget {
     return SizedBox(
       width: TimerBar.barWidth,
       height: 2,
-      child: PfsAppModel.scope(
-        (_, __, model) {
-          final barValueFromModel = (1.0 - model.progressPercent);
-          Color barColor = model.timer.isActive
+      child: PhtimerModel.scope(
+        (_, __, timerModel) {
+          final barValueFromModel = (1.0 - timerModel.progressPercent);
+          Color barColor = timerModel.isRunning
               ? (barValueFromModel < TimerBar.almostZeroThreshold
                   ? timerTheme.almostZeroColor
                   : timerTheme.runningColor)
@@ -52,48 +53,50 @@ class PlayPauseTimerButton extends StatelessWidget {
         PhtimerTheme.defaultTheme;
 
     return PfsAppModel.scope((_, __, model) {
-      const playButtonTooltip = 'Timer paused. Press to resume (P)';
-      const pauseButtonTooltip = 'Timer running. Press to pause (P)';
-      final icon = AnimatedIcon(
-        icon: AnimatedIcons.play_pause,
-        progress: iconProgress,
-      );
+      return PhtimerModel.scope((_, __, timerModel) {
+        const playButtonTooltip = 'Timer paused. Press to resume (P)';
+        const pauseButtonTooltip = 'Timer running. Press to pause (P)';
+        final icon = AnimatedIcon(
+          icon: AnimatedIcons.play_pause,
+          progress: iconProgress,
+        );
 
-      bool allowTimerControl = model.allowTimerPlayPause;
-      Color buttonColor = allowTimerControl
-          ? (model.isTimerRunning
-              ? timerTheme.runningColor
-              : timerTheme.pausedColor)
-          : timerTheme.disabledColor;
+        bool allowTimerControl = model.allowTimerPlayPause;
+        Color buttonColor = allowTimerControl
+            ? (timerModel.isRunning
+                ? timerTheme.runningColor
+                : timerTheme.pausedColor)
+            : timerTheme.disabledColor;
 
-      final style = ButtonStyle(
-        animationDuration: const Duration(milliseconds: 300),
-        backgroundColor:
-            MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-          if (states.contains(MaterialState.hovered)) {
-            return buttonColor.withOpacity(1);
-          }
-          return buttonColor;
-        }),
-        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-        elevation: const MaterialStatePropertyAll(0),
-      );
+        final style = ButtonStyle(
+          animationDuration: const Duration(milliseconds: 300),
+          backgroundColor:
+              MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+            if (states.contains(MaterialState.hovered)) {
+              return buttonColor.withOpacity(1);
+            }
+            return buttonColor;
+          }),
+          overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+          elevation: const MaterialStatePropertyAll(0),
+        );
 
-      final tooltipText =
-          model.isTimerRunning ? pauseButtonTooltip : playButtonTooltip;
+        final tooltipText =
+            timerModel.isRunning ? pauseButtonTooltip : playButtonTooltip;
 
-      return Tooltip(
-        message: tooltipText,
-        child: FilledButton(
-          style: style,
-          onPressed: () => model.playPauseToggleTimer(),
-          child: Container(
-            alignment: Alignment.center,
-            width: 50,
-            child: icon,
+        return Tooltip(
+          message: tooltipText,
+          child: FilledButton(
+            style: style,
+            onPressed: () => model.tryTogglePlayPauseTimer(),
+            child: Container(
+              alignment: Alignment.center,
+              width: 50,
+              child: icon,
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 }

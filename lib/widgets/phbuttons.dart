@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class Phbuttons {
@@ -74,14 +75,14 @@ class Phbuttons {
   }
 
   static Widget timerSettingsButton({required Function() onPressed}) {
-    return PfsAppModel.scope(
+    return PhtimerModel.scope(
       (_, __, model) {
-        final currentTimerSeconds = model.timer.duration.inSeconds;
+        final currentTimerSeconds = model.currentDurationSeconds;
         const iconSize = PfsTheme.timerBarIconSize;
 
         return Tooltip(
           message:
-              '${model.timer.duration.inSeconds} seconds per image.\nClick to edit timer. (F2)',
+              '$currentTimerSeconds seconds per image.\nClick to edit timer. (F2)',
           child: TextButton(
             onPressed: onPressed,
             style: PfsTheme.bottomBarButtonStyle,

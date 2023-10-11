@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -101,13 +102,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       onInvoke: (intent) => widget.model.nextImageNewTimer(),
     ),
     PlayPauseIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.playPauseToggleTimer(),
+      onInvoke: (intent) => widget.model.tryTogglePlayPauseTimer(),
     ),
     OpenTimerMenuIntent: CallbackAction(
       onInvoke: (intent) => _doStartEditingCustomTime(),
     ),
     RestartTimerIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.timerRestartAndNotifyListeners(),
+      onInvoke: (intent) => widget.model.timerModel.restartTimer(),
     ),
     HelpIntent: CallbackAction(
       onInvoke: (intent) => _doToggleCheatSheet(),
@@ -237,16 +238,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _bindModelCallbacks() {
     final model = widget.model;
-    model.onTimerElapse ??= () => _playClickSound();
-    model.onTimerPlayPause ??= () => _handleTimerPlayPause();
-    model.onTimerReset ??= () => _playClickSound();
     model.onFilesChanged ??= () => setState(() {
           /* make the window repaint after loading the first image set */
         });
-    model.onTimerChangeSuccess ??= () => _handleTimerChangeSuccess();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => _playClickSound();
+    model.onImageDurationElapse ??= () => _playClickSound();
+
+    final timerModel = model.timerModel;
+    timerModel.onPlayPause ??= () => _handleTimerPlayPause();
+    timerModel.onReset ??= () => _playClickSound();
+    timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
   }
 
   void _setFiltersMenuActive(bool active) {
@@ -294,7 +297,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _handleTimerChangeSuccess() {
     _showSnackBarWithBoldText(
       text: 'Timer is set to ',
-      boldText: '${widget.model.currentTimerDuration} seconds',
+      boldText: '${widget.model.timerModel.currentDurationSeconds} seconds',
       lastText: ' per image.',
     );
   }
@@ -308,7 +311,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleTimerPlayPause() {
-    if (widget.model.isTimerRunning) {
+    if (widget.model.timerModel.isRunning) {
       _playPauseIconStateAnimator.forward();
     } else {
       _playPauseIconStateAnimator.reverse();
@@ -358,7 +361,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       if (!active) {
         mainWindowFocus.requestFocus();
       }
-      timerDurationWidget.setActive(active, widget.model.currentTimerDuration);
+      timerDurationWidget.setActive(
+          active, widget.model.timerModel.currentDurationSeconds);
     });
   }
 
@@ -435,7 +439,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   child: imagePhviewer.imageRightClick(
                     clipboardCopyHandler: _clipboardCopyHandler,
                     child: OverlayButton(
-                      onPressed: () => model.playPauseToggleTimer(),
+                      onPressed: () => model.tryTogglePlayPauseTimer(),
                       child: playPauseIcon,
                     ),
                   ),
@@ -689,9 +693,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       const TimerBar(),
       Row(
         children: [
-          PfsAppModel.scope(
+          PhtimerModel.scope(
             (_, __, model) => BottomBarTimerControl(
-              onPressed: () => model.timerRestartAndNotifyListeners(),
+              onPressed: () => model.restartTimer(),
               icon: Icons.refresh,
               tooltip: 'Restart Timer (R)',
             ),
@@ -718,7 +722,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _playClickSound() {
     if (!isSoundsEnabled) return;
-    if (!widget.model.isTimerRunning) return;
+    if (!widget.model.timerModel.isRunning) return;
     clicker.playSound();
   }
 }
