@@ -35,7 +35,7 @@ class FilterMenu extends StatelessWidget {
       children: [
         ModalUnderlay(
           isTransparent: true,
-          onTapDown: onDismiss,
+          onDismiss: onDismiss,
         ),
         Positioned(
           bottom: 10,

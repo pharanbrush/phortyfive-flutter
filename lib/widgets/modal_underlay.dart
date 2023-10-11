@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ModalUnderlay extends StatelessWidget {
-  const ModalUnderlay({super.key, this.onTapDown, this.isTransparent = false});
+  const ModalUnderlay({super.key, this.onDismiss, this.isTransparent = false});
 
-  final Function()? onTapDown;
+  final Function()? onDismiss;
   final bool isTransparent;
 
   static const fadeColor = Colors.white60;
@@ -12,7 +12,7 @@ class ModalUnderlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModalBarrier(
       dismissible: true,
-      onDismiss: onTapDown,
+      onDismiss: onDismiss,
       color: isTransparent ? Colors.transparent : fadeColor,
     );
   }

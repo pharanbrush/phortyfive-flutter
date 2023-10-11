@@ -133,7 +133,7 @@ class TimerDurationPanel extends StatelessWidget {
 
       return Stack(
         children: [
-          ModalUnderlay(onTapDown: () => onDismiss?.call()),
+          ModalUnderlay(onDismiss: () => onDismiss?.call()),
           Positioned(
             right: rightOffset,
             bottom: (-radius) + bottomOffset,

@@ -34,7 +34,7 @@ class HelpSheet extends StatelessWidget {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        ModalUnderlay(onTapDown: onDismiss),
+        ModalUnderlay(onDismiss: onDismiss),
         Center(
           child: Material(
             color: Colors.transparent,
