@@ -5,14 +5,14 @@ import 'package:pfs2/models/pfs_model.dart';
 class CountdownSheet extends StatelessWidget {
   const CountdownSheet({super.key});
 
+  static const _style = TextStyle(
+    fontSize: 120,
+    color: Colors.grey,
+    fontWeight: FontWeight.bold,
+  );
+
   @override
   Widget build(BuildContext context) {
-    const countdownStyle = TextStyle(
-      fontSize: 120,
-      color: Colors.grey,
-      fontWeight: FontWeight.bold,
-    );
-
     return PfsAppModel.scope((_, __, model) {
       if (!model.isCountingDown) {
         return const SizedBox.shrink();
@@ -28,7 +28,10 @@ class CountdownSheet extends StatelessWidget {
             dismissible: false,
           ),
           Center(
-            child: Animate(
+            child: Text(
+              countdownString,
+              style: _style,
+            ).animate(
               key: Key('count$countdownString'),
               effects: const [
                 FadeEffect(
@@ -41,10 +44,6 @@ class CountdownSheet extends StatelessWidget {
                   curve: Curves.easeOutQuint,
                 ),
               ],
-              child: Text(
-                countdownString,
-                style: countdownStyle,
-              ),
             ),
           ),
         ],
