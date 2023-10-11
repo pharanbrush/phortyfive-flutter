@@ -39,10 +39,11 @@ class Phbuttons {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
-    final style = FilledButton.styleFrom(backgroundColor: PfsTheme.accentColor);
-
     return PfsAppModel.scope(
-      (_, __, model) {
+      (context, __, model) {
+        final style = FilledButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
+        );
         return Tooltip(
           message: toolTipText,
           child: GestureDetector(
@@ -77,7 +78,7 @@ class Phbuttons {
     return PhtimerModel.scope(
       (_, __, model) {
         final currentTimerSeconds = model.currentDurationSeconds;
-        const iconSize = PfsTheme.timerBarIconSize;
+        const iconSize = PfsTheme.timerButtonIconSize;
 
         return Tooltip(
           message:

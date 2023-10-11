@@ -4,12 +4,14 @@ import 'package:pfs2/widgets/phtimer_widgets.dart';
 class PfsTheme {
   static ThemeData get themeData => _getKPhashionTheme();
 
-  static const Color primaryColor = Color.fromARGB(255, 105, 91, 87);
-  static const Color accentColor = Color.fromARGB(255, 146, 109, 88);
-  static const Color lightSeedColor = Color.fromARGB(255, 255, 174, 0);
-  static const Color lightBackgroundColor = Color.fromARGB(255, 255, 255, 255);
-
   static ThemeData _getKPhashionTheme() {
+    const Color seedColor = Color.fromARGB(255, 255, 174, 0);
+    const Color background = Colors.white;
+
+    const Color primary = Color.fromARGB(255, 105, 91, 87);
+    const Color secondary = Color.fromARGB(255, 146, 109, 88);
+    const Color tertiary = Color.fromARGB(255, 236, 179, 92);
+
     Color getBottomBarIconColor(Set<MaterialState> states) {
       const Color bottomBarButtonContentColor =
           Color.fromARGB(110, 158, 158, 158);
@@ -26,24 +28,25 @@ class PfsTheme {
       return bottomBarButtonContentColor;
     }
 
-    final ButtonStyle bottomBarButtonStyle = ButtonStyle(
+    final ButtonStyle buttonStyle = ButtonStyle(
       foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
     );
 
     var newData = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: PfsTheme.lightBackgroundColor,
+      scaffoldBackgroundColor: background,
       colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
-        seedColor: PfsTheme.lightSeedColor,
-        background: PfsTheme.lightBackgroundColor,
-        primary: PfsTheme.primaryColor,
-        secondary: Colors.brown,
+        seedColor: seedColor,
+        background: background,
+        primary: primary,
+        secondary: secondary,
+        tertiary: tertiary,
         onSecondary: Colors.white,
         outline: const Color.fromARGB(82, 94, 76, 53),
       ),
-      textButtonTheme: TextButtonThemeData(style: bottomBarButtonStyle),
-      iconButtonTheme: IconButtonThemeData(style: bottomBarButtonStyle),
+      textButtonTheme: TextButtonThemeData(style: buttonStyle),
+      iconButtonTheme: IconButtonThemeData(style: buttonStyle),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStatePropertyAll(Colors.white),
@@ -51,7 +54,7 @@ class PfsTheme {
       ),
       extensions: const {
         PhtimerTheme(
-          pausedColor: Color.fromARGB(150, 255, 198, 73),
+          pausedColor: tertiary,
           runningColor: Color.fromARGB(131, 167, 148, 140),
           almostZeroColor: Color.fromARGB(195, 206, 12, 12),
           disabledColor: Color(0xFF9E9E9E),
@@ -105,8 +108,7 @@ class PfsTheme {
 
   static const Color watermarkColor = Color(0x55555555);
 
-  static const double timerBarIconSize = 18;
-  static const Color timerBarButtonContentColor = Colors.grey;
+  static const double timerButtonIconSize = 18;
 
   static const Color topBarButtonColor = Colors.black12;
   static const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
@@ -183,9 +185,8 @@ class PfsTheme {
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(30)),
     ),
-    focusColor: PfsTheme.accentColor,
     filled: true,
-    fillColor: Colors.white,
+    //fillColor: Colors.white,
     counterText: '',
     counterStyle: TextStyle(fontSize: 1),
   );

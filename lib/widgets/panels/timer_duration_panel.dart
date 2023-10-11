@@ -70,7 +70,7 @@ class TimerDurationPanel extends StatelessWidget {
         if (isCurrentSelectedButton) {
           var selectedButtonStyle = presetButtonStyle.copyWith(
             backgroundColor:
-                const MaterialStatePropertyAll(PfsTheme.primaryColor),
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
           );
 
           return Positioned(
