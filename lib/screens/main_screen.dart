@@ -454,10 +454,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       _setClipboardText(
           text: newClipboardText, snackbarMessage: snackbarMessage);
 
-  void _setClipboardText(
-      {required String text,
-      String? snackbarMessage,
-      IconData? icon = Icons.copy}) async {
+  void _setClipboardText({
+    required String text,
+    String? snackbarMessage,
+    IconData? icon = Icons.copy,
+  }) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (snackbarMessage != null) {
       _showSnackBar(
