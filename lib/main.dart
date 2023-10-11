@@ -22,25 +22,25 @@ void main() async {
   });
 
   runApp(MyApp(
-    model: PfsAppModel(),
+    appModel: PfsAppModel(),
   ));
 }
 
 class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
-  final PfsAppModel model;
+  final PfsAppModel appModel;
 
-  MyApp({Key? key, required this.model}) : super(key: key);
+  MyApp({Key? key, required this.appModel}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ScopedModel<PfsAppModel>(
-      model: model,
+      model: appModel,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'PhortyFive Seconds',
         theme: PfsTheme.themeData,
-        home: Scaffold(body: MainScreen(model: model)),
+        home: Scaffold(body: MainScreen(model: appModel)),
       ),
     );
   }
