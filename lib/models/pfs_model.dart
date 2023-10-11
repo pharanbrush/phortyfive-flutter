@@ -8,41 +8,45 @@ import 'package:pfs2/core/phtimer.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model {
+  static ScopedModelDescendant<PfsAppModel> scope(
+          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
+      ScopedModelDescendant<PfsAppModel>(builder: builder);
+
   static const bool startTimerOnFirst = true;
-
-  final Circulator circulator = Circulator();
-  final FileList fileList = FileList();
-  final Phtimer timer = Phtimer();
-
-  bool isPickerOpen = false;
-  bool _isCountdownEnabled = true;
-
-  bool get isCountdownEnabled => _isCountdownEnabled;
-
-  int lastIncrement = 1;
-
-  bool get hasFilesLoaded => fileList.isPopulated();
   bool get isTimerRunning => timer.isActive;
   int get currentTimerDuration => timer.duration.inSeconds;
-
-  bool get allowTimerPlayPause => hasFilesLoaded;
-  bool get allowCirculatorControl => hasFilesLoaded;
-
-  static const int countdownStart = 3;
-  int countdownLeft = 0;
-
-  bool get isCountingDown => countdownLeft > 0;
-
-  int get currentImageIndex => circulator.getCurrentIndex();
-
+  final Phtimer timer = Phtimer();
+  double get progressPercent => timer.percentElapsed;
   void Function()? onTimerElapse;
   void Function()? onTimerReset;
   void Function()? onTimerPlayPause;
   void Function()? onTimerChangeSuccess;
+  void timerRestartAndNotifyListeners() {
+    timer.restart();
+    onTimerReset?.call();
+    notifyListeners();
+  }
 
+  bool get allowTimerPlayPause => hasFilesLoaded;
+
+  final Circulator circulator = Circulator();
+  final FileList fileList = FileList();
+  //final PhtimerModel timerModel = PhtimerModel();
+
+  bool isPickerOpen = false;
+
+  int lastIncrement = 1;
+  bool get hasFilesLoaded => fileList.isPopulated();
+  int get currentImageIndex => circulator.getCurrentIndex();
+  bool get allowCirculatorControl => hasFilesLoaded;
   void Function()? onImageChange;
-
   void Function()? onFilesChanged;
+
+  bool _isCountdownEnabled = true;
+  bool get isCountdownEnabled => _isCountdownEnabled;
+  static const int countdownStart = 3;
+  int countdownLeft = 0;
+  bool get isCountingDown => countdownLeft > 0;
   void Function()? onCountdownStart;
   void Function()? onCountdownElapsed;
   void Function()? onCountdownUpdate;
@@ -50,12 +54,6 @@ class PfsAppModel extends Model {
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
 
   Timer? ticker;
-
-  double get progressPercent => timer.percentElapsed;
-
-  static ScopedModelDescendant<PfsAppModel> scope(
-          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
-      ScopedModelDescendant<PfsAppModel>(builder: builder);
 
   FileData getCurrentImageData() {
     return fileList.get(circulator.getCurrentIndex());
@@ -71,6 +69,7 @@ class PfsAppModel extends Model {
 
   void setCountdownActive(bool active) {
     _isCountdownEnabled = active;
+    notifyListeners();
   }
 
   void _countdownRoutine() async {
@@ -119,12 +118,6 @@ class PfsAppModel extends Model {
 
     timer.setActive(active);
     onTimerPlayPause?.call();
-    notifyListeners();
-  }
-
-  void timerRestartAndNotifyListeners() {
-    timer.restart();
-    onTimerReset?.call();
     notifyListeners();
   }
 
