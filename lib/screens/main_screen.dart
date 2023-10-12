@@ -534,23 +534,23 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-            child: Text(
-              'For testing only\n${PfsLocalization.version}',
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            child: DefaultTextStyle(
               textAlign: TextAlign.right,
               style: PfsTheme.topRightWatermarkTextStyle,
+              child: Wrap(
+                direction: Axis.vertical,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: 5,
+                children: [
+                  const Text('For testing only\n${PfsLocalization.version}'),
+                  if (imagePhviewer.currentZoomScale != 1.0)
+                    Text('Zoom ${imagePhviewer.currentZoomScalePercent}%'),
+                ],
+              ),
             ),
           ),
-          if (imagePhviewer.currentZoomScale != 1.0)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-              child: Text(
-                'Zoom ${imagePhviewer.currentZoomScalePercent}%',
-                textAlign: TextAlign.right,
-                style: PfsTheme.topRightWatermarkTextStyle,
-              ),
-            )
         ],
       ),
     );
