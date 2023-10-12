@@ -4,6 +4,9 @@ import 'package:pfs2/widgets/phtimer_widgets.dart';
 class PfsTheme {
   static ThemeData get themeData => _getKPhashionTheme();
 
+  static const Color watermarkColor = Color(0x55555555);
+  static const Color hyperlinkColorHovered = Colors.blue;
+
   static ThemeData _getKPhashionTheme() {
     const Color seedColor = Color.fromARGB(255, 255, 174, 0);
     const Color background = Colors.white;
@@ -11,14 +14,12 @@ class PfsTheme {
     const Color primary = Color.fromARGB(255, 105, 91, 87);
     const Color secondary = Color.fromARGB(255, 146, 109, 88);
     const Color tertiary = Color.fromARGB(255, 236, 179, 92);
+    const Color bottomBarButtonContentColor =
+        Color.fromARGB(110, 158, 158, 158);
+    const Color bottomBarButtonActiveColor = Color.fromARGB(120, 231, 173, 85);
+    const Color bottomBarButtonHoverColor = Color.fromARGB(169, 29, 29, 29);
 
     Color getIconColor(Set<MaterialState> states) {
-      const Color bottomBarButtonContentColor =
-          Color.fromARGB(110, 158, 158, 158);
-      const Color bottomBarButtonActiveColor =
-          Color.fromARGB(120, 231, 173, 85);
-      const Color bottomBarButtonHoverColor = Color.fromARGB(169, 29, 29, 29);
-
       if (states.contains(MaterialState.hovered)) {
         return bottomBarButtonHoverColor;
       } else if (states.contains(MaterialState.selected)) {
@@ -56,6 +57,7 @@ class PfsTheme {
       ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
+      badgeTheme: const BadgeThemeData(backgroundColor: bottomBarButtonActiveColor),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStatePropertyAll(Colors.white),
@@ -83,9 +85,7 @@ class PfsTheme {
   static const Icon nextGestureIcon =
       Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
 
-  static const topRightWatermarkTextStyle =
-      TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
-
+  // FIRST ACTION
   static const Color firstActionBoxColor = Color(0xFFF5F5F5);
   static const Color firstActionBorderColor = Color(0xFFEEEEEE);
   static const Color firstActionContentColor = Colors.black38;
@@ -115,9 +115,11 @@ class PfsTheme {
     color: PfsTheme.firstActionBoxColor,
   );
 
-  static const Color watermarkColor = Color(0x55555555);
-
   static const double timerButtonIconSize = 18;
+
+  // TOP BAR
+  static const topRightWatermarkTextStyle =
+      TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
 
   static const Color topBarButtonColor = Colors.black12;
   static const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
@@ -158,10 +160,7 @@ class PfsTheme {
     foregroundColor: MaterialStatePropertyAll(PfsTheme.minorWindowControlColor),
   );
 
-  static const Color filledButtonContentColor = Colors.white;
-
-  static const Color hyperlinkColorHovered = Colors.blue;
-
+  // DROP TARGET
   static const Color dropTargetBoxColor = Color(0xAA000000);
   static const Color dropTargetTextColor = Colors.white60;
   static const BoxDecoration dropActiveBoxDecoration = BoxDecoration(
@@ -174,6 +173,7 @@ class PfsTheme {
   static const TextStyle dropTargetTextStyle =
       TextStyle(fontSize: 40, color: dropTargetTextColor, inherit: true);
 
+  // POPUP PANEL
   static const popupPanelBoxDecoration = BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -187,6 +187,7 @@ class PfsTheme {
     boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)],
   );
 
+  // LARGE TEXT FIELD
   static const largeTextFieldTextStyle = TextStyle(fontSize: 32);
 
   static const largeTextFieldInputDecoration = InputDecoration(
