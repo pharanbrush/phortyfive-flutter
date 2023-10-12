@@ -138,6 +138,7 @@ class ImagePhviewer {
           alignment: Alignment.topCenter,
           child: ImageClickableLabel(
             label: imageFileData.fileName,
+            tooltip: PfsLocalization.revealInExplorer,
             onTap: () => revealInExplorer(imageFileData),
           ),
         );
@@ -219,10 +220,21 @@ class ImagePhviewer {
 enum ImageColorMode { color, grayscale }
 
 class ImageClickableLabel extends StatelessWidget {
-  const ImageClickableLabel({super.key, required this.label, this.onTap});
+  const ImageClickableLabel({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.tooltip,
+  });
 
   final String label;
+  final String? tooltip;
   final Function()? onTap;
+
+  static const double fontSize = 11;
+  static const padding = EdgeInsets.symmetric(vertical: 0, horizontal: 14);
+  static const Size minSize = Size(280, 36);
+  static const Size maxSize = Size(380, 50);
 
   static Color getButtonColor(Set<MaterialState> states) {
     if (states.contains(MaterialState.hovered)) {
@@ -239,7 +251,6 @@ class ImageClickableLabel extends StatelessWidget {
   }
 
   static TextStyle getTextStyle(Set<MaterialState> states) {
-    const double fontSize = 11;
     if (states.contains(MaterialState.hovered)) {
       return const TextStyle(
         decoration: TextDecoration.underline,
@@ -257,10 +268,6 @@ class ImageClickableLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const padding = EdgeInsets.symmetric(vertical: 0, horizontal: 14);
-    const Size minSize = Size(280, 36);
-    const Size maxSize = Size(380, 50);
-
     final ButtonStyle style = ButtonStyle(
       minimumSize: const MaterialStatePropertyAll(minSize),
       maximumSize: const MaterialStatePropertyAll(maxSize),
@@ -274,7 +281,7 @@ class ImageClickableLabel extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Tooltip(
-        message: PfsLocalization.revealInExplorer,
+        message: tooltip,
         preferBelow: true,
         child: TextButton(style: style, onPressed: onTap, child: Text(label)),
       ),
