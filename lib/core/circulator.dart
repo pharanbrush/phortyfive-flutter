@@ -5,8 +5,7 @@ class Circulator {
   int getCount() => reorderedIndices.length;
   bool isPopulated() => getCount() > 0;
 
-  int getCurrentIndex() =>
-      isPopulated() ? reorderedIndices[currentNumber] : 0;
+  int getCurrentIndex() => isPopulated() ? reorderedIndices[currentNumber] : 0;
   int getMaxNumber() => getCount() - 1;
 
   void moveNext() => moveCurrentNumberBy(1);
@@ -29,8 +28,8 @@ class Circulator {
       reorderedIndices.add(i);
     }
   }
-  
-  void _generateShuffledOrder() {    
+
+  void _generateShuffledOrder() {
     reorderedIndices.shuffle();
   }
 
@@ -51,6 +50,5 @@ class Circulator {
     if (newNumber < 0) newNumber = max;
 
     setCurrentNumber(newNumber);
-  }  
-  
+  }
 }

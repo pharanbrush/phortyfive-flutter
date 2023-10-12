@@ -1,6 +1,5 @@
 import 'dart:io';
 
-//import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 class FileList {
@@ -40,7 +39,7 @@ class FileList {
       files.add(fileDataFromPath(filePath));
       filesAppendedCount++;
     }
-    
+
     return filesAppendedCount;
   }
 
@@ -48,7 +47,7 @@ class FileList {
     if (filePath.isEmpty) return false;
 
     final fileExtension = getFileExtension(filePath);
-    final isImage = FileList.allowedExtensions.contains(fileExtension);   
+    final isImage = FileList.allowedExtensions.contains(fileExtension);
     return isImage;
   }
 
@@ -70,7 +69,7 @@ class FileData {
   final String filePath;
 
   const FileData(this.filePath);
-  
+
   String get fileName => File(filePath).uri.pathSegments.last;
   String get fileFolder => File(filePath).parent.path;
 
