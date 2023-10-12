@@ -184,7 +184,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           const FirstActionSheet(),
           _topRightWindowControls(),
           _bottomBar(context),
-          _fileDropZone(),
+          _fileDropZone,
         ],
       );
     }
@@ -214,7 +214,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return shortcutsWrapper(Stack(
       children: [
         imagePhviewer.widget(isBottomBarMinimized),
-        _fileDropZone(),
+        _fileDropZone,
         _gestureControls(),
         const CountdownSheet(),
         _topRightWindowControls(),
@@ -476,17 +476,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
-  Widget _fileDropZone() {
-    return Positioned.fill(
-      left: 20,
-      right: 20,
-      bottom: 40,
-      top: 30,
-      child: ImageDropTarget(
-        onDragSuccess: _handleFileDropped,
-      ),
-    );
-  }
+  late final Widget _fileDropZone = Positioned.fill(
+    left: 20,
+    right: 20,
+    bottom: 40,
+    top: 30,
+    child: ImageDropTarget(onDragSuccess: _handleFileDropped),
+  );
 
   void _handleFileDropped() {
     windowManager.focus();
@@ -601,18 +597,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _bottomBar(BuildContext context) {
+    const Widget minimizedBottomBar = Positioned(
+      bottom: 1,
+      right: 10,
+      child: Opacity(
+        opacity: PfsTheme.bottomBarButtonOpacity,
+        child: Row(children: [
+          TimerBar(),
+          SizedBox(width: 140),
+        ]),
+      ),
+    );
+
     if (isBottomBarMinimized) {
-      return const Positioned(
-        bottom: 1,
-        right: 10,
-        child: Opacity(
-          opacity: PfsTheme.bottomBarButtonOpacity,
-          child: Row(children: [
-            TimerBar(),
-            SizedBox(width: 140),
-          ]),
-        ),
-      );
+      return minimizedBottomBar;
     }
 
     List<Widget> bottomBarItems(PfsAppModel model) {
@@ -650,10 +648,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           const SizedBox(width: 15),
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
-            child: _timerControls(context),
+            child: _timerControls,
           ),
           const SizedBox(width: 20),
-          Phbuttons.imageSetButton(),
+          const ImageSetButton(),
           const SizedBox(width: 10),
         ];
       } else {
@@ -692,15 +690,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return Positioned(
       bottom: 3,
       right: 3,
-      child: Phbuttons.collapseBottomBarButton(
+      child: CollapseBottomBarButton(
         isMinimized: isBottomBarMinimized,
         onPressed: () => _doToggleBottomBar(),
       ),
     );
   }
 
-  Widget _timerControls(BuildContext context) {
-    return Column(children: [
+  late final Widget _timerControls = Column(
+    children: [
       const TimerBar(),
       Row(
         children: [
@@ -737,8 +735,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
         ],
       )
-    ]);
-  }
+    ],
+  );
 
   void _playClickSound() {
     if (!isSoundsEnabled) return;

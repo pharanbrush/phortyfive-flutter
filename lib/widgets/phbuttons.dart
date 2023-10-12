@@ -26,15 +26,6 @@ class Phbuttons {
     );
   }
 
-  static Widget bottomButton(
-      Function()? onPressed, IconData icon, String? tooltip) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      tooltip: tooltip,
-    );
-  }
-
   static Widget openFiles() {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
@@ -92,12 +83,17 @@ class Phbuttons {
       },
     );
   }
+}
 
-  static Widget imageSetButton() {
+class ImageSetButton extends StatelessWidget {
+  const ImageSetButton({super.key});
+
+  static const double _iconSize = 18;
+  static const Icon _icon = Icon(Icons.image, size: _iconSize);
+
+  @override
+  Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
-      const double iconSize = 18;
-      const Icon icon = Icon(Icons.image, size: iconSize);
-
       final fileCount = model.fileList.getCount();
       final String tooltip =
           '$fileCount images loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
@@ -115,7 +111,7 @@ class Phbuttons {
                 child: Row(
                   children: [
                     const Spacer(),
-                    textThenIcon(fileCount.toString(), icon),
+                    Phbuttons.textThenIcon(fileCount.toString(), _icon),
                     const Spacer(),
                   ],
                 ),
@@ -125,28 +121,6 @@ class Phbuttons {
         ),
       );
     });
-  }
-
-  static Widget collapseBottomBarButton({
-    required bool isMinimized,
-    Function()? onPressed,
-  }) {
-    const collapseIcon = Icons.expand_more_rounded;
-    const expandIcon = Icons.expand_less_rounded;
-
-    if (isMinimized) {
-      return MinorWindowControlButton(
-        icon: expandIcon,
-        tooltip: 'Expand controls (H)',
-        onPressed: onPressed,
-      );
-    } else {
-      return MinorWindowControlButton(
-        icon: collapseIcon,
-        tooltip: 'Minimize controls (H)',
-        onPressed: onPressed,
-      );
-    }
   }
 }
 
@@ -192,12 +166,41 @@ class BottomBarTimerControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon),
-      ),
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      tooltip: tooltip,
     );
+  }
+}
+
+class CollapseBottomBarButton extends StatelessWidget {
+  const CollapseBottomBarButton({
+    super.key,
+    required this.isMinimized,
+    required this.onPressed,
+  });
+
+  final bool isMinimized;
+  final Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    const collapseIcon = Icons.expand_more_rounded;
+    const expandIcon = Icons.expand_less_rounded;
+
+    if (isMinimized) {
+      return MinorWindowControlButton(
+        icon: expandIcon,
+        tooltip: 'Expand controls (H)',
+        onPressed: onPressed,
+      );
+    } else {
+      return MinorWindowControlButton(
+        icon: collapseIcon,
+        tooltip: 'Minimize controls (H)',
+        onPressed: onPressed,
+      );
+    }
   }
 }
