@@ -42,6 +42,14 @@ class ImagePhviewer {
   bool get isUsingGrayscale => _isUsingGrayscale;
   double get blurLevel => _blurLevel;
 
+  int get activeFilterCount {
+    int currentActiveFiltersCount = 0;
+    if (_blurLevel > 0) currentActiveFiltersCount++;
+    if (_isUsingGrayscale) currentActiveFiltersCount++;
+
+    return currentActiveFiltersCount;
+  }
+
   Function(IconData icon, String text)? onNotify;
   Function()? onStateChange;
 
