@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class OverlayButton extends StatelessWidget {
-  OverlayButton({super.key, required this.child, this.onPressed});
+  const OverlayButton({super.key, required this.child, this.onPressed});
 
   final Widget child;
   final Function()? onPressed;
@@ -22,7 +22,7 @@ class OverlayButton extends StatelessWidget {
     return Colors.transparent;
   }
 
-  final ButtonStyle style = ButtonStyle(
+  static final ButtonStyle style = ButtonStyle(
     shape: MaterialStateProperty.all(
       const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(5)),
