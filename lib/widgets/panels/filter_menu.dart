@@ -21,6 +21,7 @@ class FilterMenu extends StatelessWidget {
       bottom: 15,
     );
 
+    // PARTS
     const heading = Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 7,
@@ -46,6 +47,8 @@ class FilterMenu extends StatelessWidget {
       icon: const Icon(Icons.format_color_reset),
     );
 
+    
+    // HANDLERS
     void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
       final isSelectionGrayscale =
           newSelection.contains(ImageColorMode.grayscale);
@@ -56,6 +59,8 @@ class FilterMenu extends StatelessWidget {
       imagePhviewer.setBlurLevel(value);
     }
 
+
+    // HIERARCHY
     return Stack(
       children: [
         ModalUnderlay(
