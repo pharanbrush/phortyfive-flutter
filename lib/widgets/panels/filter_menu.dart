@@ -14,22 +14,47 @@ class FilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const padding = EdgeInsets.symmetric(horizontal: 25, vertical: 15);
+    const padding = EdgeInsets.only(
+      left: 22,
+      right: 25,
+      top: 15,
+      bottom: 15,
+    );
 
-    const heading = Row(
+    const heading = Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 7,
       children: [
         Icon(
           Icons.invert_colors,
           color: PfsTheme.subtleHeadingIconColor,
           size: PfsTheme.subtleHeadingIconSize,
         ),
-        SizedBox(width: 7),
         Text(
           'Filters',
           style: PfsTheme.subtleHeadingStyle,
         ),
       ],
     );
+
+    final resetAllFiltersButton = IconButton(
+      tooltip: 'Reset all filters',
+      color: Theme.of(context).colorScheme.tertiary,
+      onPressed: imagePhviewer.isFilterActive
+          ? () => imagePhviewer.resetAllFilters()
+          : null,
+      icon: const Icon(Icons.format_color_reset),
+    );
+
+    void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
+      final isSelectionGrayscale =
+          newSelection.contains(ImageColorMode.grayscale);
+      imagePhviewer.setGrayscaleActive(isSelectionGrayscale);
+    }
+
+    void handleBlurSliderChanged(value) {
+      imagePhviewer.setBlurLevel(value);
+    }
 
     return Stack(
       children: [
@@ -47,43 +72,31 @@ class FilterMenu extends StatelessWidget {
                 decoration: PfsTheme.popupPanelBoxDecoration,
                 child: Padding(
                   padding: padding,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: Row(
-                            children: [
-                              heading,
-                              const Expanded(child: Text('')),
-                              IconButton(
-                                  tooltip: 'Reset all filters',
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  onPressed: imagePhviewer.isFilterActive
-                                      ? () => imagePhviewer.resetAllFilters()
-                                      : null,
-                                  icon: const Icon(Icons.format_color_reset)),
-                            ],
-                          ),
+                  child: Wrap(
+                    direction: Axis.vertical,
+                    spacing: 5,
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        child: Row(
+                          children: [
+                            heading,
+                            const Spacer(),
+                            resetAllFiltersButton,
+                          ],
                         ),
-                        const SizedBox(height: 15),
-                        ColorModeButtons(
-                          imagePhviewer: imagePhviewer,
-                          onSelectionChanged:
-                              (Set<ImageColorMode> newSelection) {
-                            final isSelectionGrayscale =
-                                newSelection.contains(ImageColorMode.grayscale);
-                            imagePhviewer
-                                .setGrayscaleActive(isSelectionGrayscale);
-                          },
-                        ),
-                        BlurSlider(
-                          imagePhviewer: imagePhviewer,
-                          onChanged: (value) {
-                            imagePhviewer.setBlurLevel(value);
-                          },
-                        ),
-                      ]),
+                      ),
+                      const SizedBox(height: 4),
+                      ColorModeButtons(
+                        imagePhviewer: imagePhviewer,
+                        onSelectionChanged: handleImageModeSelectionChanged,
+                      ),
+                      BlurSlider(
+                        imagePhviewer: imagePhviewer,
+                        onChanged: handleBlurSliderChanged,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -144,15 +157,16 @@ class BlurSlider extends StatelessWidget {
     return Row(
       children: [
         const Text('Blur'),
-        Slider.adaptive(
-          min: 0,
-          max: 12,
-          divisions: 12,
-          label: imagePhviewer.blurLevel.toInt().toString(),
-          onChanged: (value) {
-            onChanged(value);
-          },
-          value: imagePhviewer.blurLevel,
+        SizedBox(
+          width: 220,
+          child: Slider.adaptive(
+            min: 0,
+            max: 12,
+            divisions: 12,
+            label: imagePhviewer.blurLevel.toInt().toString(),
+            onChanged: onChanged,
+            value: imagePhviewer.blurLevel,
+          ),
         ),
       ],
     );
