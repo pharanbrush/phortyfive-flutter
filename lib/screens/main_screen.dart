@@ -211,32 +211,34 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    return shortcutsWrapper(Stack(
-      children: [
-        imagePhviewer.widget(isBottomBarMinimized),
-        _fileDropZone,
-        _gestureControls(),
-        const CountdownSheet(),
-        _topRightWindowControls(),
-        _bottomBar(context),
-        modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
-        modalMenu(
-          isOpen: isShowingCheatSheet,
-          builder: () => Theme(
-            data: ThemeData.dark(useMaterial3: true),
-            child: HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+    return shortcutsWrapper(
+      Stack(
+        children: [
+          imagePhviewer.widget(isBottomBarMinimized),
+          _fileDropZone,
+          _gestureControls(),
+          const CountdownSheet(),
+          _topRightWindowControls(),
+          _bottomBar(context),
+          modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
+          modalMenu(
+            isOpen: isShowingCheatSheet,
+            builder: () => Theme(
+              data: ThemeData.dark(useMaterial3: true),
+              child: HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+            ),
           ),
-        ),
-        modalMenu(
-          isOpen: isShowingFiltersMenu,
-          builder: () => FilterMenu(
-            imagePhviewer: imagePhviewer,
-            onDismiss: () => _setFiltersMenuActive(false),
+          modalMenu(
+            isOpen: isShowingFiltersMenu,
+            builder: () => FilterMenu(
+              imagePhviewer: imagePhviewer,
+              onDismiss: () => _setFiltersMenuActive(false),
+            ),
           ),
-        ),
-        _dockingControls(),
-      ],
-    ));
+          _dockingControls(),
+        ],
+      ),
+    );
   }
 
   void _bindModelCallbacks() {
