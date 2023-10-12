@@ -158,7 +158,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
-    duration: const Duration(milliseconds: 200),
+    duration: Phanimations.defaultDuration,
     value:
         1, // WORKAROUND: the default 0 causes the icon to have the wrong initial state when the timer first plays.
     vsync: this,
@@ -206,7 +206,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     Widget modalMenu(
         {required bool isOpen, required Widget Function() builder}) {
       return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 120),
+        duration: Phanimations.fastDuration,
         child: isOpen ? builder() : null,
       );
     }

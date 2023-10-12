@@ -4,9 +4,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutExpo;
+  
+  static const defaultDuration = Duration(milliseconds: 200);
+  static const fastDuration = Duration(milliseconds: 100);
 
   static const bottomBarSlideUpEffect = SlideEffect(
-    duration: Duration(milliseconds: 100),
+    duration: fastDuration,
     curve: Curves.easeOutQuart,
     begin: Offset(0, 1),
     end: Offset(0, 0),
@@ -20,14 +23,14 @@ class Phanimations {
   );
 
   static const slideUpEffect = SlideEffect(
-    duration: Duration(milliseconds: 200),
+    duration: defaultDuration,
     begin: Offset(0, 0.2),
     end: Offset.zero,
     curve: Curves.easeOutQuart,
   );
 
   static const fadeInEffect = FadeEffect(
-    duration: Duration(microseconds: 200),
+    duration: fastDuration,
     begin: 0,
     end: 1,
   );
