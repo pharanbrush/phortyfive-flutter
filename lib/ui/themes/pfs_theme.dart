@@ -12,7 +12,7 @@ class PfsTheme {
     const Color secondary = Color.fromARGB(255, 146, 109, 88);
     const Color tertiary = Color.fromARGB(255, 236, 179, 92);
 
-    Color getBottomBarIconColor(Set<MaterialState> states) {
+    Color getIconColor(Set<MaterialState> states) {
       const Color bottomBarButtonContentColor =
           Color.fromARGB(110, 158, 158, 158);
       const Color bottomBarButtonActiveColor =
@@ -28,8 +28,17 @@ class PfsTheme {
       return bottomBarButtonContentColor;
     }
 
+    Color getButtonColor(Set<MaterialState> states) {
+      if (states.contains(MaterialState.hovered)) {
+        return background.withAlpha(33);
+      }
+
+      return background.withAlpha(00);
+    }
+
     final ButtonStyle buttonStyle = ButtonStyle(
-      foregroundColor: MaterialStateProperty.resolveWith(getBottomBarIconColor),
+      foregroundColor: MaterialStateProperty.resolveWith(getIconColor),
+      backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
     );
 
     var newData = ThemeData(
