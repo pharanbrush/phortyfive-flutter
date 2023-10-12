@@ -97,40 +97,40 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   late Map<Type, Action<Intent>> shortcutActions = {
     PreviousImageIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.previousImageNewTimer(),
+      onInvoke: (_) => widget.model.previousImageNewTimer(),
     ),
     NextImageIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.nextImageNewTimer(),
+      onInvoke: (_) => widget.model.nextImageNewTimer(),
     ),
     PlayPauseIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.tryTogglePlayPauseTimer(),
+      onInvoke: (_) => widget.model.tryTogglePlayPauseTimer(),
     ),
     OpenTimerMenuIntent: CallbackAction(
-      onInvoke: (intent) => _doStartEditingCustomTime(),
+      onInvoke: (_) => _doStartEditingCustomTime(),
     ),
     RestartTimerIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.timerModel.restartTimer(),
+      onInvoke: (_) => widget.model.timerModel.restartTimer(),
     ),
     HelpIntent: CallbackAction(
-      onInvoke: (intent) => _doToggleCheatSheet(),
+      onInvoke: (_) => _doToggleCheatSheet(),
     ),
     BottomBarToggleIntent: CallbackAction(
-      onInvoke: (intent) => _doToggleBottomBar(),
+      onInvoke: (_) => _doToggleBottomBar(),
     ),
     OpenFilesIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.openFilePickerForImages(),
+      onInvoke: (_) => widget.model.openFilePickerForImages(),
     ),
     OpenFolderIntent: CallbackAction(
-      onInvoke: (intent) => widget.model.openFilePickerForFolder(),
+      onInvoke: (_) => widget.model.openFilePickerForFolder(),
     ),
     AlwaysOnTopIntent: CallbackAction(
-      onInvoke: (intent) => _doToggleAlwaysOnTop(),
+      onInvoke: (_) => _doToggleAlwaysOnTop(),
     ),
     ToggleSoundIntent: CallbackAction(
-      onInvoke: (intent) => _doToggleSounds(),
+      onInvoke: (_) => _doToggleSounds(),
     ),
     ReturnHomeIntent: CallbackAction(
-      onInvoke: (intent) => _tryReturnHome(),
+      onInvoke: (_) => _tryReturnHome(),
     ),
   };
 
