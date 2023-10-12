@@ -11,7 +11,7 @@ class OverlayButton extends StatelessWidget {
       return const Color(0xFF242424);
     }
 
-    return Colors.transparent;
+    return const Color(0x00242424);
   }
 
   static Color getButtonColor(Set<MaterialState> states) {
@@ -19,7 +19,7 @@ class OverlayButton extends StatelessWidget {
       return const Color(0x22DDDDDD);
     }
 
-    return Colors.transparent;
+    return const Color(0x00DDDDDD);
   }
 
   static final ButtonStyle style = ButtonStyle(
