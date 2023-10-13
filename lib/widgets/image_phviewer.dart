@@ -133,7 +133,7 @@ class ImagePhviewer {
 
   Widget widget(bool isBottomBarMinimized) {
     const minimizedPadding = EdgeInsets.only(bottom: 5);
-    const normalPadding = EdgeInsets.only(bottom: 45);
+    const normalPadding = EdgeInsets.only(bottom: 46);
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
 
     return AnimatedPadding(

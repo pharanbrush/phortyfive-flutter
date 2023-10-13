@@ -4,10 +4,80 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 
+class TimerControls extends StatelessWidget {
+  const TimerControls({
+    super.key,
+    required this.playPauseIconController,
+  });
+
+  final AnimationController playPauseIconController;
+
+  @override
+  Widget build(BuildContext context) {
+    // PARTS
+    final restartTimerButton = PhtimerModel.scope(
+      (_, __, model) => TimerControlButton(
+        onPressed: () => model.restartTimer(),
+        icon: Icons.refresh,
+        tooltip: PfsLocalization.buttonTooltip(
+          commandName: 'Restart timer',
+          shortcut: Phshortcuts.restartTimer,
+        ),
+      ),
+    );
+
+    final previousButton = PfsAppModel.scope(
+      (_, __, model) => TimerControlButton(
+        onPressed: () => model.previousImageNewTimer(),
+        icon: Icons.skip_previous,
+        tooltip: PfsLocalization.buttonTooltip(
+          commandName: 'Previous Image',
+          shortcut: Phshortcuts.previous2,
+        ),
+      ),
+    );
+
+    final nextButton = PfsAppModel.scope(
+      (_, __, model) => TimerControlButton(
+        onPressed: () => model.nextImageNewTimer(),
+        icon: Icons.skip_next,
+        tooltip: PfsLocalization.buttonTooltip(
+          commandName: 'Next Image',
+          shortcut: Phshortcuts.next2,
+        ),
+      ),
+    );
+
+    // LAYOUT
+    return Column(
+      children: [
+        const TimerBar(key: TimerBar.mainScreenKey),
+        Container(
+          height: 40,
+          padding: const EdgeInsets.only(top: 1),
+          margin: const EdgeInsets.only(bottom: 2),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 2,
+            children: [
+              restartTimerButton,
+              previousButton,
+              PlayPauseTimerButton(iconProgress: playPauseIconController),
+              nextButton,
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
+  static const Key mainScreenKey = Key('mainScreenTimerBar');
+  
   static const double almostZeroThreshold = 0.1;
-  static const double barWidth = 200;
+  static const double barWidth = 200;  
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +176,28 @@ class PlayPauseTimerButton extends StatelessWidget {
         );
       });
     });
+  }
+}
+
+class TimerControlButton extends StatelessWidget {
+  const TimerControlButton({
+    super.key,
+    this.onPressed,
+    required this.icon,
+    required this.tooltip,
+  });
+
+  final Function()? onPressed;
+  final IconData icon;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      tooltip: tooltip,
+    );
   }
 }
 

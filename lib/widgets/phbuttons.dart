@@ -142,28 +142,6 @@ class MinorWindowControlButton extends StatelessWidget {
   }
 }
 
-class BottomBarTimerControl extends StatelessWidget {
-  const BottomBarTimerControl({
-    super.key,
-    this.onPressed,
-    required this.icon,
-    required this.tooltip,
-  });
-
-  final Function()? onPressed;
-  final IconData icon;
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      tooltip: tooltip,
-    );
-  }
-}
-
 class CollapseBottomBarButton extends StatelessWidget {
   const CollapseBottomBarButton({
     super.key,

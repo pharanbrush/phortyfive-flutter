@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
@@ -538,14 +537,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  static const Key timerBarKey = Key('timerBar');
-
   Widget _bottomBar(BuildContext context) {
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
       right: 10,
       child: Row(children: [
-        TimerBar(key: timerBarKey),
+        TimerBar(key: TimerBar.mainScreenKey),
         SizedBox(width: 140),
       ]),
     );
@@ -589,7 +586,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           const SizedBox(width: 15),
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
-            child: _timerControls,
+            child: TimerControls(
+                playPauseIconController: _playPauseIconStateAnimator),
           ),
           const SizedBox(width: 20),
           const ImageSetButton(),
@@ -604,7 +602,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     final normalBottomBar = Positioned(
-      bottom: 1,
+      bottom: 0,
       right: 10,
       child: PfsAppModel.scope(
         (_, __, model) {
@@ -631,47 +629,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-  late final Widget _timerControls = Column(
-    children: [
-      const TimerBar(key: timerBarKey),
-      Row(
-        children: [
-          PhtimerModel.scope(
-            (_, __, model) => BottomBarTimerControl(
-              onPressed: () => model.restartTimer(),
-              icon: Icons.refresh,
-              tooltip: PfsLocalization.buttonTooltip(
-                commandName: 'Restart timer',
-                shortcut: Phshortcuts.restartTimer,
-              ),
-            ),
-          ),
-          PfsAppModel.scope(
-            (_, __, model) => BottomBarTimerControl(
-              onPressed: () => model.previousImageNewTimer(),
-              icon: Icons.skip_previous,
-              tooltip: PfsLocalization.buttonTooltip(
-                commandName: 'Previous Image',
-                shortcut: Phshortcuts.previous2,
-              ),
-            ),
-          ),
-          PlayPauseTimerButton(iconProgress: _playPauseIconStateAnimator),
-          PfsAppModel.scope(
-            (_, __, model) => BottomBarTimerControl(
-              onPressed: () => model.nextImageNewTimer(),
-              icon: Icons.skip_next,
-              tooltip: PfsLocalization.buttonTooltip(
-                commandName: 'Next Image',
-                shortcut: Phshortcuts.next2,
-              ),
-            ),
-          ),
-        ],
-      )
-    ],
-  );
 
   void _playClickSound({bool playWhilePaused = false}) {
     if (!windowState.isSoundsEnabled.boolValue) return;
