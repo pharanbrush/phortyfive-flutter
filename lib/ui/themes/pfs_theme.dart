@@ -29,17 +29,12 @@ class PfsTheme {
       return bottomBarButtonContentColor;
     }
 
-    Color getButtonColor(Set<MaterialState> states) {
-      if (states.contains(MaterialState.hovered)) {
-        return background.withAlpha(33);
-      }
-
-      return background.withAlpha(00);
-    }
-
     final ButtonStyle buttonStyle = ButtonStyle(
       foregroundColor: MaterialStateProperty.resolveWith(getIconColor),
-      backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
+      backgroundColor: hoverColors(
+        idle: background.withAlpha(00),
+        hover: background.withAlpha(33),
+      ),
     );
 
     const Color firstActionBoxColor = Color.fromARGB(255, 250, 249, 247);
