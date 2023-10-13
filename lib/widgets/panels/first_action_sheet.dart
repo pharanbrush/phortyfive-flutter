@@ -7,6 +7,10 @@ class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});
 
   static const _windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
+  static const TextStyle _bigBold = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -19,48 +23,47 @@ class FirstActionSheet extends StatelessWidget {
             Phanimations.slideUpEffect,
             Phanimations.growBottomEffect
           ],
-          child: _box(),
+          child: _box(context),
         ),
       ),
     );
   }
 
-  Widget _box() {
+  Widget _box(BuildContext context) {
     return SizedBox(
       width: 350,
       height: 250,
-      child: Material(
-        child: Container(
+      child: Card(
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          decoration: PfsTheme.firstActionBoxDecoration,
           child: Stack(children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 25,
-                ),
-                PfsTheme.firstActionIcon,
-                Text(
-                  'Get started by loading images!',
-                  style: PfsTheme.firstActionTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  'You can also drag & drop images into the window.',
-                  style: PfsTheme.firstActionTextStyleSecondary,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+            DefaultTextStyle(
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Spacer(flex: 3),
+                  PfsTheme.firstActionIcon,
+                  Text(
+                    'Get started by loading images!',
+                    style: _bigBold,
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    'You can also drag & drop images into the window.',
+                    textAlign: TextAlign.center,
+                  ),
+                  Spacer(flex: 5),
+                ],
+              ),
             ),
             Align(
               alignment: Alignment.bottomRight,
               child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                child: Animate(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: PfsTheme.downIcon.animate(
                   effects: const [Phanimations.slideUpEffect],
                   onPlay: (controller) => controller.repeat(reverse: true),
-                  child: PfsTheme.downIcon,
                 ),
               ),
             ),

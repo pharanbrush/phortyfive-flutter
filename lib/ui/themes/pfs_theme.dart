@@ -42,6 +42,8 @@ class PfsTheme {
       backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
     );
 
+    const Color firstActionBoxColor = Color.fromARGB(255, 250, 249, 247);
+
     var newData = ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: background,
@@ -54,6 +56,7 @@ class PfsTheme {
         tertiary: tertiary,
         onSecondary: Colors.white,
         outline: const Color.fromARGB(82, 94, 76, 53),
+        surface: firstActionBoxColor,
       ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
@@ -63,10 +66,18 @@ class PfsTheme {
           backgroundColor: MaterialStatePropertyAll(Colors.white),
         ),
       ),
+      cardTheme: const CardTheme(
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          side: BorderSide(color: firstActionBorderColor),
+        ),
+      ),
       extensions: const {
         PhtimerTheme(
           pausedColor: tertiary,
-          runningColor: Color.fromARGB(131, 167, 148, 140),
+          runningColor: Color.fromARGB(140, 167, 148, 140),
           almostZeroColor: Color.fromARGB(195, 206, 12, 12),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Colors.black12,
@@ -86,22 +97,12 @@ class PfsTheme {
       Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
 
   // FIRST ACTION
-  static const Color firstActionBoxColor = Color(0xFFF5F5F5);
-  static const Color firstActionBorderColor = Color(0xFFEEEEEE);
-  static const Color firstActionContentColor = Colors.black38;
-  static const TextStyle firstActionTextStyle = TextStyle(
-    color: firstActionContentColor,
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  );
-  static const TextStyle firstActionTextStyleSecondary =
-      TextStyle(color: firstActionContentColor);
 
-  static const Border firstActionBoxBorder = Border(
-    bottom: BorderSide(color: firstActionBorderColor),
-    top: BorderSide(color: firstActionBorderColor),
-    left: BorderSide(color: firstActionBorderColor),
-    right: BorderSide(color: firstActionBorderColor),
+  static const Color firstActionBorderColor = Color(0xFFEEEEEE);
+  static const Color firstActionContentColor = Colors.black54;
+
+  static const Border firstActionBoxBorder = Border.fromBorderSide(
+    BorderSide(color: firstActionBorderColor),
   );
 
   static const double firstActionIconSize = 100;
@@ -109,11 +110,22 @@ class PfsTheme {
       size: firstActionIconSize, color: firstActionContentColor);
   static const Icon downIcon = Icon(Icons.keyboard_double_arrow_down_rounded,
       color: firstActionContentColor);
-  static const firstActionBoxDecoration = BoxDecoration(
-    borderRadius: BorderRadius.all(Radius.circular(20)),
-    border: firstActionBoxBorder,
-    color: PfsTheme.firstActionBoxColor,
+
+  static const TextStyle firstActionTextStyle = TextStyle(
+    color: firstActionContentColor,
   );
+
+  static Material firstActionBoxMaterial({required Widget child}) {
+    return Material(
+      type: MaterialType.card,
+      textStyle: firstActionTextStyle,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        side: BorderSide(color: firstActionBorderColor),
+      ),
+      child: child,
+    );
+  }
 
   static const double timerButtonIconSize = 18;
 
