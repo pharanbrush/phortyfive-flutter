@@ -140,13 +140,11 @@ class MinorWindowControlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
-      child: TextButton(
-        style: PfsTheme.minorWindowControlButtonStyle,
+      child: IconButton(
         onPressed: onPressed,
-        child: Icon(
-          icon,
-          size: PfsTheme.minorWindowControlIconSize,
-        ),
+        style: PfsTheme.minorWindowControlButtonStyle,
+        iconSize: PfsTheme.minorWindowControlIconSize,
+        icon: Icon(icon),
       ),
     );
   }

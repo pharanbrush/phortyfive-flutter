@@ -160,15 +160,20 @@ class PfsTheme {
   static const Color subtleHeadingIconColor = Color(0xFFE4E4E4);
   static const double subtleHeadingIconSize = 14;
 
-  static const Color minorWindowControlColor = Colors.black38;
+  static final minorWindowControlForegroundColors = hoverColors(
+    idle: PfsTheme.minorWindowControlColor,
+    hover: Colors.black87,
+  );
+
+  static const Color minorWindowControlColor = Color.fromARGB(90, 0, 0, 0);
   static const double minorWindowControlIconSize = 20;
-  static const minorWindowControlButtonSize = Size(25, 25);
-  static const minorWindowControlButtonStyle = ButtonStyle(
-    shape: MaterialStatePropertyAll(CircleBorder()),
-    minimumSize: MaterialStatePropertyAll(minorWindowControlButtonSize),
-    maximumSize: MaterialStatePropertyAll(minorWindowControlButtonSize),
-    padding: MaterialStatePropertyAll(EdgeInsets.all(0)),
-    foregroundColor: MaterialStatePropertyAll(PfsTheme.minorWindowControlColor),
+  static const minorWindowControlButtonSize = Size(20, 20);
+  static final minorWindowControlButtonStyle = ButtonStyle(
+    shape: const MaterialStatePropertyAll(CircleBorder()),
+    minimumSize: const MaterialStatePropertyAll(minorWindowControlButtonSize),
+    maximumSize: const MaterialStatePropertyAll(minorWindowControlButtonSize),
+    padding: const MaterialStatePropertyAll(EdgeInsets.all(0)),
+    foregroundColor: minorWindowControlForegroundColors,
   );
 
   // DROP TARGET
@@ -220,4 +225,13 @@ class PfsTheme {
     counterText: '',
     counterStyle: TextStyle(fontSize: 1),
   );
+
+  // THEME UTILITIES
+  static MaterialStateProperty<Color> hoverColors({
+    required Color idle,
+    required Color hover,
+  }) {
+    return MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  }
 }
