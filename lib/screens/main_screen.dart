@@ -404,6 +404,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
+      windowManager.setAlwaysOnTop(windowState.isAlwaysOnTop.boolValue);
       showAlwaysOnTopToggleSnackbar();
     });
   }
