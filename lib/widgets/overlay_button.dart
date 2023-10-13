@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class OverlayButton extends StatelessWidget {
   const OverlayButton({super.key, required this.child, this.onPressed});
@@ -6,30 +7,23 @@ class OverlayButton extends StatelessWidget {
   final Widget child;
   final Function()? onPressed;
 
-  static Color getIconColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return const Color(0xFF242424);
-    }
+  static const shape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  );
 
-    return const Color(0x00242424);
-  }
-
-  static Color getButtonColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return const Color(0x22DDDDDD);
-    }
-
-    return const Color(0x00DDDDDD);
-  }
+  static const iconColor = Color(0xFF242424);
+  static const hoverAreaColor = Color(0x22DDDDDD);
 
   static final ButtonStyle style = ButtonStyle(
-    shape: MaterialStateProperty.all(
-      const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-      ),
+    shape: MaterialStateProperty.all(shape),
+    iconColor: PfsTheme.hoverColors(
+      idle: iconColor.withAlpha(0x00),
+      hover: iconColor,
     ),
-    iconColor: MaterialStateProperty.resolveWith(getIconColor),
-    overlayColor: MaterialStateProperty.resolveWith(getButtonColor),
+    overlayColor: PfsTheme.hoverColors(
+      idle: hoverAreaColor.withAlpha(0x00),
+      hover: hoverAreaColor,
+    ),
   );
 
   @override
