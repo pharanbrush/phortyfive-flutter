@@ -61,7 +61,6 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       child: Material(
         textStyle: textStyle,
         type: MaterialType.transparency,
-        //color: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
