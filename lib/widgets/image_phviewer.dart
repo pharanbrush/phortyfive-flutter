@@ -2,13 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/ui/phcontext_menu.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,8 +26,6 @@ class ImagePhviewer {
     4.0
   ];
   static const _defaultZoomLevel = 3;
-
-  final MenuController imageMenuRightClickController = MenuController();
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
@@ -81,40 +79,54 @@ class ImagePhviewer {
     currentZoomLevel = currentZoomLevel.clamp(0, _zoomScales.length - 1);
   }
 
-  Widget imageRightClick(
-      {Widget? child,
-      void Function(
-              {required String newClipboardText, String? snackbarMessage})?
-          clipboardCopyHandler}) {
+  Widget imageRightClick({
+    required Widget child,
+    void Function({required String newClipboardText, String? snackbarMessage})?
+        clipboardCopyHandler,
+  }) {
     return PfsAppModel.scope((_, __, model) {
+      void handleCopyFilePath() {
+        clipboardCopyHandler?.call(
+          newClipboardText: model.getCurrentImageData().filePath,
+          snackbarMessage: 'File path copied to clipboard.',
+        );
+      }
+
+      void handleRevealInExplorer() {
+        revealInExplorer(model.getCurrentImageData());
+      }
+
+      final copyFilePathItem = MenuItem(
+        label: PfsLocalization.copyFilePath,
+        onClick: (menuItem) => handleCopyFilePath(),
+      );
+
+      final revealInExplorerItem = MenuItem(
+        label: PfsLocalization.revealInExplorer,
+        onClick: (menuItem) => handleRevealInExplorer(),
+      );
+
+      final contextMenu = Menu(
+        items: [
+          copyFilePathItem,
+          MenuItem.separator(),
+          revealInExplorerItem,
+        ],
+      );
+
+      void openContextMenu() {
+        popUpContextualMenu(contextMenu);
+      }
+
       return GestureDetector(
-        onSecondaryTapDown: (details) {
-          imageMenuRightClickController.open(position: details.localPosition);
-        },
         onTertiaryTapDown: (details) {
           () => resetZoomLevel();
           onStateChange?.call();
         },
-        child: MenuAnchor(
-          anchorTapClosesMenu: true,
-          controller: imageMenuRightClickController,
-          menuChildren: [
-            PhcontextMenu.menuItemButton(
-              text: PfsLocalization.revealInExplorer,
-              //icon: Icons.folder_open,
-              onPressed: () => revealInExplorer(model.getCurrentImageData()),
-            ),
-            PhcontextMenu.menuItemButton(
-              text: 'Copy file path',
-              icon: Icons.copy,
-              onPressed: () => clipboardCopyHandler?.call(
-                newClipboardText: model.getCurrentImageData().filePath,
-                snackbarMessage: 'File path copied to clipboard.',
-              ),
-            ),
-          ],
-          child: child,
-        ),
+        onSecondaryTapDown: (details) {
+          openContextMenu();
+        },
+        child: child,
       );
     });
   }
