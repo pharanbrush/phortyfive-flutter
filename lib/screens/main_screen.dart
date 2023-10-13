@@ -94,6 +94,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode();
   final Phclicker clicker = Phclicker();
+  final PfsWindowState windowState = PfsWindowState();
 
   late Map<Type, Action<Intent>> shortcutActions = {
     PreviousImageIntent: CallbackAction(
@@ -152,10 +153,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   bool isAlwaysOnTop = false;
   bool isSoundsEnabled = true;
   bool isTouch = false;
-  bool isEditingTime = false;
-  bool isShowingCheatSheet = false;
-  bool isShowingFiltersMenu = false;
-
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
     duration: Phanimations.defaultDuration,
@@ -214,22 +211,27 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return shortcutsWrapper(
       Stack(
         children: [
-          imagePhviewer.widget(isBottomBarMinimized),
+          imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone,
           _gestureControls(),
           const CountdownSheet(),
           _topRightWindowControls(),
           _bottomBar(context),
-          modalMenu(isOpen: isEditingTime, builder: () => timerDurationWidget),
           modalMenu(
-            isOpen: isShowingCheatSheet,
+            isOpen: windowState.isEditingTime,
+            builder: () => TimerDurationPanel(
+              onDismiss: () => _doStopEditingCustomTime(),
+            ),
+          ),
+          modalMenu(
+            isOpen: windowState.isShowingCheatSheet,
             builder: () => Theme(
               data: ThemeData.dark(useMaterial3: true),
               child: HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
             ),
           ),
           modalMenu(
-            isOpen: isShowingFiltersMenu,
+            isOpen: windowState.isShowingFiltersMenu,
             builder: () => FilterMenu(
               imagePhviewer: imagePhviewer,
               onDismiss: () => _setFiltersMenuActive(false),
@@ -259,16 +261,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _setFiltersMenuActive(bool active) {
     setState(() {
-      isShowingFiltersMenu = active;
+      windowState.isShowingFiltersMenu = active;
     });
   }
 
   void _cancelAllModals() {
-    if (isShowingCheatSheet) {
+    if (windowState.isShowingCheatSheet) {
       _setCheatSheetActive(false);
     }
 
-    if (isEditingTime) {
+    if (windowState.isEditingTime) {
       _doStopEditingCustomTime();
     }
   }
@@ -362,24 +364,23 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      isEditingTime = active;
+      windowState.isEditingTime = active;
       if (!active) {
         mainWindowFocus.requestFocus();
       }
-      timerDurationWidget.setActive(
-          active, widget.model.timerModel.currentDurationSeconds);
+      //timerDurationWidget.setActive(active, widget.model.timerModel.currentDurationSeconds);
     });
   }
 
   void _doToggleCheatSheet() {
-    _setCheatSheetActive(!isShowingCheatSheet);
+    _setCheatSheetActive(!windowState.isShowingCheatSheet);
   }
 
   void _setCheatSheetActive(bool active) {
     if (active) _cancelAllModals();
 
     setState(() {
-      isShowingCheatSheet = active;
+      windowState.isShowingCheatSheet = active;
     });
   }
 
@@ -511,21 +512,23 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             children: [
               Phbuttons.topControl(
                 onPressed: () => _doToggleSounds(),
-                icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                tooltip: isSoundsEnabled
+                icon: windowState.isSoundsEnabled
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                tooltip: windowState.isSoundsEnabled
                     ? 'Mute sounds ($soundShortcut)'
                     : 'Unmute sounds ($soundShortcut)',
               ),
               Phbuttons.topControl(
                 onPressed: () => _doToggleAlwaysOnTop(),
-                icon: isAlwaysOnTop
+                icon: windowState.isAlwaysOnTop
                     ? Icons.push_pin_rounded
                     : Icons.push_pin_outlined,
                 tooltip: PfsLocalization.buttonTooltip(
                   commandName: PfsLocalization.alwaysOnTop,
                   shortcut: Phshortcuts.alwaysOnTop,
                 ),
-                isSelected: isAlwaysOnTop,
+                isSelected: windowState.isAlwaysOnTop,
               ),
               Phbuttons.topControl(
                 onPressed: () => _setCheatSheetActive(true),
@@ -563,7 +566,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _doToggleAlwaysOnTop() {
     showAlwaysOnTopToggleSnackbar() {
       _showSnackBar(
-          content: isAlwaysOnTop
+          content: windowState.isAlwaysOnTop
               ? const SnackbarPhmessage(
                   text: '"${PfsLocalization.alwaysOnTop}" enabled',
                   icon: Icons.push_pin,
@@ -575,8 +578,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      isAlwaysOnTop = !isAlwaysOnTop;
-      windowManager.setAlwaysOnTop(isAlwaysOnTop);
+      windowState.isAlwaysOnTop = !windowState.isAlwaysOnTop;
+      windowManager.setAlwaysOnTop(windowState.isAlwaysOnTop);
       showAlwaysOnTopToggleSnackbar();
     });
   }
@@ -584,7 +587,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _doToggleSounds() {
     showSoundToggleSnackbar() {
       _showSnackBar(
-        content: isSoundsEnabled
+        content: windowState.isSoundsEnabled
             ? const SnackbarPhmessage(
                 text: 'Sounds enabled',
                 icon: Icons.volume_up,
@@ -597,7 +600,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      isSoundsEnabled = !isSoundsEnabled;
+      windowState.isSoundsEnabled = !windowState.isSoundsEnabled;
       showSoundToggleSnackbar();
     });
   }
@@ -614,7 +617,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ]),
     );
 
-    if (isBottomBarMinimized) {
+    if (windowState.isBottomBarMinimized) {
       return minimizedBottomBar;
     }
 
@@ -687,7 +690,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _doToggleBottomBar() {
     setState(() {
-      isBottomBarMinimized = !isBottomBarMinimized;
+      windowState.isBottomBarMinimized = !windowState.isBottomBarMinimized;
     });
   }
 
@@ -696,7 +699,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       bottom: 3,
       right: 3,
       child: CollapseBottomBarButton(
-        isMinimized: isBottomBarMinimized,
+        isMinimized: windowState.isBottomBarMinimized,
         onPressed: () => _doToggleBottomBar(),
       ),
     );
@@ -744,8 +747,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   void _playClickSound({bool playWhilePaused = false}) {
-    if (!isSoundsEnabled) return;
+    if (!windowState.isSoundsEnabled) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
   }
+}
+
+class PfsWindowState with ChangeNotifier {
+  bool rightControlsOrientation = true;
+  bool isBottomBarMinimized = false;
+  bool isAlwaysOnTop = false;
+  bool isSoundsEnabled = true;
+  bool isTouch = false;
+  bool isEditingTime = false;
+  bool isShowingCheatSheet = false;
+  bool isShowingFiltersMenu = false;
 }
