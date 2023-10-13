@@ -706,7 +706,7 @@ class ListenableBool {
   void set(bool newValue) {
     if (_boolValue == newValue) return;
     _boolValue = newValue;
-    _onChange!();
+    _onChange?.call();
   }
 
   void toggle() {
