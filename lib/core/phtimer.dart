@@ -28,6 +28,8 @@ class Phtimer {
   }
 
   void setDuration(Duration newDuration) {
+    if (duration < const Duration(seconds: 1)) return;
+    
     duration = newDuration;
     elapsedThisRound = false;
   }

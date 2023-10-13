@@ -34,6 +34,8 @@ class PhtimerModel extends Model {
   }
 
   void setDurationSeconds(int seconds) {
+    if (seconds < 1) return;
+    
     timer.setDuration(Duration(seconds: seconds));
     onDurationChangeSuccess?.call();
     restartTimer();
