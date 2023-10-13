@@ -96,7 +96,7 @@ class ImageSetButton extends StatelessWidget {
     return PfsAppModel.scope((_, __, model) {
       final fileCount = model.fileList.getCount();
       final String tooltip =
-          '$fileCount images loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
       return Tooltip(
         message: tooltip,
