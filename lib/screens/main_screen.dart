@@ -729,9 +729,11 @@ class TopRightControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final soundShortcut =
         PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
-    const Color watermarkColor = Color(0x55555555);
-    const topRightWatermarkTextStyle =
-        TextStyle(color: watermarkColor, fontSize: 12);
+        
+    final theme = Theme.of(context);
+    
+    final Color watermarkColor = theme.colorScheme.outline;
+    final topRightWatermarkTextStyle = theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
 
     return Positioned(
       right: 4,
@@ -745,7 +747,7 @@ class TopRightControls extends StatelessWidget {
             direction: Axis.horizontal,
             alignment: WrapAlignment.end,
             children: [
-              Phbuttons.topControl(
+              topControl(
                 onPressed: () => windowState.isSoundsEnabled.toggle(),
                 icon: windowState.isSoundsEnabled.boolValue
                     ? Icons.volume_up
@@ -754,7 +756,7 @@ class TopRightControls extends StatelessWidget {
                     ? 'Mute sounds ($soundShortcut)'
                     : 'Unmute sounds ($soundShortcut)',
               ),
-              Phbuttons.topControl(
+              topControl(
                 onPressed: () => windowState.isAlwaysOnTop.toggle(),
                 icon: windowState.isAlwaysOnTop.boolValue
                     ? Icons.push_pin_rounded
@@ -765,7 +767,7 @@ class TopRightControls extends StatelessWidget {
                 ),
                 isSelected: windowState.isAlwaysOnTop.boolValue,
               ),
-              Phbuttons.topControl(
+              topControl(
                 onPressed: () => windowState.isShowingCheatSheet.set(true),
                 icon: Icons.help_rounded,
                 tooltip: PfsLocalization.buttonTooltip(
@@ -794,6 +796,43 @@ class TopRightControls extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  static Widget topControl(
+      {Function()? onPressed,
+      required IconData icon,
+      String? tooltip,
+      bool isSelected = false}) {
+    const Color topBarButtonColor = Colors.black12;
+    const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
+
+    const double topControlDiameter = 15;
+    const Size topControlSize = Size(topControlDiameter, topControlDiameter);
+
+    final topControlStyle = ButtonStyle(
+      fixedSize: const MaterialStatePropertyAll(topControlSize),
+      backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
+      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+      iconColor: PfsTheme.hoverActiveColors(
+        idle: topBarButtonColor,
+        hover: Colors.black,
+        active: topBarButtonActiveColor,
+      ),
+    );
+
+    const double buttonSpacing = 0;
+    const double iconSize = 20;
+
+    return Container(
+      margin: const EdgeInsets.only(right: buttonSpacing),
+      child: IconButton(
+        style: topControlStyle,
+        onPressed: onPressed,
+        icon: Icon(icon, size: iconSize),
+        tooltip: tooltip,
+        isSelected: isSelected,
       ),
     );
   }
