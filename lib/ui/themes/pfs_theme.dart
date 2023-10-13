@@ -15,7 +15,7 @@ class PfsTheme {
     const Color tertiary = Color.fromARGB(255, 236, 179, 92);
     const Color buttonContentColor = Color.fromARGB(110, 158, 158, 158);
     const Color buttonActiveColor = Color.fromARGB(120, 231, 173, 85);
-    const Color buttonHoverColor = Color.fromARGB(169, 29, 29, 29);
+    const Color buttonHoverColor = Color.fromARGB(220, 29, 29, 29);
 
     final ButtonStyle buttonStyle = ButtonStyle(
       foregroundColor: hoverActiveColors(
