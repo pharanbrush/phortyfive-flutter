@@ -356,16 +356,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _cancelAllModals() {
-    //windowState.isShowingCheatSheet.set(false);
-    //windowState.isEditingTime.set(false);
-    //windowState.isShowingFiltersMenu.set(false);
+  void _cancelAllModals({ListenableBool? except}) {
+    void tryDismiss(ListenableBool toDismiss) {
+      if (except == null || toDismiss != except) {
+        toDismiss.set(false);
+      }
+    }
+    
+    tryDismiss(windowState.isShowingCheatSheet);
+    tryDismiss(windowState.isEditingTime);
+    tryDismiss(windowState.isShowingFiltersMenu);      
   }
 
   void _handleEditingTimeChanged() {
     bool active = windowState.isEditingTime.boolValue;
     if (active) {
-      _cancelAllModals();
+      _cancelAllModals(except: windowState.isEditingTime);
       ScaffoldMessenger.of(context).clearSnackBars();
     }
     if (!active) {
@@ -379,7 +385,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleCheatSheetChanged() {
-    _cancelAllModals();
+    _cancelAllModals(except: windowState.isShowingCheatSheet);
     setState(() {});
   }
 
