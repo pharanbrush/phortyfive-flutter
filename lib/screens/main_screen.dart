@@ -148,11 +148,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     onStateChange: _handleStateChange,
   );
 
-  bool rightControlsOrientation = true;
-  bool isBottomBarMinimized = false;
-  bool isAlwaysOnTop = false;
-  bool isSoundsEnabled = true;
-  bool isTouch = false;
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
     duration: Phanimations.defaultDuration,
