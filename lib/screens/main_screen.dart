@@ -106,17 +106,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     PlayPauseIntent: CallbackAction(
       onInvoke: (_) => widget.model.tryTogglePlayPauseTimer(),
     ),
-    OpenTimerMenuIntent: CallbackAction(
-      onInvoke: (_) => _doStartEditingCustomTime(),
-    ),
     RestartTimerIntent: CallbackAction(
       onInvoke: (_) => widget.model.timerModel.restartTimer(),
-    ),
-    HelpIntent: CallbackAction(
-      onInvoke: (_) => _doToggleCheatSheet(),
-    ),
-    BottomBarToggleIntent: CallbackAction(
-      onInvoke: (_) => _doToggleBottomBar(),
     ),
     OpenFilesIntent: CallbackAction(
       onInvoke: (_) => widget.model.openFilePickerForImages(),
@@ -124,11 +115,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     OpenFolderIntent: CallbackAction(
       onInvoke: (_) => widget.model.openFilePickerForFolder(),
     ),
+    OpenTimerMenuIntent: CallbackAction(
+      onInvoke: (_) => windowState.isEditingTime.set(true),
+    ),
+    HelpIntent: CallbackAction(
+      onInvoke: (_) => windowState.isShowingCheatSheet.set(true),
+    ),
+    BottomBarToggleIntent: CallbackAction(
+      onInvoke: (_) => windowState.isBottomBarMinimized.toggle(),
+    ),
     AlwaysOnTopIntent: CallbackAction(
-      onInvoke: (_) => _doToggleAlwaysOnTop(),
+      onInvoke: (_) => windowState.isAlwaysOnTop.toggle(),
     ),
     ToggleSoundIntent: CallbackAction(
-      onInvoke: (_) => _doToggleSounds(),
+      onInvoke: (_) => windowState.isSoundsEnabled.toggle(),
     ),
     ReturnHomeIntent: CallbackAction(
       onInvoke: (_) => _tryReturnHome(),
@@ -136,7 +136,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   };
 
   late TimerDurationPanel timerDurationWidget =
-      TimerDurationPanel(onDismiss: _doStopEditingCustomTime);
+      TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     onNotify: (iconData, message) {
       _showSnackBar(
@@ -174,7 +174,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       return Stack(
         children: [
           const FirstActionSheet(),
-          _topRightWindowControls(),
+          TopRightControls(
+            windowState: windowState,
+            imagePhviewer: imagePhviewer,
+          ),
           _bottomBar(context),
           _fileDropZone,
         ],
@@ -206,30 +209,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return shortcutsWrapper(
       Stack(
         children: [
-          imagePhviewer.widget(windowState.isBottomBarMinimized),
+          imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
           _fileDropZone,
           _gestureControls(),
           const CountdownSheet(),
-          _topRightWindowControls(),
+          TopRightControls(
+            windowState: windowState,
+            imagePhviewer: imagePhviewer,
+          ),
           _bottomBar(context),
           modalMenu(
-            isOpen: windowState.isEditingTime,
+            isOpen: windowState.isEditingTime.boolValue,
             builder: () => TimerDurationPanel(
-              onDismiss: () => _doStopEditingCustomTime(),
+              onDismiss: () => windowState.isEditingTime.set(false),
             ),
           ),
           modalMenu(
-            isOpen: windowState.isShowingCheatSheet,
+            isOpen: windowState.isShowingCheatSheet.boolValue,
             builder: () => Theme(
               data: ThemeData.dark(useMaterial3: true),
-              child: HelpSheet(onDismiss: () => _setCheatSheetActive(false)),
+              child: HelpSheet(
+                onDismiss: () => windowState.isShowingCheatSheet.set(false),
+              ),
             ),
           ),
           modalMenu(
-            isOpen: windowState.isShowingFiltersMenu,
+            isOpen: windowState.isShowingFiltersMenu.boolValue,
             builder: () => FilterMenu(
               imagePhviewer: imagePhviewer,
-              onDismiss: () => _setFiltersMenuActive(false),
+              onDismiss: () => windowState.isShowingFiltersMenu.set(false),
             ),
           ),
           _dockingControls(),
@@ -252,22 +260,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     timerModel.onPlayPause ??= () => _handleTimerPlayPause();
     timerModel.onReset ??= () => _playClickSound();
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
-  }
 
-  void _setFiltersMenuActive(bool active) {
-    setState(() {
-      windowState.isShowingFiltersMenu = active;
-    });
-  }
-
-  void _cancelAllModals() {
-    if (windowState.isShowingCheatSheet) {
-      _setCheatSheetActive(false);
-    }
-
-    if (windowState.isEditingTime) {
-      _doStopEditingCustomTime();
-    }
+    windowState.isAlwaysOnTop.setListener(() => _handleAlwaysOnTopChanged());
+    windowState.isSoundsEnabled.setListener(() => _handleSoundChanged());
+    windowState.isShowingCheatSheet
+        .setListener(() => _handleCheatSheetChanged());
+    windowState.isEditingTime.setListener(() => _handleEditingTimeChanged());
+    windowState.isBottomBarMinimized
+        .setListener(() => _handleBottomBarChanged());
+    windowState.isShowingFiltersMenu
+        .setListener(() => _handleFilterMenuChanged());
   }
 
   void _tryReturnHome() {
@@ -321,10 +323,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _doStartEditingCustomTime() => _setEditingCustomTimeActive(true);
-
-  void _doStopEditingCustomTime() => _setEditingCustomTimeActive(false);
-
   void _showSnackBar({required Widget content}) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
@@ -352,30 +350,57 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _setEditingCustomTimeActive(bool active) {
+  void _handleFilterMenuChanged() {
+    setState(() {});
+  }
+
+  void _handleBottomBarChanged() {
+    setState(() {});
+  }
+
+  void _cancelAllModals() {
+    //windowState.isShowingCheatSheet.set(false);
+    //windowState.isEditingTime.set(false);
+    //windowState.isShowingFiltersMenu.set(false);
+  }
+
+  void _handleEditingTimeChanged() {
+    bool active = windowState.isEditingTime.boolValue;
     if (active) {
       _cancelAllModals();
       ScaffoldMessenger.of(context).clearSnackBars();
     }
+    if (!active) {
+      mainWindowFocus.requestFocus();
+    }
 
-    setState(() {
-      windowState.isEditingTime = active;
-      if (!active) {
-        mainWindowFocus.requestFocus();
-      }
-      //timerDurationWidget.setActive(active, widget.model.timerModel.currentDurationSeconds);
-    });
+    timerDurationWidget.setActive(
+        active, widget.model.timerModel.currentDurationSeconds);
+
+    setState(() {});
   }
 
-  void _doToggleCheatSheet() {
-    _setCheatSheetActive(!windowState.isShowingCheatSheet);
+  void _handleCheatSheetChanged() {
+    _cancelAllModals();
+    setState(() {});
   }
 
-  void _setCheatSheetActive(bool active) {
-    if (active) _cancelAllModals();
+  void _handleAlwaysOnTopChanged() {
+    showAlwaysOnTopToggleSnackbar() {
+      _showSnackBar(
+          content: windowState.isAlwaysOnTop.boolValue
+              ? const SnackbarPhmessage(
+                  text: '"${PfsLocalization.alwaysOnTop}" enabled',
+                  icon: Icons.push_pin,
+                )
+              : const SnackbarPhmessage(
+                  text: '"${PfsLocalization.alwaysOnTop}" disabled',
+                  icon: Icons.push_pin_outlined,
+                ));
+    }
 
     setState(() {
-      windowState.isShowingCheatSheet = active;
+      showAlwaysOnTopToggleSnackbar();
     });
   }
 
@@ -486,103 +511,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     windowManager.focus();
   }
 
-  Widget _topRightWindowControls() {
-    final soundShortcut =
-        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
-    const Color watermarkColor = Color(0x55555555);
-    const topRightWatermarkTextStyle =
-        TextStyle(color: watermarkColor, fontSize: 12);
-
-    return Positioned(
-      right: 4,
-      top: 2,
-      child: Wrap(
-        direction: Axis.vertical,
-        crossAxisAlignment: WrapCrossAlignment.end,
-        children: [
-          Wrap(
-            spacing: 3,
-            direction: Axis.horizontal,
-            alignment: WrapAlignment.end,
-            children: [
-              Phbuttons.topControl(
-                onPressed: () => _doToggleSounds(),
-                icon: windowState.isSoundsEnabled
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                tooltip: windowState.isSoundsEnabled
-                    ? 'Mute sounds ($soundShortcut)'
-                    : 'Unmute sounds ($soundShortcut)',
-              ),
-              Phbuttons.topControl(
-                onPressed: () => _doToggleAlwaysOnTop(),
-                icon: windowState.isAlwaysOnTop
-                    ? Icons.push_pin_rounded
-                    : Icons.push_pin_outlined,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.alwaysOnTop,
-                  shortcut: Phshortcuts.alwaysOnTop,
-                ),
-                isSelected: windowState.isAlwaysOnTop,
-              ),
-              Phbuttons.topControl(
-                onPressed: () => _setCheatSheetActive(true),
-                icon: Icons.help_rounded,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.help,
-                  shortcut: Phshortcuts.help,
-                ),
-              ),
-              //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
-            child: DefaultTextStyle(
-              textAlign: TextAlign.right,
-              style: topRightWatermarkTextStyle,
-              child: Wrap(
-                direction: Axis.vertical,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                spacing: 5,
-                children: [
-                  const Text('For testing only\n${PfsLocalization.version}'),
-                  if (imagePhviewer.currentZoomScale != 1.0)
-                    Text('Zoom ${imagePhviewer.currentZoomScalePercent}%'),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _doToggleAlwaysOnTop() {
-    showAlwaysOnTopToggleSnackbar() {
-      _showSnackBar(
-          content: windowState.isAlwaysOnTop
-              ? const SnackbarPhmessage(
-                  text: '"${PfsLocalization.alwaysOnTop}" enabled',
-                  icon: Icons.push_pin,
-                )
-              : const SnackbarPhmessage(
-                  text: '"${PfsLocalization.alwaysOnTop}" disabled',
-                  icon: Icons.push_pin_outlined,
-                ));
-    }
-
-    setState(() {
-      windowState.isAlwaysOnTop = !windowState.isAlwaysOnTop;
-      windowManager.setAlwaysOnTop(windowState.isAlwaysOnTop);
-      showAlwaysOnTopToggleSnackbar();
-    });
-  }
-
-  void _doToggleSounds() {
+  void _handleSoundChanged() {
     showSoundToggleSnackbar() {
       _showSnackBar(
-        content: windowState.isSoundsEnabled
+        content: windowState.isSoundsEnabled.boolValue
             ? const SnackbarPhmessage(
                 text: 'Sounds enabled',
                 icon: Icons.volume_up,
@@ -595,7 +527,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      windowState.isSoundsEnabled = !windowState.isSoundsEnabled;
+      //windowState.isSoundsEnabled = !windowState.isSoundsEnabled;
       showSoundToggleSnackbar();
     });
   }
@@ -612,7 +544,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ]),
     );
 
-    if (windowState.isBottomBarMinimized) {
+    if (windowState.isBottomBarMinimized.boolValue) {
       return minimizedBottomBar;
     }
 
@@ -628,7 +560,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
 
       final filtersButton = IconButton(
-        onPressed: () => _setFiltersMenuActive(true),
+        onPressed: () => windowState.isShowingFiltersMenu.set(true),
         isSelected: imagePhviewer.isFilterActive,
         tooltip: 'Filters',
         icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
@@ -647,7 +579,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           const SizedBox(width: 15),
           Phbuttons.timerSettingsButton(
-              onPressed: () => _doStartEditingCustomTime()),
+              onPressed: () => windowState.isEditingTime.set(true)),
           const SizedBox(width: 15),
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
@@ -683,19 +615,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return normalBottomBar;
   }
 
-  void _doToggleBottomBar() {
-    setState(() {
-      windowState.isBottomBarMinimized = !windowState.isBottomBarMinimized;
-    });
-  }
-
   Widget _dockingControls() {
     return Positioned(
       bottom: 3,
       right: 3,
       child: CollapseBottomBarButton(
-        isMinimized: windowState.isBottomBarMinimized,
-        onPressed: () => _doToggleBottomBar(),
+        isMinimized: windowState.isBottomBarMinimized.boolValue,
+        onPressed: () => windowState.isBottomBarMinimized.toggle(),
       ),
     );
   }
@@ -742,19 +668,128 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   void _playClickSound({bool playWhilePaused = false}) {
-    if (!windowState.isSoundsEnabled) return;
+    if (!windowState.isSoundsEnabled.boolValue) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
   }
 }
 
-class PfsWindowState with ChangeNotifier {
+class PfsWindowState {
   bool rightControlsOrientation = true;
-  bool isBottomBarMinimized = false;
-  bool isAlwaysOnTop = false;
-  bool isSoundsEnabled = true;
   bool isTouch = false;
-  bool isEditingTime = false;
-  bool isShowingCheatSheet = false;
-  bool isShowingFiltersMenu = false;
+
+  final isBottomBarMinimized = ListenableBool(false);
+  final isAlwaysOnTop = ListenableBool(false);
+  final isSoundsEnabled = ListenableBool(true);
+  final isEditingTime = ListenableBool(false);
+  final isShowingCheatSheet = ListenableBool(false);
+  final isShowingFiltersMenu = ListenableBool(false);
+}
+
+class ListenableBool {
+  ListenableBool(bool initialValue) {
+    _boolValue = initialValue;
+  }
+
+  bool _boolValue = false;
+  bool get boolValue => _boolValue;
+  Function()? _onChange;
+
+  void setListener(Function() onChange) {
+    _onChange = onChange;
+  }
+
+  void set(bool newValue) {
+    if (_boolValue == newValue) return;
+    _boolValue = newValue;
+    _onChange!();
+  }
+
+  void toggle() {
+    set(!_boolValue);
+  }
+}
+
+class TopRightControls extends StatelessWidget {
+  const TopRightControls({
+    super.key,
+    required this.windowState,
+    required this.imagePhviewer,
+  });
+
+  final PfsWindowState windowState;
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    final soundShortcut =
+        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+    const Color watermarkColor = Color(0x55555555);
+    const topRightWatermarkTextStyle =
+        TextStyle(color: watermarkColor, fontSize: 12);
+
+    return Positioned(
+      right: 4,
+      top: 2,
+      child: Wrap(
+        direction: Axis.vertical,
+        crossAxisAlignment: WrapCrossAlignment.end,
+        children: [
+          Wrap(
+            spacing: 3,
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.end,
+            children: [
+              Phbuttons.topControl(
+                onPressed: () => windowState.isSoundsEnabled.toggle(),
+                icon: windowState.isSoundsEnabled.boolValue
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                tooltip: windowState.isSoundsEnabled.boolValue
+                    ? 'Mute sounds ($soundShortcut)'
+                    : 'Unmute sounds ($soundShortcut)',
+              ),
+              Phbuttons.topControl(
+                onPressed: () => windowState.isAlwaysOnTop.toggle(),
+                icon: windowState.isAlwaysOnTop.boolValue
+                    ? Icons.push_pin_rounded
+                    : Icons.push_pin_outlined,
+                tooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.alwaysOnTop,
+                  shortcut: Phshortcuts.alwaysOnTop,
+                ),
+                isSelected: windowState.isAlwaysOnTop.boolValue,
+              ),
+              Phbuttons.topControl(
+                onPressed: () => windowState.isShowingCheatSheet.set(true),
+                icon: Icons.help_rounded,
+                tooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.help,
+                  shortcut: Phshortcuts.help,
+                ),
+              ),
+              //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+            child: DefaultTextStyle(
+              textAlign: TextAlign.right,
+              style: topRightWatermarkTextStyle,
+              child: Wrap(
+                direction: Axis.vertical,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: 5,
+                children: [
+                  const Text('For testing only\n${PfsLocalization.version}'),
+                  if (imagePhviewer.currentZoomScale != 1.0)
+                    Text('Zoom ${imagePhviewer.currentZoomScalePercent}%'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
