@@ -24,8 +24,8 @@ class PfsTheme {
         active: buttonActiveColor,
       ),
       backgroundColor: hoverColors(
-        idle: background.withAlpha(00),
-        hover: background.withAlpha(33),
+        idle: background.withAlpha(0x00),
+        hover: background.withAlpha(0x22),
       ),
     );
 
