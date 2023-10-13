@@ -363,10 +363,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         toDismiss.set(false);
       }
     }
-    
+
     tryDismiss(windowState.isShowingCheatSheet);
     tryDismiss(windowState.isEditingTime);
-    tryDismiss(windowState.isShowingFiltersMenu);      
+    tryDismiss(windowState.isShowingFiltersMenu);
   }
 
   void _handleEditingTimeChanged() {
@@ -715,4 +715,3 @@ class ListenableBool {
     set(!_boolValue);
   }
 }
-
