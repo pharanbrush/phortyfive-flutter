@@ -598,17 +598,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
+  static const Key timerBarKey = Key('timerBar');
+
   Widget _bottomBar(BuildContext context) {
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
       right: 10,
-      child: Opacity(
-        opacity: PfsTheme.bottomBarButtonOpacity,
-        child: Row(children: [
-          TimerBar(),
-          SizedBox(width: 140),
-        ]),
-      ),
+      child: Row(children: [
+        TimerBar(key: timerBarKey),
+        SizedBox(width: 140),
+      ]),
     );
 
     if (isBottomBarMinimized) {
@@ -701,7 +700,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   late final Widget _timerControls = Column(
     children: [
-      const TimerBar(),
+      const TimerBar(key: timerBarKey),
       Row(
         children: [
           PhtimerModel.scope(
