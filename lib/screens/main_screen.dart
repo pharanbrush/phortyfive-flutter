@@ -494,48 +494,49 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final soundShortcut =
         PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
 
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+    return Positioned(
+      right: 4,
+      top: 2,
+      child: Wrap(
+        direction: Axis.vertical,
+        crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Phbuttons.topControl(
-                  onPressed: () => _doToggleSounds(),
-                  icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                  tooltip: isSoundsEnabled
-                      ? 'Mute sounds ($soundShortcut)'
-                      : 'Unmute sounds ($soundShortcut)',
+          Wrap(
+            spacing: 3,
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.end,
+            children: [
+              Phbuttons.topControl(
+                onPressed: () => _doToggleSounds(),
+                icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
+                tooltip: isSoundsEnabled
+                    ? 'Mute sounds ($soundShortcut)'
+                    : 'Unmute sounds ($soundShortcut)',
+              ),
+              Phbuttons.topControl(
+                onPressed: () => _doToggleAlwaysOnTop(),
+                icon: isAlwaysOnTop
+                    ? Icons.push_pin_rounded
+                    : Icons.push_pin_outlined,
+                tooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.alwaysOnTop,
+                  shortcut: Phshortcuts.alwaysOnTop,
                 ),
-                Phbuttons.topControl(
-                  onPressed: () => _doToggleAlwaysOnTop(),
-                  icon: isAlwaysOnTop
-                      ? Icons.push_pin_rounded
-                      : Icons.push_pin_outlined,
-                  tooltip: PfsLocalization.buttonTooltip(
-                    commandName: PfsLocalization.alwaysOnTop,
-                    shortcut: Phshortcuts.alwaysOnTop,
-                  ),
-                  isSelected: isAlwaysOnTop,
+                isSelected: isAlwaysOnTop,
+              ),
+              Phbuttons.topControl(
+                onPressed: () => _setCheatSheetActive(true),
+                icon: Icons.help_rounded,
+                tooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.help,
+                  shortcut: Phshortcuts.help,
                 ),
-                Phbuttons.topControl(
-                  onPressed: () => _setCheatSheetActive(true),
-                  icon: Icons.help_rounded,
-                  tooltip: PfsLocalization.buttonTooltip(
-                    commandName: PfsLocalization.help,
-                    shortcut: Phshortcuts.help,
-                  ),
-                ),
-                //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
-              ],
-            ),
+              ),
+              //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
+            ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
             child: DefaultTextStyle(
               textAlign: TextAlign.right,
               style: PfsTheme.topRightWatermarkTextStyle,
