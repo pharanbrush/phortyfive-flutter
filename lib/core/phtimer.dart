@@ -2,17 +2,17 @@ class Phtimer {
   static const int defaultDuration = 45;
   static Duration tickInterval = const Duration(milliseconds: 100);
 
-  Duration timeLeft = const Duration(seconds: defaultDuration);
-  Duration duration = const Duration(seconds: defaultDuration);
+  Duration _timeLeft = const Duration(seconds: defaultDuration);
+  Duration _duration = const Duration(seconds: defaultDuration);
+  DateTime _lastTime = DateTime.now();
+  bool _elapsedThisRound = false;
+  bool _isActive = false;
+  
+  Duration get duration => _duration;
 
   double get percentElapsed =>
       1.0 -
-      (timeLeft.inMilliseconds.toDouble() / duration.inMilliseconds.toDouble());
-
-  DateTime lastTime = DateTime.now();
-  bool elapsedThisRound = false;
-
-  bool _isActive = false;
+      (_timeLeft.inMilliseconds.toDouble() / _duration.inMilliseconds.toDouble());
 
   bool get isActive => _isActive;
 
@@ -24,28 +24,28 @@ class Phtimer {
   }
 
   void _clearLastTime() {
-    lastTime = DateTime.now();
+    _lastTime = DateTime.now();
   }
 
   void setDuration(Duration newDuration) {
-    if (duration < const Duration(seconds: 1)) return;
+    if (_duration < const Duration(seconds: 1)) return;
     
-    duration = newDuration;
-    elapsedThisRound = false;
+    _duration = newDuration;
+    _elapsedThisRound = false;
   }
 
   void restart() {
     _clearLastTime();
-    timeLeft = duration;
-    elapsedThisRound = false;
+    _timeLeft = _duration;
+    _elapsedThisRound = false;
   }
 
   void handleTick() {
     if (isActive) {
       _updateTimeLeft();
 
-      if (!elapsedThisRound && timeLeft.inMilliseconds < 0) {
-        elapsedThisRound = true;
+      if (!_elapsedThisRound && _timeLeft.inMilliseconds < 0) {
+        _elapsedThisRound = true;
         onElapse!();
       }
     }
@@ -53,9 +53,9 @@ class Phtimer {
 
   void _updateTimeLeft() {
     final now = DateTime.now();
-    final deltaTime = now.difference(lastTime);
+    final deltaTime = now.difference(_lastTime);
 
-    timeLeft -= deltaTime;
-    lastTime = now;
+    _timeLeft -= deltaTime;
+    _lastTime = now;
   }
 }

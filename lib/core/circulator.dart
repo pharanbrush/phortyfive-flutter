@@ -1,12 +1,12 @@
 class Circulator {
   final reorderedIndices = List<int>.empty(growable: true);
-  int currentNumber = 0;
+  int _currentNumber = 0;
 
-  int getCount() => reorderedIndices.length;
-  bool isPopulated() => getCount() > 0;
+  int get count => reorderedIndices.length;
+  bool get isPopulated => count > 0;
 
-  int getCurrentIndex() => isPopulated() ? reorderedIndices[currentNumber] : 0;
-  int getMaxNumber() => getCount() - 1;
+  int get currentIndex => isPopulated ? reorderedIndices[_currentNumber] : 0;
+  int get maxNumber => count - 1;
 
   void moveNext() => moveCurrentNumberBy(1);
   void movePrevious() => moveCurrentNumberBy(-1);
@@ -39,13 +39,13 @@ class Circulator {
   }
 
   void setCurrentNumber(int newNumber) {
-    currentNumber = newNumber;
+    _currentNumber = newNumber;
   }
 
   void moveCurrentNumberBy(int increment) {
-    int newNumber = currentNumber + increment;
+    int newNumber = _currentNumber + increment;
 
-    final max = getMaxNumber();
+    final max = maxNumber;
     if (newNumber > max) newNumber = 0;
     if (newNumber < 0) newNumber = max;
 

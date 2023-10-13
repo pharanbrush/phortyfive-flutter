@@ -22,7 +22,7 @@ class PfsAppModel extends Model {
 
   int lastIncrement = 1;
   bool get hasFilesLoaded => fileList.isPopulated();
-  int get currentImageIndex => circulator.getCurrentIndex();
+  int get currentImageIndex => circulator.currentIndex;
   bool get allowCirculatorControl => hasFilesLoaded;
   void Function()? onImageChange;
   void Function()? onFilesChanged;
@@ -40,7 +40,7 @@ class PfsAppModel extends Model {
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
 
   FileData getCurrentImageData() {
-    return fileList.get(circulator.getCurrentIndex());
+    return fileList.get(circulator.currentIndex);
   }
 
   void tryTogglePlayPauseTimer() {
