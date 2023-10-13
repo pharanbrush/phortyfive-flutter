@@ -47,7 +47,20 @@ class FilterMenu extends StatelessWidget {
       icon: const Icon(Icons.format_color_reset),
     );
 
-    
+    final headerRow = Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SizedBox(
+        width: 250,
+        child: Row(
+          children: [
+            heading,
+            const Spacer(),
+            resetAllFiltersButton,
+          ],
+        ),
+      ),
+    );
+
     // HANDLERS
     void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
       final isSelectionGrayscale =
@@ -58,7 +71,6 @@ class FilterMenu extends StatelessWidget {
     void handleBlurSliderChanged(value) {
       imagePhviewer.setBlurLevel(value);
     }
-
 
     // HIERARCHY
     return Stack(
@@ -72,36 +84,23 @@ class FilterMenu extends StatelessWidget {
           right: 280,
           child: Animate(
             effects: Phanimations.bottomMenuEffects,
-            child: SizedBox(
-              child: Container(
-                decoration: PfsTheme.popupPanelBoxDecoration,
-                child: Padding(
-                  padding: padding,
-                  child: Wrap(
-                    direction: Axis.vertical,
-                    spacing: 5,
-                    children: [
-                      SizedBox(
-                        width: 250,
-                        child: Row(
-                          children: [
-                            heading,
-                            const Spacer(),
-                            resetAllFiltersButton,
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      ColorModeButtons(
-                        imagePhviewer: imagePhviewer,
-                        onSelectionChanged: handleImageModeSelectionChanged,
-                      ),
-                      BlurSlider(
-                        imagePhviewer: imagePhviewer,
-                        onChanged: handleBlurSliderChanged,
-                      ),
-                    ],
-                  ),
+            child: PfsTheme.popupPanelRectangleMaterial(
+              child: Padding(
+                padding: padding,
+                child: Wrap(
+                  direction: Axis.vertical,
+                  spacing: 5,
+                  children: [
+                    headerRow,
+                    ColorModeButtons(
+                      imagePhviewer: imagePhviewer,
+                      onSelectionChanged: handleImageModeSelectionChanged,
+                    ),
+                    BlurSlider(
+                      imagePhviewer: imagePhviewer,
+                      onChanged: handleBlurSliderChanged,
+                    ),
+                  ],
                 ),
               ),
             ),

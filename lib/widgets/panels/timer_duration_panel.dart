@@ -13,7 +13,6 @@ class TimerDurationPanel extends StatelessWidget {
   static const double bottomOffset = 20;
   static const double rightMarginNormal = 160;
   static const double rightMarginNarrow = 20;
-  static const Color textColor = Colors.grey;
 
   final Function()? onDismiss;
 
@@ -66,7 +65,8 @@ class TimerDurationPanel extends StatelessWidget {
       );
 
       Widget preset(String text, int seconds, double left, double top) {
-        final isCurrentSelectedButton = (seconds == model.currentDurationSeconds);
+        final isCurrentSelectedButton =
+            (seconds == model.currentDurationSeconds);
         if (isCurrentSelectedButton) {
           var selectedButtonStyle = presetButtonStyle.copyWith(
             backgroundColor:
@@ -137,75 +137,66 @@ class TimerDurationPanel extends StatelessWidget {
           Positioned(
             right: rightOffset,
             bottom: (-radius) + bottomOffset,
-            child: Material(
-              color: Colors.transparent,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  tapToDismiss(
-                    child: Container(
-                      decoration: PfsTheme.popupPanelBoxDecorationPaw,
-                      child: SizedBox(
-                        width: diameter,
-                        height: diameter,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Timer duration',
-                                style: TextStyle(
-                                    color: textColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                            ),
-                            secondsTextField,
-                            const SizedBox(height: 3),
-                            const Text(
-                              'seconds',
-                              style: TextStyle(color: textColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  tapToDismiss(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                tapToDismiss(
+                  child: PfsTheme.popupPanelPawMaterial(
                     child: SizedBox(
-                      height: 500,
-                      width: 500,
-                      child: Stack(
+                      width: diameter,
+                      height: diameter,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          preset('15s', 15, leftOffset + 13, topOffset + 84),
-                          preset('30s', 30, leftOffset + 54, topOffset + 34),
-                          preset('45s', 45, leftOffset + 113, topOffset + 3),
-                          preset('60s', 60, leftOffset + 187, topOffset + 4),
-                          preset('90s', 90, leftOffset + 246, topOffset + 38),
-                          preset(
-                              '2m', 2 * 60, leftOffset + 283, topOffset + 84),
-                          preset(
-                              '3m', 3 * 60, leftOffset + 298, topOffset + 140),
-                        ].animate(
-                          interval: const Duration(milliseconds: 40),
-                          delay: const Duration(milliseconds: 120),
-                          effects: const [
-                            Phanimations.slideUpEffect,
-                            Phanimations.fadeInEffect,
-                          ],
-                        ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Timer duration',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                          ),
+                          secondsTextField,
+                          const SizedBox(height: 3),
+                          const Text(
+                            'seconds',
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ).animate(
-                effects: const [
-                  Phanimations.slideUpEffect,
-                  Phanimations.growBottomEffect,
-                ],
-              ),
+                ),
+                tapToDismiss(
+                  child: SizedBox(
+                    height: 500,
+                    width: 500,
+                    child: Stack(
+                      children: [
+                        preset('15s', 15, leftOffset + 13, topOffset + 84),
+                        preset('30s', 30, leftOffset + 54, topOffset + 34),
+                        preset('45s', 45, leftOffset + 113, topOffset + 3),
+                        preset('60s', 60, leftOffset + 187, topOffset + 4),
+                        preset('90s', 90, leftOffset + 246, topOffset + 38),
+                        preset('2m', 2 * 60, leftOffset + 283, topOffset + 84),
+                        preset('3m', 3 * 60, leftOffset + 298, topOffset + 140),
+                      ].animate(
+                        interval: const Duration(milliseconds: 40),
+                        delay: const Duration(milliseconds: 120),
+                        effects: const [
+                          Phanimations.slideUpEffect,
+                          Phanimations.fadeInEffect,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ).animate(
+              effects: const [
+                Phanimations.slideUpEffect,
+                Phanimations.growBottomEffect,
+              ],
             ),
           ),
         ],

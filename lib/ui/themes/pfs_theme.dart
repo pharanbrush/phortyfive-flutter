@@ -174,18 +174,27 @@ class PfsTheme {
       TextStyle(fontSize: 40, color: dropTargetTextColor, inherit: true);
 
   // POPUP PANEL
-  static const popupPanelBoxDecoration = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.all(Radius.circular(10)),
-    boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)],
-  );
+  static const double popupPanelElevation = 10;
+  static const MaterialType _popupPanelMaterialType = MaterialType.canvas;
 
-  static const popupPanelBoxDecorationPaw = BoxDecoration(
-    shape: BoxShape.rectangle,
-    borderRadius: BorderRadius.vertical(top: Radius.circular(300)),
-    color: Colors.white,
-    boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2)],
-  );
+  static Material popupPanelRectangleMaterial({required Widget child}) {
+    return Material(
+      type: _popupPanelMaterialType,
+      elevation: popupPanelElevation,
+      borderRadius: BorderRadius.circular(10),
+      child: child,
+    );
+  }
+
+  static Material popupPanelPawMaterial({required Widget child}) {
+    return Material(
+      type: _popupPanelMaterialType,
+      elevation: popupPanelElevation,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(300)),
+      textStyle: const TextStyle(color: Colors.grey),
+      child: child,
+    );
+  }
 
   // LARGE TEXT FIELD
   static const largeTextFieldTextStyle = TextStyle(fontSize: 32);
