@@ -8,6 +8,7 @@ class PfsLocalization {
   static const String alwaysOnTop = 'Keep window on top';
   static const String help = 'Help...';
   static const String revealInExplorer = 'Show in Explorer';
+  static const String copyFilePath = 'Copy file path';
 
   static const String press = isDesktop ? 'click' : 'tap';
 
