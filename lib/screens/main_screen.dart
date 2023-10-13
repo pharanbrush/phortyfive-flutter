@@ -493,6 +493,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget _topRightWindowControls() {
     final soundShortcut =
         PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+    const Color watermarkColor = Color(0x55555555);
+    const topRightWatermarkTextStyle =
+        TextStyle(color: watermarkColor, fontSize: 12);
 
     return Positioned(
       right: 4,
@@ -539,7 +542,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
             child: DefaultTextStyle(
               textAlign: TextAlign.right,
-              style: PfsTheme.topRightWatermarkTextStyle,
+              style: topRightWatermarkTextStyle,
               child: Wrap(
                 direction: Axis.vertical,
                 crossAxisAlignment: WrapCrossAlignment.end,

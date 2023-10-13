@@ -11,13 +11,30 @@ class Phbuttons {
       required IconData icon,
       String? tooltip,
       bool isSelected = false}) {
+    const Color topBarButtonColor = Colors.black12;
+    const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
+
+    const double topControlDiameter = 15;
+    const Size topControlSize = Size(topControlDiameter, topControlDiameter);
+
+    final topControlStyle = ButtonStyle(
+      fixedSize: const MaterialStatePropertyAll(topControlSize),
+      backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
+      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+      iconColor: PfsTheme.hoverActiveColors(
+        idle: topBarButtonColor,
+        hover: Colors.black,
+        active: topBarButtonActiveColor,
+      ),
+    );
+
     const double buttonSpacing = 0;
     const double iconSize = 20;
 
     return Container(
       margin: const EdgeInsets.only(right: buttonSpacing),
       child: IconButton(
-        style: PfsTheme.topControlStyle,
+        style: topControlStyle,
         onPressed: onPressed,
         icon: Icon(icon, size: iconSize),
         tooltip: tooltip,

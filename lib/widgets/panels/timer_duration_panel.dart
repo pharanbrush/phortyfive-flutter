@@ -131,6 +131,10 @@ class TimerDurationPanel extends StatelessWidget {
       const double leftOffset = 75;
       const double topOffset = 70;
 
+      final labelStyle = TextStyle(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      );
+      
       return Stack(
         children: [
           ModalUnderlay(onDismiss: () => onDismiss?.call()),
@@ -145,24 +149,27 @@ class TimerDurationPanel extends StatelessWidget {
                     child: SizedBox(
                       width: diameter,
                       height: diameter,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Timer duration',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
+                      child: DefaultTextStyle(
+                        style: labelStyle,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Timer duration',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
                             ),
-                          ),
-                          secondsTextField,
-                          const SizedBox(height: 3),
-                          const Text(
-                            'seconds',
-                          ),
-                        ],
+                            secondsTextField,
+                            const SizedBox(height: 3),
+                            const Text(
+                              'seconds',
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

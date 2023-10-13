@@ -7,10 +7,6 @@ class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});
 
   static const _windowAlignmentMargin = EdgeInsets.fromLTRB(0, 0, 25, 45);
-  static const TextStyle _bigBold = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +26,20 @@ class FirstActionSheet extends StatelessWidget {
   }
 
   Widget _box(BuildContext context) {
+    final TextStyle bigBold = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    
+    const double firstActionIconSize = 100;
+
+    Icon firstActionIcon = Icon(
+      Icons.image,
+      size: firstActionIconSize,
+      color: Theme.of(context).colorScheme.outline,
+    );
+
     return SizedBox(
       width: 350,
       height: 250,
@@ -38,22 +48,25 @@ class FirstActionSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Stack(children: [
             DefaultTextStyle(
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              child: const Column(
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Spacer(flex: 3),
-                  PfsTheme.firstActionIcon,
+                  const Spacer(flex: 3),
+                  firstActionIcon,
+                  const SizedBox(height: 8),
                   Text(
                     'Get started by loading images!',
-                    style: _bigBold,
+                    style: bigBold,
                     textAlign: TextAlign.center,
                   ),
-                  Text(
+                  const SizedBox(height: 2),
+                  const Text(
                     'You can also drag & drop images into the window.',
                     textAlign: TextAlign.center,
                   ),
-                  Spacer(flex: 5),
+                  const Spacer(flex: 5),
                 ],
               ),
             ),
@@ -61,7 +74,7 @@ class FirstActionSheet extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: PfsTheme.downIcon.animate(
+                child: const Icon(PfsTheme.downIcon).animate(
                   effects: const [Phanimations.slideUpEffect],
                   onPlay: (controller) => controller.repeat(reverse: true),
                 ),

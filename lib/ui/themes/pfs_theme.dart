@@ -4,7 +4,6 @@ import 'package:pfs2/widgets/phtimer_widgets.dart';
 class PfsTheme {
   static ThemeData get themeData => _getKPhashionTheme();
 
-  static const Color watermarkColor = Color(0x55555555);
   static const Color hyperlinkColorHovered = Colors.blue;
 
   static ThemeData _getKPhashionTheme() {
@@ -14,30 +13,25 @@ class PfsTheme {
     const Color primary = Color.fromARGB(255, 105, 91, 87);
     const Color secondary = Color.fromARGB(255, 146, 109, 88);
     const Color tertiary = Color.fromARGB(255, 236, 179, 92);
-    const Color bottomBarButtonContentColor =
-        Color.fromARGB(110, 158, 158, 158);
-    const Color bottomBarButtonActiveColor = Color.fromARGB(120, 231, 173, 85);
-    const Color bottomBarButtonHoverColor = Color.fromARGB(169, 29, 29, 29);
-
-    Color getIconColor(Set<MaterialState> states) {
-      if (states.contains(MaterialState.hovered)) {
-        return bottomBarButtonHoverColor;
-      } else if (states.contains(MaterialState.selected)) {
-        return bottomBarButtonActiveColor;
-      }
-
-      return bottomBarButtonContentColor;
-    }
+    const Color buttonContentColor = Color.fromARGB(110, 158, 158, 158);
+    const Color buttonActiveColor = Color.fromARGB(120, 231, 173, 85);
+    const Color buttonHoverColor = Color.fromARGB(169, 29, 29, 29);
 
     final ButtonStyle buttonStyle = ButtonStyle(
-      foregroundColor: MaterialStateProperty.resolveWith(getIconColor),
+      foregroundColor: hoverActiveColors(
+        idle: buttonContentColor,
+        hover: buttonHoverColor,
+        active: buttonActiveColor,
+      ),
       backgroundColor: hoverColors(
         idle: background.withAlpha(00),
         hover: background.withAlpha(33),
       ),
     );
 
-    const Color firstActionBoxColor = Color.fromARGB(255, 250, 249, 247);
+    const Color cardColor = Color.fromARGB(255, 250, 249, 247);
+    const Color cardOutlineColor = Color(0xFFEEEEEE);
+    const Color outline = Color.fromARGB(82, 94, 76, 53);
 
     var newData = ThemeData(
       useMaterial3: true,
@@ -50,16 +44,16 @@ class PfsTheme {
         secondary: secondary,
         tertiary: tertiary,
         onSecondary: Colors.white,
-        outline: const Color.fromARGB(82, 94, 76, 53),
-        surface: firstActionBoxColor,
+        outline: outline,
+        surface: cardColor,
+        onSurfaceVariant: primary.withAlpha(0xAA),
       ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
-      badgeTheme:
-          const BadgeThemeData(backgroundColor: bottomBarButtonActiveColor),
+      badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(Colors.white),
+          backgroundColor: MaterialStatePropertyAll(background),
         ),
       ),
       cardTheme: const CardTheme(
@@ -67,7 +61,7 @@ class PfsTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
-          side: BorderSide(color: firstActionBorderColor),
+          side: BorderSide(color: cardOutlineColor),
         ),
       ),
       extensions: const {
@@ -91,64 +85,11 @@ class PfsTheme {
       Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
 
   // FIRST ACTION
-
-  static const Color firstActionBorderColor = Color(0xFFEEEEEE);
-  static const Color firstActionContentColor = Colors.black54;
-
-  static const Border firstActionBoxBorder = Border.fromBorderSide(
-    BorderSide(color: firstActionBorderColor),
-  );
-
-  static const double firstActionIconSize = 100;
-  static const Icon firstActionIcon = Icon(Icons.image,
-      size: firstActionIconSize, color: firstActionContentColor);
-  static const Icon downIcon = Icon(Icons.keyboard_double_arrow_down_rounded,
-      color: firstActionContentColor);
-
-  static const TextStyle firstActionTextStyle = TextStyle(
-    color: firstActionContentColor,
-  );
-
-  static Material firstActionBoxMaterial({required Widget child}) {
-    return Material(
-      type: MaterialType.card,
-      textStyle: firstActionTextStyle,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        side: BorderSide(color: firstActionBorderColor),
-      ),
-      child: child,
-    );
-  }
+  static const IconData downIcon = Icons.keyboard_double_arrow_down_rounded;
 
   static const double timerButtonIconSize = 18;
 
   // TOP BAR
-  static const topRightWatermarkTextStyle =
-      TextStyle(color: PfsTheme.watermarkColor, fontSize: 12);
-
-  static const Color topBarButtonColor = Colors.black12;
-  static const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
-
-  static Color getTopIconColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return Colors.black;
-    } else if (states.contains(MaterialState.selected)) {
-      return PfsTheme.topBarButtonActiveColor;
-    }
-
-    return PfsTheme.topBarButtonColor;
-  }
-
-  static const double topControlDiameter = 15;
-  static const Size topControlSize =
-      Size(topControlDiameter, topControlDiameter);
-  static final topControlStyle = ButtonStyle(
-    fixedSize: const MaterialStatePropertyAll(topControlSize),
-    iconColor: MaterialStateProperty.resolveWith(getTopIconColor),
-    backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
-    padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-  );
 
   static const TextStyle subtleHeadingStyle =
       TextStyle(fontSize: 14, color: Colors.grey);
@@ -171,19 +112,6 @@ class PfsTheme {
     foregroundColor: minorWindowControlForegroundColors,
   );
 
-  // DROP TARGET
-  static const Color dropTargetBoxColor = Color(0xAA000000);
-  static const Color dropTargetTextColor = Colors.white60;
-  static const BoxDecoration dropActiveBoxDecoration = BoxDecoration(
-    color: dropTargetBoxColor,
-    borderRadius: BorderRadius.all(Radius.circular(5)),
-  );
-  static const BoxDecoration dropHiddenBoxDecoration = BoxDecoration(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.all(Radius.circular(15)));
-  static const TextStyle dropTargetTextStyle =
-      TextStyle(fontSize: 40, color: dropTargetTextColor, inherit: true);
-
   // POPUP PANEL
   static const double popupPanelElevation = 10;
   static const MaterialType _popupPanelMaterialType = MaterialType.canvas;
@@ -202,7 +130,6 @@ class PfsTheme {
       type: _popupPanelMaterialType,
       elevation: popupPanelElevation,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(300)),
-      textStyle: const TextStyle(color: Colors.grey),
       child: child,
     );
   }
@@ -216,7 +143,6 @@ class PfsTheme {
       borderRadius: BorderRadius.all(Radius.circular(30)),
     ),
     filled: true,
-    //fillColor: Colors.white,
     counterText: '',
     counterStyle: TextStyle(fontSize: 1),
   );
@@ -228,5 +154,29 @@ class PfsTheme {
   }) {
     return MaterialStateProperty.resolveWith(
         (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  }
+
+  static MaterialStateProperty<T> hoverProperty<T>({
+    required T idle,
+    required T hover,
+  }) {
+    return MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  }
+
+  static MaterialStateProperty<Color> hoverActiveColors({
+    required Color idle,
+    required Color hover,
+    required Color active,
+  }) {
+    return MaterialStateProperty.resolveWith((states) {
+      if (states.contains(MaterialState.hovered)) {
+        return hover;
+      } else if (states.contains(MaterialState.selected)) {
+        return active;
+      }
+
+      return idle;
+    });
   }
 }

@@ -244,46 +244,39 @@ class ImageClickableLabel extends StatelessWidget {
   static const Size minSize = Size(280, 36);
   static const Size maxSize = Size(380, 50);
 
-  static Color getButtonColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return const Color(0xFFFFFFFF);
-    }
-    return Colors.transparent;
-  }
-
-  static Color getTextColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return PfsTheme.hyperlinkColorHovered;
-    }
-    return const Color(0x66C0C0C0);
-  }
-
-  static TextStyle getTextStyle(Set<MaterialState> states) {
-    if (states.contains(MaterialState.hovered)) {
-      return const TextStyle(
-        decoration: TextDecoration.underline,
-        fontSize: fontSize,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-
-    return const TextStyle(
+  static final textMaterialStyles = PfsTheme.hoverProperty(
+    idle: const TextStyle(
       decoration: TextDecoration.none,
       fontSize: fontSize,
       overflow: TextOverflow.ellipsis,
-    );
-  }
+    ),
+    hover: const TextStyle(
+      decoration: TextDecoration.underline,
+      fontSize: fontSize,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+
+  static final buttonMaterialColors = PfsTheme.hoverColors(
+    idle: Colors.white.withAlpha(0x00),
+    hover: Colors.white,
+  );
 
   @override
   Widget build(BuildContext context) {
+    final textMaterialColors = PfsTheme.hoverColors(
+      idle: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(0x6C),
+      hover: PfsTheme.hyperlinkColorHovered,
+    );
+
     final ButtonStyle style = ButtonStyle(
       minimumSize: const MaterialStatePropertyAll(minSize),
       maximumSize: const MaterialStatePropertyAll(maxSize),
-      backgroundColor: MaterialStateProperty.resolveWith(getButtonColor),
-      foregroundColor: MaterialStateProperty.resolveWith(getTextColor),
-      textStyle: MaterialStateProperty.resolveWith(getTextStyle),
       padding: const MaterialStatePropertyAll(padding),
       overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+      textStyle: textMaterialStyles,
+      backgroundColor: buttonMaterialColors,
+      foregroundColor: textMaterialColors,
     );
 
     return Material(
