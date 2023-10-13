@@ -45,6 +45,7 @@ dependencies:
   msix: ^3.16.4
   url_launcher: ^6.1.14
   flutter_animate: ^4.2.0+1
+  contextual_menu: ^0.1.2
 
 dev_dependencies:
   flutter_test:
