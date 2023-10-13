@@ -60,7 +60,8 @@ class PfsTheme {
       ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
-      badgeTheme: const BadgeThemeData(backgroundColor: bottomBarButtonActiveColor),
+      badgeTheme:
+          const BadgeThemeData(backgroundColor: bottomBarButtonActiveColor),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStatePropertyAll(Colors.white),
