@@ -15,6 +15,7 @@ import 'package:pfs2/widgets/panels/help_sheet.dart';
 import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
+import 'package:pfs2/widgets/panels/corner_window_controls.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
@@ -174,7 +175,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       return Stack(
         children: [
           const FirstActionSheet(),
-          TopRightControls(
+          CornerWindowControls(
             windowState: windowState,
             imagePhviewer: imagePhviewer,
           ),
@@ -213,7 +214,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           _fileDropZone,
           _gestureControls(),
           const CountdownSheet(),
-          TopRightControls(
+          CornerWindowControls(
             windowState: windowState,
             imagePhviewer: imagePhviewer,
           ),
@@ -715,125 +716,3 @@ class ListenableBool {
   }
 }
 
-class TopRightControls extends StatelessWidget {
-  const TopRightControls({
-    super.key,
-    required this.windowState,
-    required this.imagePhviewer,
-  });
-
-  final PfsWindowState windowState;
-  final ImagePhviewer imagePhviewer;
-
-  @override
-  Widget build(BuildContext context) {
-    final soundShortcut =
-        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
-        
-    final theme = Theme.of(context);
-    
-    final Color watermarkColor = theme.colorScheme.outline;
-    final topRightWatermarkTextStyle = theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
-
-    return Positioned(
-      right: 4,
-      top: 2,
-      child: Wrap(
-        direction: Axis.vertical,
-        crossAxisAlignment: WrapCrossAlignment.end,
-        children: [
-          Wrap(
-            spacing: 3,
-            direction: Axis.horizontal,
-            alignment: WrapAlignment.end,
-            children: [
-              topControl(
-                onPressed: () => windowState.isSoundsEnabled.toggle(),
-                icon: windowState.isSoundsEnabled.boolValue
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                tooltip: windowState.isSoundsEnabled.boolValue
-                    ? 'Mute sounds ($soundShortcut)'
-                    : 'Unmute sounds ($soundShortcut)',
-              ),
-              topControl(
-                onPressed: () => windowState.isAlwaysOnTop.toggle(),
-                icon: windowState.isAlwaysOnTop.boolValue
-                    ? Icons.push_pin_rounded
-                    : Icons.push_pin_outlined,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.alwaysOnTop,
-                  shortcut: Phshortcuts.alwaysOnTop,
-                ),
-                isSelected: windowState.isAlwaysOnTop.boolValue,
-              ),
-              topControl(
-                onPressed: () => windowState.isShowingCheatSheet.set(true),
-                icon: Icons.help_rounded,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.help,
-                  shortcut: Phshortcuts.help,
-                ),
-              ),
-              //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
-            child: DefaultTextStyle(
-              textAlign: TextAlign.right,
-              style: topRightWatermarkTextStyle,
-              child: Wrap(
-                direction: Axis.vertical,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                spacing: 5,
-                children: [
-                  const Text('For testing only\n${PfsLocalization.version}'),
-                  if (imagePhviewer.currentZoomScale != 1.0)
-                    Text('Zoom ${imagePhviewer.currentZoomScalePercent}%'),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget topControl(
-      {Function()? onPressed,
-      required IconData icon,
-      String? tooltip,
-      bool isSelected = false}) {
-    const Color topBarButtonColor = Colors.black12;
-    const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
-
-    const double topControlDiameter = 15;
-    const Size topControlSize = Size(topControlDiameter, topControlDiameter);
-
-    final topControlStyle = ButtonStyle(
-      fixedSize: const MaterialStatePropertyAll(topControlSize),
-      backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
-      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-      iconColor: PfsTheme.hoverActiveColors(
-        idle: topBarButtonColor,
-        hover: Colors.black,
-        active: topBarButtonActiveColor,
-      ),
-    );
-
-    const double buttonSpacing = 0;
-    const double iconSize = 20;
-
-    return Container(
-      margin: const EdgeInsets.only(right: buttonSpacing),
-      child: IconButton(
-        style: topControlStyle,
-        onPressed: onPressed,
-        icon: Icon(icon, size: iconSize),
-        tooltip: tooltip,
-        isSelected: isSelected,
-      ),
-    );
-  }
-}
