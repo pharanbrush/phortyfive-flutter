@@ -220,9 +220,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           _bottomBar(context),
           modalMenu(
             isOpen: windowState.isEditingTime.boolValue,
-            builder: () => TimerDurationPanel(
-              onDismiss: () => windowState.isEditingTime.set(false),
-            ),
+            builder: () => timerDurationWidget,
           ),
           modalMenu(
             isOpen: windowState.isShowingCheatSheet.boolValue,
