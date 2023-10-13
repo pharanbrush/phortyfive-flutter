@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PfsLocalization {
-  static const bool isDesktop = false;
+  static const bool isDesktop = true;
   static const String version = '0.5.20231012a';
 
   static const String alwaysOnTop = 'Keep window on top';
