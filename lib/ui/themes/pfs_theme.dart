@@ -88,8 +88,6 @@ class PfsTheme {
     return newData;
   }
 
-  static const double bottomBarButtonOpacity = 0.4;
-
   static const double _nextPreviousLargeButtonSize = 100;
   static const Icon beforeGestureIcon =
       Icon(Icons.navigate_before, size: _nextPreviousLargeButtonSize);
