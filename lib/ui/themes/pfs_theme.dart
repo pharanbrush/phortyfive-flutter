@@ -48,6 +48,9 @@ class PfsTheme {
         surface: cardColor,
         onSurfaceVariant: primary.withAlpha(0xAA),
       ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+      ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
@@ -86,31 +89,7 @@ class PfsTheme {
 
   // FIRST ACTION
   static const IconData downIcon = Icons.keyboard_double_arrow_down_rounded;
-
   static const double timerButtonIconSize = 18;
-
-  // TOP BAR
-
-  static const TextStyle subtleHeadingStyle =
-      TextStyle(fontSize: 14, color: Colors.grey);
-  static const Color subtleHeadingIconColor = Color(0xFFE4E4E4);
-  static const double subtleHeadingIconSize = 14;
-
-  static final minorWindowControlForegroundColors = hoverColors(
-    idle: PfsTheme.minorWindowControlColor,
-    hover: Colors.black87,
-  );
-
-  static const Color minorWindowControlColor = Color.fromARGB(90, 0, 0, 0);
-  static const double minorWindowControlIconSize = 20;
-  static const minorWindowControlButtonSize = Size(20, 20);
-  static final minorWindowControlButtonStyle = ButtonStyle(
-    shape: const MaterialStatePropertyAll(CircleBorder()),
-    minimumSize: const MaterialStatePropertyAll(minorWindowControlButtonSize),
-    maximumSize: const MaterialStatePropertyAll(minorWindowControlButtonSize),
-    padding: const MaterialStatePropertyAll(EdgeInsets.all(0)),
-    foregroundColor: minorWindowControlForegroundColors,
-  );
 
   // POPUP PANEL
   static const double popupPanelElevation = 10;

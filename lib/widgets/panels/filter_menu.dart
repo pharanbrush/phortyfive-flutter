@@ -14,7 +14,7 @@ class FilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const padding = EdgeInsets.only(
+    const panelPadding = EdgeInsets.only(
       left: 22,
       right: 25,
       top: 15,
@@ -22,18 +22,26 @@ class FilterMenu extends StatelessWidget {
     );
 
     // PARTS
-    const heading = Wrap(
+    final headingIcon = Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Icon(
+        Icons.invert_colors,
+        size: 18,
+        color: Theme.of(context).colorScheme.outline,
+      ),
+    );
+
+    final heading = Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 7,
+      spacing: 6,
       children: [
-        Icon(
-          Icons.invert_colors,
-          color: PfsTheme.subtleHeadingIconColor,
-          size: PfsTheme.subtleHeadingIconSize,
-        ),
+        headingIcon,
         Text(
           'Filters',
-          style: PfsTheme.subtleHeadingStyle,
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -86,7 +94,7 @@ class FilterMenu extends StatelessWidget {
             effects: Phanimations.bottomMenuEffects,
             child: PfsTheme.popupPanelRectangleMaterial(
               child: Padding(
-                padding: padding,
+                padding: panelPadding,
                 child: Wrap(
                   direction: Axis.vertical,
                   spacing: 5,
@@ -158,9 +166,17 @@ class BlurSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text(
+        'Blur',
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+    );
+
     return Row(
       children: [
-        const Text('Blur'),
+        label,
         SizedBox(
           width: 220,
           child: Slider.adaptive(

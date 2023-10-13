@@ -26,12 +26,8 @@ class FirstActionSheet extends StatelessWidget {
   }
 
   Widget _box(BuildContext context) {
-    final TextStyle bigBold = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
-    
+    final TextStyle? titleStyle = Theme.of(context).textTheme.titleMedium;
+        
     const double firstActionIconSize = 100;
 
     Icon firstActionIcon = Icon(
@@ -58,7 +54,7 @@ class FirstActionSheet extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Get started by loading images!',
-                    style: bigBold,
+                    style: titleStyle,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 2),

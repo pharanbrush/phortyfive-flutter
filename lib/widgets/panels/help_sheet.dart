@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
 class HelpSheet extends StatelessWidget {
@@ -7,11 +8,6 @@ class HelpSheet extends StatelessWidget {
   static const Icon headingIcon = Icon(
     Icons.keyboard,
     size: 40,
-  );
-
-  static const TextStyle headingStyle = TextStyle(
-    fontWeight: FontWeight.w600,
-    fontSize: 24,
   );
 
   const HelpSheet({super.key, this.onDismiss});
@@ -29,7 +25,9 @@ class HelpSheet extends StatelessWidget {
     const normalPadding = EdgeInsets.symmetric(horizontal: 30);
     const narrowPadding = EdgeInsets.symmetric(horizontal: 7);
 
-    final padding = isWindowNarrow ? narrowPadding : normalPadding;
+    final dynamicPadding = isWindowNarrow ? narrowPadding : normalPadding;
+
+    final headingStyle = Theme.of(context).textTheme.headlineSmall;
 
     return Stack(
       alignment: AlignmentDirectional.center,
@@ -37,7 +35,7 @@ class HelpSheet extends StatelessWidget {
         ModalUnderlay(onDismiss: onDismiss),
         Center(
           child: Material(
-            color: Colors.transparent,
+            type: MaterialType.transparency,
             child: Container(
               height: sheetHeight,
               decoration: BoxDecoration(
@@ -55,7 +53,7 @@ class HelpSheet extends StatelessWidget {
                         child: Column(
                           children: [
                             if (!isWindowShort) headingIcon,
-                            const Text(
+                            Text(
                               'Keyboard Shortcuts',
                               style: headingStyle,
                             ),
@@ -70,8 +68,9 @@ class HelpSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Expanded(child: Text('')),
-                        Padding(
-                          padding: padding,
+                        AnimatedPadding(
+                          duration: Phanimations.fastDuration,
+                          padding: dynamicPadding,
                           child: const Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -90,8 +89,9 @@ class HelpSheet extends StatelessWidget {
                               ]),
                         ),
                         if (!isWindowVeryNarrow)
-                          Padding(
-                            padding: padding,
+                          AnimatedPadding(
+                            duration: Phanimations.fastDuration,
+                            padding: dynamicPadding,
                             child: const Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -117,9 +117,10 @@ class HelpSheet extends StatelessWidget {
                                 ]),
                           ),
                         if (isWindowVeryNarrow)
-                          Padding(
-                            padding: padding,
-                            child: const Center(
+                          AnimatedPadding(
+                            duration: Phanimations.fastDuration,
+                            padding: dynamicPadding,
+                            child: Center(
                                 widthFactor: 5,
                                 heightFactor: 5,
                                 child: Text(

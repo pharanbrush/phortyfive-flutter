@@ -153,16 +153,28 @@ class MinorWindowControlButton extends StatelessWidget {
   final IconData icon;
   final String? tooltip;
 
+  static final foregroundColors = PfsTheme.hoverColors(
+    idle: const Color.fromARGB(90, 0, 0, 0),
+    hover: Colors.black87,
+  );
+  static const double iconSize = 20;
+  static const buttonSize = Size(20, 20);
+  static final buttonStyle = ButtonStyle(
+    shape: const MaterialStatePropertyAll(CircleBorder()),
+    minimumSize: const MaterialStatePropertyAll(buttonSize),
+    maximumSize: const MaterialStatePropertyAll(buttonSize),
+    padding: const MaterialStatePropertyAll(EdgeInsets.all(0)),
+    foregroundColor: foregroundColors,
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        style: PfsTheme.minorWindowControlButtonStyle,
-        iconSize: PfsTheme.minorWindowControlIconSize,
-        icon: Icon(icon),
-      ),
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      style: buttonStyle,
+      iconSize: iconSize,
+      icon: Icon(icon),
     );
   }
 }

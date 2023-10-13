@@ -101,7 +101,7 @@ class TimerDurationPanel extends StatelessWidget {
         );
       }
 
-      var secondsTextField = SizedBox(
+      final secondsTextField = SizedBox(
         width: 100,
         child: TextField(
           controller: timerTextEditorController,
@@ -134,7 +134,12 @@ class TimerDurationPanel extends StatelessWidget {
       final labelStyle = TextStyle(
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       );
-      
+
+      final bigLabelStyle = Theme.of(context)
+          .textTheme
+          .headlineSmall
+          ?.copyWith(color: labelStyle.color);
+
       return Stack(
         children: [
           ModalUnderlay(onDismiss: () => onDismiss?.call()),
@@ -155,19 +160,14 @@ class TimerDurationPanel extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Timer duration',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
-                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child:
+                                  Text('Timer duration', style: bigLabelStyle),
                             ),
                             secondsTextField,
                             const SizedBox(height: 3),
-                            const Text(
-                              'seconds',
-                            ),
+                            const Text('seconds'),
                           ],
                         ),
                       ),
