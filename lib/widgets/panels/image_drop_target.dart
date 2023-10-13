@@ -6,42 +6,6 @@ import 'package:pfs2/models/pfs_model.dart';
 class ImageDropTarget extends StatefulWidget {
   const ImageDropTarget({super.key, this.onDragSuccess});
 
-  static const Color dropTargetBoxColor = Color(0xAA000000);
-  static const Color dropTargetTextColor = Colors.white60;
-  static const BoxDecoration dropActiveBoxDecoration = BoxDecoration(
-    color: dropTargetBoxColor,
-    borderRadius: BorderRadius.all(Radius.circular(5)),
-  );
-  static const BoxDecoration dropHiddenBoxDecoration = BoxDecoration(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.all(Radius.circular(15)));
-  static const TextStyle dropTargetTextStyle =
-      TextStyle(fontSize: 40, color: dropTargetTextColor, inherit: true);
-
-  static const Widget hiddenDropWidget =
-      Center(child: Material(textStyle: dropTargetTextStyle, child: Text('')));
-
-  static const Widget visibleDropWidget = Center(
-    child: Material(
-      textStyle: dropTargetTextStyle,
-      color: Colors.transparent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.image_outlined,
-            color: dropTargetTextColor,
-            size: 80,
-          ),
-          SizedBox(height: 15),
-          Text(
-            'Drop image files here.',
-          ),
-        ],
-      ),
-    ),
-  );
-
   final Function()? onDragSuccess;
 
   @override
@@ -59,6 +23,56 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final foregroundColor = colorScheme.onInverseSurface;
+    final boxColor = colorScheme.inverseSurface.withAlpha(0xDD);
+    final BoxDecoration visibleBoxDecoration = BoxDecoration(
+      color: boxColor,
+      borderRadius: const BorderRadius.all(Radius.circular(5)),
+    );
+    const BoxDecoration hiddenBoxDecoration = BoxDecoration(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.all(Radius.circular(15)),
+    );
+    final textStyle =
+        theme.textTheme.displaySmall?.copyWith(color: foregroundColor);
+
+    final Widget hiddenDropWidget = Center(
+      child: Material(
+        textStyle: textStyle,
+        child: const SizedBox.shrink(),
+      ),
+    );
+
+    final icon = Icon(
+      Icons.image_outlined,
+      size: 80,
+      color: foregroundColor,
+    );
+
+    final label = Text(
+      'Drop image files here.',
+      style: textStyle,
+    );
+
+    final Widget visibleDropWidget = Center(
+      child: Material(
+        textStyle: textStyle,
+        type: MaterialType.transparency,
+        //color: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            const SizedBox(height: 15),
+            label,
+          ],
+        ),
+      ),
+    );
+
     return PfsAppModel.scope((_, __, model) {
       return DropTarget(
         onDragDone: (details) {
@@ -88,12 +102,8 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
           key: const Key('dropContainer'),
           margin:
               _isDragging ? const EdgeInsets.all(8) : const EdgeInsets.all(20),
-          decoration: _isDragging
-              ? ImageDropTarget.dropActiveBoxDecoration
-              : ImageDropTarget.dropHiddenBoxDecoration,
-          child: _isDragging
-              ? ImageDropTarget.visibleDropWidget
-              : ImageDropTarget.hiddenDropWidget,
+          decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
+          child: _isDragging ? visibleDropWidget : hiddenDropWidget,
         ),
       );
     });
