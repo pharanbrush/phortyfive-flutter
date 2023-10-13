@@ -321,7 +321,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else {
       _playPauseIconStateAnimator.reverse();
     }
-    _playClickSound();
+    _playClickSound(playWhilePaused: true);
   }
 
   void _doStartEditingCustomTime() => _setEditingCustomTimeActive(true);
@@ -740,9 +740,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     ],
   );
 
-  void _playClickSound() {
+  void _playClickSound({bool playWhilePaused = false}) {
     if (!isSoundsEnabled) return;
-    if (!widget.model.timerModel.isRunning) return;
+    if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
   }
 }
