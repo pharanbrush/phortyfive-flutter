@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
-import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 
 class CornerWindowControls extends StatelessWidget {
@@ -17,17 +16,18 @@ class CornerWindowControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final Color watermarkColor = theme.colorScheme.outline;
+    final cornerWatermarkTextStyle =
+        theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
+
     final soundShortcut =
         PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
-        
-    final theme = Theme.of(context);
-    
-    final Color watermarkColor = theme.colorScheme.outline;
-    final cornerWatermarkTextStyle = theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
 
     return Positioned(
-      right: 4,
-      top: 2,
+      right: 8,
+      top: 8,
       child: Wrap(
         direction: Axis.vertical,
         crossAxisAlignment: WrapCrossAlignment.end,
@@ -37,7 +37,7 @@ class CornerWindowControls extends StatelessWidget {
             direction: Axis.horizontal,
             alignment: WrapAlignment.end,
             children: [
-              cornerButton(
+              CornerButton(
                 onPressed: () => windowState.isSoundsEnabled.toggle(),
                 icon: windowState.isSoundsEnabled.boolValue
                     ? Icons.volume_up
@@ -46,7 +46,7 @@ class CornerWindowControls extends StatelessWidget {
                     ? 'Mute sounds ($soundShortcut)'
                     : 'Unmute sounds ($soundShortcut)',
               ),
-              cornerButton(
+              CornerButton(
                 onPressed: () => windowState.isAlwaysOnTop.toggle(),
                 icon: windowState.isAlwaysOnTop.boolValue
                     ? Icons.push_pin_rounded
@@ -57,7 +57,7 @@ class CornerWindowControls extends StatelessWidget {
                 ),
                 isSelected: windowState.isAlwaysOnTop.boolValue,
               ),
-              cornerButton(
+              CornerButton(
                 onPressed: () => windowState.isShowingCheatSheet.set(true),
                 icon: Icons.help_rounded,
                 tooltip: PfsLocalization.buttonTooltip(
@@ -69,7 +69,7 @@ class CornerWindowControls extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: DefaultTextStyle(
               textAlign: TextAlign.right,
               style: cornerWatermarkTextStyle,
@@ -89,41 +89,41 @@ class CornerWindowControls extends StatelessWidget {
       ),
     );
   }
+}
 
-  static Widget cornerButton(
-      {Function()? onPressed,
-      required IconData icon,
-      String? tooltip,
-      bool isSelected = false}) {
-    const Color topBarButtonColor = Colors.black12;
-    const Color topBarButtonActiveColor = Color.fromARGB(49, 196, 117, 0);
+class CornerButton extends StatelessWidget {
+  const CornerButton({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.tooltip,
+    this.isSelected = false,
+  });
 
-    const double topControlDiameter = 15;
+  final Function()? onPressed;
+  final IconData icon;
+  final String? tooltip;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    const double topControlDiameter = 35;
     const Size topControlSize = Size(topControlDiameter, topControlDiameter);
+    const sizes = MaterialStatePropertyAll(topControlSize);
 
-    final buttonStyle = ButtonStyle(
-      fixedSize: const MaterialStatePropertyAll(topControlSize),
-      backgroundColor: const MaterialStatePropertyAll(Colors.transparent),
-      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-      iconColor: PfsTheme.hoverActiveColors(
-        idle: topBarButtonColor,
-        hover: Colors.black,
-        active: topBarButtonActiveColor,
-      ),
+    const buttonStyle = ButtonStyle(
+      fixedSize: sizes,
+      minimumSize: sizes,
+      iconSize: MaterialStatePropertyAll(topControlDiameter * .55),
+      padding: MaterialStatePropertyAll(EdgeInsets.zero),
     );
 
-    const double buttonSpacing = 0;
-    const double iconSize = 20;
-
-    return Container(
-      margin: const EdgeInsets.only(right: buttonSpacing),
-      child: IconButton(
-        style: buttonStyle,
-        onPressed: onPressed,
-        icon: Icon(icon, size: iconSize),
-        tooltip: tooltip,
-        isSelected: isSelected,
-      ),
+    return IconButton(
+      style: buttonStyle,
+      onPressed: onPressed,
+      icon: Icon(icon),
+      tooltip: tooltip,
+      isSelected: isSelected,
     );
   }
 }
