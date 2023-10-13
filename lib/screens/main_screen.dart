@@ -278,7 +278,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
-    final imageNoun = filesLoaded == 1 ? 'image' : 'images';
+    final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
     if (filesSkipped == 0) {
       _showSnackBarWithBoldText(
@@ -287,7 +287,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         lastText: ' loaded.',
       );
     } else {
-      final fileSkippedNoun = filesSkipped == 1 ? 'file' : 'files';
+      final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
       _showSnackBar(
         content: MainScreen.textWithMultiBold(

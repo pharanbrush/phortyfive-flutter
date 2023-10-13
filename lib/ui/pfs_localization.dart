@@ -14,6 +14,14 @@ class PfsLocalization {
   static String get pressCapital => capitalizeFirst(press);
   
   static const String secondaryPressCapital = isDesktop ? 'Right-click' : 'Long-press';
+  
+  static String imageNoun(int count) {
+    return count == 1 ? 'image' : 'images';
+  }
+  
+  static String fileNoun(int count) {
+    return count == 1 ? 'file' : 'files';
+  }
 
   static String capitalizeFirst(String s) {
     return GetUtils.capitalizeFirst(s)!;
