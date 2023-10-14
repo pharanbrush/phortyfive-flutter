@@ -395,11 +395,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           content: windowState.isAlwaysOnTop.boolValue
               ? const SnackbarPhmessage(
                   text: '"${PfsLocalization.alwaysOnTop}" enabled',
-                  icon: Icons.push_pin,
+                  icon: Icons.picture_in_picture,
                 )
               : const SnackbarPhmessage(
                   text: '"${PfsLocalization.alwaysOnTop}" disabled',
-                  icon: Icons.push_pin_outlined,
+                  icon: Icons.picture_in_picture_outlined,
                 ));
     }
 

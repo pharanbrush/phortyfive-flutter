@@ -49,8 +49,8 @@ class CornerWindowControls extends StatelessWidget {
               CornerButton(
                 onPressed: () => windowState.isAlwaysOnTop.toggle(),
                 icon: windowState.isAlwaysOnTop.boolValue
-                    ? Icons.push_pin_rounded
-                    : Icons.push_pin_outlined,
+                    ? Icons.picture_in_picture
+                    : Icons.picture_in_picture_outlined,
                 tooltip: PfsLocalization.buttonTooltip(
                   commandName: PfsLocalization.alwaysOnTop,
                   shortcut: Phshortcuts.alwaysOnTop,
