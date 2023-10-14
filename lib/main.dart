@@ -33,6 +33,8 @@ class MyApp extends StatelessWidget {
 
   MyApp({Key? key, required this.appModel}) : super(key: key);
 
+  final navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel<PfsAppModel>(
@@ -40,10 +42,13 @@ class MyApp extends StatelessWidget {
       child: ScopedModel<PhtimerModel>(
         model: appModel.timerModel,
         child: MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'PhortyFive Seconds',
           theme: PfsTheme.themeData,
-          home: Scaffold(body: MainScreen(model: appModel)),
+          home: Scaffold(
+            body: MainScreen(model: appModel),
+          ),
         ),
       ),
     );

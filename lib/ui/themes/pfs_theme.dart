@@ -51,6 +51,12 @@ class PfsTheme {
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: outline),
       ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: primary,
+        actionTextColor: tertiary,
+        contentTextStyle: TextStyle(fontSize: 14),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),

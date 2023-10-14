@@ -5,6 +5,9 @@ class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutExpo;
   
+  static const toastCurve = Curves.easeOutExpo;
+  static const toastAnimationDuration = Duration(milliseconds: 400);
+  
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
 

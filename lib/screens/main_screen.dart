@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -16,7 +17,6 @@ import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/panels/corner_window_controls.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:pfs2/widgets/snackbar_phmessage.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
@@ -27,66 +27,6 @@ class MainScreen extends StatefulWidget {
 
   final PfsAppModel model;
 
-  static SnackBar snackBar(BuildContext context, {required Widget content}) {
-    const double sideMarginNormal = 200;
-    const double sideMarginNarrow = 20;
-    const marginNormal = EdgeInsets.only(
-        bottom: 50, left: sideMarginNormal, right: sideMarginNormal);
-
-    const marginNarrow = EdgeInsets.only(
-        bottom: 50, left: sideMarginNarrow, right: sideMarginNarrow);
-
-    const double windowNarrowWidth = 700;
-    const Duration duration = Duration(milliseconds: 1500);
-
-    final bool isWindowNarrow =
-        MediaQuery.of(context).size.width < windowNarrowWidth;
-    final EdgeInsets margin = isWindowNarrow ? marginNarrow : marginNormal;
-
-    return SnackBar(
-      dismissDirection: DismissDirection.up,
-      behavior: SnackBarBehavior.floating,
-      duration: duration,
-      margin: margin,
-      content: Center(child: content),
-    );
-  }
-
-  static SnackBar snackBarTextWithBold(BuildContext context, String text,
-      {String? boldText, String? lastText}) {
-    return snackBar(context,
-        content: Text.rich(
-          TextSpan(
-            text: text,
-            children: [
-              TextSpan(
-                  text: boldText,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: lastText),
-            ],
-          ),
-        ));
-  }
-
-  static Text textWithMultiBold(
-      {required String text1,
-      String? boldText1,
-      String? text2,
-      String? boldText2,
-      String? text3}) {
-    return Text.rich(
-      TextSpan(
-        text: text1,
-        children: [
-          TextSpan(
-              text: boldText1,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          TextSpan(text: text2),
-        ],
-      ),
-    );
-  }
-
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -95,6 +35,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode();
   final Phclicker clicker = Phclicker();
   final PfsWindowState windowState = PfsWindowState();
+
+  BuildContext? currentContext;
 
   late Map<Type, Action<Intent>> shortcutActions = {
     PreviousImageIntent: CallbackAction(
@@ -139,13 +81,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late TimerDurationPanel timerDurationWidget =
       TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
-    onNotify: (iconData, message) {
-      _showSnackBar(
-          content: SnackbarPhmessage(
-        text: message,
-        icon: iconData,
-      ));
-    },
+    onNotify: (message, icon) => showToast(message: message, icon: icon),
     onStateChange: _handleStateChange,
   );
 
@@ -171,6 +107,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    currentContext = context;
+
     if (!widget.model.hasFilesLoaded) {
       return Stack(
         children: [
@@ -279,16 +217,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
     if (filesSkipped == 0) {
-      _showSnackBarWithBoldText(
-        text: '',
-        boldText: '$filesLoaded $imageNoun',
-        lastText: ' loaded.',
+      Phtoasts.showToastWidget(
+        currentContext,
+        child: PfsLocalization.textWithMultiBold(
+          text1: '',
+          boldText1: '$filesLoaded $imageNoun',
+          text2: ' loaded.',
+        ),
       );
     } else {
       final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
-      _showSnackBar(
-        content: MainScreen.textWithMultiBold(
+      Phtoasts.showToastWidget(
+        currentContext,
+        child: PfsLocalization.textWithMultiBold(
             text1: '',
             boldText1: '$filesLoaded $imageNoun',
             text2: ' loaded. ',
@@ -298,15 +240,21 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleTimerChangeSuccess() {
-    _showSnackBarWithBoldText(
-      text: 'Timer is set to ',
-      boldText: '${widget.model.timerModel.currentDurationSeconds} seconds',
-      lastText: ' per image.',
+    final toastContent = PfsLocalization.textWithMultiBold(
+      text1: 'Timer is set to ',
+      boldText1: '${widget.model.timerModel.currentDurationSeconds} seconds',
+      text2: ' per image.',
     );
+    Phtoasts.showToastWidget(currentContext, child: toastContent);
   }
 
   void _handleOnImageChange() {
     setState(() => imagePhviewer.resetZoomLevel());
+  }
+
+  void showToast({required String message, IconData? icon}) {
+    if (currentContext == null) return;
+    Phtoasts.showToast(currentContext, message: message, icon: icon);
   }
 
   void _handleStateChange() {
@@ -320,33 +268,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       _playPauseIconStateAnimator.reverse();
     }
     _playClickSound(playWhilePaused: true);
-  }
-
-  void _showSnackBar({required Widget content}) {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    scaffoldMessenger.clearSnackBars();
-    scaffoldMessenger.showSnackBar(
-      MainScreen.snackBar(
-        context,
-        content: content,
-      ),
-    );
-  }
-
-  void _showSnackBarWithBoldText(
-      {required String text, String? boldText, String? lastText}) {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    scaffoldMessenger.clearSnackBars();
-    scaffoldMessenger.showSnackBar(
-      MainScreen.snackBarTextWithBold(
-        context,
-        text,
-        boldText: boldText,
-        lastText: lastText,
-      ),
-    );
   }
 
   void _handleFilterMenuChanged() {
@@ -373,7 +294,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     bool active = windowState.isEditingTime.boolValue;
     if (active) {
       _cancelAllModals(except: windowState.isEditingTime);
-      ScaffoldMessenger.of(context).clearSnackBars();
     }
     if (!active) {
       mainWindowFocus.requestFocus();
@@ -391,22 +311,39 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleAlwaysOnTopChanged() {
-    showAlwaysOnTopToggleSnackbar() {
-      _showSnackBar(
-          content: windowState.isAlwaysOnTop.boolValue
-              ? const SnackbarPhmessage(
-                  text: '"${PfsLocalization.alwaysOnTop}" enabled',
-                  icon: Icons.picture_in_picture,
-                )
-              : const SnackbarPhmessage(
-                  text: '"${PfsLocalization.alwaysOnTop}" disabled',
-                  icon: Icons.picture_in_picture_outlined,
-                ));
+    showAlwaysOnTopToast() {
+      if (currentContext == null) return;
+      BuildContext context = currentContext!;
+
+      bool wasEnabled = windowState.isAlwaysOnTop.boolValue;
+      final message = wasEnabled
+          ? '"${PfsLocalization.alwaysOnTop}" enabled'
+          : '"${PfsLocalization.alwaysOnTop}" disabled';
+
+      final icon = wasEnabled
+          ? Icons.picture_in_picture
+          : Icons.picture_in_picture_outlined;
+
+      Phtoasts.showToast(context, message: message, icon: icon);
     }
 
     setState(() {
       windowManager.setAlwaysOnTop(windowState.isAlwaysOnTop.boolValue);
-      showAlwaysOnTopToggleSnackbar();
+      showAlwaysOnTopToast();
+    });
+  }
+
+  void _handleSoundChanged() {
+    showSoundToggleToast() {
+      bool wasEnabled = windowState.isSoundsEnabled.boolValue;
+      final message = wasEnabled ? 'Sounds enabled' : '"Sounds disabled';
+      final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
+
+      Phtoasts.showToast(context, message: message, icon: icon);
+    }
+
+    setState(() {
+      showSoundToggleToast();
     });
   }
 
@@ -486,22 +423,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _clipboardCopyHandler({newClipboardText, snackbarMessage}) =>
+  void _clipboardCopyHandler({newClipboardText, toastMessage}) =>
       _setClipboardText(
-          text: newClipboardText, snackbarMessage: snackbarMessage);
+          text: newClipboardText, toastMessage: toastMessage);
 
   void _setClipboardText({
     required String text,
-    String? snackbarMessage,
+    String? toastMessage,
     IconData? icon = Icons.copy,
   }) async {
     await Clipboard.setData(ClipboardData(text: text));
-    if (snackbarMessage != null) {
-      _showSnackBar(
-          content: SnackbarPhmessage(
-        text: snackbarMessage,
+    if (toastMessage != null) {
+      Phtoasts.showToast(
+        currentContext,
+        message: toastMessage,
         icon: icon,
-      ));
+      );
     }
   }
 
@@ -515,27 +452,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _handleFileDropped() {
     windowManager.focus();
-  }
-
-  void _handleSoundChanged() {
-    showSoundToggleSnackbar() {
-      _showSnackBar(
-        content: windowState.isSoundsEnabled.boolValue
-            ? const SnackbarPhmessage(
-                text: 'Sounds enabled',
-                icon: Icons.volume_up,
-              )
-            : const SnackbarPhmessage(
-                text: 'Sounds muted',
-                icon: Icons.volume_off,
-              ),
-      );
-    }
-
-    setState(() {
-      //windowState.isSoundsEnabled = !windowState.isSoundsEnabled;
-      showSoundToggleSnackbar();
-    });
   }
 
   Widget _bottomBar(BuildContext context) {

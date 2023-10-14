@@ -48,7 +48,7 @@ class ImagePhviewer {
     return currentActiveFiltersCount;
   }
 
-  Function(IconData icon, String text)? onNotify;
+  Function(String text, IconData icon)? onNotify;
   Function()? onStateChange;
 
   void resetZoomLevel() {
@@ -81,14 +81,14 @@ class ImagePhviewer {
 
   Widget imageRightClick({
     required Widget child,
-    void Function({required String newClipboardText, String? snackbarMessage})?
+    void Function({required String newClipboardText, String? toastMessage})?
         clipboardCopyHandler,
   }) {
     return PfsAppModel.scope((_, __, model) {
       void handleCopyFilePath() {
         clipboardCopyHandler?.call(
           newClipboardText: model.getCurrentImageData().filePath,
-          snackbarMessage: 'File path copied to clipboard.',
+          toastMessage: 'File path copied to clipboard.',
         );
       }
 
