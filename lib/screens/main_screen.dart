@@ -135,6 +135,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     ),
   };
 
+  //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
   late TimerDurationPanel timerDurationWidget =
       TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
