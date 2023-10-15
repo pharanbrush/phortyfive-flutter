@@ -9,7 +9,7 @@ class PfsTheme {
   static ThemeData _getClipDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF808080);
-    const Color background = Color(0xFF565656);
+    const Color background = Color(0xFF474747);
     const Color canvasBackground = Color(0xFF323232);
 
     const Color primary = Color(0xFF707A90);
@@ -43,6 +43,10 @@ class PfsTheme {
         idle: buttonHoverOverlayColor.withAlpha(0x00),
         hover: buttonHoverOverlayColor,
       ),
+      side: hoverProperty(
+        idle: const BorderSide(color: Color(0x00767B85)),
+        hover: const BorderSide(color: Color(0x33767B85)),
+      ),
     );
 
     final ButtonStyle buttonShapeAndColors =
@@ -51,7 +55,6 @@ class PfsTheme {
     const Color cspSelectedButton = Color(0xFF707A90);
     const Color cspTextColor = Color(0xDDE1E1E1);
     const Color cspTextBoxColor = Color(0xFF6F6F6F);
-    //const Color cspLightGrayBox = Color(0xFF606060);
 
     const Color cspWindowBorderColor = Color(0xFF3F3F3F);
     const Color selectedButtonContentColor = cspTextColor;
@@ -64,7 +67,7 @@ class PfsTheme {
       color: cspWindowBorderColor,
       width: 3,
     );
-    final cspWindowBorderSideTop = cspWindowBorderSide.copyWith(width: 24);
+    final cspWindowBorderSideTop = cspWindowBorderSide.copyWith(width: 6);
 
     const Color filledbuttonContentColor = buttonContentColor;
 
@@ -90,12 +93,15 @@ class PfsTheme {
         // Selected button text, slider value label text
         onPrimary: selectedButtonContentColor,
 
-        //Segmented selected button
+        // Selected Segmented button
         secondaryContainer: cspSelectedButton,
         onSecondaryContainer: cspTextColor.withAlpha(0xFF),
 
         // Text field background, slider background
         surfaceVariant: cspTextBoxColor,
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: Color(0xFF5B75A1),
       ),
       filledButtonTheme: const FilledButtonThemeData(
         style: buttonShapeStyle,
@@ -110,9 +116,9 @@ class PfsTheme {
         contentTextStyle: TextStyle(fontSize: 14, color: cspTextColor),
         insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
       ),
+      badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
       textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
       iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
-      badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
       segmentedButtonTheme:
           const SegmentedButtonThemeData(style: buttonShapeStyle),
       iconTheme: const IconThemeData(
