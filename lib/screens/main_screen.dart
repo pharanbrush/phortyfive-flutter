@@ -274,10 +274,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       BuildContext context = currentContext!;
 
       bool isRunning = widget.model.timerModel.isRunning;
-      final message = isRunning
-          ? PfsLocalization.timerPlaying
-          : PfsLocalization.timerPaused;
-
+      final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
       Phtoasts.show(
@@ -337,9 +334,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       BuildContext context = currentContext!;
 
       bool wasEnabled = windowState.isAlwaysOnTop.boolValue;
-      final message = wasEnabled
-          ? '"${PfsLocalization.alwaysOnTop}" enabled'
-          : '"${PfsLocalization.alwaysOnTop}" disabled';
+      final message = PfsLocalization.alwaysOnTopSwitched(wasEnabled);
 
       final icon = wasEnabled
           ? Icons.picture_in_picture
@@ -362,7 +357,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _handleSoundChanged() {
     showSoundToggleToast() {
       bool wasEnabled = windowState.isSoundsEnabled.boolValue;
-      final message = wasEnabled ? 'Sounds enabled' : 'Sounds disabled';
+      final message = PfsLocalization.soundsSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
       Phtoasts.show(

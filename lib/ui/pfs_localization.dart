@@ -9,9 +9,20 @@ class PfsLocalization {
   static const String help = 'Help...';
   static const String revealInExplorer = 'Show in Explorer';
   static const String copyFilePath = 'Copy file path';
-  
+
   static const String timerPlaying = 'Timer running';
   static const String timerPaused = 'Timer paused';
+
+  static const String timer = 'Timer';
+
+  static String timerSwitched(bool enabled) =>
+      enabled ? '$timer running' : '$timer paused';
+
+  static String alwaysOnTopSwitched(bool enabled) =>
+      enabled ? '"$alwaysOnTop" enabled' : '"$alwaysOnTop" disabled';
+
+  static String soundsSwitched(bool enabled) =>
+      enabled ? 'Sounds enabled' : 'Sounds disabled';
 
   static const String press = isDesktop ? 'click' : 'tap';
 
