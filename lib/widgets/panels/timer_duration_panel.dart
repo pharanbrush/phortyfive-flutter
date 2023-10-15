@@ -113,8 +113,8 @@ class TimerDurationPanel extends StatelessWidget {
           maxLength: 4,
           textAlign: TextAlign.center,
           textAlignVertical: TextAlignVertical.center,
-          decoration: PfsTheme.largeTextFieldInputDecoration,
-          style: PfsTheme.largeTextFieldTextStyle,
+          decoration: PfsAppTheme.defaultLargeTextFieldInputDecoration,
+          style: PfsAppTheme.defaultLargeTextFieldTextStyle,
           onSubmitted: (value) {
             model.trySetDurationSecondsInput(value);
             onDismiss?.call();
@@ -142,6 +142,9 @@ class TimerDurationPanel extends StatelessWidget {
           .headlineSmall
           ?.copyWith(color: labelStyle.color);
 
+
+      final panelMaterial = PfsAppTheme.pawPanelFrom(Theme.of(context));
+      
       return Stack(
         children: [
           ModalUnderlay(onDismiss: () => onDismiss?.call()),
@@ -152,7 +155,7 @@ class TimerDurationPanel extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 tapToDismiss(
-                  child: PfsTheme.popupPanelPawMaterial(
+                  child: panelMaterial(
                     child: SizedBox(
                       width: diameter,
                       height: diameter,

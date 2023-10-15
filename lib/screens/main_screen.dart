@@ -130,40 +130,53 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
+    const noBoxDecoration = BoxDecoration(
+      border: Border.fromBorderSide(BorderSide.none),
+    );
+
+    final borderSide =
+        Theme.of(context).extension<PfsAppTheme>()?.appWindowBorderSide;
+    final appBoxDecoration = borderSide != null
+        ? BoxDecoration(border: Border.fromBorderSide(borderSide))
+        : noBoxDecoration;
+
     return shortcutsWrapper(
-      Stack(
-        children: [
-          imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
-          _fileDropZone,
-          _gestureControls(),
-          const CountdownSheet(),
-          CornerWindowControls(
-            windowState: windowState,
-            imagePhviewer: imagePhviewer,
-          ),
-          _bottomBar(context),
-          modalMenu(
-            isOpen: windowState.isEditingTime.boolValue,
-            builder: () => timerDurationWidget,
-          ),
-          modalMenu(
-            isOpen: windowState.isShowingCheatSheet.boolValue,
-            builder: () => Theme(
-              data: ThemeData.dark(useMaterial3: true),
-              child: HelpSheet(
-                onDismiss: () => windowState.isShowingCheatSheet.set(false),
+      Container(
+        decoration: appBoxDecoration,
+        child: Stack(
+          children: [
+            imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
+            _fileDropZone,
+            _gestureControls(),
+            const CountdownSheet(),
+            CornerWindowControls(
+              windowState: windowState,
+              imagePhviewer: imagePhviewer,
+            ),
+            _bottomBar(context),
+            modalMenu(
+              isOpen: windowState.isEditingTime.boolValue,
+              builder: () => timerDurationWidget,
+            ),
+            modalMenu(
+              isOpen: windowState.isShowingCheatSheet.boolValue,
+              builder: () => Theme(
+                data: ThemeData.dark(useMaterial3: true),
+                child: HelpSheet(
+                  onDismiss: () => windowState.isShowingCheatSheet.set(false),
+                ),
               ),
             ),
-          ),
-          modalMenu(
-            isOpen: windowState.isShowingFiltersMenu.boolValue,
-            builder: () => FilterMenu(
-              imagePhviewer: imagePhviewer,
-              onDismiss: () => windowState.isShowingFiltersMenu.set(false),
+            modalMenu(
+              isOpen: windowState.isShowingFiltersMenu.boolValue,
+              builder: () => FilterMenu(
+                imagePhviewer: imagePhviewer,
+                onDismiss: () => windowState.isShowingFiltersMenu.set(false),
+              ),
             ),
-          ),
-          _dockingControls(),
-        ],
+            _dockingControls(),
+          ],
+        ),
       ),
     );
   }

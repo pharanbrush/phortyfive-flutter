@@ -79,6 +79,8 @@ class FilterMenu extends StatelessWidget {
     void handleBlurSliderChanged(value) {
       imagePhviewer.setBlurLevel(value);
     }
+    
+    final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     // HIERARCHY
     return Stack(
@@ -92,7 +94,7 @@ class FilterMenu extends StatelessWidget {
           right: 280,
           child: Animate(
             effects: Phanimations.bottomMenuEffects,
-            child: PfsTheme.popupPanelRectangleMaterial(
+            child: panelMaterial(
               child: Padding(
                 padding: panelPadding,
                 child: Wrap(

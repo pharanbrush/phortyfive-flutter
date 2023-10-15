@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
-  static ThemeData get themeData => _getClipDarkTheme();
+  static ThemeData get themeData => getClipDarkTheme();
 
   static const Color hyperlinkColorHovered = Colors.blue;
 
-  static ThemeData _getClipDarkTheme() {
+  static ThemeData getClipDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF808080);
     const Color background = Color(0xFF474747);
@@ -70,6 +70,7 @@ class PfsTheme {
     final cspWindowBorderSideTop = cspWindowBorderSide.copyWith(width: 6);
 
     const Color filledbuttonContentColor = buttonContentColor;
+    const double cspPanelElevation = 20;
 
     var newData = ThemeData(
       useMaterial3: true,
@@ -108,7 +109,8 @@ class PfsTheme {
       ),
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: outline),
-        labelLarge: TextStyle(fontWeight: FontWeight.normal), // Control labels
+        labelLarge: TextStyle(
+            fontWeight: FontWeight.normal, fontSize: 12), // Control labels
       ),
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: primary,
@@ -139,21 +141,43 @@ class PfsTheme {
           right: cspWindowBorderSide,
         ),
       ),
-      extensions: const {
-        PhtimerTheme(
+      extensions: {
+        const PhtimerTheme(
           pausedColor: Color(0x996F6F6F),
           runningColor: Color(0x665F687D),
           almostZeroColor: Color(0xDD6C7CA1),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Colors.black12,
-        )
+        ),
+        PfsAppTheme(
+            appWindowBorderSide: cspWindowBorderSide.copyWith(width: 4),
+            boxPanelMaterialBuilder: ({required Widget child}) {
+              return Material(
+                type: MaterialType.canvas,
+                elevation: cspPanelElevation,
+                shape: const Border.fromBorderSide(cspWindowBorderSide),
+                child: child,
+              );
+            },
+            pawPanelMaterialBuilder: ({required Widget child}) {
+              return Material(
+                type: MaterialType.canvas,
+                elevation: cspPanelElevation,
+                shape: const RoundedRectangleBorder(
+                  side: cspWindowBorderSide,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(300)),
+                ),
+                child: child,
+              );
+            })
       },
     );
 
     return newData;
   }
 
-  static ThemeData _getKPhashionTheme() {
+  static ThemeData getKPhashionTheme() {
     const Brightness themeBrightness = Brightness.light;
     const Color seedColor = Color.fromARGB(255, 255, 174, 0);
     const Color background = Colors.white;
@@ -247,41 +271,6 @@ class PfsTheme {
   static const IconData downIcon = Icons.keyboard_double_arrow_down_rounded;
   static const double timerButtonIconSize = 18;
 
-  // POPUP PANEL
-  static const double popupPanelElevation = 10;
-  static const MaterialType _popupPanelMaterialType = MaterialType.canvas;
-
-  static Material popupPanelRectangleMaterial({required Widget child}) {
-    return Material(
-      type: _popupPanelMaterialType,
-      elevation: popupPanelElevation,
-      borderRadius: BorderRadius.circular(10),
-      child: child,
-    );
-  }
-
-  static Material popupPanelPawMaterial({required Widget child}) {
-    return Material(
-      type: _popupPanelMaterialType,
-      elevation: popupPanelElevation,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(300)),
-      child: child,
-    );
-  }
-
-  // LARGE TEXT FIELD
-  static const largeTextFieldTextStyle = TextStyle(fontSize: 32);
-
-  static const largeTextFieldInputDecoration = InputDecoration(
-    contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(30)),
-    ),
-    filled: true,
-    counterText: '',
-    counterStyle: TextStyle(fontSize: 1),
-  );
-
   // THEME UTILITIES
   static MaterialStateProperty<Color> hoverColors({
     required Color idle,
@@ -313,5 +302,85 @@ class PfsTheme {
 
       return idle;
     });
+  }
+}
+
+class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
+  PfsAppTheme({
+    this.appWindowBorderSide,
+    this.boxPanelMaterialBuilder,
+    this.pawPanelMaterialBuilder,
+  });
+
+  final Material Function({required Widget child})? boxPanelMaterialBuilder;
+  final Material Function({required Widget child})? pawPanelMaterialBuilder;
+  final BorderSide? appWindowBorderSide;
+
+  Material Function({required Widget child}) get boxPanel =>
+      boxPanelMaterialBuilder ?? defaultBoxPanelMaterial;
+  Material Function({required Widget child}) get pawPanel =>
+      pawPanelMaterialBuilder ?? defaultPawPanelMaterial;
+
+  @override
+  ThemeExtension<PfsAppTheme> copyWith() {
+    return this;
+  }
+
+  @override
+  ThemeExtension<PfsAppTheme> lerp(
+      covariant ThemeExtension<PfsAppTheme>? other, double t) {
+    return other ?? this;
+  }
+
+  // LARGE TEXT FIELD
+  static const defaultLargeTextFieldTextStyle = TextStyle(fontSize: 32);
+  static const defaultLargeTextFieldInputDecoration = InputDecoration(
+    contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(30)),
+    ),
+    filled: true,
+    counterText: '',
+    counterStyle: TextStyle(fontSize: 1),
+  );
+
+  // POPUP PANEL
+  static Material Function({required Widget child}) boxPanelFrom(
+      ThemeData? theme) {
+    if (theme == null) return defaultBoxPanelMaterial;
+    final appTheme = theme.extension<PfsAppTheme>();
+
+    if (appTheme == null) return defaultBoxPanelMaterial;
+    return appTheme.boxPanel;
+  }
+
+  static Material Function({required Widget child}) pawPanelFrom(
+      ThemeData? theme) {
+    if (theme == null) return defaultPawPanelMaterial;
+    final appTheme = theme.extension<PfsAppTheme>();
+
+    if (appTheme == null) return defaultPawPanelMaterial;
+    return appTheme.pawPanel;
+  }
+
+  static const double popupPanelElevation = 10;
+  static const MaterialType _popupPanelMaterialType = MaterialType.canvas;
+
+  static Material defaultBoxPanelMaterial({required Widget child}) {
+    return Material(
+      type: _popupPanelMaterialType,
+      elevation: popupPanelElevation,
+      borderRadius: BorderRadius.circular(10),
+      child: child,
+    );
+  }
+
+  static Material defaultPawPanelMaterial({required Widget child}) {
+    return Material(
+      type: _popupPanelMaterialType,
+      elevation: popupPanelElevation,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(300)),
+      child: child,
+    );
   }
 }
