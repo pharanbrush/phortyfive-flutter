@@ -1,51 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 
 class Phtoasts {
   static const double iconSize = 16;
-  
-  static void showToast(
+
+  static Alignment topControlsAlign = Alignment.topCenter;
+
+  static void show(
     BuildContext? context, {
     required String message,
     IconData? icon,
+    Alignment alignment = Alignment.bottomCenter,
   }) {
     if (context == null) return;
 
-    // final theme = Theme.of(context);
-    // //final colorScheme = theme.colorScheme;
-    // final snackbarTheme = theme.snackBarTheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final snackbarTheme = theme.snackBarTheme;
 
     if (icon == null) {
-      showToastWidget(context, child: Text(message));
+      showWidget(context, child: Text(message));
     } else {
-      showToastWidget(
+      showWidget(
         context,
-        child: Row(
+        alignment: alignment,
+        child: Wrap(
+          direction: Axis.horizontal,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 10,
           children: [
-            Icon(icon, size: iconSize,),
+            Icon(
+              icon,
+              size: iconSize,
+              color: snackbarTheme.contentTextStyle?.color ??
+                  colorScheme.onPrimary,
+            ),
             Text(message),
+            const SizedBox(width: 2),
           ],
         ),
       );
     }
   }
 
-  static void showToastWidget(BuildContext? context, {required Widget child}) {
+  static void showWidget(
+    BuildContext? context, {
+    required Widget child,
+    Alignment alignment = Alignment.bottomCenter,
+  }) {
     if (context == null) return;
-
-    const duration = Duration(milliseconds: 1800);
 
     final theme = Theme.of(context);
     //final colorScheme = theme.colorScheme;
     final snackbarTheme = theme.snackBarTheme;
 
-    // context.showToast<bool>(
-    //   child,
-    //   queue: false,
-    //   duration: duration,
-    //   textStyle: snackbarTheme.contentTextStyle,
-    //   backgroundColor: snackbarTheme.backgroundColor,
-    //   alignment: const Alignment(0, -0.85),
-    //   padding: snackbarTheme.insetPadding,
-    // );
+    Widget toastWidget = DefaultTextStyle(
+      style: snackbarTheme.contentTextStyle ??
+          theme.primaryTextTheme.bodyMedium ??
+          const TextStyle(fontSize: 16),
+      child: Container(
+        padding: snackbarTheme.insetPadding,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: snackbarTheme.backgroundColor,
+          borderRadius: BorderRadius.circular(7),
+        ),
+        child: child,
+      ),
+    );
+
+    const duration = Duration(milliseconds: 1800);
+    const double offsetFromEdge = 70;
+
+    bool isTop = alignment.y < 0;
+    final animation = isTop
+        ? StyledToastAnimation.slideFromTopFade
+        : StyledToastAnimation.slideFromBottomFade;
+        
+    final reverseAnimation = isTop
+        ? StyledToastAnimation.slideToTopFade
+        : StyledToastAnimation.slideToBottomFade;
+
+    showToastWidget(
+      toastWidget,
+      duration: duration,
+      context: context,
+      position: StyledToastPosition(align: alignment, offset: offsetFromEdge),
+      //
+      animDuration: Phanimations.toastAnimationDuration,
+      animation: animation,
+      curve: Phanimations.toastCurve,
+      //
+      reverseAnimation: reverseAnimation,
+      reverseCurve: Curves.easeInQuad,
+    );
   }
 }

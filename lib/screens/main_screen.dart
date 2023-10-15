@@ -81,7 +81,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late TimerDurationPanel timerDurationWidget =
       TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
-    onNotify: (message, icon) => showToast(message: message, icon: icon),
+    onNotify: (message, icon) {
+      showImagePhiewerToast(message: message, icon: icon);
+    },
     onStateChange: _handleStateChange,
   );
 
@@ -217,7 +219,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
     if (filesSkipped == 0) {
-      Phtoasts.showToastWidget(
+      Phtoasts.showWidget(
         currentContext,
         child: PfsLocalization.textWithMultiBold(
           text1: '',
@@ -228,7 +230,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else {
       final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
-      Phtoasts.showToastWidget(
+      Phtoasts.showWidget(
         currentContext,
         child: PfsLocalization.textWithMultiBold(
             text1: '',
@@ -245,16 +247,21 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       boldText1: '${widget.model.timerModel.currentDurationSeconds} seconds',
       text2: ' per image.',
     );
-    Phtoasts.showToastWidget(currentContext, child: toastContent);
+    Phtoasts.showWidget(currentContext, child: toastContent);
   }
 
   void _handleOnImageChange() {
     setState(() => imagePhviewer.resetZoomLevel());
   }
 
-  void showToast({required String message, IconData? icon}) {
+  void showImagePhiewerToast({required String message, IconData? icon}) {
     if (currentContext == null) return;
-    Phtoasts.showToast(currentContext, message: message, icon: icon);
+    Phtoasts.show(
+      currentContext,
+      message: message,
+      icon: icon,
+      alignment: Phtoasts.topControlsAlign,
+    );
   }
 
   void _handleStateChange() {
@@ -267,6 +274,24 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else {
       _playPauseIconStateAnimator.reverse();
     }
+
+    showTimerToast() {
+      if (currentContext == null) return;
+      BuildContext context = currentContext!;
+
+      bool isRunning = widget.model.timerModel.isRunning;
+      final message = isRunning ? 'Timer playing' : 'Timer paused';
+
+      final icon = isRunning ? Icons.play_arrow : Icons.pause;
+
+      Phtoasts.show(
+        context,
+        message: message,
+        icon: icon,
+      );
+    }
+
+    showTimerToast();
     _playClickSound(playWhilePaused: true);
   }
 
@@ -324,7 +349,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ? Icons.picture_in_picture
           : Icons.picture_in_picture_outlined;
 
-      Phtoasts.showToast(context, message: message, icon: icon);
+      Phtoasts.show(
+        context,
+        message: message,
+        icon: icon,
+        alignment: Phtoasts.topControlsAlign,
+      );
     }
 
     setState(() {
@@ -339,7 +369,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       final message = wasEnabled ? 'Sounds enabled' : '"Sounds disabled';
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
-      Phtoasts.showToast(context, message: message, icon: icon);
+      Phtoasts.show(
+        context,
+        message: message,
+        icon: icon,
+        alignment: Phtoasts.topControlsAlign,
+      );
     }
 
     setState(() {
@@ -424,8 +459,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _clipboardCopyHandler({newClipboardText, toastMessage}) =>
-      _setClipboardText(
-          text: newClipboardText, toastMessage: toastMessage);
+      _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 
   void _setClipboardText({
     required String text,
@@ -434,10 +468,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (toastMessage != null) {
-      Phtoasts.showToast(
+      Phtoasts.show(
         currentContext,
         message: toastMessage,
         icon: icon,
+        alignment: Phtoasts.topControlsAlign,
       );
     }
   }
