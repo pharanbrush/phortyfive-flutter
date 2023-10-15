@@ -38,44 +38,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   BuildContext? currentContext;
 
-  late Map<Type, Action<Intent>> shortcutActions = {
-    PreviousImageIntent: CallbackAction(
-      onInvoke: (_) => widget.model.previousImageNewTimer(),
-    ),
-    NextImageIntent: CallbackAction(
-      onInvoke: (_) => widget.model.nextImageNewTimer(),
-    ),
-    PlayPauseIntent: CallbackAction(
-      onInvoke: (_) => widget.model.tryTogglePlayPauseTimer(),
-    ),
-    RestartTimerIntent: CallbackAction(
-      onInvoke: (_) => widget.model.timerModel.restartTimer(),
-    ),
-    OpenFilesIntent: CallbackAction(
-      onInvoke: (_) => widget.model.openFilePickerForImages(),
-    ),
-    OpenFolderIntent: CallbackAction(
-      onInvoke: (_) => widget.model.openFilePickerForFolder(),
-    ),
-    OpenTimerMenuIntent: CallbackAction(
-      onInvoke: (_) => windowState.isEditingTime.set(true),
-    ),
-    HelpIntent: CallbackAction(
-      onInvoke: (_) => windowState.isShowingCheatSheet.set(true),
-    ),
-    BottomBarToggleIntent: CallbackAction(
-      onInvoke: (_) => windowState.isBottomBarMinimized.toggle(),
-    ),
-    AlwaysOnTopIntent: CallbackAction(
-      onInvoke: (_) => windowState.isAlwaysOnTop.toggle(),
-    ),
-    ToggleSoundIntent: CallbackAction(
-      onInvoke: (_) => windowState.isSoundsEnabled.toggle(),
-    ),
-    ReturnHomeIntent: CallbackAction(
-      onInvoke: (_) => _tryReturnHome(),
-    ),
-  };
+  final Map<Type, Action<Intent>> shortcutActions = {};
+  late List<(Type type, Object? Function(Intent) callback)> shortcutIntentActions =
+      [
+    (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
+    (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
+    (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
+    (RestartTimerIntent, (_) => widget.model.timerModel.restartTimer()),
+    (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
+    (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
+    (OpenTimerMenuIntent, (_) => windowState.isEditingTime.set(true)),
+    (HelpIntent, (_) => windowState.isShowingCheatSheet.set(true)),
+    (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
+    (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
+    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
+    (ReturnHomeIntent, (_) => _tryReturnHome())
+  ];
 
   //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
   late TimerDurationPanel timerDurationWidget =
@@ -126,6 +104,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     Widget shortcutsWrapper(Widget childWidget) {
+      if (shortcutActions.isEmpty) {
+        for (var item in shortcutIntentActions) {
+          shortcutActions[item.$1] = CallbackAction(onInvoke: item.$2);
+        }
+      }
+
       return Shortcuts(
         shortcuts: Phshortcuts.intentMap,
         child: Actions(
