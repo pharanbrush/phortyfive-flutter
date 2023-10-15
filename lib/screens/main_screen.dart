@@ -39,8 +39,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   BuildContext? currentContext;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
-  late List<(Type type, Object? Function(Intent) callback)> shortcutIntentActions =
-      [
+  late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
     (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
     (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
     (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
@@ -105,8 +104,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     Widget shortcutsWrapper(Widget childWidget) {
       if (shortcutActions.isEmpty) {
-        for (var item in shortcutIntentActions) {
-          shortcutActions[item.$1] = CallbackAction(onInvoke: item.$2);
+        for (var (intentType, callback) in shortcutIntentActions) {
+          shortcutActions[intentType] = CallbackAction(onInvoke: callback);
         }
       }
 
