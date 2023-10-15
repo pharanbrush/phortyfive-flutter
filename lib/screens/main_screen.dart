@@ -88,8 +88,33 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     currentContext = context;
 
+    final theme = Theme.of(context);
+    final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
+
+    Widget windowBorderWrapper({required Widget child}) {
+      if (borderSide == null) {
+        return child;
+      } else {
+        final appWindowPadding = borderSide.width;
+
+        return Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(appWindowPadding),
+              child: child,
+            ),
+            Material(
+              type: MaterialType.transparency,
+              shape: Border.fromBorderSide(borderSide),
+              child: const SizedBox.expand(),
+            )
+          ],
+        );
+      }
+    }
+
     if (!widget.model.hasFilesLoaded) {
-      return Stack(
+      final firstActionApp = Stack(
         children: [
           const FirstActionSheet(),
           CornerWindowControls(
@@ -100,6 +125,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           _fileDropZone,
         ],
       );
+
+      return windowBorderWrapper(child: firstActionApp);
     }
 
     Widget shortcutsWrapper(Widget childWidget) {
@@ -130,55 +157,44 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    const noBoxDecoration = BoxDecoration(
-      border: Border.fromBorderSide(BorderSide.none),
-    );
-
-    final borderSide =
-        Theme.of(context).extension<PfsAppTheme>()?.appWindowBorderSide;
-    final appBoxDecoration = borderSide != null
-        ? BoxDecoration(border: Border.fromBorderSide(borderSide))
-        : noBoxDecoration;
-
-    return shortcutsWrapper(
-      Container(
-        decoration: appBoxDecoration,
-        child: Stack(
-          children: [
-            imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
-            _fileDropZone,
-            _gestureControls(),
-            const CountdownSheet(),
-            CornerWindowControls(
-              windowState: windowState,
+    final appWindowContent = shortcutsWrapper(
+      Stack(
+        children: [
+          imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
+          _fileDropZone,
+          _gestureControls(),
+          const CountdownSheet(),
+          CornerWindowControls(
+            windowState: windowState,
+            imagePhviewer: imagePhviewer,
+          ),
+          _bottomBar(context),
+          modalMenu(
+            isOpen: windowState.isEditingTime.boolValue,
+            builder: () => timerDurationWidget,
+          ),
+          modalMenu(
+            isOpen: windowState.isShowingCheatSheet.boolValue,
+            builder: () => Theme(
+              data: ThemeData.dark(useMaterial3: true),
+              child: HelpSheet(
+                onDismiss: () => windowState.isShowingCheatSheet.set(false),
+              ),
+            ),
+          ),
+          modalMenu(
+            isOpen: windowState.isShowingFiltersMenu.boolValue,
+            builder: () => FilterMenu(
               imagePhviewer: imagePhviewer,
+              onDismiss: () => windowState.isShowingFiltersMenu.set(false),
             ),
-            _bottomBar(context),
-            modalMenu(
-              isOpen: windowState.isEditingTime.boolValue,
-              builder: () => timerDurationWidget,
-            ),
-            modalMenu(
-              isOpen: windowState.isShowingCheatSheet.boolValue,
-              builder: () => Theme(
-                data: ThemeData.dark(useMaterial3: true),
-                child: HelpSheet(
-                  onDismiss: () => windowState.isShowingCheatSheet.set(false),
-                ),
-              ),
-            ),
-            modalMenu(
-              isOpen: windowState.isShowingFiltersMenu.boolValue,
-              builder: () => FilterMenu(
-                imagePhviewer: imagePhviewer,
-                onDismiss: () => windowState.isShowingFiltersMenu.set(false),
-              ),
-            ),
-            _dockingControls(),
-          ],
-        ),
+          ),
+          _dockingControls(),
+        ],
       ),
     );
+
+    return windowBorderWrapper(child: appWindowContent);
   }
 
   void _bindModelCallbacks() {
