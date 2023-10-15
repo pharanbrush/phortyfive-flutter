@@ -175,6 +175,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => _playClickSound();
     model.onImageDurationElapse ??= () => _playClickSound();
+    model.onFilePickerStateChange ??= () => _handleFilePickerOpenClose();
 
     final timerModel = model.timerModel;
     timerModel.onPlayPause ??= () => _handleTimerPlayPause();
@@ -247,6 +248,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _handleStateChange() {
     setState(() {});
+  }
+
+  void _handleFilePickerOpenClose() {
+    _updateAlwaysOnTop();
+  }
+
+  void _updateAlwaysOnTop() {
+    bool isPickingFiles = widget.model.isPickerOpen;
+    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.boolValue;
+
+    bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
+    windowManager.setAlwaysOnTop(currentAlwaysOnTop);
   }
 
   void _handleTimerPlayPause() {
@@ -341,7 +354,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      windowManager.setAlwaysOnTop(windowState.isAlwaysOnTop.boolValue);
+      _updateAlwaysOnTop();
       showAlwaysOnTopToast();
     });
   }

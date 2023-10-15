@@ -38,6 +38,7 @@ class PfsAppModel extends Model {
   void Function()? onImageDurationElapse;
 
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
+  void Function()? onFilePickerStateChange;
 
   FileData getCurrentImageData() {
     return fileList.get(circulator.currentIndex);
@@ -119,14 +120,14 @@ class PfsAppModel extends Model {
   void openFilePickerForImages() async {
     if (isPickerOpen) return;
 
-    isPickerOpen = true;
+    _setStateFilePickerOpen(true);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Open images...',
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: FileList.allowedExtensions,
     );
-    isPickerOpen = false;
+    _setStateFilePickerOpen(false);
 
     if (result == null) return;
 
@@ -136,11 +137,11 @@ class PfsAppModel extends Model {
   void openFilePickerForFolder() async {
     if (isPickerOpen) return;
 
-    isPickerOpen = true;
+    _setStateFilePickerOpen(true);
     var result = await FilePicker.platform.getDirectoryPath(
       dialogTitle: 'Open image folder...',
     );
-    isPickerOpen = false;
+    _setStateFilePickerOpen(false);
 
     if (result == null) return;
 
@@ -163,6 +164,7 @@ class PfsAppModel extends Model {
       loadImages(filePaths);
     } catch (e) {
       isPickerOpen = false;
+      onFilePickerStateChange?.call();
     }
   }
 
@@ -189,5 +191,10 @@ class PfsAppModel extends Model {
     onImageDurationElapse?.call;
     tryStartCountdown();
     notifyListeners();
+  }
+
+  void _setStateFilePickerOpen(bool active) {
+    isPickerOpen = active;
+    onFilePickerStateChange?.call();
   }
 }
