@@ -264,7 +264,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       BuildContext context = currentContext!;
 
       bool isRunning = widget.model.timerModel.isRunning;
-      final message = isRunning ? PfsLocalization.timerPlaying : PfsLocalization.timerPaused;
+      final message = isRunning
+          ? PfsLocalization.timerPlaying
+          : PfsLocalization.timerPaused;
 
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
