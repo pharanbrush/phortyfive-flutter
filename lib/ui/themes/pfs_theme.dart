@@ -51,13 +51,13 @@ class PfsTheme {
     const Color cspSelectedButton = Color(0xFF707A90);
     const Color cspTextColor = Color(0xDDE1E1E1);
     const Color cspTextBoxColor = Color(0xFF6F6F6F);
-    const Color cspLightGrayBox = Color(0xFF606060);
+    //const Color cspLightGrayBox = Color(0xFF606060);
 
     const Color cspWindowBorderColor = Color(0xFF3F3F3F);
     const Color selectedButtonContentColor = cspTextColor;
 
     const Color cardColor = Color(0xFF565656);
-    const Color cardOutlineColor = Color(0xFF3F3F3F);
+    //const Color cardOutlineColor = Color(0xFF3F3F3F);
     const Color outline = Color(0xC7868686);
 
     const cspWindowBorderSide = BorderSide(
