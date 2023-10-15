@@ -9,6 +9,9 @@ class PfsLocalization {
   static const String help = 'Help...';
   static const String revealInExplorer = 'Show in Explorer';
   static const String copyFilePath = 'Copy file path';
+  
+  static const String timerPlaying = 'Timer running';
+  static const String timerPaused = 'Timer paused';
 
   static const String press = isDesktop ? 'click' : 'tap';
 

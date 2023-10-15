@@ -280,7 +280,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       BuildContext context = currentContext!;
 
       bool isRunning = widget.model.timerModel.isRunning;
-      final message = isRunning ? 'Timer playing' : 'Timer paused';
+      final message = isRunning ? PfsLocalization.timerPlaying : PfsLocalization.timerPaused;
 
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
@@ -366,7 +366,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _handleSoundChanged() {
     showSoundToggleToast() {
       bool wasEnabled = windowState.isSoundsEnabled.boolValue;
-      final message = wasEnabled ? 'Sounds enabled' : '"Sounds disabled';
+      final message = wasEnabled ? 'Sounds enabled' : 'Sounds disabled';
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
       Phtoasts.show(
