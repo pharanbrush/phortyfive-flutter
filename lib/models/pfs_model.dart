@@ -175,10 +175,10 @@ class PfsAppModel extends Model {
     circulator.startNewOrder(loadedCount);
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
-    
+
     timerModel.tryInitialize();
     timerModel.onElapse ??= () => _handleTimerElapsed();
-    
+
     tryStartCountdown();
     timerModel.restartTimer();
     notifyListeners();

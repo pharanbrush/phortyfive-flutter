@@ -67,8 +67,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
     duration: Phanimations.defaultDuration,
-    value:
-        1, // WORKAROUND: the default 0 causes the icon to have the wrong initial state when the timer first plays.
+    // WORKAROUND: the default value: 0 causes the icon to have the wrong initial state when the timer first plays.
+    value: 1,
     vsync: this,
   );
 
@@ -170,9 +170,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _bindModelCallbacks() {
     final model = widget.model;
-    model.onFilesChanged ??= () => setState(() {
-          /* make the window repaint after loading the first image set */
-        });
+    model.onFilesChanged ??= () => _handleStateChange();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => _playClickSound();
