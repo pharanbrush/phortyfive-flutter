@@ -68,9 +68,11 @@ class TimerDurationPanel extends StatelessWidget {
         final isCurrentSelectedButton =
             (seconds == model.currentDurationSeconds);
         if (isCurrentSelectedButton) {
+          final selectedColor = MaterialStatePropertyAll(
+            Theme.of(context).colorScheme.primary,
+          );
           var selectedButtonStyle = presetButtonStyle.copyWith(
-            backgroundColor:
-                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            backgroundColor: selectedColor,
           );
 
           return Positioned(

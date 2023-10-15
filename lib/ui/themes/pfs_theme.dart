@@ -2,13 +2,130 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
-  static ThemeData get themeData => _getKPhashionTheme();
+  static ThemeData get themeData => _getClipDarkTheme();
 
   static const Color hyperlinkColorHovered = Colors.blue;
 
+  static ThemeData _getClipDarkTheme() {
+    const Brightness themeBrightness = Brightness.dark;
+    const Color seedColor = Color(0xFF808080);
+    const Color background = Color(0xFF565656);
+    const Color canvasBackground = Color(0xFF323232);
+
+    const Color primary = Color(0xFF707A90);
+    const Color secondary = Color(0xFF707A90);
+    const Color tertiary = Color(0xFF5F687D);
+    const Color buttonContentColor = Color(0x6D9E9E9E);
+    const Color buttonActiveColor = Color(0x783D507C);
+    const Color buttonHoverColor = Color(0xDCD8D8D8);
+
+    const Color buttonHoverOverlayColor = Color(0x66707A90);
+
+    final ButtonStyle buttonStyle = ButtonStyle(
+      foregroundColor: hoverActiveColors(
+        idle: buttonContentColor,
+        hover: buttonHoverColor,
+        active: buttonActiveColor,
+      ),
+      backgroundColor: hoverColors(
+        idle: background.withAlpha(0x00),
+        hover: background.withAlpha(0x22),
+      ),
+      overlayColor: hoverColors(
+        idle: buttonHoverOverlayColor.withAlpha(0x00),
+        hover: buttonHoverOverlayColor,
+      ),
+    );
+
+    const Color cspSelectedButton = Color(0xFF707A90);
+    const Color cspTextColor = Color(0xDDE1E1E1);
+    const Color cspTextBoxColor = Color(0xFF6F6F6F);
+    const Color cspLightGrayBox = Color(0xFF606060);
+    const Color selectedButtonContentColor = cspTextColor;
+
+    const Color cardColor = Color(0xFF565656);
+    const Color cardOutlineColor = Color(0xFF3F3F3F);
+    const Color outline = Color(0xC7868686);
+    
+    const Color filledbuttonContentColor = buttonContentColor;
+
+    var newData = ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: canvasBackground,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: themeBrightness,
+        seedColor: seedColor,
+        background: background,
+        primary: primary,
+        tertiary: tertiary,
+        onSecondary: Colors.white,
+        outline: outline,
+        surface: cardColor,
+        onSurfaceVariant: cspTextColor.withAlpha(0xAA),
+        secondary: secondary,
+        scrim: Colors.black38,
+
+        // Most text
+        onSurface: cspTextColor,
+
+        // Selected button text, slider value label text
+        onPrimary: selectedButtonContentColor,
+
+        //Segmented selected button
+        secondaryContainer: cspSelectedButton,
+        onSecondaryContainer: cspTextColor.withAlpha(0xFF),
+
+        // Text field background, slider background
+        surfaceVariant: cspTextBoxColor,
+      ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+        labelLarge: TextStyle(fontWeight: FontWeight.normal), // Control labels
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: primary,
+        actionTextColor: tertiary,
+        contentTextStyle: TextStyle(fontSize: 14, color: cspTextColor),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      textButtonTheme: TextButtonThemeData(style: buttonStyle),
+      iconButtonTheme: IconButtonThemeData(style: buttonStyle),
+      badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
+      iconTheme: const IconThemeData(
+        color: filledbuttonContentColor,
+      ),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(background),
+        ),
+      ),
+      cardTheme: const CardTheme(
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          side: BorderSide(color: cardOutlineColor),
+        ),
+      ),
+      extensions: const {
+        PhtimerTheme(
+          pausedColor: Color(0x996F6F6F),
+          runningColor: Color(0x665F687D),
+          almostZeroColor: Color(0xDD6C7CA1),
+          disabledColor: Color(0xFF9E9E9E),
+          barBackgroundColor: Colors.black12,
+        )
+      },
+    );
+
+    return newData;
+  }
+
   static ThemeData _getKPhashionTheme() {
+    const Brightness themeBrightness = Brightness.light;
     const Color seedColor = Color.fromARGB(255, 255, 174, 0);
     const Color background = Colors.white;
+    const Color canvasBackground = background;
 
     const Color primary = Color.fromARGB(255, 105, 91, 87);
     const Color secondary = Color.fromARGB(255, 146, 109, 88);
@@ -35,9 +152,9 @@ class PfsTheme {
 
     var newData = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: canvasBackground,
       colorScheme: ColorScheme.fromSeed(
-        brightness: Brightness.light,
+        brightness: themeBrightness,
         seedColor: seedColor,
         background: background,
         primary: primary,
@@ -47,6 +164,7 @@ class PfsTheme {
         outline: outline,
         surface: cardColor,
         onSurfaceVariant: primary.withAlpha(0xAA),
+        scrim: Colors.white60,
       ),
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: outline),

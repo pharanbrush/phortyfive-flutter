@@ -6,14 +6,12 @@ class ModalUnderlay extends StatelessWidget {
   final Function()? onDismiss;
   final bool isTransparent;
 
-  static const fadeColor = Colors.white60;
-
   @override
   Widget build(BuildContext context) {
     return ModalBarrier(
       dismissible: true,
       onDismiss: onDismiss,
-      color: isTransparent ? Colors.transparent : fadeColor,
+      color: isTransparent ? Colors.transparent : Theme.of(context).colorScheme.scrim,
     );
   }
 }
