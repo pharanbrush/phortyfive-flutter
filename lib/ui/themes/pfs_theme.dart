@@ -112,6 +112,11 @@ class PfsTheme {
         labelLarge: TextStyle(
             fontWeight: FontWeight.normal, fontSize: 12), // Control labels
       ),
+      sliderTheme: SliderThemeData(
+        trackShape: const RectangularSliderTrackShape(),
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8, disabledThumbRadius: 6,),
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+      ),
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: primary,
         actionTextColor: tertiary,
