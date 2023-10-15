@@ -20,8 +20,16 @@ class PfsTheme {
     const Color buttonHoverColor = Color(0xDCD8D8D8);
 
     const Color buttonHoverOverlayColor = Color(0x66707A90);
+    const cspButtonRadius = 3.0;
+    const buttonMaterialShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(cspButtonRadius)),
+    );
 
-    final ButtonStyle buttonStyle = ButtonStyle(
+    const ButtonStyle buttonShapeStyle = ButtonStyle(
+      shape: MaterialStatePropertyAll(buttonMaterialShape),
+    );
+
+    final ButtonStyle buttonColorStyle = ButtonStyle(
       foregroundColor: hoverActiveColors(
         idle: buttonContentColor,
         hover: buttonHoverColor,
@@ -37,16 +45,27 @@ class PfsTheme {
       ),
     );
 
+    final ButtonStyle buttonShapeAndColors =
+        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+
     const Color cspSelectedButton = Color(0xFF707A90);
     const Color cspTextColor = Color(0xDDE1E1E1);
     const Color cspTextBoxColor = Color(0xFF6F6F6F);
     const Color cspLightGrayBox = Color(0xFF606060);
+
+    const Color cspWindowBorderColor = Color(0xFF3F3F3F);
     const Color selectedButtonContentColor = cspTextColor;
 
     const Color cardColor = Color(0xFF565656);
     const Color cardOutlineColor = Color(0xFF3F3F3F);
     const Color outline = Color(0xC7868686);
-    
+
+    const cspWindowBorderSide = BorderSide(
+      color: cspWindowBorderColor,
+      width: 3,
+    );
+    final cspWindowBorderSideTop = cspWindowBorderSide.copyWith(width: 24);
+
     const Color filledbuttonContentColor = buttonContentColor;
 
     var newData = ThemeData(
@@ -78,6 +97,9 @@ class PfsTheme {
         // Text field background, slider background
         surfaceVariant: cspTextBoxColor,
       ),
+      filledButtonTheme: const FilledButtonThemeData(
+        style: buttonShapeStyle,
+      ),
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: outline),
         labelLarge: TextStyle(fontWeight: FontWeight.normal), // Control labels
@@ -88,9 +110,11 @@ class PfsTheme {
         contentTextStyle: TextStyle(fontSize: 14, color: cspTextColor),
         insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
       ),
-      textButtonTheme: TextButtonThemeData(style: buttonStyle),
-      iconButtonTheme: IconButtonThemeData(style: buttonStyle),
+      textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
+      iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
+      segmentedButtonTheme:
+          const SegmentedButtonThemeData(style: buttonShapeStyle),
       iconTheme: const IconThemeData(
         color: filledbuttonContentColor,
       ),
@@ -99,12 +123,14 @@ class PfsTheme {
           backgroundColor: MaterialStatePropertyAll(background),
         ),
       ),
-      cardTheme: const CardTheme(
-        elevation: 0,
+      cardTheme: CardTheme(
+        elevation: 2,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          side: BorderSide(color: cardOutlineColor),
+        shape: Border(
+          top: cspWindowBorderSideTop,
+          bottom: cspWindowBorderSide,
+          left: cspWindowBorderSide,
+          right: cspWindowBorderSide,
         ),
       ),
       extensions: const {
