@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -121,31 +121,32 @@ class PfsAppModel extends Model {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Open images...',
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: FileList.allowedExtensions,
+    final files = await openFiles(
+      acceptedTypeGroups: [
+        const XTypeGroup(
+          label: 'images',
+          extensions: FileList.allowedExtensions,
+        )
+      ],
     );
     _setStateFilePickerOpen(false);
 
-    if (result == null) return;
-
-    loadImages(result.paths);
+    if (files.isEmpty) return;
+    
+    final pathList = files.map((file) => file.path).toList();// = result.paths;
+    loadImages(pathList);
   }
 
   void openFilePickerForFolder() async {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    var result = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Open image folder...',
-    );
+    var folder = await getDirectoryPath();
     _setStateFilePickerOpen(false);
 
-    if (result == null) return;
-
-    loadFolder(result);
+    if (folder == null || folder.isEmpty) return;
+    
+    loadFolder(folder);
   }
 
   void loadFolder(String folderPath) async {
