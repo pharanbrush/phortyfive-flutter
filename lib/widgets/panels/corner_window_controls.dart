@@ -22,8 +22,8 @@ class CornerWindowControls extends StatelessWidget {
     final cornerWatermarkTextStyle =
         theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
 
-    final soundShortcut =
-        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+    // final soundShortcut =
+    //     PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
 
     return Positioned(
       right: 8,
