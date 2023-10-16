@@ -37,14 +37,19 @@ class CornerWindowControls extends StatelessWidget {
             direction: Axis.horizontal,
             alignment: WrapAlignment.end,
             children: [
+              // CornerButton(
+              //   onPressed: () => windowState.isSoundsEnabled.toggle(),
+              //   icon: windowState.isSoundsEnabled.boolValue
+              //       ? Icons.volume_up
+              //       : Icons.volume_off,
+              //   tooltip: windowState.isSoundsEnabled.boolValue
+              //       ? 'Mute sounds ($soundShortcut)'
+              //       : 'Unmute sounds ($soundShortcut)',
+              // ),
               CornerButton(
-                onPressed: () => windowState.isSoundsEnabled.toggle(),
-                icon: windowState.isSoundsEnabled.boolValue
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                tooltip: windowState.isSoundsEnabled.boolValue
-                    ? 'Mute sounds ($soundShortcut)'
-                    : 'Unmute sounds ($soundShortcut)',
+                onPressed: () => windowState.isShowingSettingsMenu.set(true),
+                icon: Icons.settings,
+                tooltip: 'Settings',
               ),
               CornerButton(
                 onPressed: () => windowState.isAlwaysOnTop.toggle(),

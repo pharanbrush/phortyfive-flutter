@@ -10,11 +10,19 @@ class Phanimations {
   
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
+  static const slowDuration = Duration(milliseconds: 300);
 
   static const bottomBarSlideUpEffect = SlideEffect(
     duration: fastDuration,
     curve: Curves.easeOutQuart,
     begin: Offset(0, 1),
+    end: Offset(0, 0),
+  );
+  
+   static const largeRightPanelSlideInEffect = SlideEffect(
+    duration: slowDuration,
+    curve: Curves.easeOutQuint,
+    begin: Offset(0.1, 0),
     end: Offset(0, 0),
   );
 

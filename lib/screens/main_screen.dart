@@ -16,6 +16,7 @@ import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/panels/corner_window_controls.dart';
+import 'package:pfs2/widgets/panels/settings_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
@@ -189,6 +190,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               onDismiss: () => windowState.isShowingFiltersMenu.set(false),
             ),
           ),
+          modalMenu(
+            isOpen: windowState.isShowingSettingsMenu.boolValue,
+            builder: () => SettingsPanel(
+              windowState: windowState,
+              onDismiss: () => windowState.isShowingSettingsMenu.set(false),
+            ),
+          ),
           _dockingControls(),
         ],
       ),
@@ -220,6 +228,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .setListener(() => _handleBottomBarChanged());
     windowState.isShowingFiltersMenu
         .setListener(() => _handleFilterMenuChanged());
+    windowState.isShowingSettingsMenu
+        .setListener(() => _handleSettingsMenuChanged());
   }
 
   void _tryReturnHome() {
@@ -400,6 +410,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() {
       showSoundToggleToast();
     });
+  }
+
+  void _handleSettingsMenuChanged() {
+    _cancelAllModals(except: windowState.isShowingSettingsMenu);
+    setState(() {});
   }
 
   Widget _gestureControls() {
@@ -619,6 +634,7 @@ class PfsWindowState {
   final isEditingTime = ListenableBool(false);
   final isShowingCheatSheet = ListenableBool(false);
   final isShowingFiltersMenu = ListenableBool(false);
+  final isShowingSettingsMenu = ListenableBool(false);
 }
 
 class ListenableBool {
