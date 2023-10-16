@@ -75,9 +75,9 @@ class TimerControls extends StatelessWidget {
 class TimerBar extends StatelessWidget {
   const TimerBar({super.key});
   static const Key mainScreenKey = Key('mainScreenTimerBar');
-  
+
   static const double almostZeroThreshold = 0.1;
-  static const double barWidth = 200;  
+  static const double barWidth = 200;
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +142,8 @@ class PlayPauseTimerButton extends StatelessWidget {
         bool allowTimerControl = model.allowTimerPlayPause;
         Color buttonColor = allowTimerControl
             ? (timerModel.isRunning
-                ? timerTheme.runningColor
-                : timerTheme.pausedColor)
+                ? timerTheme.runningButton
+                : timerTheme.pausedButton)
             : timerTheme.disabledColor;
 
         final style = ButtonStyle(
@@ -208,6 +208,8 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
     required this.almostZeroColor,
     required this.disabledColor,
     required this.barBackgroundColor,
+    required this.pausedButton,
+    required this.runningButton,
   });
 
   static const defaultTheme = PhtimerTheme(
@@ -216,6 +218,8 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
     almostZeroColor: Colors.red,
     disabledColor: Color(0xFF9E9E9E),
     barBackgroundColor: Colors.black12,
+    pausedButton: Colors.orange,
+    runningButton: Colors.blue,
   );
 
   @override
@@ -225,6 +229,8 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
     Color? almostZeroColor,
     Color? disabledColor,
     Color? barBackgroundColor,
+    Color? pausedButton,
+    Color? runningButton,
   }) {
     return PhtimerTheme(
       pausedColor: pausedColor ?? this.pausedColor,
@@ -232,6 +238,8 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
       almostZeroColor: almostZeroColor ?? this.almostZeroColor,
       disabledColor: disabledColor ?? this.disabledColor,
       barBackgroundColor: barBackgroundColor ?? this.barBackgroundColor,
+      pausedButton: pausedButton ?? this.pausedButton,
+      runningButton: runningButton ?? this.runningButton,
     );
   }
 
@@ -249,6 +257,8 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
       disabledColor: Color.lerp(disabledColor, other.disabledColor, t)!,
       barBackgroundColor:
           Color.lerp(barBackgroundColor, other.barBackgroundColor, t)!,
+      pausedButton: Color.lerp(pausedButton, other.pausedButton, t)!,
+      runningButton: Color.lerp(runningButton, other.runningButton, t)!,
     );
   }
 
@@ -257,4 +267,6 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
   final Color almostZeroColor;
   final Color disabledColor;
   final Color barBackgroundColor;
+  final Color pausedButton;
+  final Color runningButton;
 }

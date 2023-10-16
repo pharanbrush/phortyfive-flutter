@@ -164,11 +164,13 @@ class PfsTheme {
       ),
       extensions: {
         const PhtimerTheme(
-          pausedColor: Color(0xDDF0B132),
+          pausedColor: Color(0x77F0B132),
           runningColor: Color(0xDD5865F2),
           almostZeroColor: Color(0xDDF23F42),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Color(0xDD707070),
+          runningButton: Color.fromARGB(120, 82, 84, 92),
+          pausedButton: Color(0x445865F2),
         ),
         PfsAppTheme(
           boxPanelMaterialBuilder: ({required Widget child}) {
@@ -333,10 +335,12 @@ class PfsTheme {
       extensions: {
         const PhtimerTheme(
           pausedColor: Color(0x996F6F6F),
-          runningColor: Color(0x665F687D),
+          runningColor: Color(0x99586788),
           almostZeroColor: Color(0xDD6C7CA1),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Colors.black12,
+          pausedButton: Color(0x996F6F6F),
+          runningButton: Color(0x665F687D),
         ),
         PfsAppTheme(
             appWindowBorderSide: cspWindowBorderSide.copyWith(width: 4),
@@ -443,6 +447,8 @@ class PfsTheme {
           almostZeroColor: Color.fromARGB(195, 206, 12, 12),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Colors.black12,
+          pausedButton: tertiary,
+          runningButton: Color.fromARGB(140, 167, 148, 140),
         )
       },
     );
