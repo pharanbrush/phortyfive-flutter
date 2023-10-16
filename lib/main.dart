@@ -30,6 +30,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
   final PfsAppModel appModel;
+  final ValueNotifier<String> theme =
+      ValueNotifier<String>(PfsTheme.defaultTheme);
 
   MyApp({Key? key, required this.appModel}) : super(key: key);
 
@@ -41,14 +43,22 @@ class MyApp extends StatelessWidget {
       model: appModel,
       child: ScopedModel<PhtimerModel>(
         model: appModel.timerModel,
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          title: 'PhortyFive Seconds',
-          theme: PfsTheme.themeData,
-          home: Scaffold(
-            body: MainScreen(model: appModel),
-          ),
+        child: ValueListenableBuilder(
+          valueListenable: theme,
+          builder: (context, value, child) {
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              title: 'PhortyFive Seconds',
+              theme: PfsTheme.getTheme(theme.value),
+              home: Scaffold(
+                body: MainScreen(
+                  model: appModel,
+                  theme: theme,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

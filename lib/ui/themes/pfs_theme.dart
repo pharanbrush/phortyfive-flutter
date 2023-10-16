@@ -2,7 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
-  static ThemeData get themeData => getPhriendsDarkTheme();
+  static ThemeData getTheme(String theme) {
+    return themeMap[theme]?.call() ??
+        themeMap[defaultTheme]?.call() ??
+        getKPhashionTheme();
+  }
+
+  static const defaultTheme = 'phashion';
+  static final themeMap = <String, ThemeData Function()>{
+    'phashion': getKPhashionTheme,
+    'phriends': getPhriendsDarkTheme,
+    'phaint': getClipDarkTheme,
+    'philes': getPhilesTenTheme,
+  };
+
+  //
 
   static const Color hyperlinkColorHovered = Colors.blue;
 

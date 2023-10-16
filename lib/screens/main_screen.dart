@@ -24,9 +24,10 @@ import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required this.model});
+  const MainScreen({super.key, required this.model, required this.theme});
 
   final PfsAppModel model;
+  final ValueNotifier<String> theme;
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -194,6 +195,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             isOpen: windowState.isShowingSettingsMenu.boolValue,
             builder: () => SettingsPanel(
               windowState: windowState,
+              appModel: widget.model,
+              themeNotifier: widget.theme,
               onDismiss: () => windowState.isShowingSettingsMenu.set(false),
             ),
           ),
