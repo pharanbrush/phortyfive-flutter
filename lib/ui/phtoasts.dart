@@ -55,18 +55,25 @@ class Phtoasts {
     //final colorScheme = theme.colorScheme;
     final snackbarTheme = theme.snackBarTheme;
 
+    final textStyle = snackbarTheme.contentTextStyle ??
+        theme.primaryTextTheme.bodyMedium ??
+        const TextStyle(fontSize: 16);
+
     Widget toastWidget = DefaultTextStyle(
-      style: snackbarTheme.contentTextStyle ??
-          theme.primaryTextTheme.bodyMedium ??
-          const TextStyle(fontSize: 16),
-      child: Container(
-        padding: snackbarTheme.insetPadding,
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: snackbarTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(7),
+      style: textStyle,
+      child: Material(
+        type: MaterialType.canvas,
+        color: snackbarTheme.backgroundColor,
+        elevation: snackbarTheme.elevation ?? 0,
+        textStyle: textStyle,
+        shape: snackbarTheme.shape ??
+            const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(7)),
+            ),
+        child: Padding(
+          padding: snackbarTheme.insetPadding ?? const EdgeInsets.all(8.0),
+          child: child,
         ),
-        child: child,
       ),
     );
 
@@ -77,7 +84,7 @@ class Phtoasts {
     final animation = isTop
         ? StyledToastAnimation.slideFromTopFade
         : StyledToastAnimation.slideFromBottomFade;
-        
+
     final reverseAnimation = isTop
         ? StyledToastAnimation.slideToTopFade
         : StyledToastAnimation.slideToBottomFade;
