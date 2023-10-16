@@ -269,13 +269,14 @@ class ImageClickableLabel extends StatelessWidget {
     ),
   );
 
-  static final buttonMaterialColors = PfsTheme.hoverColors(
-    idle: Colors.white.withAlpha(0x00),
-    hover: Colors.white,
-  );
-
   @override
   Widget build(BuildContext context) {
+    Color buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
+    final buttonMaterialColors = PfsTheme.hoverColors(
+      idle: buttonHoverBackground.withAlpha(0x00),
+      hover: buttonHoverBackground,
+    );
+
     final textMaterialColors = PfsTheme.hoverColors(
       idle: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(0x6C),
       hover: PfsTheme.hyperlinkColorHovered,
