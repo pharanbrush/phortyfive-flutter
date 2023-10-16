@@ -424,6 +424,9 @@ class PfsTheme {
         contentTextStyle: TextStyle(fontSize: 14),
         insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
       ),
+      sliderTheme: SliderThemeData(
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+      ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
