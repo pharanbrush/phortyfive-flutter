@@ -2,9 +2,190 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
-  static ThemeData get themeData => getClipDarkTheme();
+  static ThemeData get themeData => getPhriendsDarkTheme();
 
   static const Color hyperlinkColorHovered = Colors.blue;
+
+  static ThemeData getPhriendsDarkTheme() {
+    const Brightness themeBrightness = Brightness.dark;
+    const Color seedColor = Color(0xFF313338);
+    const Color panelBackground = Color(0xFF232428);
+    const Color appBackground = Color(0xFF313338);
+
+    // APP SPECIFIC
+    const Color discordBlue = Color(0xFF5865F2);
+
+    const Color primary = Color(0xFF404249);
+    const Color secondary = discordBlue;
+    const Color tertiary = Color(0xFF23A55A);
+    const Color buttonContentColor = Color(0xCC80848E);
+    const Color buttonHoverColor = Color(0xFFDBDEE1);
+    final Color buttonActiveColor =
+        discordBlue.withAlpha(0x77); //Color(0x783D507C);
+    final Color buttonDisabledColor = buttonContentColor.withAlpha(0x55);
+
+    const Color buttonHoverOverlayColor = Color(0x11D4D4D4);
+    const buttonRadius = 5.0;
+    const buttonMaterialShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(buttonRadius)),
+    );
+
+    const ButtonStyle buttonShapeStyle = ButtonStyle(
+      shape: MaterialStatePropertyAll(buttonMaterialShape),
+    );
+
+    final ButtonStyle buttonColorStyle = ButtonStyle(
+      foregroundColor: hoverActiveDisabledProperty(
+        idle: buttonContentColor,
+        hover: buttonHoverColor,
+        active: buttonActiveColor,
+        disabled: buttonDisabledColor,
+      ),
+      backgroundColor: hoverColors(
+        idle: appBackground.withAlpha(0x00),
+        hover: appBackground.withAlpha(0x0A),
+      ),
+      overlayColor: hoverColors(
+        idle: buttonHoverOverlayColor.withAlpha(0x00),
+        hover: buttonHoverOverlayColor,
+      ),
+    );
+
+    final ButtonStyle buttonShapeAndColors =
+        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+
+    const Color selectedButton = Color(0xFF43444B);
+    const Color textColor = Color(0xDDF2F3F5);
+    const Color textBoxColor = Color(0xFF383A40);
+
+    const Color selectedButtonContentColor = textColor;
+
+    const Color cardColor = Color(0xFF232428);
+    const Color outline = Color(0xC7868686);
+
+    const Color tooltipBackgroundColor = Color(0xFF111214);
+    const Color tooltipTextColor = Color(0xEEDBDEE1);
+
+    const Color filledbuttonContentColor = buttonContentColor;
+    const double panelElevation = 20;
+
+    var newData = ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: appBackground,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: themeBrightness,
+        seedColor: seedColor,
+        background: panelBackground,
+        primary: primary,
+        tertiary: tertiary,
+        onSecondary: Colors.white,
+        outline: outline,
+        surface: cardColor,
+        onSurfaceVariant: textColor.withAlpha(0xAA),
+        secondary: secondary,
+        scrim: const Color(0xB7000000),
+
+        // Most text
+        onSurface: textColor,
+
+        // Selected button text, slider value label text
+        onPrimary: selectedButtonContentColor,
+
+        // Selected Segmented button
+        secondaryContainer: selectedButton,
+        onSecondaryContainer: textColor.withAlpha(0xFF),
+
+        // Text field background, slider background
+        surfaceVariant: textBoxColor,
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: Color(0xFF0B69D9),
+      ),
+      tooltipTheme: const TooltipThemeData(
+        verticalOffset: 26,
+        textStyle: TextStyle(
+          color: tooltipTextColor,
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: 7,
+          horizontal: 13,
+        ),
+        decoration: BoxDecoration(
+          color: tooltipBackgroundColor,
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+        ),
+      ),
+      filledButtonTheme: const FilledButtonThemeData(
+        style: buttonShapeStyle,
+      ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+        labelLarge: TextStyle(fontWeight: FontWeight.normal), // Control labels
+      ),
+      sliderTheme: SliderThemeData(
+        thumbColor: Colors.white,
+        trackShape: const RoundedRectSliderTrackShape(),
+        trackHeight: 7,
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+        activeTrackColor: discordBlue,
+        inactiveTrackColor: const Color(0xFF4E5058),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: Color(0xFF1E1F22),
+        actionTextColor: tertiary,
+        contentTextStyle: TextStyle(fontSize: 14, color: Color(0xFFB4B9C0)),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      badgeTheme: const BadgeThemeData(backgroundColor: discordBlue),
+      textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
+      iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: buttonShapeStyle.copyWith(
+          iconColor: const MaterialStatePropertyAll(Color(0xBBB5BAC1)),
+        ),
+      ),
+      iconTheme: const IconThemeData(
+        color: filledbuttonContentColor,
+      ),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(panelBackground),
+        ),
+      ),
+      cardTheme: const CardTheme(
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          //side: BorderSide(color: cardOutlineColor),
+        ),
+      ),
+      extensions: {
+        const PhtimerTheme(
+          pausedColor: Color(0xDDF0B132),
+          runningColor: Color(0xDD5865F2),
+          almostZeroColor: Color(0xDDF23F42),
+          disabledColor: Color(0xFF9E9E9E),
+          barBackgroundColor: Color(0xDD707070),
+        ),
+        PfsAppTheme(
+          boxPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: panelElevation,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
+              child: child,
+            );
+          },
+        )
+      },
+    );
+
+    return newData;
+  }
 
   static ThemeData getClipDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
@@ -114,7 +295,10 @@ class PfsTheme {
       ),
       sliderTheme: SliderThemeData(
         trackShape: const RectangularSliderTrackShape(),
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8, disabledThumbRadius: 6,),
+        thumbShape: const RoundSliderThumbShape(
+          enabledThumbRadius: 8,
+          disabledThumbRadius: 6,
+        ),
         tickMarkShape: SliderTickMarkShape.noTickMark,
       ),
       snackBarTheme: const SnackBarThemeData(
@@ -291,6 +475,25 @@ class PfsTheme {
   }) {
     return MaterialStateProperty.resolveWith(
         (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  }
+
+  static MaterialStateProperty<T> hoverActiveDisabledProperty<T>({
+    required T idle,
+    required T hover,
+    required T active,
+    required T disabled,
+  }) {
+    return MaterialStateProperty.resolveWith((states) {
+      if (states.contains(MaterialState.hovered)) {
+        return hover;
+      } else if (states.contains(MaterialState.selected)) {
+        return active;
+      } else if (states.contains(MaterialState.disabled)) {
+        return disabled;
+      }
+
+      return idle;
+    });
   }
 
   static MaterialStateProperty<Color> hoverActiveColors({
