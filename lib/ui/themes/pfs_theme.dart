@@ -195,7 +195,7 @@ class PfsTheme {
   static ThemeData getPhriendsDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF313338);
-    const Color panelBackground = Color(0xFF232428);
+    const Color panelBackground = Color(0xFF2B2D31);
     const Color appBackground = Color(0xFF313338);
 
     // APP SPECIFIC
@@ -253,7 +253,8 @@ class PfsTheme {
     const Color tooltipTextColor = Color(0xEEDBDEE1);
 
     const Color filledbuttonContentColor = buttonContentColor;
-    const double panelElevation = 20;
+    const double panelElevation = 10;
+    const panelOutline = BorderSide(width: 1.0, color: Color(0xFF282A2E));
 
     var newData = ThemeData(
       useMaterial3: true,
@@ -355,8 +356,8 @@ class PfsTheme {
           almostZeroColor: Color(0xDDF23F42),
           disabledColor: Color(0xFF9E9E9E),
           barBackgroundColor: Color(0xDD707070),
-          runningButton: Color.fromARGB(120, 82, 84, 92),
-          pausedButton: Color(0x445865F2),
+          runningButton: Color(0x7852545C),
+          pausedButton: Color(0x7852545C),
         ),
         PfsAppTheme(
           boxPanelMaterialBuilder: ({required Widget child}) {
@@ -364,7 +365,22 @@ class PfsTheme {
               type: MaterialType.canvas,
               elevation: panelElevation,
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5))),
+                side: panelOutline,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              surfaceTintColor: null,
+              child: child,
+            );
+          },
+          pawPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: panelElevation,
+              shape: const RoundedRectangleBorder(
+                side: panelOutline,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(300)),
+              ),
+              surfaceTintColor: null,
               child: child,
             );
           },
