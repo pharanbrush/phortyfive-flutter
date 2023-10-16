@@ -9,8 +9,8 @@ class PfsTheme {
   static ThemeData getClipDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF808080);
-    const Color background = Color(0xFF474747);
-    const Color canvasBackground = Color(0xFF323232);
+    const Color panelBackground = Color(0xFF474747);
+    const Color appBackground = Color(0xFF323232);
 
     const Color primary = Color(0xFF707A90);
     const Color secondary = Color(0xFF707A90);
@@ -36,8 +36,8 @@ class PfsTheme {
         active: buttonActiveColor,
       ),
       backgroundColor: hoverColors(
-        idle: background.withAlpha(0x00),
-        hover: background.withAlpha(0x22),
+        idle: appBackground.withAlpha(0x00),
+        hover: appBackground.withAlpha(0x22),
       ),
       overlayColor: hoverColors(
         idle: buttonHoverOverlayColor.withAlpha(0x00),
@@ -74,11 +74,11 @@ class PfsTheme {
 
     var newData = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: canvasBackground,
+      scaffoldBackgroundColor: appBackground,
       colorScheme: ColorScheme.fromSeed(
         brightness: themeBrightness,
         seedColor: seedColor,
-        background: background,
+        background: panelBackground,
         primary: primary,
         tertiary: tertiary,
         onSecondary: Colors.white,
@@ -133,7 +133,7 @@ class PfsTheme {
       ),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(background),
+          backgroundColor: MaterialStatePropertyAll(panelBackground),
         ),
       ),
       cardTheme: CardTheme(
@@ -185,8 +185,8 @@ class PfsTheme {
   static ThemeData getKPhashionTheme() {
     const Brightness themeBrightness = Brightness.light;
     const Color seedColor = Color.fromARGB(255, 255, 174, 0);
-    const Color background = Colors.white;
-    const Color canvasBackground = background;
+    const Color panelBackground = Colors.white;
+    const Color appBackground = panelBackground;
 
     const Color primary = Color.fromARGB(255, 105, 91, 87);
     const Color secondary = Color.fromARGB(255, 146, 109, 88);
@@ -202,8 +202,8 @@ class PfsTheme {
         active: buttonActiveColor,
       ),
       backgroundColor: hoverColors(
-        idle: background.withAlpha(0x00),
-        hover: background.withAlpha(0x22),
+        idle: appBackground.withAlpha(0x00),
+        hover: appBackground.withAlpha(0x22),
       ),
     );
 
@@ -213,11 +213,11 @@ class PfsTheme {
 
     var newData = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: canvasBackground,
+      scaffoldBackgroundColor: appBackground,
       colorScheme: ColorScheme.fromSeed(
         brightness: themeBrightness,
         seedColor: seedColor,
-        background: background,
+        background: panelBackground,
         primary: primary,
         secondary: secondary,
         tertiary: tertiary,
@@ -241,7 +241,7 @@ class PfsTheme {
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
       menuButtonTheme: const MenuButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(background),
+          backgroundColor: MaterialStatePropertyAll(panelBackground),
         ),
       ),
       cardTheme: const CardTheme(
