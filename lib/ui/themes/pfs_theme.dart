@@ -6,6 +6,192 @@ class PfsTheme {
 
   static const Color hyperlinkColorHovered = Colors.blue;
 
+  static ThemeData getPhilesTenTheme() {
+    const Brightness themeBrightness = Brightness.light;
+    const Color seedColor = Color(0xFF26A0DA);
+    const Color panelBackground = Color(0xFFEEEEEE);
+    const Color appBackground = Color(0xFFFFFFFF);
+
+    // APP SPECIFIC
+    const Color barBlue = Color(0xFF26A0DA);
+    const Color barBackground = Color(0xFFE6E6E6);
+    const Color sliderBlue = Color(0xFF2972B1);
+    const Color sliderBackground = Color(0xFF999999);
+
+    const Color primary = Color(0xFF409AE0);
+    const Color secondary = barBlue;
+    const Color tertiary = Color(0xFF23A55A);
+    const Color buttonContentColor = Colors.black38;
+    const Color buttonActiveColor = primary;
+
+    const Color buttonHoverBackground = Color(0x44BEE6FD);
+    const Color buttonHoverOutline = Color(0x443C7FB1);
+    const double buttonRadius = 0;
+    const buttonMaterialShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(buttonRadius)),
+    );
+
+    const ButtonStyle buttonShapeStyle = ButtonStyle(
+      shape: MaterialStatePropertyAll(buttonMaterialShape),
+    );
+
+    final ButtonStyle buttonColorStyle = ButtonStyle(
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.selected)) {
+          return buttonActiveColor;
+        }
+
+        return buttonContentColor;
+      }),
+      backgroundColor: hoverColors(
+        idle: buttonHoverBackground.withAlpha(0x00),
+        hover: buttonHoverBackground,
+      ),
+      side: hoverProperty(
+        idle: const BorderSide(color: Colors.transparent),
+        hover: const BorderSide(color: buttonHoverOutline),
+      ),
+    );
+
+    final ButtonStyle buttonShapeAndColors =
+        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+
+    const Color selectedButton = Color.fromARGB(200, 150, 208, 255);
+    const Color textColor = Color(0xEE000000);
+    const Color textHighlightColor = Color(0xFF0078D7);
+    const Color textBoxColor = Color(0xFFFFFFFF);
+
+    const Color selectedButtonContentColor = Colors.white;
+
+    const Color cardColor = panelBackground;
+    const Color outline = Color.fromARGB(255, 192, 192, 192);
+
+    const Color tooltipBackgroundColor = Color(0xFFFFFFFF);
+    const Color tooltipTextColor = Color(0xFF575757);
+
+    const Color filledbuttonContentColor = appBackground;
+    const double panelElevation = 20;
+
+    var newData = ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: appBackground,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: themeBrightness,
+        seedColor: seedColor,
+        background: panelBackground,
+        primary: primary,
+        tertiary: tertiary,
+        onSecondary: Colors.white,
+        outline: outline,
+        surface: cardColor,
+        onSurfaceVariant: textColor.withAlpha(0xAA),
+        secondary: secondary,
+        scrim: const Color(0xB7FFFFFF),
+
+        // Most text
+        onSurface: textColor,
+
+        // Selected button text, slider value label text
+        onPrimary: selectedButtonContentColor,
+
+        // Selected Segmented button
+        secondaryContainer: selectedButton,
+        onSecondaryContainer: textColor.withAlpha(0xFF),
+
+        // Text field background, slider background
+        surfaceVariant: textBoxColor,
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: textHighlightColor,
+      ),
+      tooltipTheme: const TooltipThemeData(
+        verticalOffset: 26,
+        textStyle: TextStyle(
+          color: tooltipTextColor,
+          fontSize: 12,
+        ),
+        decoration: BoxDecoration(
+            color: tooltipBackgroundColor,
+            border: Border.fromBorderSide(
+                BorderSide(width: 1, color: Color(0xFF767676)))),
+      ),
+      filledButtonTheme: const FilledButtonThemeData(
+        style: buttonShapeStyle,
+      ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+        labelLarge: TextStyle(
+            fontWeight: FontWeight.normal, fontSize: 12), // Control labels
+      ),
+      sliderTheme: SliderThemeData(
+        thumbColor: sliderBlue,
+        trackShape: const RectangularSliderTrackShape(),
+        trackHeight: 3,
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+        activeTrackColor: sliderBlue,
+        inactiveTrackColor: sliderBackground,
+        valueIndicatorColor: sliderBlue,
+        valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: Color(0xFFFFFFFF),
+        elevation: 10,
+        actionTextColor: tertiary,
+        shape: Border(),
+        contentTextStyle: TextStyle(fontSize: 14, color: Color(0xFF767676)),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      badgeTheme: const BadgeThemeData(backgroundColor: barBlue),
+      textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
+      iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: buttonShapeStyle.copyWith(
+          iconColor: const MaterialStatePropertyAll(Color(0xBB333333)),
+        ),
+      ),
+      iconTheme: const IconThemeData(
+        color: filledbuttonContentColor,
+      ),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(panelBackground),
+        ),
+      ),
+      cardTheme: const CardTheme(
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          //side: BorderSide(color: cardOutlineColor),
+        ),
+      ),
+      extensions: {
+        const PhtimerTheme(
+          pausedColor: Color(0xFFFFDE95),
+          runningColor: Color(0xFF26A0DA),
+          almostZeroColor: Color(0xDDF23F42),
+          disabledColor: Color(0xFF9E9E9E),
+          barBackgroundColor: barBackground,
+          pausedButton: Color(0xB2FDEFBE),
+          runningButton: Color(0xB2BEE6FD),
+        ),
+        PfsAppTheme(
+          boxPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: panelElevation,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
+              child: child,
+            );
+          },
+        )
+      },
+    );
+
+    return newData;
+  }
+
   static ThemeData getPhriendsDarkTheme() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF313338);
