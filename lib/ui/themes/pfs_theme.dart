@@ -15,7 +15,7 @@ class PfsTheme {
     // APP SPECIFIC
     const Color discordBlue = Color(0xFF5865F2);
 
-    const Color primary = Color(0xFF404249);
+    const Color primary = discordBlue;
     const Color secondary = discordBlue;
     const Color tertiary = Color(0xFF23A55A);
     const Color buttonContentColor = Color(0xCC80848E);
