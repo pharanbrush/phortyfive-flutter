@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class PfsTheme {
+  static const String themePreferencesKey = 'theme';
+  
   static ThemeData getTheme(String theme) {
     return themeMap[theme]?.call() ??
         themeMap[defaultTheme]?.call() ??

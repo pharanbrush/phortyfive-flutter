@@ -5,6 +5,7 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -22,18 +23,29 @@ void main() async {
     await windowManager.focus();
   });
 
+  Future<SharedPreferences> prefsInstance = SharedPreferences.getInstance();
+  final SharedPreferences prefs = await prefsInstance;
+  
+  // Separate nullable variable so it can be checked and logged.
+  final String? loadedTheme = prefs.getString(PfsTheme.themePreferencesKey);
+  final String initialTheme = loadedTheme ?? PfsTheme.defaultTheme;
+
   runApp(MyApp(
     appModel: PfsAppModel(),
+    initialTheme: initialTheme,
   ));
 }
 
 class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
   final PfsAppModel appModel;
-  final ValueNotifier<String> theme =
-      ValueNotifier<String>(PfsTheme.defaultTheme);
+  final ValueNotifier<String> theme;
 
-  MyApp({Key? key, required this.appModel}) : super(key: key);
+  MyApp({
+    super.key,
+    required this.appModel,
+    String initialTheme = PfsTheme.defaultTheme,
+  }) : theme = ValueNotifier<String>(initialTheme);
 
   final navigatorKey = GlobalKey<NavigatorState>();
 

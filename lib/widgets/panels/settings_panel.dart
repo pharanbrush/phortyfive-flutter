@@ -7,9 +7,10 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPanel extends StatelessWidget {
-  const SettingsPanel({
+  SettingsPanel({
     super.key,
     this.onDismiss,
     required this.windowState,
@@ -21,6 +22,8 @@ class SettingsPanel extends StatelessWidget {
   final PfsWindowState windowState;
   final PfsAppModel appModel;
   final ValueNotifier<String> themeNotifier;
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +65,6 @@ class SettingsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               smallHeading('Window', context),
-
               SwitchListTile(
                 value: windowState.isSoundsEnabled.boolValue,
                 onChanged: (newValue) =>
@@ -79,11 +81,9 @@ class SettingsPanel extends StatelessWidget {
                 dense: true,
                 visualDensity: VisualDensity.compact,
               ),
-
               const Divider(height: 32, thickness: 1),
               smallHeading('Appearance', context),
               themeSetting(context),
-              //const AboutListTile(),
             ],
           ),
         ),
@@ -94,7 +94,7 @@ class SettingsPanel extends StatelessWidget {
   Widget themeSetting(BuildContext context) {
     const double radius = 6;
     const double indent = 16;
-    
+
     return Row(
       children: [
         const Padding(
@@ -114,8 +114,15 @@ class SettingsPanel extends StatelessWidget {
               itemHeight: 48,
               style: Theme.of(context).textTheme.bodyMedium,
               focusColor: Theme.of(context).highlightColor,
-              onChanged: (newTheme) {
+              onChanged: (newTheme) async {
                 themeNotifier.value = newTheme ?? PfsTheme.defaultTheme;
+
+                final SharedPreferences prefs = await _prefs;
+                prefs.setString(
+                  PfsTheme.themePreferencesKey,
+                  themeNotifier.value,
+                );
+                //.then((bool success) { });
               },
             );
           },
