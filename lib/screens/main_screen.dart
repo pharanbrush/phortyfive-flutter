@@ -93,6 +93,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
 
+    Widget modalMenu(
+        {required bool isOpen, required Widget Function() builder}) {
+      return AnimatedSwitcher(
+        duration: Phanimations.fastDuration,
+        child: isOpen ? builder() : null,
+      );
+    }
+
+    Widget settingsPanel() {
+      return modalMenu(
+        isOpen: windowState.isShowingSettingsMenu.boolValue,
+        builder: () => SettingsPanel(
+          windowState: windowState,
+          appModel: widget.model,
+          themeNotifier: widget.theme,
+          onDismiss: () => windowState.isShowingSettingsMenu.set(false),
+        ),
+      );
+    }
+
     Widget windowBorderWrapper({required Widget child}) {
       if (borderSide == null) {
         return child;
@@ -125,6 +145,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
           _bottomBar(context),
           _fileDropZone,
+          settingsPanel(),
         ],
       );
 
@@ -148,14 +169,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             child: childWidget,
           ),
         ),
-      );
-    }
-
-    Widget modalMenu(
-        {required bool isOpen, required Widget Function() builder}) {
-      return AnimatedSwitcher(
-        duration: Phanimations.fastDuration,
-        child: isOpen ? builder() : null,
       );
     }
 
@@ -191,15 +204,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               onDismiss: () => windowState.isShowingFiltersMenu.set(false),
             ),
           ),
-          modalMenu(
-            isOpen: windowState.isShowingSettingsMenu.boolValue,
-            builder: () => SettingsPanel(
-              windowState: windowState,
-              appModel: widget.model,
-              themeNotifier: widget.theme,
-              onDismiss: () => windowState.isShowingSettingsMenu.set(false),
-            ),
-          ),
+          settingsPanel(),
           _dockingControls(),
         ],
       ),
