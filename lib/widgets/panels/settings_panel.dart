@@ -10,7 +10,7 @@ import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
 class SettingsPanel extends StatelessWidget {
-  SettingsPanel({
+  const SettingsPanel({
     super.key,
     this.onDismiss,
     required this.windowState,
