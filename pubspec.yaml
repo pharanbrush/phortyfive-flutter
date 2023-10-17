@@ -47,6 +47,7 @@ dependencies:
   contextual_menu: ^0.1.2
   flutter_styled_toast: ^2.2.1
   file_selector: ^1.0.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
