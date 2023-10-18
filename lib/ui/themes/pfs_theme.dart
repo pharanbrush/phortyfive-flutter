@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
-class PfsTheme {  
+class PfsTheme {
   static ThemeData getTheme(String theme) {
     return themeMap[theme]?.call() ??
         themeMap[defaultTheme]?.call() ??
@@ -214,6 +214,7 @@ class PfsTheme {
 
     // APP SPECIFIC
     const Color discordBlue = Color(0xFF5865F2);
+    const Color discordBlueHoverDark = Color(0xFF4752C4);
     const Color chatMention = Color(0x4B5865F2);
 
     const Color primary = discordBlue;
@@ -255,7 +256,6 @@ class PfsTheme {
     final ButtonStyle buttonShapeAndColors =
         buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
 
-    
     const Color textColor = Color(0xDDF2F3F5);
     const Color textBoxColor = Color(0xFF383A40);
 
@@ -281,11 +281,12 @@ class PfsTheme {
         background: panelBackground,
         primary: primary,
         tertiary: tertiary,
+        secondary: secondary,
+
         onSecondary: Colors.white,
+        onSurfaceVariant: textColor.withAlpha(0xAA),
         outline: outline,
         surface: cardColor,
-        onSurfaceVariant: textColor.withAlpha(0xAA),
-        secondary: secondary,
         scrim: const Color(0xB7000000),
 
         // Most text
@@ -293,6 +294,9 @@ class PfsTheme {
 
         // Selected button text, slider value label text
         onPrimary: selectedButtonContentColor,
+
+        // Slider thumb hover color (slider track uses primary)
+        primaryContainer: discordBlueHoverDark,
 
         // Selected Segmented button
         secondaryContainer: selectedButton,
@@ -465,7 +469,7 @@ class PfsTheme {
 
     const Color cardColor = Color(0xFF565656);
     //const Color cardOutlineColor = Color(0xFF3F3F3F);
-    const Color outline = Color(0xC7868686);
+    const Color outline = Color(0xC5A1A1A1);
 
     const cspWindowBorderSide = BorderSide(
       color: cspWindowBorderColor,
@@ -497,6 +501,8 @@ class PfsTheme {
 
         // Selected button text, slider value label text
         onPrimary: selectedButtonContentColor,
+
+        primaryContainer: clipDarkerSelected,
 
         // Selected Segmented button
         secondaryContainer: cspSelectedButton,
