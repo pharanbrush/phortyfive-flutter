@@ -213,16 +213,18 @@ class CollapseBottomBarButton extends StatelessWidget {
     const collapseIcon = Icons.expand_more_rounded;
     const expandIcon = Icons.expand_less_rounded;
 
+    final bottomBarShortcutKey = PfsLocalization.tooltipShortcut(Phshortcuts.toggleBottomBar);
+    
     if (isMinimized) {
       return MinorWindowControlButton(
         icon: expandIcon,
-        tooltip: 'Expand controls (H)',
+        tooltip: 'Expand controls ($bottomBarShortcutKey)',
         onPressed: onPressed,
       );
     } else {
       return MinorWindowControlButton(
         icon: collapseIcon,
-        tooltip: 'Minimize controls (H)',
+        tooltip: 'Minimize controls ($bottomBarShortcutKey)',
         onPressed: onPressed,
       );
     }
