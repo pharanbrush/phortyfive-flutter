@@ -29,8 +29,8 @@ class ImagePhviewer {
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
-  double _minBlurLevel = 0;
-  double _maxBlurLevel = 12;
+  static const double _minBlurLevel = 0;
+  static const double _maxBlurLevel = 12;
 
   int currentZoomLevel = _defaultZoomLevel;
   double get currentZoomScale => _zoomScales[currentZoomLevel];
