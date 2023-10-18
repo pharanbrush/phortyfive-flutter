@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -62,6 +64,26 @@ class Phbuttons {
       },
     );
   }
+
+  static double squeezeRemap({
+    required double inputValue,
+    required double iMin,
+    required double iThreshold,
+    required double oMin,
+    required double oRegular,
+  }) {
+    double remap(double iMin, double iMax, double oMin, double oMax, double v) {
+      double inverseLerp(double a, double b, double v) => (v - a) / (b - a);
+      double t = inverseLerp(iMin, iMax, v);
+      return lerpDouble(oMin, oMax, t) ?? oMin;
+    }
+
+    final bool shouldRemap = inputValue < iThreshold;
+    final double output = shouldRemap
+        ? remap(iMin, iThreshold, oMin, oRegular, inputValue)
+        : oRegular;
+    return output;
+  }
 }
 
 class ImageSetButton extends StatelessWidget {
@@ -84,7 +106,7 @@ class ImageSetButton extends StatelessWidget {
 
       const double wideWidth = 80;
       const double narrowWidth = 18;
-      
+
       final double currentWidth = narrowButton ? narrowWidth : wideWidth;
 
       return Tooltip(

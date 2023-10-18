@@ -1,18 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class TimerDurationPanel extends StatelessWidget {
   static const double diameter = 350;
   static const double radius = diameter * 0.5;
   static const double bottomOffset = 20;
-  static const double rightMarginNormal = 160;
-  static const double rightMarginNarrow = 20;
 
   final Function()? onDismiss;
 
@@ -42,21 +39,22 @@ class TimerDurationPanel extends StatelessWidget {
     return PhtimerModel.scope((context, __, model) {
       final windowSize = MediaQuery.of(context).size;
 
-      const double narrowWindowWidth = 600;
-      const double minimumWindowWidth = 450;
+      const double widestNarrowWidth = 600;
+      const double narrowestNarrowWidth = 450;
+      const double rightMarginNormal = 160;
+      const double squeezeOffset = 5;
+      const double rightMarginNarrow = rightMarginNormal -
+          (widestNarrowWidth - narrowestNarrowWidth) +
+          squeezeOffset;
 
-      double inverseLerp(double a, double b, double v) => (v - a) / (b - a);
-      double remap(
-          double iMin, double iMax, double oMin, double oMax, double v) {
-        double t = inverseLerp(iMin, iMax, v);
-        return lerpDouble(oMin, oMax, t) ?? oMin;
-      }
-
-      final bool isWindowNarrow = windowSize.width < narrowWindowWidth;
-      final double rightOffset = isWindowNarrow
-          ? remap(minimumWindowWidth, narrowWindowWidth, rightMarginNarrow,
-              rightMarginNormal, windowSize.width)
-          : rightMarginNormal;
+      //final bool isWindowNarrow = windowSize.width < widestNarrowWidth;
+      final double rightOffset = Phbuttons.squeezeRemap(
+        inputValue: windowSize.width,
+        iMin: narrowestNarrowWidth,
+        iThreshold: widestNarrowWidth,
+        oMin: rightMarginNarrow,
+        oRegular: rightMarginNormal,
+      );
 
       const presetButtonStyle = ButtonStyle(
         shape: MaterialStatePropertyAll(CircleBorder()),
@@ -142,9 +140,8 @@ class TimerDurationPanel extends StatelessWidget {
           .headlineSmall
           ?.copyWith(color: labelStyle.color);
 
-
       final panelMaterial = PfsAppTheme.pawPanelFrom(Theme.of(context));
-      
+
       return Stack(
         children: [
           ModalUnderlay(onDismiss: () => onDismiss?.call()),

@@ -4,10 +4,14 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class FilterMenu extends StatelessWidget {
-  const FilterMenu(
-      {super.key, required this.imagePhviewer, required this.onDismiss});
+  const FilterMenu({
+    super.key,
+    required this.imagePhviewer,
+    required this.onDismiss,
+  });
 
   final ImagePhviewer imagePhviewer;
   final Function()? onDismiss;
@@ -79,10 +83,27 @@ class FilterMenu extends StatelessWidget {
     void handleBlurSliderChanged(value) {
       imagePhviewer.setBlurLevel(value);
     }
-    
-    final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
+
+    final windowSize = MediaQuery.of(context).size;
+
+    const double widestNarrowWidth = 600;
+    const double narrowestNarrowWidth = 450;
+    const double rightMarginNormal = 280;
+    const double squeezeOffset = 5;
+    const double rightMarginNarrow = rightMarginNormal -
+        (widestNarrowWidth - narrowestNarrowWidth) +
+        squeezeOffset;
+
+    final double rightOffset = Phbuttons.squeezeRemap(
+      inputValue: windowSize.width,
+      iMin: narrowestNarrowWidth,
+      iThreshold: widestNarrowWidth,
+      oMin: rightMarginNarrow,
+      oRegular: rightMarginNormal,
+    );
 
     // HIERARCHY
+    final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
     return Stack(
       children: [
         ModalUnderlay(
@@ -91,7 +112,7 @@ class FilterMenu extends StatelessWidget {
         ),
         Positioned(
           bottom: 10,
-          right: 280,
+          right: rightOffset,
           child: Animate(
             effects: Phanimations.bottomMenuEffects,
             child: panelMaterial(
