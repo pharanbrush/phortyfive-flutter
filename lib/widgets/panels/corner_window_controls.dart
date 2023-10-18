@@ -83,7 +83,8 @@ class CornerWindowControls extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.end,
                 spacing: 5,
                 children: [
-                  const Text('For testing only\n${PfsLocalization.version}'),
+                  const Text('For testing only\n'
+                      '${PfsLocalization.version}'),
                   ValueListenableBuilder(
                     valueListenable: imagePhviewer.zoomLevelListenable,
                     builder: (_, __, ___) {
