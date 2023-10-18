@@ -63,7 +63,7 @@ class CornerWindowControls extends StatelessWidget {
                 isSelected: windowState.isAlwaysOnTop.boolValue,
               ),
               CornerButton(
-                onPressed: () => windowState.isShowingCheatSheet.set(true),
+                onPressed: () => windowState.isShowingHelpSheet.set(true),
                 icon: Icons.help_rounded,
                 tooltip: PfsLocalization.buttonTooltip(
                   commandName: PfsLocalization.help,

@@ -49,8 +49,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (RestartTimerIntent, (_) => widget.model.timerModel.restartTimer()),
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
-    (OpenTimerMenuIntent, (_) => windowState.isEditingTime.set(true)),
-    (HelpIntent, (_) => windowState.isShowingCheatSheet.set(true)),
+    (OpenTimerMenuIntent, (_) => windowState.isShowingTimerDurationMenu.set(true)),
+    (HelpIntent, (_) => windowState.isShowingHelpSheet.set(true)),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
   late TimerDurationPanel timerDurationWidget =
-      TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
+      TimerDurationPanel(onDismiss: () => windowState.isShowingTimerDurationMenu.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     onNotify: (message, icon) {
       showImagePhviewerToast(message: message, icon: icon);
@@ -207,15 +207,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowWidth: windowSize.width,
           ),
           modalMenu(
-            isOpen: windowState.isEditingTime.boolValue,
+            isOpen: windowState.isShowingTimerDurationMenu.boolValue,
             builder: () => timerDurationWidget,
           ),
           modalMenu(
-            isOpen: windowState.isShowingCheatSheet.boolValue,
+            isOpen: windowState.isShowingHelpSheet.boolValue,
             builder: () => Theme(
               data: ThemeData.dark(useMaterial3: true),
               child: HelpSheet(
-                onDismiss: () => windowState.isShowingCheatSheet.set(false),
+                onDismiss: () => windowState.isShowingHelpSheet.set(false),
               ),
             ),
           ),
@@ -255,9 +255,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     windowState.isAlwaysOnTop.setListener(() => _handleAlwaysOnTopChanged());
     windowState.isSoundsEnabled.setListener(() => _handleSoundChanged());
-    windowState.isShowingCheatSheet
+    windowState.isShowingHelpSheet
         .setListener(() => _handleCheatSheetChanged());
-    windowState.isEditingTime.setListener(() => _handleEditingTimeChanged());
+    windowState.isShowingTimerDurationMenu.setListener(() => _handleEditingTimeChanged());
     windowState.isBottomBarMinimized
         .setListener(() => _handleBottomBarChanged());
     windowState.isShowingFiltersMenu
@@ -376,15 +376,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
-    tryDismiss(windowState.isShowingCheatSheet);
-    tryDismiss(windowState.isEditingTime);
+    tryDismiss(windowState.isShowingHelpSheet);
+    tryDismiss(windowState.isShowingTimerDurationMenu);
     tryDismiss(windowState.isShowingFiltersMenu);
   }
 
   void _handleEditingTimeChanged() {
-    bool active = windowState.isEditingTime.boolValue;
+    bool active = windowState.isShowingTimerDurationMenu.boolValue;
     if (active) {
-      _cancelAllModals(except: windowState.isEditingTime);
+      _cancelAllModals(except: windowState.isShowingTimerDurationMenu);
     }
     if (!active) {
       mainWindowFocus.requestFocus();
@@ -397,7 +397,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleCheatSheetChanged() {
-    _cancelAllModals(except: windowState.isShowingCheatSheet);
+    _cancelAllModals(except: windowState.isShowingHelpSheet);
     setState(() {});
   }
 
@@ -606,7 +606,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           spacingBox,
           Phbuttons.timerSettingsButton(
-              onPressed: () => windowState.isEditingTime.set(true)),
+              onPressed: () => windowState.isShowingTimerDurationMenu.set(true)),
           spacingBox,
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
@@ -683,8 +683,9 @@ class PfsWindowState {
   final isBottomBarMinimized = ListenableBool(false);
   final isAlwaysOnTop = ListenableBool(false);
   final isSoundsEnabled = ListenableBool(true);
-  final isEditingTime = ListenableBool(false);
-  final isShowingCheatSheet = ListenableBool(false);
+  
+  final isShowingTimerDurationMenu = ListenableBool(false);
+  final isShowingHelpSheet = ListenableBool(false);
   final isShowingFiltersMenu = ListenableBool(false);
   final isShowingSettingsMenu = ListenableBool(false);
 }
