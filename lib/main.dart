@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         model: appModel.timerModel,
         child: ValueListenableBuilder(
           valueListenable: theme,
-          builder: (context, value, child) {
+          builder: (_, __, ___) {
             return MaterialApp(
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
