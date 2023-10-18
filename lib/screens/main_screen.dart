@@ -76,9 +76,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   @override
-  void initState() async {
+  void initState() {
     _bindModelCallbacks();
-    windowState.isSoundsEnabled.set(await Preferences.getSoundsEnabled());
+    _loadSettings();
     super.initState();
   }
 
@@ -218,6 +218,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
 
     return windowBorderWrapper(child: appWindowContent);
+  }
+
+  void _loadSettings() async {
+    windowState.isSoundsEnabled.set(await Preferences.getSoundsEnabled());
   }
 
   void _bindModelCallbacks() {
