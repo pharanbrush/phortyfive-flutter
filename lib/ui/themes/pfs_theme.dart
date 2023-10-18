@@ -14,11 +14,135 @@ class PfsTheme {
     'phriends': getPhriendsDarkTheme,
     'phaint': getClipDarkTheme,
     'philes': getPhilesTenTheme,
+    'phish': getLysarisTheme,
   };
 
   //
 
   static const Color hyperlinkColorHovered = Colors.blue;
+
+  static ThemeData getLysarisTheme() {
+    const Brightness themeBrightness = Brightness.light;
+    const Color seedColor = Color.fromARGB(255, 0, 226, 177);
+    const Color panelBackground = Color.fromARGB(255, 97, 107, 110);
+    const Color appBackground = Color.fromARGB(255, 97, 97, 97);
+
+    const Color primary = Color.fromARGB(255, 33, 177, 165);
+    const Color secondary = Color.fromARGB(255, 228, 169, 134);
+    const Color tertiary = Color.fromARGB(255, 179, 119, 190);
+    const Color buttonContentColor = Color.fromARGB(108, 197, 212, 212);
+    const Color buttonActiveColor = Color.fromARGB(149, 85, 185, 189);
+    const Color buttonHoverColor = Color.fromARGB(220, 8, 70, 112);
+    const Color buttonHoverOverlayColor = Color.fromARGB(45, 112, 138, 144);
+    const Color buttonHoverBackgroundColor = Color.fromARGB(75, 140, 208, 224);
+    
+    const Color snackbarBackground = Color.fromARGB(255, 8, 116, 107);
+
+    final ButtonStyle buttonStyle = ButtonStyle(
+      foregroundColor: hoverActiveColors(
+        idle: buttonContentColor,
+        hover: buttonHoverColor,
+        active: buttonActiveColor,
+      ),
+      backgroundColor: hoverColors(
+        idle: buttonHoverBackgroundColor.withAlpha(0x00),
+        hover: buttonHoverBackgroundColor,
+      ),
+      overlayColor: hoverColors(
+        idle: buttonHoverOverlayColor.withAlpha(0x00),
+        hover: buttonHoverOverlayColor,
+      ),
+    );
+
+    const Color cardColor = Color.fromARGB(255, 244, 251, 255);
+    const Color cardOutlineColor = Color(0xFFEEEEEE);
+    const Color outline = Color.fromARGB(64, 144, 192, 192);
+    
+    const Color textColor = Color.fromARGB(221, 219, 226, 228);
+    const Color textBoxColor = Color.fromARGB(255, 58, 58, 58);
+
+    const Color selectedButton = Color.fromARGB(255, 56, 156, 173);
+    const Color selectedButtonContentColor = Color.fromARGB(255, 211, 235, 231);
+
+    const Color tooltipBackgroundColor = Color(0xFF111214);
+    const Color tooltipTextColor = Color(0xEEDBDEE1);
+    const Color scrim = Color.fromARGB(195, 40, 56, 51);
+
+    var newData = ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: appBackground,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: themeBrightness,
+        seedColor: seedColor,
+        background: panelBackground,
+        primary: primary,
+        secondary: secondary,
+        tertiary: tertiary,
+        onSecondary: Colors.white,
+        outline: outline,
+        surface: cardColor,
+        onSurfaceVariant: primary.withAlpha(0xAA),
+        scrim: scrim,
+        
+        // Most text
+        onSurface: textColor,
+
+        // Selected button text, slider value label text
+        onPrimary: selectedButtonContentColor,
+
+        primaryContainer: textBoxColor,
+
+        // Selected Segmented button
+        secondaryContainer: selectedButton,
+        onSecondaryContainer: selectedButtonContentColor,
+
+        // Text field background, slider background
+        surfaceVariant: const Color(0xFFACCEBE),
+      ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: snackbarBackground,
+        actionTextColor: tertiary,
+        contentTextStyle: TextStyle(fontSize: 14),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      sliderTheme: SliderThemeData(
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+      ),
+      textButtonTheme: TextButtonThemeData(style: buttonStyle),
+      iconButtonTheme: IconButtonThemeData(style: buttonStyle),
+      badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(panelBackground),
+        ),
+      ),
+      cardTheme: const CardTheme(
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          side: BorderSide(color: cardOutlineColor),
+        ),
+      ),
+      extensions: const {
+        PhtimerTheme(
+          pausedColor: Color.fromARGB(201, 24, 131, 117),
+          runningColor: Color.fromARGB(126, 89, 151, 187),
+          almostZeroColor: Color.fromARGB(195, 249, 76, 255),
+          disabledColor: Color.fromARGB(150, 158, 158, 158),
+          barBackgroundColor: Color.fromARGB(15, 0, 0, 0),
+          pausedButton: Color.fromARGB(161, 51, 129, 119),
+          runningButton: Color.fromARGB(117, 95, 164, 185),
+        )
+      },
+    );
+
+    return newData;
+  }
+
 
   static ThemeData getPhilesTenTheme() {
     const Brightness themeBrightness = Brightness.light;
