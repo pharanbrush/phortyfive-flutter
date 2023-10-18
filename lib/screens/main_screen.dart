@@ -62,7 +62,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       TimerDurationPanel(onDismiss: () => windowState.isEditingTime.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     onNotify: (message, icon) {
-      showImagePhiewerToast(message: message, icon: icon);
+      showImagePhviewerToast(message: message, icon: icon);
     },
     onStateChange: _handleStateChange,
   );
@@ -290,7 +290,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() => imagePhviewer.resetZoomLevel());
   }
 
-  void showImagePhiewerToast({required String message, IconData? icon}) {
+  void showImagePhviewerToast({required String message, IconData? icon}) {
     if (currentContext == null) return;
     Phtoasts.show(
       currentContext,
