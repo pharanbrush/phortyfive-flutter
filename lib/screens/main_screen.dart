@@ -462,13 +462,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     return PfsAppModel.scope((_, __, model) {
       Widget zoomOnScrollListener({Widget? child}) {
-        void incrementZoomLevel(int increment) => setState(() {
-              imagePhviewer.incrementZoomLevel(increment);
-            });
-
         return ScrollListener(
-          onScrollDown: () => incrementZoomLevel(-1),
-          onScrollUp: () => incrementZoomLevel(1),
+          onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
+          onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
           child: child,
         );
       }
@@ -587,13 +583,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
       );
 
-      final resetZoomButton = Visibility(
-        visible: !imagePhviewer.isZoomLevelDefault,
-        child: IconButton(
-          tooltip: 'Reset zoom',
-          onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
-          icon: const Icon(Icons.youtube_searched_for),
-        ),
+      final resetZoomButton = ValueListenableBuilder(
+        valueListenable: imagePhviewer.zoomLevelListenable,
+        builder: (_, __, ___) {
+          return Visibility(
+            visible: !imagePhviewer.isZoomLevelDefault,
+            child: IconButton(
+              tooltip: 'Reset zoom',
+              onPressed: () => imagePhviewer.resetZoomLevel(),
+              icon: const Icon(Icons.youtube_searched_for),
+            ),
+          );
+        },
       );
 
       final SizedBox spacingBox = SizedBox(width: spacing);
