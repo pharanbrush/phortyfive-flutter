@@ -157,17 +157,16 @@ class SettingsPanel extends StatelessWidget {
     const double top = 30;
     const double side = 30;
 
+    var material =
+        Theme.of(context).extension<PfsAppTheme>()?.boxPanelMaterialBuilder ??
+            PfsAppTheme.defaultBoxPanelMaterial;
+
     return Positioned(
       top: top,
       right: side,
       child: SizedBox(
         width: panelFixedWidth,
-        //height: panelFixedHeight,
-        child: Material(
-          type: MaterialType.canvas,
-          elevation: 10,
-          color: Theme.of(context).colorScheme.surface,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: material(
           child: Padding(
             padding: const EdgeInsets.only(
               left: 50,
