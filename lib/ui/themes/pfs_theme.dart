@@ -214,6 +214,7 @@ class PfsTheme {
 
     // APP SPECIFIC
     const Color discordBlue = Color(0xFF5865F2);
+    const Color chatMention = Color(0x4B5865F2);
 
     const Color primary = discordBlue;
     const Color secondary = discordBlue;
@@ -254,10 +255,11 @@ class PfsTheme {
     final ButtonStyle buttonShapeAndColors =
         buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
 
-    const Color selectedButton = Color(0xFF43444B);
+    
     const Color textColor = Color(0xDDF2F3F5);
     const Color textBoxColor = Color(0xFF383A40);
 
+    const Color selectedButton = chatMention;
     const Color selectedButtonContentColor = textColor;
 
     const Color cardColor = Color(0xFF232428);
