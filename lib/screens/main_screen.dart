@@ -7,6 +7,7 @@ import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_menu.dart';
@@ -75,8 +76,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   @override
-  void initState() {
+  void initState() async {
     _bindModelCallbacks();
+    windowState.isSoundsEnabled.set(await Preferences.getSoundsEnabled());
     super.initState();
   }
 
@@ -423,6 +425,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() {
       showSoundToggleToast();
     });
+
+    Preferences.setSoundsEnabled(windowState.isSoundsEnabled.boolValue);
   }
 
   void _handleSettingsMenuChanged() {

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Preferences {
   static const String themeKey = 'theme';
   static const String timerDurationKey = 'timer_duration';
+  static const String soundKey = 'sounds';
 
   static const int defaultTimerDuration = 45;
 
@@ -56,6 +57,21 @@ class Preferences {
     );
   }
 
+  // SOUNDS
+  static Future<bool> getSoundsEnabled() async {
+    return await Preferences.getBool(
+      key: Preferences.soundKey,
+      defaultValue: true,
+    );
+  }
+
+  static Future<void> setSoundsEnabled(bool soundsEnabled) async {
+    Preferences.setBool(
+      value: soundsEnabled,
+      key: Preferences.soundKey,
+    );
+  }
+
   // GENERAL
   static Future<String> getString({
     required String key,
@@ -96,6 +112,28 @@ class Preferences {
   }) async {
     final SharedPreferences prefs = await _prefs;
     prefs.setInt(
+      key,
+      value,
+    );
+  }
+
+  static Future<bool> getBool({
+    required String key,
+    required bool defaultValue,
+  }) async {
+    final SharedPreferences prefs = await _prefs;
+
+    // Separate nullable variable so it can be checked and logged.
+    final bool? loadedBool = prefs.getBool(key);
+    return loadedBool ?? defaultValue;
+  }
+
+  static Future<void> setBool({
+    required bool value,
+    required String key,
+  }) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool(
       key,
       value,
     );
