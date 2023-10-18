@@ -93,6 +93,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
 
+    final Size windowSize = MediaQuery.of(context).size;
+
     Widget modalMenu(
         {required bool isOpen, required Widget Function() builder}) {
       return AnimatedSwitcher(
@@ -183,7 +185,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowState: windowState,
             imagePhviewer: imagePhviewer,
           ),
-          _bottomBar(context),
+          _bottomBar(
+            context,
+            windowWidth: windowSize.width,
+          ),
           modalMenu(
             isOpen: windowState.isEditingTime.boolValue,
             builder: () => timerDurationWidget,
@@ -532,7 +537,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     windowManager.focus();
   }
 
-  Widget _bottomBar(BuildContext context) {
+  Widget _bottomBar(BuildContext context, {double? windowWidth}) {
+    bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
+
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
       right: 10,
@@ -546,7 +553,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       return minimizedBottomBar;
     }
 
-    List<Widget> bottomBarItems(PfsAppModel model) {
+    List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
       const double filterIconSize = 20;
       const filterIconOff = Icon(
         Icons.contrast,
@@ -570,42 +577,59 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         icon: const Icon(Icons.youtube_searched_for),
       );
 
+      final SizedBox spacingBox = SizedBox(width: spacing);
+
       if (model.hasFilesLoaded) {
         return [
           if (!imagePhviewer.isZoomLevelDefault) resetZoomButton,
           filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
-          const SizedBox(width: 15),
+          spacingBox,
           Phbuttons.timerSettingsButton(
               onPressed: () => windowState.isEditingTime.set(true)),
-          const SizedBox(width: 15),
+          spacingBox,
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
             child: TimerControls(
                 playPauseIconController: _playPauseIconStateAnimator),
           ),
+          SizedBox(width: spacing + 3),
+          ImageSetButton(narrowButton: isNarrowWindow),
           const SizedBox(width: 20),
-          const ImageSetButton(),
-          const SizedBox(width: 10),
         ];
       } else {
         return [
-          Phbuttons.openFiles(),
+          Phbuttons.openFiles(width: isNarrowWindow ? 20 : 40),
           const SizedBox(width: 15, height: 43),
         ];
       }
     }
+
+    const double narrowSpacing = 4;
+    const double wideSpacing = 12;
 
     final normalBottomBar = Positioned(
       bottom: 0,
       right: 10,
       child: PfsAppModel.scope(
         (_, __, model) {
-          return Row(
-            children: bottomBarItems(model).animate(
-              interval: const Duration(milliseconds: 25),
-              effects: [Phanimations.bottomBarSlideUpEffect],
+          return TweenAnimationBuilder<double>(
+            duration: Phanimations.defaultDuration,
+            tween: Tween<double>(
+              begin: narrowSpacing,
+              end: isNarrowWindow ? narrowSpacing : wideSpacing,
             ),
+            builder: (_, spacing, __) {
+              return Row(
+                children: bottomBarItems(
+                  model,
+                  spacing: spacing,
+                ).animate(
+                  interval: const Duration(milliseconds: 25),
+                  effects: [Phanimations.bottomBarSlideUpEffect],
+                ),
+              );
+            },
           );
         },
       ),

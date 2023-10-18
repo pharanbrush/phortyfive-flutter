@@ -4,9 +4,10 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/widgets/animation/phanimations.dart';
 
 class Phbuttons {
-  static Widget openFiles() {
+  static Widget openFiles({double width = 40.0}) {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
@@ -22,11 +23,9 @@ class Phbuttons {
             child: FilledButton(
               style: style,
               onPressed: () => model.openFilePickerForImages(),
-              child: const SizedBox(
-                width: 40,
-                child: Icon(
-                  Icons.folder_open,
-                ),
+              child: SizedBox(
+                width: width,
+                child: const Icon(Icons.folder_open),
               ),
             ),
           ),
@@ -66,10 +65,15 @@ class Phbuttons {
 }
 
 class ImageSetButton extends StatelessWidget {
-  const ImageSetButton({super.key});
+  const ImageSetButton({
+    super.key,
+    this.narrowButton = false,
+  });
 
   static const double _iconSize = 18;
   static const Icon _icon = Icon(Icons.image, size: _iconSize);
+
+  final bool narrowButton;
 
   @override
   Widget build(BuildContext context) {
@@ -78,22 +82,35 @@ class ImageSetButton extends StatelessWidget {
       final String tooltip =
           '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
+      const double wideWidth = 80;
+      const double narrowWidth = 18;
+      
+      final double currentWidth = narrowButton ? narrowWidth : wideWidth;
+
       return Tooltip(
         message: tooltip,
         child: GestureDetector(
           onSecondaryTap: () => model.openFilePickerForFolder(),
           child: TextButton(
             onPressed: () => model.openFilePickerForImages(),
-            child: SizedBox(
-              width: 80,
+            child: AnimatedSizedBoxWidth(
+              defaultWidth: narrowWidth,
+              width: currentWidth,
+              height: 28,
+              duration: Phanimations.defaultDuration,
               child: Align(
                 alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    Phbuttons.textThenIcon(fileCount.toString(), _icon),
-                    const Spacer(),
-                  ],
+                child: OverflowBox(
+                  maxWidth: currentWidth,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      narrowButton
+                          ? _icon
+                          : Phbuttons.textThenIcon(fileCount.toString(), _icon),
+                      const Spacer(),
+                    ],
+                  ),
                 ),
               ),
             ),
