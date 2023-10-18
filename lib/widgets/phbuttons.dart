@@ -7,6 +7,7 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
 class Phbuttons {
   static Widget openFiles({double width = 40.0}) {
@@ -62,6 +63,17 @@ class Phbuttons {
           ),
         );
       },
+    );
+  }
+
+  static Widget nextPreviousOnScrollListener({
+    required PfsAppModel model,
+    Widget? child,
+  }) {
+    return ScrollListener(
+      onScrollDown: () => model.nextImageNewTimer(),
+      onScrollUp: () => model.previousImageNewTimer(),
+      child: child,
     );
   }
 

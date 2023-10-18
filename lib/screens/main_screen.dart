@@ -446,14 +446,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
 
     return PfsAppModel.scope((_, __, model) {
-      Widget nextPreviousOnScrollListener({Widget? child}) {
-        return ScrollListener(
-          onScrollDown: () => model.nextImageNewTimer(),
-          onScrollUp: () => model.previousImageNewTimer(),
-          child: child,
-        );
-      }
-
       Widget zoomOnScrollListener({Widget? child}) {
         void incrementZoomLevel(int increment) => setState(() {
               imagePhviewer.incrementZoomLevel(increment);
@@ -472,7 +464,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           required Widget child}) {
         return SizedBox(
           width: 100,
-          child: nextPreviousOnScrollListener(
+          child: Phbuttons.nextPreviousOnScrollListener(
+            model: model,
             child: OverlayButton(
               onPressed: onPressed,
               child: child,

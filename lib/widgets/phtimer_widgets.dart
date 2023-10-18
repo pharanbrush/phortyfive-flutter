@@ -3,6 +3,7 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class TimerControls extends StatelessWidget {
   const TimerControls({
@@ -16,8 +17,8 @@ class TimerControls extends StatelessWidget {
   Widget build(BuildContext context) {
     // PARTS
     final restartTimerButton = PhtimerModel.scope(
-      (_, __, model) => TimerControlButton(
-        onPressed: () => model.restartTimer(),
+      (_, __, timerModel) => TimerControlButton(
+        onPressed: () => timerModel.restartTimer(),
         icon: Icons.refresh,
         tooltip: PfsLocalization.buttonTooltip(
           commandName: 'Restart timer',
@@ -27,23 +28,29 @@ class TimerControls extends StatelessWidget {
     );
 
     final previousButton = PfsAppModel.scope(
-      (_, __, model) => TimerControlButton(
-        onPressed: () => model.previousImageNewTimer(),
-        icon: Icons.skip_previous,
-        tooltip: PfsLocalization.buttonTooltip(
-          commandName: 'Previous Image',
-          shortcut: Phshortcuts.previous2,
+      (_, __, model) => Phbuttons.nextPreviousOnScrollListener(
+        model: model,
+        child: TimerControlButton(
+          onPressed: () => model.previousImageNewTimer(),
+          icon: Icons.skip_previous,
+          tooltip: PfsLocalization.buttonTooltip(
+            commandName: 'Previous Image',
+            shortcut: Phshortcuts.previous2,
+          ),
         ),
       ),
     );
 
     final nextButton = PfsAppModel.scope(
-      (_, __, model) => TimerControlButton(
-        onPressed: () => model.nextImageNewTimer(),
-        icon: Icons.skip_next,
-        tooltip: PfsLocalization.buttonTooltip(
-          commandName: 'Next Image',
-          shortcut: Phshortcuts.next2,
+      (_, __, model) => Phbuttons.nextPreviousOnScrollListener(
+        model: model,
+        child: TimerControlButton(
+          onPressed: () => model.nextImageNewTimer(),
+          icon: Icons.skip_next,
+          tooltip: PfsLocalization.buttonTooltip(
+            commandName: 'Next Image',
+            shortcut: Phshortcuts.next2,
+          ),
         ),
       ),
     );
