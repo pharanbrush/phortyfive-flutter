@@ -12,7 +12,9 @@ import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 class Phbuttons {
   static Widget openFiles({double width = 40.0}) {
     final toolTipText =
-        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'
+        '${PfsLocalization.secondaryPressCapital} to open image folder... '
+        '(${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
     return PfsAppModel.scope(
       (context, __, model) {
@@ -54,8 +56,9 @@ class Phbuttons {
         const iconSize = PfsTheme.timerButtonIconSize;
 
         return Tooltip(
-          message:
-              '$currentTimerSeconds seconds per image.\n${PfsLocalization.pressCapital} to edit timer. (${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
+          message: '$currentTimerSeconds seconds per image.\n'
+              '${PfsLocalization.pressCapital} to edit timer. '
+              '(${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
           child: TextButton(
             onPressed: onPressed,
             child: textThenIcon('${currentTimerSeconds}s',
@@ -114,7 +117,9 @@ class ImageSetButton extends StatelessWidget {
     return PfsAppModel.scope((_, __, model) {
       final fileCount = model.fileList.getCount();
       final String tooltip =
-          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n'
+          '${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'
+          '${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
 
       const double wideWidth = 80;
       const double narrowWidth = 18;
