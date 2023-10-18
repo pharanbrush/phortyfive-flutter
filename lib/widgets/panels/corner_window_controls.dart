@@ -88,12 +88,11 @@ class CornerWindowControls extends StatelessWidget {
                   ValueListenableBuilder(
                     valueListenable: imagePhviewer.zoomLevelListenable,
                     builder: (_, __, ___) {
-                      if (!imagePhviewer.isZoomLevelDefault) {
-                        return Text(
-                            'Zoom ${imagePhviewer.currentZoomScalePercent}%');
-                      }
-
-                      return const SizedBox.shrink();
+                      return Visibility(
+                        visible: !imagePhviewer.isZoomLevelDefault,
+                        child: Text(
+                            'Zoom ${imagePhviewer.currentZoomScalePercent}%'),
+                      );
                     },
                   ),
                 ],
