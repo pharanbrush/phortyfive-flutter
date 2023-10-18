@@ -5,6 +5,7 @@ import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
 class FilterMenu extends StatelessWidget {
   const FilterMenu({
@@ -181,8 +182,11 @@ class ColorModeButtons extends StatelessWidget {
 }
 
 class BlurSlider extends StatelessWidget {
-  const BlurSlider(
-      {super.key, required this.imagePhviewer, required this.onChanged});
+  const BlurSlider({
+    super.key,
+    required this.imagePhviewer,
+    required this.onChanged,
+  });
 
   final ImagePhviewer imagePhviewer;
   final Function(double) onChanged;
@@ -197,21 +201,25 @@ class BlurSlider extends StatelessWidget {
       ),
     );
 
-    return Row(
-      children: [
-        label,
-        SizedBox(
-          width: 220,
-          child: Slider.adaptive(
-            min: 0,
-            max: 12,
-            divisions: 12,
-            label: imagePhviewer.blurLevel.toInt().toString(),
-            onChanged: onChanged,
-            value: imagePhviewer.blurLevel,
+    return ScrollListener(
+      onScrollUp: () => imagePhviewer.incrementBlurLevel(1),
+      onScrollDown: () => imagePhviewer.incrementBlurLevel(-1),
+      child: Row(
+        children: [
+          label,
+          SizedBox(
+            width: 220,
+            child: Slider.adaptive(
+              min: 0,
+              max: 12,
+              divisions: 12,
+              label: imagePhviewer.blurLevel.toInt().toString(),
+              onChanged: onChanged,
+              value: imagePhviewer.blurLevel,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

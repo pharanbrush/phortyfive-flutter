@@ -29,6 +29,8 @@ class ImagePhviewer {
 
   bool _isUsingGrayscale = false;
   double _blurLevel = 0;
+  double _minBlurLevel = 0;
+  double _maxBlurLevel = 12;
 
   int currentZoomLevel = _defaultZoomLevel;
   double get currentZoomScale => _zoomScales[currentZoomLevel];
@@ -65,8 +67,22 @@ class ImagePhviewer {
   }
 
   void setBlurLevel(double newBlurLevel) {
+    
+    final oldBlurLevel = _blurLevel;
     _blurLevel = newBlurLevel;
-    onStateChange?.call();
+    _blurLevel = clampDouble(_blurLevel, _minBlurLevel, _maxBlurLevel);
+    
+    if (oldBlurLevel != newBlurLevel) {
+      onStateChange?.call();
+    }
+  }
+  
+  void incrementBlurLevel(int increment) {
+    if (increment > 0) {
+      setBlurLevel(_blurLevel + 1);
+    } else if (increment < 0) {
+      setBlurLevel(_blurLevel - 1);
+    }
   }
 
   void setGrayscaleActive(bool active) {
