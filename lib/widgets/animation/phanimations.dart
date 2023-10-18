@@ -4,10 +4,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutExpo;
-  
+
   static const toastCurve = Curves.easeOutExpo;
   static const toastAnimationDuration = Duration(milliseconds: 300);
-  
+
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
   static const slowDuration = Duration(milliseconds: 300);
@@ -18,8 +18,8 @@ class Phanimations {
     begin: Offset(0, 1),
     end: Offset(0, 0),
   );
-  
-   static const largeRightPanelSlideInEffect = SlideEffect(
+
+  static const largeRightPanelSlideInEffect = SlideEffect(
     duration: slowDuration,
     curve: Curves.easeOutQuint,
     begin: Offset(0.1, 0),
