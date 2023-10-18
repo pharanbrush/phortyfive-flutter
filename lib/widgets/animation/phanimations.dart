@@ -78,3 +78,34 @@ class Phanimations {
     )
   ];
 }
+
+class AnimatedSizedBoxWidth extends StatelessWidget {
+  const AnimatedSizedBoxWidth(
+      {super.key,
+      required this.child,
+      required this.width,
+      this.height,
+      required this.duration,
+      required this.defaultWidth});
+
+  final Widget child;
+  final double width;
+  final Duration duration;
+  final double defaultWidth;
+  final double? height;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      duration: duration,
+      tween: Tween<double>(begin: defaultWidth, end: width),
+      builder: (_, value, __) {
+        return SizedBox(
+          width: value,
+          height: height,
+          child: child,
+        );
+      },
+    );
+  }
+}
