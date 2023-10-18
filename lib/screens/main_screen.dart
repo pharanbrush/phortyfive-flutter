@@ -97,8 +97,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     final Size windowSize = MediaQuery.of(context).size;
 
-    Widget modalMenu(
-        {required bool isOpen, required Widget Function() builder}) {
+    Widget modalMenu({
+      required bool isOpen,
+      required Widget Function() builder,
+    }) {
       return AnimatedSwitcher(
         duration: Phanimations.fastDuration,
         child: isOpen ? builder() : null,
