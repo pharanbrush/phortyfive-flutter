@@ -588,17 +588,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
       );
 
-      final resetZoomButton = IconButton(
-        tooltip: 'Reset zoom',
-        onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
-        icon: const Icon(Icons.youtube_searched_for),
+      final resetZoomButton = Visibility(
+        visible: !imagePhviewer.isZoomLevelDefault,
+        child: IconButton(
+          tooltip: 'Reset zoom',
+          onPressed: () => setState(() => imagePhviewer.resetZoomLevel()),
+          icon: const Icon(Icons.youtube_searched_for),
+        ),
       );
 
       final SizedBox spacingBox = SizedBox(width: spacing);
 
       if (model.hasFilesLoaded) {
         return [
-          if (!imagePhviewer.isZoomLevelDefault) resetZoomButton,
+          resetZoomButton,
           filtersButton,
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           spacingBox,
