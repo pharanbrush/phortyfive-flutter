@@ -63,21 +63,19 @@ class SettingsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               smallHeading('Window', context),
-              SwitchListTile(
+              switchItem(
+                context,
+                title: const Text('Sounds'),
                 value: windowState.isSoundsEnabled.boolValue,
                 onChanged: (newValue) =>
                     windowState.isSoundsEnabled.set(newValue),
-                title: const Text('Sounds'),
-                dense: true,
-                visualDensity: VisualDensity.compact,
               ),
-              SwitchListTile(
+              switchItem(
+                context,
+                title: const Text(PfsLocalization.alwaysOnTop),
                 value: windowState.isAlwaysOnTop.boolValue,
                 onChanged: (newValue) =>
                     windowState.isAlwaysOnTop.set(newValue),
-                title: const Text(PfsLocalization.alwaysOnTop),
-                dense: true,
-                visualDensity: VisualDensity.compact,
               ),
               const Divider(height: 32, thickness: 1),
               smallHeading('Appearance', context),
@@ -86,6 +84,21 @@ class SettingsPanel extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget switchItem(
+    BuildContext context, {
+    required Widget title,
+    required bool value,
+    required Function(bool newValue)? onChanged,
+  }) {
+    return SwitchListTile(
+      value: value,
+      onChanged: onChanged,
+      title: title,
+      dense: true,
+      visualDensity: VisualDensity.compact,
     );
   }
 
