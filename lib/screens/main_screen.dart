@@ -118,25 +118,39 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     Widget windowBorderWrapper({required Widget child}) {
-      if (borderSide == null) {
-        return child;
-      } else {
-        final appWindowPadding = borderSide.width;
-
-        return Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(appWindowPadding),
-              child: child,
-            ),
+      return Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(borderSide?.width ?? 0),
+            child: child,
+          ),
+          if (borderSide != null)
             Material(
               type: MaterialType.transparency,
               shape: Border.fromBorderSide(borderSide),
               child: const SizedBox.expand(),
             )
-          ],
-        );
-      }
+        ],
+      );
+
+      // if (borderSide == null) {
+      //   return child;
+      // } else {
+      //   final appWindowPadding = borderSide.width;
+
+      //   return Stack(
+      //     children: [
+      //       Padding(
+      //         padding: EdgeInsets.all(appWindowPadding),
+      //         child: child,
+      //       ),
+      //       if (borderSide != null) Material(
+      //         type: MaterialType.transparency,
+      //         shape: Border.fromBorderSide(borderSide),
+      //         child: const SizedBox.expand(),
+      //       )
+      //     ],
+      //   );
     }
 
     if (!widget.model.hasFilesLoaded) {
