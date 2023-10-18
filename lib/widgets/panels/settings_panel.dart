@@ -152,24 +152,28 @@ class SettingsPanel extends StatelessWidget {
   }
 
   Widget _panelContainer(BuildContext context, {required Widget child}) {
-    const double panelFixedWidth = 400;
+    const double panelFixedWidth = 380;
+    //const double panelFixedHeight = 300;
+    const double top = 30;
+    const double side = 30;
 
-    return Align(
-      alignment: Alignment.topRight,
+    return Positioned(
+      top: top,
+      right: side,
       child: SizedBox(
         width: panelFixedWidth,
+        //height: panelFixedHeight,
         child: Material(
           type: MaterialType.canvas,
           elevation: 10,
           color: Theme.of(context).colorScheme.surface,
-          //shape: RoundedRectangleBorder(borderRadius: bord),
-          //
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
           child: Padding(
             padding: const EdgeInsets.only(
               left: 50,
               right: 50,
               top: 30,
-              bottom: 20,
+              bottom: 30,
             ),
             child: child,
           ),
