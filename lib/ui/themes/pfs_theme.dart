@@ -420,6 +420,9 @@ class PfsTheme {
     const Color buttonActiveColor = Color(0x783D507C);
     const Color buttonHoverColor = Color(0xDCD8D8D8);
 
+    //const Color clipLighterSelected = Color(0xFF7C89A3);
+    const Color clipDarkerSelected = Color(0xFF5F687D);
+
     const Color buttonHoverOverlayColor = Color(0x66707A90);
     const cspButtonRadius = 3.0;
     const buttonMaterialShape = RoundedRectangleBorder(
