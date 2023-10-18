@@ -64,7 +64,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     onNotify: (message, icon) {
       showImagePhviewerToast(message: message, icon: icon);
     },
-    onStateChange: _handleStateChange,
   );
 
   late final AnimationController _playPauseIconStateAnimator =

@@ -84,8 +84,17 @@ class CornerWindowControls extends StatelessWidget {
                 spacing: 5,
                 children: [
                   const Text('For testing only\n${PfsLocalization.version}'),
-                  if (imagePhviewer.currentZoomScale != 1.0)
-                    Text('Zoom ${imagePhviewer.currentZoomScalePercent}%'),
+                  ValueListenableBuilder(
+                    valueListenable: imagePhviewer.zoomLevelListenable,
+                    builder: (_, __, ___) {
+                      if (imagePhviewer.currentZoomScale != 1.0) {
+                        return Text(
+                            'Zoom ${imagePhviewer.currentZoomScalePercent}%');
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 ],
               ),
             ),

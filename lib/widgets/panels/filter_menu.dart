@@ -51,13 +51,16 @@ class FilterMenu extends StatelessWidget {
       ],
     );
 
-    final resetAllFiltersButton = IconButton(
-      tooltip: 'Reset all filters',
-      color: Theme.of(context).colorScheme.tertiary,
-      onPressed: imagePhviewer.isFilterActive
-          ? () => imagePhviewer.resetAllFilters()
-          : null,
-      icon: const Icon(Icons.format_color_reset),
+    final resetAllFiltersButton = ValueListenableBuilder(
+      valueListenable: imagePhviewer.filtersChangeListenable,
+      builder: (_, __, ___) => IconButton(
+        tooltip: 'Reset all filters',
+        color: Theme.of(context).colorScheme.tertiary,
+        onPressed: imagePhviewer.isFilterActive
+            ? () => imagePhviewer.resetAllFilters()
+            : null,
+        icon: const Icon(Icons.format_color_reset),
+      ),
     );
 
     final headerRow = Padding(
@@ -78,11 +81,11 @@ class FilterMenu extends StatelessWidget {
     void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
       final isSelectionGrayscale =
           newSelection.contains(ImageColorMode.grayscale);
-      imagePhviewer.setGrayscaleActive(isSelectionGrayscale);
+      imagePhviewer.isUsingGrayscale = isSelectionGrayscale;
     }
 
     void handleBlurSliderChanged(value) {
-      imagePhviewer.setBlurLevel(value);
+      imagePhviewer.blurLevel = value;
     }
 
     final windowSize = MediaQuery.of(context).size;
@@ -124,13 +127,23 @@ class FilterMenu extends StatelessWidget {
                   spacing: 5,
                   children: [
                     headerRow,
-                    ColorModeButtons(
-                      imagePhviewer: imagePhviewer,
-                      onSelectionChanged: handleImageModeSelectionChanged,
+                    ValueListenableBuilder(
+                      valueListenable: imagePhviewer.usingGrayscaleListenable,
+                      builder: (_, __, ___) {
+                        return ColorModeButtons(
+                          imagePhviewer: imagePhviewer,
+                          onSelectionChanged: handleImageModeSelectionChanged,
+                        );
+                      },
                     ),
-                    BlurSlider(
-                      imagePhviewer: imagePhviewer,
-                      onChanged: handleBlurSliderChanged,
+                    ValueListenableBuilder(
+                      valueListenable: imagePhviewer.blurLevelListenable,
+                      builder: (_, __, ___) {
+                        return BlurSlider(
+                          imagePhviewer: imagePhviewer,
+                          onChanged: handleBlurSliderChanged,
+                        );
+                      },
                     ),
                   ],
                 ),

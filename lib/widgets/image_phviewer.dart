@@ -9,11 +9,14 @@ import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
-  ImagePhviewer({this.onNotify, required this.onStateChange});
+  ImagePhviewer({this.onNotify});
+
+  final Function(String text, IconData icon)? onNotify;
 
   static const List<double> _zoomScales = [
     0.25,
@@ -26,73 +29,57 @@ class ImagePhviewer {
     4.0
   ];
   static const _defaultZoomLevel = 3;
+  final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
+  double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
+  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
+  bool get isZoomLevelDefault =>
+      (zoomLevelListenable.value == _defaultZoomLevel);
 
-  bool _isUsingGrayscale = false;
-  double _blurLevel = 0;
+  bool get isUsingGrayscale => usingGrayscaleListenable.value;
+  set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
+  final usingGrayscaleListenable = ValueNotifier<bool>(false);
+
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
+  final blurLevelListenable = ValueNotifier<double>(0.0);
+  double get blurLevel => blurLevelListenable.value;
+  set blurLevel(double val) => blurLevelListenable.value =
+      clampDouble(val, _minBlurLevel, _maxBlurLevel);
 
-  int currentZoomLevel = _defaultZoomLevel;
-  double get currentZoomScale => _zoomScales[currentZoomLevel];
-  bool get isZoomLevelDefault => (currentZoomLevel == _defaultZoomLevel);
-
-  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
-
-  bool get isFilterActive => (_isUsingGrayscale || _blurLevel > 0);
-  bool get isUsingGrayscale => _isUsingGrayscale;
-  double get blurLevel => _blurLevel;
-
+  late final filtersChangeListenable = ValuesNotifier([
+    blurLevelListenable,
+    usingGrayscaleListenable,
+  ]);
+  bool get isFilterActive =>
+      (isUsingGrayscale || blurLevelListenable.value > 0);
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
-    if (_blurLevel > 0) currentActiveFiltersCount++;
-    if (_isUsingGrayscale) currentActiveFiltersCount++;
+    if (blurLevelListenable.value > 0) currentActiveFiltersCount++;
+    if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
   }
 
-  Function(String text, IconData icon)? onNotify;
-  Function()? onStateChange;
-
   void resetZoomLevel() {
-    currentZoomLevel = _defaultZoomLevel;
+    zoomLevelListenable.value = _defaultZoomLevel;
   }
 
   void resetAllFilters() {
-    setGrayscaleActive(false);
-    setBlurLevel(0);
+    isUsingGrayscale = false;
+    blurLevel = 0;
   }
 
-  void toggleGrayscale() {
-    setGrayscaleActive(!_isUsingGrayscale);
-  }
-
-  void setBlurLevel(double newBlurLevel) {
-    
-    final oldBlurLevel = _blurLevel;
-    _blurLevel = newBlurLevel;
-    _blurLevel = clampDouble(_blurLevel, _minBlurLevel, _maxBlurLevel);
-    
-    if (oldBlurLevel != newBlurLevel) {
-      onStateChange?.call();
-    }
-  }
-  
   void incrementBlurLevel(int increment) {
     if (increment > 0) {
-      setBlurLevel(_blurLevel + 1);
+      blurLevel += 1;
     } else if (increment < 0) {
-      setBlurLevel(_blurLevel - 1);
+      blurLevel -= 1;
     }
-  }
-
-  void setGrayscaleActive(bool active) {
-    _isUsingGrayscale = active;
-    onStateChange?.call();
   }
 
   void incrementZoomLevel(int increment) {
-    currentZoomLevel += increment;
-    currentZoomLevel = currentZoomLevel.clamp(0, _zoomScales.length - 1);
+    final newZoomLevel = zoomLevelListenable.value + increment;
+    zoomLevelListenable.value = newZoomLevel.clamp(0, _zoomScales.length - 1);
   }
 
   Widget imageRightClick({
@@ -135,13 +122,8 @@ class ImagePhviewer {
       }
 
       return GestureDetector(
-        onTertiaryTapDown: (details) {
-          () => resetZoomLevel();
-          onStateChange?.call();
-        },
-        onSecondaryTapDown: (details) {
-          openContextMenu();
-        },
+        onTertiaryTapDown: (details) => () => resetZoomLevel(),
+        onSecondaryTapDown: (details) => openContextMenu(),
         child: child,
       );
     });
@@ -193,22 +175,39 @@ class ImagePhviewer {
                   ? Phanimations.imageNext
                   : Phanimations.imagePrevious,
               child: SizedBox.expand(
-                child: AnimatedScale(
-                  duration: Phanimations.zoomTransitionDuration,
-                  curve: Phanimations.zoomTransitionCurve,
-                  scale: _zoomScales[currentZoomLevel],
-                  child: imageWidget,
+                child: ValueListenableBuilder(
+                  valueListenable: zoomLevelListenable,
+                  builder: (_, __, ___) {
+                    return AnimatedScale(
+                      duration: Phanimations.zoomTransitionDuration,
+                      curve: Phanimations.zoomTransitionCurve,
+                      scale: currentZoomScale,
+                      child: imageWidget,
+                    );
+                  },
                 ),
               ),
             ),
-            if (_blurLevel > 0)
-              BackdropFilter(
-                filter: ImageFilter.blur(
-                    sigmaX: pow(1.3, _blurLevel).toDouble(),
-                    sigmaY: pow(1.3, _blurLevel).toDouble()),
-                child: const SizedBox.expand(),
-              ),
-            if (_isUsingGrayscale) _matrixGrayscale,
+            ValueListenableBuilder(
+              valueListenable: blurLevelListenable,
+              builder: (_, blurValue, __) {
+                if (blurLevel <= 0) return const SizedBox.expand();
+
+                return BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: pow(1.3, blurValue).toDouble(),
+                    sigmaY: pow(1.3, blurValue).toDouble(),
+                  ),
+                  child: const SizedBox.expand(),
+                );
+              },
+            ),
+            ValueListenableBuilder(
+              valueListenable: usingGrayscaleListenable,
+              builder: (_, value, ___) =>
+                  value ? _matrixGrayscale : const SizedBox.expand(),
+              child: _matrixGrayscale,
+            ),
             imageFilenameLayer,
           ],
         );
