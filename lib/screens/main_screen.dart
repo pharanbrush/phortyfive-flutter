@@ -56,11 +56,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (HelpIntent, (_) => windowState.isShowingHelpSheet.set(true)),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
-    (
-      ToggleSoundIntent,
-      (_) =>
-          windowState.isSoundsEnabled.value = !windowState.isSoundsEnabled.value
-    ),
+    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
     (ReturnHomeIntent, (_) => _tryReturnHome())
   ];
 
