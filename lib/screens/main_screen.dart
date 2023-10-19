@@ -49,17 +49,24 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (RestartTimerIntent, (_) => widget.model.timerModel.restartTimer()),
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
-    (OpenTimerMenuIntent, (_) => windowState.isShowingTimerDurationMenu.set(true)),
+    (
+      OpenTimerMenuIntent,
+      (_) => windowState.isShowingTimerDurationMenu.set(true)
+    ),
     (HelpIntent, (_) => windowState.isShowingHelpSheet.set(true)),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
-    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
+    (
+      ToggleSoundIntent,
+      (_) =>
+          windowState.isSoundsEnabled.value = !windowState.isSoundsEnabled.value
+    ),
     (ReturnHomeIntent, (_) => _tryReturnHome())
   ];
 
   //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
-  late TimerDurationPanel timerDurationWidget =
-      TimerDurationPanel(onDismiss: () => windowState.isShowingTimerDurationMenu.set(false));
+  late TimerDurationPanel timerDurationWidget = TimerDurationPanel(
+      onDismiss: () => windowState.isShowingTimerDurationMenu.set(false));
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     onNotify: (message, icon) {
       showImagePhviewerToast(message: message, icon: icon);
@@ -84,6 +91,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _playPauseIconStateAnimator.dispose();
+    _handleDisposeCallbacks();
     super.dispose();
   }
 
@@ -236,7 +244,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _loadSettings() async {
-    windowState.isSoundsEnabled.set(await Preferences.getSoundsEnabled());
+    windowState.isSoundsEnabled.value = await Preferences.getSoundsEnabled();
   }
 
   void _bindModelCallbacks() {
@@ -253,8 +261,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     timerModel.onReset ??= () => _playClickSound();
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
 
+    windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
+
     windowState.isAlwaysOnTop.setListener(() => _handleAlwaysOnTopChanged());
-    windowState.isSoundsEnabled.setListener(() => _handleSoundChanged());
     windowState.isShowingHelpSheet
         .setListener(() => _handleCheatSheetChanged());
     windowState.isShowingTimerDurationMenu.setListener(() => _handleEditingTimeChanged());
@@ -264,6 +273,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .setListener(() => _handleFilterMenuChanged());
     windowState.isShowingSettingsMenu
         .setListener(() => _handleSettingsMenuChanged());
+  }
+  
+  void _handleDisposeCallbacks() {
+    windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
   }
 
   void _tryReturnHome() {
@@ -429,7 +442,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _handleSoundChanged() {
     showSoundToggleToast() {
-      bool wasEnabled = windowState.isSoundsEnabled.boolValue;
+      bool wasEnabled = windowState.isSoundsEnabled.value;
       final message = PfsLocalization.soundsSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
@@ -445,7 +458,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       showSoundToggleToast();
     });
 
-    Preferences.setSoundsEnabled(windowState.isSoundsEnabled.boolValue);
+    Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
   void _handleSettingsMenuChanged() {
@@ -606,7 +619,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           spacingBox,
           Phbuttons.timerSettingsButton(
-              onPressed: () => windowState.isShowingTimerDurationMenu.set(true)),
+              onPressed: () =>
+                  windowState.isShowingTimerDurationMenu.set(true)),
           spacingBox,
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
@@ -670,7 +684,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _playClickSound({bool playWhilePaused = false}) {
-    if (!windowState.isSoundsEnabled.boolValue) return;
+    if (!windowState.isSoundsEnabled.value) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
   }
@@ -682,8 +696,8 @@ class PfsWindowState {
 
   final isBottomBarMinimized = ListenableBool(false);
   final isAlwaysOnTop = ListenableBool(false);
-  final isSoundsEnabled = ListenableBool(true);
-  
+  final isSoundsEnabled = ValueNotifier(true);
+
   final isShowingTimerDurationMenu = ListenableBool(false);
   final isShowingHelpSheet = ListenableBool(false);
   final isShowingFiltersMenu = ListenableBool(false);

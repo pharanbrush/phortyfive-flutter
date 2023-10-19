@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -63,12 +65,17 @@ class SettingsPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               smallHeading('Window', context),
-              switchItem(
-                context,
-                title: const Text('Sounds'),
-                value: windowState.isSoundsEnabled.boolValue,
-                onChanged: (newValue) =>
-                    windowState.isSoundsEnabled.set(newValue),
+              ValueListenableBuilder(
+                valueListenable: windowState.isSoundsEnabled,
+                builder: (_, isSoundsEnabled, __) {
+                  return switchItem(
+                    context,
+                    title: const Text('Sounds'),
+                    value: isSoundsEnabled,
+                    onChanged: (newValue) =>
+                        windowState.isSoundsEnabled.value = newValue,
+                  );
+                },
               ),
               switchItem(
                 context,
