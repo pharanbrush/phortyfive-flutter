@@ -77,12 +77,17 @@ class SettingsPanel extends StatelessWidget {
                   );
                 },
               ),
-              switchItem(
-                context,
-                title: const Text(PfsLocalization.alwaysOnTop),
-                value: windowState.isAlwaysOnTop.boolValue,
-                onChanged: (newValue) =>
-                    windowState.isAlwaysOnTop.set(newValue),
+              ValueListenableBuilder(
+                valueListenable: windowState.isAlwaysOnTop,
+                builder: (_, isAlwaysOnTop, __) {
+                  return switchItem(
+                    context,
+                    title: const Text(PfsLocalization.alwaysOnTop),
+                    value: isAlwaysOnTop,
+                    onChanged: (newValue) =>
+                        windowState.isAlwaysOnTop.value = newValue,
+                  );
+                },
               ),
               const Divider(height: 32, thickness: 1),
               smallHeading('Appearance', context),

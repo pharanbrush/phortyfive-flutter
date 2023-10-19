@@ -170,7 +170,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowState: windowState,
             imagePhviewer: imagePhviewer,
           ),
-          _bottomBar(context),
+          ValueListenableBuilder(
+            valueListenable: windowState.isBottomBarMinimized,
+            builder: (context, __, ___) {
+              return _bottomBar(context);
+            },
+          ),
           _fileDropZone,
           settingsPanel(),
         ],
@@ -202,7 +207,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final appWindowContent = shortcutsWrapper(
       Stack(
         children: [
-          imagePhviewer.widget(windowState.isBottomBarMinimized.boolValue),
+          ValueListenableBuilder(
+            valueListenable: windowState.isBottomBarMinimized,
+            builder: (_, isBottomBarMinimized, __) {
+              return imagePhviewer.widget(isBottomBarMinimized);
+            },
+          ),
           _fileDropZone,
           _gestureControls(),
           const CountdownSheet(),
@@ -210,9 +220,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowState: windowState,
             imagePhviewer: imagePhviewer,
           ),
-          _bottomBar(
-            context,
-            windowWidth: windowSize.width,
+          ValueListenableBuilder(
+            valueListenable: windowState.isBottomBarMinimized,
+            builder: (_, __, ___) {
+              return _bottomBar(
+                context,
+                windowWidth: windowSize.width,
+              );
+            },
           ),
           modalMenu(
             isOpen: windowState.isShowingTimerDurationMenu.boolValue,
@@ -262,21 +277,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
+    windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
+    windowState.isBottomBarMinimized
+        .addListener(() => _handleBottomBarChanged());
 
-    windowState.isAlwaysOnTop.setListener(() => _handleAlwaysOnTopChanged());
     windowState.isShowingHelpSheet
         .setListener(() => _handleCheatSheetChanged());
-    windowState.isShowingTimerDurationMenu.setListener(() => _handleEditingTimeChanged());
-    windowState.isBottomBarMinimized
-        .setListener(() => _handleBottomBarChanged());
+    windowState.isShowingTimerDurationMenu
+        .setListener(() => _handleEditingTimeChanged());
+
     windowState.isShowingFiltersMenu
         .setListener(() => _handleFilterMenuChanged());
     windowState.isShowingSettingsMenu
         .setListener(() => _handleSettingsMenuChanged());
   }
-  
+
   void _handleDisposeCallbacks() {
     windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
+    windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
+    windowState.isBottomBarMinimized
+        .removeListener(() => _handleBottomBarChanged());
   }
 
   void _tryReturnHome() {
@@ -342,7 +362,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _updateAlwaysOnTop() {
     bool isPickingFiles = widget.model.isPickerOpen;
-    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.boolValue;
+    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
 
     bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
     windowManager.setAlwaysOnTop(currentAlwaysOnTop);
@@ -419,7 +439,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       if (currentContext == null) return;
       BuildContext context = currentContext!;
 
-      bool wasEnabled = windowState.isAlwaysOnTop.boolValue;
+      bool wasEnabled = windowState.isAlwaysOnTop.value;
       final message = PfsLocalization.alwaysOnTopSwitched(wasEnabled);
 
       final icon = wasEnabled
@@ -574,7 +594,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ]),
     );
 
-    if (windowState.isBottomBarMinimized.boolValue) {
+    if (windowState.isBottomBarMinimized.value) {
       return minimizedBottomBar;
     }
 
@@ -676,9 +696,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return Positioned(
       bottom: 3,
       right: 3,
-      child: CollapseBottomBarButton(
-        isMinimized: windowState.isBottomBarMinimized.boolValue,
-        onPressed: () => windowState.isBottomBarMinimized.toggle(),
+      child: ValueListenableBuilder(
+        valueListenable: windowState.isBottomBarMinimized,
+        builder: (_, __, ___) {
+          return CollapseBottomBarButton(
+            isMinimized: windowState.isBottomBarMinimized.value,
+            onPressed: () => windowState.isBottomBarMinimized.toggle(),
+          );
+        },
       ),
     );
   }
@@ -694,8 +719,8 @@ class PfsWindowState {
   bool rightControlsOrientation = true;
   bool isTouch = false;
 
-  final isBottomBarMinimized = ListenableBool(false);
-  final isAlwaysOnTop = ListenableBool(false);
+  final isBottomBarMinimized = ValueNotifier(false);
+  final isAlwaysOnTop = ValueNotifier(false);
   final isSoundsEnabled = ValueNotifier(true);
 
   final isShowingTimerDurationMenu = ListenableBool(false);
@@ -725,5 +750,11 @@ class ListenableBool {
 
   void toggle() {
     set(!_boolValue);
+  }
+}
+
+extension BoolNotifierToggle on ValueNotifier<bool> {
+  void toggle() {
+    value = !value;
   }
 }

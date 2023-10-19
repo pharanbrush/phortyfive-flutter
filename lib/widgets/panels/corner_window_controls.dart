@@ -51,16 +51,21 @@ class CornerWindowControls extends StatelessWidget {
                 icon: Icons.settings,
                 tooltip: 'Settings',
               ),
-              CornerButton(
-                onPressed: () => windowState.isAlwaysOnTop.toggle(),
-                icon: windowState.isAlwaysOnTop.boolValue
-                    ? Icons.picture_in_picture
-                    : Icons.picture_in_picture_outlined,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.alwaysOnTop,
-                  shortcut: Phshortcuts.alwaysOnTop,
-                ),
-                isSelected: windowState.isAlwaysOnTop.boolValue,
+              ValueListenableBuilder(
+                valueListenable: windowState.isAlwaysOnTop,
+                builder: (_, isAlwaysOnTop, __) {
+                  return CornerButton(
+                    onPressed: () => windowState.isAlwaysOnTop.toggle(),
+                    icon: isAlwaysOnTop
+                        ? Icons.picture_in_picture
+                        : Icons.picture_in_picture_outlined,
+                    tooltip: PfsLocalization.buttonTooltip(
+                      commandName: PfsLocalization.alwaysOnTop,
+                      shortcut: Phshortcuts.alwaysOnTop,
+                    ),
+                    isSelected: isAlwaysOnTop,
+                  );
+                },
               ),
               CornerButton(
                 onPressed: () => windowState.isShowingHelpSheet.set(true),
