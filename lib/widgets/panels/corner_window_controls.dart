@@ -17,6 +17,8 @@ class CornerWindowControls extends StatelessWidget {
   final PfsWindowState windowState;
   final ImagePhviewer imagePhviewer;
   final ModalMenu helpMenu, settingsMenu;
+  
+  static const double controlsWidth = 130;
 
   @override
   Widget build(BuildContext context) {
