@@ -26,8 +26,8 @@ class CornerWindowControls extends StatelessWidget {
     final cornerWatermarkTextStyle =
         theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
 
-    // final soundShortcut =
-    //     PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+    final soundShortcut =
+        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
 
     return Positioned(
       right: 7,
@@ -41,19 +41,22 @@ class CornerWindowControls extends StatelessWidget {
             direction: Axis.horizontal,
             alignment: WrapAlignment.end,
             children: [
-              // CornerButton(
-              //   onPressed: () => windowState.isSoundsEnabled.toggle(),
-              //   icon: windowState.isSoundsEnabled.value
-              //       ? Icons.volume_up
-              //       : Icons.volume_off,
-              //   tooltip: windowState.isSoundsEnabled.value
-              //       ? 'Mute sounds ($soundShortcut)'
-              //       : 'Unmute sounds ($soundShortcut)',
-              // ),
               CornerButton(
                 onPressed: () => settingsMenu.open(),
                 icon: Icons.settings,
                 tooltip: 'Settings',
+              ),
+              ValueListenableBuilder(
+                valueListenable: windowState.isSoundsEnabled,
+                builder: (_, isSoundsEnabled, __) {
+                  return CornerButton(
+                    onPressed: () => windowState.isSoundsEnabled.toggle(),
+                    icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
+                    tooltip: isSoundsEnabled
+                        ? 'Mute sounds ($soundShortcut)'
+                        : 'Unmute sounds ($soundShortcut)',
+                  );
+                },
               ),
               ValueListenableBuilder(
                 valueListenable: windowState.isAlwaysOnTop,
