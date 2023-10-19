@@ -59,13 +59,15 @@ class MyApp extends StatelessWidget {
               title: pfsAppTitle,
               theme: PfsTheme.getTheme(theme.value),
               home: Scaffold(
-                body: windowWrapper(
-                  themeContext,
-                  child: MainScreen(
-                    model: appModel,
-                    theme: theme,
-                  ),
-                ),
+                body: Builder(builder: (context) {
+                  return windowWrapper(
+                    context,
+                    child: MainScreen(
+                      model: appModel,
+                      theme: theme,
+                    ),
+                  );
+                }),
               ),
             );
           },
@@ -75,9 +77,6 @@ class MyApp extends StatelessWidget {
   }
 
   Widget windowWrapper(BuildContext context, {required Widget child}) {
-    final theme = Theme.of(context);
-    final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
-
     Widget titlebar() {
       return WindowTitleBarBox(
         child: Row(children: [
@@ -127,7 +126,10 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    Widget windowBorderWrapper({required Widget child}) {
+    Widget windowBorderWrapper(BuildContext context, {required Widget child}) {
+      final theme = Theme.of(context);
+      final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
+
       return Stack(
         children: [
           Padding(
@@ -150,7 +152,7 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    return windowBorderWrapper(child: child);
+    return windowBorderWrapper(context, child: child);
   }
 }
 
