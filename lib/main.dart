@@ -84,16 +84,30 @@ class MyApp extends StatelessWidget {
           Expanded(
             child: Stack(
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-                  child: Text(
-                    pfsAppTitle,
-                    style: TextStyle(
-                      color: Color(0xAA999999),
-                      fontSize: 12
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 6,
+                  ),
+                  child: Opacity(
+                    opacity: 0.35,
+                    child: Image.memory(
+                      PfsTheme.pfsIconBytes,
+                      filterQuality: FilterQuality.medium,
                     ),
                   ),
                 ),
+                // const Padding(
+                //   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 32),
+                //   child: Text(
+                //     pfsAppTitle,
+                //     style: TextStyle(
+                //       color: Color(0xAA999999),
+                //       fontSize: 12
+                //     ),
+                //   ),
+                // ),
+
                 MoveWindow(),
               ],
             ),
