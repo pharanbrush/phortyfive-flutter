@@ -274,8 +274,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
-    windowState.isBottomBarMinimized
-        .addListener(() => _handleBottomBarChanged());
 
     windowState.isShowingHelpSheet
         .setListener(() => _handleCheatSheetChanged());
@@ -291,8 +289,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void _handleDisposeCallbacks() {
     windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
-    windowState.isBottomBarMinimized
-        .removeListener(() => _handleBottomBarChanged());
   }
 
   void _tryReturnHome() {
@@ -394,10 +390,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _handleBottomBarChanged() {
-    setState(() {});
-  }
-
   void _cancelAllModals({ListenableBool? except}) {
     void tryDismiss(ListenableBool toDismiss) {
       if (except == null || toDismiss != except) {
@@ -450,10 +442,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    setState(() {
-      _updateAlwaysOnTop();
-      showAlwaysOnTopToast();
-    });
+    _updateAlwaysOnTop();
+    showAlwaysOnTopToast();
   }
 
   void _handleSoundChanged() {
@@ -470,10 +460,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    setState(() {
-      showSoundToggleToast();
-    });
-
+    showSoundToggleToast();
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
