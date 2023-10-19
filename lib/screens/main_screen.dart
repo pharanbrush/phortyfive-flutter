@@ -755,8 +755,8 @@ class ModalMenu {
   ValueListenable<bool> get openStateListenable => _isOpen;
 
   void open() {
-    _isOpen.value = true;
     onOpen?.call();
+    _isOpen.value = true;
   }
 
   void dismiss() {
