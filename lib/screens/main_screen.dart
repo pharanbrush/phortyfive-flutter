@@ -741,3 +741,36 @@ extension BoolNotifierToggle on ValueNotifier<bool> {
     value = !value;
   }
 }
+
+class ModalMenu {
+  ModalMenu({
+    required this.builder,
+    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+  });
+
+  final Widget Function(Widget, Animation<double>) transitionBuilder;
+
+  final ValueNotifier<bool> isOpen = ValueNotifier(false);
+  final Widget Function(Function() closeMenu) builder;
+
+  void open() {
+    isOpen.value = true;
+  }
+
+  void dismiss() {
+    isOpen.value = false;
+  }
+
+  Widget widget(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: isOpen,
+      builder: (_, value, __) {
+        return AnimatedSwitcher(
+          transitionBuilder: transitionBuilder,
+          duration: Phanimations.fastDuration,
+          child: value ? builder(dismiss) : null,
+        );
+      },
+    );
+  }
+}
