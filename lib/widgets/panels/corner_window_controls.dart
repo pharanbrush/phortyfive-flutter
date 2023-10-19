@@ -10,11 +10,12 @@ class CornerWindowControls extends StatelessWidget {
     required this.windowState,
     required this.imagePhviewer,
     required this.helpMenu,
+    required this.settingsMenu,
   });
 
   final PfsWindowState windowState;
   final ImagePhviewer imagePhviewer;
-  final ModalMenu helpMenu;
+  final ModalMenu helpMenu, settingsMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class CornerWindowControls extends StatelessWidget {
               //       : 'Unmute sounds ($soundShortcut)',
               // ),
               CornerButton(
-                onPressed: () => windowState.isShowingSettingsMenu.set(true),
+                onPressed: () => settingsMenu.open(),
                 icon: Icons.settings,
                 tooltip: 'Settings',
               ),

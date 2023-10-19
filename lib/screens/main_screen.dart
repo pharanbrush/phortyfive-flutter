@@ -41,17 +41,30 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final PfsWindowState windowState = PfsWindowState();
 
   late final ModalMenu filtersMenu = ModalMenu(
+    onOpen: () => _cancelAllMenus(except: filtersMenu),
     builder: (closeMenu) {
       return FilterMenu(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
     },
   );
 
   late final ModalMenu helpMenu = ModalMenu(
-    onOpen: () => _handleHelpMenuChanged(),
+    onOpen: () => _cancelAllMenus(except: helpMenu),
     builder: (closeMenu) {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
         child: HelpSheet(onDismiss: closeMenu),
+      );
+    },
+  );
+
+  late final ModalMenu settingsMenu = ModalMenu(
+    onOpen: () => _cancelAllMenus(except: settingsMenu),
+    builder: (closeMenu) {
+      return SettingsPanel(
+        windowState: windowState,
+        appModel: widget.model,
+        themeNotifier: widget.theme,
+        onDismiss: closeMenu,
       );
     },
   );
@@ -127,18 +140,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
-    Widget settingsPanel() {
-      return modalMenu(
-        isOpen: windowState.isShowingSettingsMenu.boolValue,
-        builder: () => SettingsPanel(
-          windowState: windowState,
-          appModel: widget.model,
-          themeNotifier: widget.theme,
-          onDismiss: () => windowState.isShowingSettingsMenu.set(false),
-        ),
-      );
-    }
-
     Widget windowBorderWrapper({required Widget child}) {
       return Stack(
         children: [
@@ -183,6 +184,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowState: windowState,
             imagePhviewer: imagePhviewer,
             helpMenu: helpMenu,
+            settingsMenu: settingsMenu,
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
@@ -191,7 +193,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             },
           ),
           _fileDropZone,
-          settingsPanel(),
+          settingsMenu.widget(context),
         ],
       );
 
@@ -234,6 +236,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             windowState: windowState,
             imagePhviewer: imagePhviewer,
             helpMenu: helpMenu,
+            settingsMenu: settingsMenu,
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
@@ -250,7 +253,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
           helpMenu.widget(context),
           filtersMenu.widget(context),
-          settingsPanel(),
+          settingsMenu.widget(context),
           _dockingControls(),
         ],
       ),
@@ -282,9 +285,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     windowState.isShowingTimerDurationMenu
         .setListener(() => _handleEditingTimeChanged());
-
-    windowState.isShowingSettingsMenu
-        .setListener(() => _handleSettingsMenuChanged());
   }
 
   void _handleDisposeCallbacks() {
@@ -294,6 +294,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _tryReturnHome() {
     _cancelAllModals();
+    _cancelAllMenus();
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
@@ -404,6 +405,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
+    tryDismiss(settingsMenu);
     tryDismiss(helpMenu);
     tryDismiss(filtersMenu);
   }
@@ -422,10 +424,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         active, widget.model.timerModel.currentDurationSeconds);
 
     setState(() {});
-  }
-
-  void _handleHelpMenuChanged() {
-    _cancelAllMenus(except: helpMenu);
   }
 
   void _handleAlwaysOnTopChanged() {
@@ -468,11 +466,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     showSoundToggleToast();
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
-  }
-
-  void _handleSettingsMenuChanged() {
-    _cancelAllModals(except: windowState.isShowingSettingsMenu);
-    setState(() {});
   }
 
   Widget _gestureControls() {
@@ -713,7 +706,6 @@ class PfsWindowState {
   final isSoundsEnabled = ValueNotifier(true);
 
   final isShowingTimerDurationMenu = ListenableBool(false);
-  final isShowingSettingsMenu = ListenableBool(false);
 }
 
 class ListenableBool {
