@@ -9,10 +9,12 @@ class CornerWindowControls extends StatelessWidget {
     super.key,
     required this.windowState,
     required this.imagePhviewer,
+    required this.helpMenu,
   });
 
   final PfsWindowState windowState;
   final ImagePhviewer imagePhviewer;
+  final ModalMenu helpMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +70,7 @@ class CornerWindowControls extends StatelessWidget {
                 },
               ),
               CornerButton(
-                onPressed: () => windowState.isShowingHelpSheet.set(true),
+                onPressed: () => helpMenu.open(),
                 icon: Icons.help_rounded,
                 tooltip: PfsLocalization.buttonTooltip(
                   commandName: PfsLocalization.help,

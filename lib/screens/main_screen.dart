@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -45,6 +46,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     },
   );
 
+  late final ModalMenu helpMenu = ModalMenu(
+    onOpen: () => _handleHelpMenuChanged(),
+    builder: (closeMenu) {
+      return Theme(
+        data: ThemeData.dark(useMaterial3: true),
+        child: HelpSheet(onDismiss: closeMenu),
+      );
+    },
+  );
+
   BuildContext? currentContext;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
@@ -59,7 +70,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       OpenTimerMenuIntent,
       (_) => windowState.isShowingTimerDurationMenu.set(true)
     ),
-    (HelpIntent, (_) => windowState.isShowingHelpSheet.set(true)),
+    (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
@@ -171,6 +182,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           CornerWindowControls(
             windowState: windowState,
             imagePhviewer: imagePhviewer,
+            helpMenu: helpMenu,
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
@@ -221,6 +233,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           CornerWindowControls(
             windowState: windowState,
             imagePhviewer: imagePhviewer,
+            helpMenu: helpMenu,
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
@@ -235,15 +248,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             isOpen: windowState.isShowingTimerDurationMenu.boolValue,
             builder: () => timerDurationWidget,
           ),
-          modalMenu(
-            isOpen: windowState.isShowingHelpSheet.boolValue,
-            builder: () => Theme(
-              data: ThemeData.dark(useMaterial3: true),
-              child: HelpSheet(
-                onDismiss: () => windowState.isShowingHelpSheet.set(false),
-              ),
-            ),
-          ),
+          helpMenu.widget(context),
           filtersMenu.widget(context),
           settingsPanel(),
           _dockingControls(),
@@ -275,8 +280,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
 
-    windowState.isShowingHelpSheet
-        .setListener(() => _handleCheatSheetChanged());
     windowState.isShowingTimerDurationMenu
         .setListener(() => _handleEditingTimeChanged());
 
@@ -391,9 +394,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
-    tryDismiss(windowState.isShowingHelpSheet);
     tryDismiss(windowState.isShowingTimerDurationMenu);
-    //tryDismiss(windowState.isShowingFiltersMenu);
   }
 
   void _cancelAllMenus({ModalMenu? except}) {
@@ -403,6 +404,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
+    tryDismiss(helpMenu);
     tryDismiss(filtersMenu);
   }
 
@@ -422,9 +424,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _handleCheatSheetChanged() {
-    _cancelAllModals(except: windowState.isShowingHelpSheet);
-    setState(() {});
+  void _handleHelpMenuChanged() {
+    _cancelAllMenus(except: helpMenu);
   }
 
   void _handleAlwaysOnTopChanged() {
@@ -712,7 +713,6 @@ class PfsWindowState {
   final isSoundsEnabled = ValueNotifier(true);
 
   final isShowingTimerDurationMenu = ListenableBool(false);
-  final isShowingHelpSheet = ListenableBool(false);
   final isShowingSettingsMenu = ListenableBool(false);
 }
 
@@ -750,24 +750,30 @@ class ModalMenu {
   ModalMenu({
     required this.builder,
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.onOpen,
   });
 
   final Widget Function(Widget, Animation<double>) transitionBuilder;
 
-  final ValueNotifier<bool> isOpen = ValueNotifier(false);
   final Widget Function(Function() closeMenu) builder;
+  final Function()? onOpen;
+
+  final ValueNotifier<bool> _isOpen = ValueNotifier(false);
+
+  ValueListenable<bool> get openStateListenable => _isOpen;
 
   void open() {
-    isOpen.value = true;
+    _isOpen.value = true;
+    onOpen?.call();
   }
 
   void dismiss() {
-    isOpen.value = false;
+    _isOpen.value = false;
   }
 
   Widget widget(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: isOpen,
+      valueListenable: _isOpen,
       builder: (_, value, __) {
         return AnimatedSwitcher(
           transitionBuilder: transitionBuilder,
