@@ -39,6 +39,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final Phclicker clicker = Phclicker();
   final PfsWindowState windowState = PfsWindowState();
 
+  late final ModalMenu filtersMenu = ModalMenu(
+    builder: (closeMenu) {
+      return FilterMenu(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
+    },
+  );
+
   BuildContext? currentContext;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
@@ -238,13 +244,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          modalMenu(
-            isOpen: windowState.isShowingFiltersMenu.boolValue,
-            builder: () => FilterMenu(
-              imagePhviewer: imagePhviewer,
-              onDismiss: () => windowState.isShowingFiltersMenu.set(false),
-            ),
-          ),
+          filtersMenu.widget(context),
           settingsPanel(),
           _dockingControls(),
         ],
@@ -280,8 +280,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     windowState.isShowingTimerDurationMenu
         .setListener(() => _handleEditingTimeChanged());
 
-    windowState.isShowingFiltersMenu
-        .setListener(() => _handleFilterMenuChanged());
     windowState.isShowingSettingsMenu
         .setListener(() => _handleSettingsMenuChanged());
   }
@@ -386,10 +384,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _handleFilterMenuChanged() {
-    setState(() {});
-  }
-
   void _cancelAllModals({ListenableBool? except}) {
     void tryDismiss(ListenableBool toDismiss) {
       if (except == null || toDismiss != except) {
@@ -399,13 +393,24 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     tryDismiss(windowState.isShowingHelpSheet);
     tryDismiss(windowState.isShowingTimerDurationMenu);
-    tryDismiss(windowState.isShowingFiltersMenu);
+    //tryDismiss(windowState.isShowingFiltersMenu);
+  }
+
+  void _cancelAllMenus({ModalMenu? except}) {
+    void tryDismiss(ModalMenu toDismiss) {
+      if (except != null || toDismiss != except) {
+        toDismiss.dismiss();
+      }
+    }
+
+    tryDismiss(filtersMenu);
   }
 
   void _handleEditingTimeChanged() {
     bool active = windowState.isShowingTimerDurationMenu.boolValue;
     if (active) {
       _cancelAllModals(except: windowState.isShowingTimerDurationMenu);
+      _cancelAllMenus();
     }
     if (!active) {
       mainWindowFocus.requestFocus();
@@ -593,7 +598,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
 
       final filtersButton = IconButton(
-        onPressed: () => windowState.isShowingFiltersMenu.set(true),
+        onPressed: () => filtersMenu.open(),
         isSelected: imagePhviewer.isFilterActive,
         tooltip: 'Filters',
         icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
@@ -708,7 +713,6 @@ class PfsWindowState {
 
   final isShowingTimerDurationMenu = ListenableBool(false);
   final isShowingHelpSheet = ListenableBool(false);
-  final isShowingFiltersMenu = ListenableBool(false);
   final isShowingSettingsMenu = ListenableBool(false);
 }
 
