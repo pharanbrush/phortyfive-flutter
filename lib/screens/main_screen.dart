@@ -41,14 +41,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final PfsWindowState windowState = PfsWindowState();
 
   late final ModalMenu filtersMenu = ModalMenu(
-    onOpen: () => _cancelAllMenus(except: filtersMenu),
+    onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
     builder: (closeMenu) {
       return FilterMenu(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
     },
   );
 
   late final ModalMenu helpMenu = ModalMenu(
-    onOpen: () => _cancelAllMenus(except: helpMenu),
+    onBeforeOpen: () => _cancelAllMenus(except: helpMenu),
     builder: (closeMenu) {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
@@ -58,7 +58,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   late final ModalMenu settingsMenu = ModalMenu(
-    onOpen: () => _cancelAllMenus(except: settingsMenu),
+    onBeforeOpen: () => _cancelAllMenus(except: settingsMenu),
     builder: (closeMenu) {
       return SettingsPanel(
         windowState: windowState,
@@ -66,6 +66,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         themeNotifier: widget.theme,
         onDismiss: closeMenu,
       );
+    },
+  );
+
+  late final ModalMenu timerDurationMenu = ModalMenu(
+    onBeforeOpen: () => _cancelAllMenus(except: timerDurationMenu),
+    onOpened: () {
+      timerDurationWidget.setActive(timerDurationMenu.isOpen,
+          widget.model.timerModel.currentDurationSeconds);
+    },
+    onClosed: () {
+      mainWindowFocus.requestFocus();
+      timerDurationWidget.setActive(timerDurationMenu.isOpen,
+          widget.model.timerModel.currentDurationSeconds);
+    },
+    builder: (closeMenu) {
+      return timerDurationWidget;
     },
   );
 
@@ -79,10 +95,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (RestartTimerIntent, (_) => widget.model.timerModel.restartTimer()),
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
-    (
-      OpenTimerMenuIntent,
-      (_) => windowState.isShowingTimerDurationMenu.set(true)
-    ),
+    (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
     (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
@@ -91,8 +104,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   ];
 
   //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
-  late TimerDurationPanel timerDurationWidget = TimerDurationPanel(
-      onDismiss: () => windowState.isShowingTimerDurationMenu.set(false));
+  late TimerDurationPanel timerDurationWidget =
+      TimerDurationPanel(onDismiss: () => timerDurationMenu.close());
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     onNotify: (message, icon) {
       showImagePhviewerToast(message: message, icon: icon);
@@ -129,16 +142,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
 
     final Size windowSize = MediaQuery.of(context).size;
-
-    Widget modalMenu({
-      required bool isOpen,
-      required Widget Function() builder,
-    }) {
-      return AnimatedSwitcher(
-        duration: Phanimations.fastDuration,
-        child: isOpen ? builder() : null,
-      );
-    }
 
     Widget windowBorderWrapper({required Widget child}) {
       return Stack(
@@ -247,10 +250,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          modalMenu(
-            isOpen: windowState.isShowingTimerDurationMenu.boolValue,
-            builder: () => timerDurationWidget,
-          ),
+          timerDurationMenu.widget(context),
           helpMenu.widget(context),
           filtersMenu.widget(context),
           settingsMenu.widget(context),
@@ -282,9 +282,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
-
-    windowState.isShowingTimerDurationMenu
-        .setListener(() => _handleEditingTimeChanged());
   }
 
   void _handleDisposeCallbacks() {
@@ -293,7 +290,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _tryReturnHome() {
-    _cancelAllModals();
     _cancelAllMenus();
   }
 
@@ -388,42 +384,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _cancelAllModals({ListenableBool? except}) {
-    void tryDismiss(ListenableBool toDismiss) {
-      if (except == null || toDismiss != except) {
-        toDismiss.set(false);
-      }
-    }
-
-    tryDismiss(windowState.isShowingTimerDurationMenu);
-  }
-
   void _cancelAllMenus({ModalMenu? except}) {
     void tryDismiss(ModalMenu toDismiss) {
       if (except != null || toDismiss != except) {
-        toDismiss.dismiss();
+        toDismiss.close();
       }
     }
 
     tryDismiss(settingsMenu);
     tryDismiss(helpMenu);
     tryDismiss(filtersMenu);
-  }
-
-  void _handleEditingTimeChanged() {
-    bool active = windowState.isShowingTimerDurationMenu.boolValue;
-    if (active) {
-      _cancelAllModals(except: windowState.isShowingTimerDurationMenu);
-      _cancelAllMenus();
-    }
-    if (!active) {
-      mainWindowFocus.requestFocus();
-    }
-
-    timerDurationWidget.setActive(
-        active, widget.model.timerModel.currentDurationSeconds);
-
-    setState(() {});
   }
 
   void _handleAlwaysOnTopChanged() {
@@ -621,8 +591,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
           spacingBox,
           Phbuttons.timerSettingsButton(
-              onPressed: () =>
-                  windowState.isShowingTimerDurationMenu.set(true)),
+              onPressed: () => timerDurationMenu.open()),
           spacingBox,
           Opacity(
             opacity: model.allowTimerPlayPause ? 1 : 0.5,
@@ -704,32 +673,6 @@ class PfsWindowState {
   final isBottomBarMinimized = ValueNotifier(false);
   final isAlwaysOnTop = ValueNotifier(false);
   final isSoundsEnabled = ValueNotifier(true);
-
-  final isShowingTimerDurationMenu = ListenableBool(false);
-}
-
-class ListenableBool {
-  ListenableBool(bool initialValue) {
-    _boolValue = initialValue;
-  }
-
-  bool _boolValue = false;
-  bool get boolValue => _boolValue;
-  Function()? _onChange;
-
-  void setListener(Function() onChange) {
-    _onChange = onChange;
-  }
-
-  void set(bool newValue) {
-    if (_boolValue == newValue) return;
-    _boolValue = newValue;
-    _onChange?.call();
-  }
-
-  void toggle() {
-    set(!_boolValue);
-  }
 }
 
 extension BoolNotifierToggle on ValueNotifier<bool> {
@@ -742,25 +685,34 @@ class ModalMenu {
   ModalMenu({
     required this.builder,
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-    this.onOpen,
+    this.onBeforeOpen,
+    this.onClosed,
+    this.onOpened,
   });
 
   final Widget Function(Widget, Animation<double>) transitionBuilder;
 
   final Widget Function(Function() closeMenu) builder;
-  final Function()? onOpen;
+  final Function()? onBeforeOpen;
+  final Function()? onOpened;
+
+  final Function()? onClosed;
 
   final ValueNotifier<bool> _isOpen = ValueNotifier(false);
+
+  bool get isOpen => _isOpen.value;
 
   ValueListenable<bool> get openStateListenable => _isOpen;
 
   void open() {
-    onOpen?.call();
+    onBeforeOpen?.call();
     _isOpen.value = true;
+    onOpened?.call();
   }
 
-  void dismiss() {
+  void close() {
     _isOpen.value = false;
+    onClosed?.call();
   }
 
   Widget widget(BuildContext context) {
@@ -770,7 +722,7 @@ class ModalMenu {
         return AnimatedSwitcher(
           transitionBuilder: transitionBuilder,
           duration: Phanimations.fastDuration,
-          child: value ? builder(dismiss) : null,
+          child: value ? builder(close) : null,
         );
       },
     );
