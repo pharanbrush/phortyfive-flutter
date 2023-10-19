@@ -3,6 +3,7 @@ import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class CornerWindowControls extends StatelessWidget {
   const CornerWindowControls({
@@ -30,7 +31,7 @@ class CornerWindowControls extends StatelessWidget {
 
     return Positioned(
       right: 8,
-      top: 8,
+      top: Phbuttons.windowTitleBarHeight + 8,
       child: Wrap(
         direction: Axis.vertical,
         crossAxisAlignment: WrapCrossAlignment.end,

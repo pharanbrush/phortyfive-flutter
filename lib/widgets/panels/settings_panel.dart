@@ -10,6 +10,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({
@@ -166,7 +167,7 @@ class SettingsPanel extends StatelessWidget {
   Widget _panelContainer(BuildContext context, {required Widget child}) {
     const double panelFixedWidth = 380;
     //const double panelFixedHeight = 300;
-    const double top = 30;
+    const double top = Phbuttons.windowTitleBarHeight + 25;
     const double side = 30;
 
     var material =

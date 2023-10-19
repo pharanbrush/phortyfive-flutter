@@ -11,6 +11,7 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -130,8 +131,15 @@ class ImagePhviewer {
   }
 
   Widget widget(bool isBottomBarMinimized) {
-    const minimizedPadding = EdgeInsets.only(bottom: 5);
-    const normalPadding = EdgeInsets.only(bottom: 46);
+    const minimizedPadding = EdgeInsets.only(
+      bottom: 5,
+      top: Phbuttons.windowTitleBarHeight,
+    );
+    const normalPadding = EdgeInsets.only(
+      bottom: 46,
+      top: Phbuttons.windowTitleBarHeight,
+    );
+    
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
 
     return AnimatedPadding(

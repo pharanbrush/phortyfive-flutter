@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
+  bitsdojo_window_linux
   contextual_menu
   desktop_drop
   file_selector_linux

@@ -10,6 +10,8 @@ import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
 class Phbuttons {
+  static const double windowTitleBarHeight = 32;
+  
   static Widget openFiles({double width = 40.0}) {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'

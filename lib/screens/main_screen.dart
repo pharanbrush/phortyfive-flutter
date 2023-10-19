@@ -137,47 +137,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     currentContext = context;
-
-    final theme = Theme.of(context);
-    final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
-
+    
     final Size windowSize = MediaQuery.of(context).size;
-
-    Widget windowBorderWrapper({required Widget child}) {
-      return Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(borderSide?.width ?? 0),
-            child: child,
-          ),
-          if (borderSide != null)
-            Material(
-              type: MaterialType.transparency,
-              shape: Border.fromBorderSide(borderSide),
-              child: const SizedBox.expand(),
-            )
-        ],
-      );
-
-      // if (borderSide == null) {
-      //   return child;
-      // } else {
-      //   final appWindowPadding = borderSide.width;
-
-      //   return Stack(
-      //     children: [
-      //       Padding(
-      //         padding: EdgeInsets.all(appWindowPadding),
-      //         child: child,
-      //       ),
-      //       if (borderSide != null) Material(
-      //         type: MaterialType.transparency,
-      //         shape: Border.fromBorderSide(borderSide),
-      //         child: const SizedBox.expand(),
-      //       )
-      //     ],
-      //   );
-    }
 
     if (!widget.model.hasFilesLoaded) {
       final firstActionApp = Stack(
@@ -200,7 +161,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ],
       );
 
-      return windowBorderWrapper(child: firstActionApp);
+      return firstActionApp;
     }
 
     Widget shortcutsWrapper(Widget childWidget) {
@@ -259,7 +220,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
     );
 
-    return windowBorderWrapper(child: appWindowContent);
+    return appWindowContent;
   }
 
   void _loadSettings() async {
@@ -471,7 +432,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
 
       return Positioned.fill(
-        top: 50,
+        top: Phbuttons.windowTitleBarHeight + 50,
         bottom: 80,
         left: 10,
         right: 10,
