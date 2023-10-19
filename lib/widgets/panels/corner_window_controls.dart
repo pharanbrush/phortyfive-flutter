@@ -30,8 +30,8 @@ class CornerWindowControls extends StatelessWidget {
     //     PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
 
     return Positioned(
-      right: 8,
-      top: Phbuttons.windowTitleBarHeight + 8,
+      right: 7,
+      top: Phbuttons.windowTitleBarHeight + 2,
       child: Wrap(
         direction: Axis.vertical,
         crossAxisAlignment: WrapCrossAlignment.end,
@@ -130,7 +130,7 @@ class CornerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double topControlDiameter = 35;
+    const double topControlDiameter = 32;
     const Size topControlSize = Size(topControlDiameter, topControlDiameter);
     const sizes = MaterialStatePropertyAll(topControlSize);
 
