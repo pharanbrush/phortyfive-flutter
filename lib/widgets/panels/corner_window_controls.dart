@@ -42,10 +42,10 @@ class CornerWindowControls extends StatelessWidget {
             children: [
               // CornerButton(
               //   onPressed: () => windowState.isSoundsEnabled.toggle(),
-              //   icon: windowState.isSoundsEnabled.boolValue
+              //   icon: windowState.isSoundsEnabled.value
               //       ? Icons.volume_up
               //       : Icons.volume_off,
-              //   tooltip: windowState.isSoundsEnabled.boolValue
+              //   tooltip: windowState.isSoundsEnabled.value
               //       ? 'Mute sounds ($soundShortcut)'
               //       : 'Unmute sounds ($soundShortcut)',
               // ),
