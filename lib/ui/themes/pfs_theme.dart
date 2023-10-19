@@ -64,8 +64,6 @@ class PfsTheme {
     const Color selectedButton = Color.fromARGB(255, 56, 156, 173);
     const Color selectedButtonContentColor = Color.fromARGB(255, 211, 235, 231);
 
-    const Color tooltipBackgroundColor = Color(0xFF111214);
-    const Color tooltipTextColor = Color(0xEEDBDEE1);
     const Color scrim = Color.fromARGB(195, 40, 56, 51);
 
     var newData = ThemeData(

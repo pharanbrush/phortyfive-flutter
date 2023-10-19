@@ -11,7 +11,7 @@ import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
 class Phbuttons {
   static const double windowTitleBarHeight = 32;
-  
+
   static Widget openFiles({double width = 40.0}) {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'
@@ -215,8 +215,9 @@ class CollapseBottomBarButton extends StatelessWidget {
     const collapseIcon = Icons.expand_more_rounded;
     const expandIcon = Icons.expand_less_rounded;
 
-    final bottomBarShortcutKey = PfsLocalization.tooltipShortcut(Phshortcuts.toggleBottomBar);
-    
+    final bottomBarShortcutKey =
+        PfsLocalization.tooltipShortcut(Phshortcuts.toggleBottomBar);
+
     if (isMinimized) {
       return MinorWindowControlButton(
         icon: expandIcon,
