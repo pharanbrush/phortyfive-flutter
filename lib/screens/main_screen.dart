@@ -137,7 +137,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     currentContext = context;
-    
+
     final Size windowSize = MediaQuery.of(context).size;
 
     if (!widget.model.hasFilesLoaded) {
@@ -512,21 +512,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
-      const double filterIconSize = 20;
-      const filterIconOff = Icon(
-        Icons.contrast,
-        size: filterIconSize,
-      );
-      const filterIconOn = Icon(
-        Icons.contrast,
-        size: filterIconSize,
-      );
+      final filtersButton = ValueListenableBuilder(
+        valueListenable: imagePhviewer.filtersChangeListenable,
+        builder: (_, __, ___) {
+          const double filterIconSize = 20;
+          const filterIconOff = Icon(
+            Icons.contrast,
+            size: filterIconSize,
+          );
+          const filterIconOn = Icon(
+            Icons.contrast,
+            size: filterIconSize,
+          );
 
-      final filtersButton = IconButton(
-        onPressed: () => filtersMenu.open(),
-        isSelected: imagePhviewer.isFilterActive,
-        tooltip: 'Filters',
-        icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+          return IconButton(
+            onPressed: () => filtersMenu.open(),
+            isSelected: imagePhviewer.isFilterActive,
+            tooltip: 'Filters',
+            icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+          );
+        },
       );
 
       final resetZoomButton = ValueListenableBuilder(
