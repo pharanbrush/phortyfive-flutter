@@ -106,17 +106,6 @@ class MyApp extends StatelessWidget {
                     ),
                   ),
                 ),
-                // const Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-                //   child: Text(
-                //     pfsAppTitle,
-                //     style: TextStyle(
-                //       color: Color(0xAA999999),
-                //       fontSize: 12
-                //     ),
-                //   ),
-                // ),
-
                 MoveWindow(),
               ],
             ),
