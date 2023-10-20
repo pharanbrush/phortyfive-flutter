@@ -47,7 +47,6 @@ class TimerDurationPanel extends StatelessWidget {
           (widestNarrowWidth - narrowestNarrowWidth) +
           squeezeOffset;
 
-      //final bool isWindowNarrow = windowSize.width < widestNarrowWidth;
       final double rightOffset = Phbuttons.squeezeRemap(
         inputValue: windowSize.width,
         iMin: narrowestNarrowWidth,
@@ -144,7 +143,7 @@ class TimerDurationPanel extends StatelessWidget {
 
       return Stack(
         children: [
-          ModalUnderlay(onDismiss: () => onDismiss?.call()),
+          ModalUnderlay(onDismiss: onDismiss),
           Positioned(
             right: rightOffset,
             bottom: (-radius) + bottomOffset,
