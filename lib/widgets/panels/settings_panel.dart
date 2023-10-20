@@ -130,7 +130,7 @@ class SettingsPanel extends StatelessWidget {
       for (var key in PfsTheme.themeMap.keys) {
         themeMenuItems.add(DropdownMenuItem(
           value: key,
-          child: Text(key.capitalizeFirst ?? ''),
+          child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst ?? ''),
         ));
       }
     }

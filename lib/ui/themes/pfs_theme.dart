@@ -19,6 +19,14 @@ class PfsTheme {
     'phish': getLysarisTheme,
   };
 
+  static const themeNames = <String, String>{
+    'phashion': 'Phashion (Light)',
+    'phriends': 'Phriends (Dark)',
+    'phaint': 'Phaint (Dark)',
+    'philes': 'Philes 10 (Light)',
+    'phish': 'Phish',
+  };
+
   //
 
   static const Color hyperlinkColorHovered = Colors.blue;
