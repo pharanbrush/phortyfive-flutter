@@ -318,7 +318,7 @@ class PfsTheme {
               type: MaterialType.canvas,
               elevation: panelElevation,
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5))),
+                  borderRadius: BorderRadius.all(Radius.circular(0))),
               child: child,
             );
           },
