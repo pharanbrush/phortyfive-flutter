@@ -60,8 +60,7 @@ class MyApp extends StatelessWidget {
               theme: PfsTheme.getTheme(theme.value),
               home: Scaffold(
                 body: Builder(builder: (context) {
-                  return windowWrapper(
-                    context,
+                  return WindowWrapper(
                     child: MainScreen(
                       model: appModel,
                       theme: theme,
@@ -75,8 +74,18 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget windowWrapper(BuildContext context, {required Widget child}) {
+class WindowWrapper extends StatelessWidget {
+  const WindowWrapper({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
     Widget titlebar() {
       return WindowTitleBarBox(
         child: Row(children: [
