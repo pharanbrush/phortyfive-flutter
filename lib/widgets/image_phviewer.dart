@@ -160,12 +160,21 @@ class ImagePhviewer {
           imageFile,
         );
 
+        // final imageFilenameLayer = Align(
+        //   heightFactor: 2,
+        //   alignment: Alignment.topCenter,
+        //   child: ImageClickableLabel(
+        //     label: imageFileData.fileName,
+        //     tooltip: PfsLocalization.revealInExplorer,
+        //     onTap: () => revealInExplorer(imageFileData),
+        //   ),
+        // );
+
         final imageFilenameLayer = Align(
           alignment: Alignment.topCenter,
-          child: ImageClickableLabel(
-            label: imageFileData.fileName,
-            tooltip: PfsLocalization.revealInExplorer,
-            onTap: () => revealInExplorer(imageFileData),
+          child: TextButton(
+            onPressed: () {},
+            child: const Text('Hello there!'),
           ),
         );
 
@@ -200,12 +209,9 @@ class ImagePhviewer {
               valueListenable: blurLevelListenable,
               builder: (_, blurValue, __) {
                 if (blurLevel <= 0) return const SizedBox.expand();
-
+                final sigma = pow(1.3, blurValue).toDouble();
                 return BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: pow(1.3, blurValue).toDouble(),
-                    sigmaY: pow(1.3, blurValue).toDouble(),
-                  ),
+                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
                   child: const SizedBox.expand(),
                 );
               },
@@ -213,8 +219,7 @@ class ImagePhviewer {
             ValueListenableBuilder(
               valueListenable: usingGrayscaleListenable,
               builder: (_, value, ___) =>
-                  value ? _matrixGrayscale : const SizedBox.expand(),
-              child: _matrixGrayscale,
+                  value ? _grayscaleBackdropFilter : const SizedBox.expand(),
             ),
             imageFilenameLayer,
           ],
@@ -233,7 +238,7 @@ class ImagePhviewer {
     }
   }
 
-  static const Widget _matrixGrayscale = BackdropFilter(
+  static const Widget _grayscaleBackdropFilter = BackdropFilter(
     filter: ColorFilter.matrix(<double>[
       0.2126,
       0.7152,
@@ -315,12 +320,13 @@ class ImageClickableLabel extends StatelessWidget {
       foregroundColor: textMaterialColors,
     );
 
-    return Material(
-      color: Colors.transparent,
-      child: Tooltip(
-        message: tooltip,
-        preferBelow: true,
-        child: TextButton(style: style, onPressed: onTap, child: Text(label)),
+    return Tooltip(
+      message: tooltip,
+      preferBelow: true,
+      child: TextButton(
+        style: style,
+        onPressed: onTap,
+        child: Text(label),
       ),
     );
   }

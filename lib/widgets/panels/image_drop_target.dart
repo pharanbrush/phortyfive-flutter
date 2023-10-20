@@ -100,7 +100,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
           curve: Curves.easeOutQuart,
           key: const Key('dropContainer'),
           margin:
-              _isDragging ? const EdgeInsets.all(8) : const EdgeInsets.all(20),
+              _isDragging ? const EdgeInsets.all(30) : const EdgeInsets.all(50),
           decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
           child: _isDragging ? visibleDropWidget : hiddenDropWidget,
         ),
