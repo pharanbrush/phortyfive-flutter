@@ -139,7 +139,7 @@ class ImagePhviewer {
       bottom: 46,
       top: Phbuttons.windowTitleBarHeight,
     );
-    
+
     final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
 
     return AnimatedPadding(
