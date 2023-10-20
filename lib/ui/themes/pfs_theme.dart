@@ -321,6 +321,36 @@ class PfsTheme {
           runningButton: Color(0xB2BEE6FD),
         ),
         PfsAppTheme(
+          giantTextBoxBuilder: ({
+            required FocusNode focusNode,
+            required TextEditingController controller,
+            required Function(String) onSubmitted,
+          }) {
+            return SizedBox(
+              width: 100,
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                autofocus: true,
+                autocorrect: false,
+                maxLength: 4,
+                textAlign: TextAlign.center,
+                textAlignVertical: TextAlignVertical.center,
+                decoration: const InputDecoration(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                  ),
+                  filled: true,
+                  counterText: '',
+                  counterStyle: TextStyle(fontSize: 1),
+                ),
+                style: PfsAppTheme.defaultLargeTextFieldTextStyle,
+                onSubmitted: onSubmitted,
+              ),
+            );
+          },
           boxPanelMaterialBuilder: ({required Widget child}) {
             return Material(
               type: MaterialType.canvas,
@@ -701,6 +731,36 @@ class PfsTheme {
           runningButton: Color(0x665F687D),
         ),
         PfsAppTheme(
+            giantTextBoxBuilder: ({
+              required FocusNode focusNode,
+              required TextEditingController controller,
+              required Function(String) onSubmitted,
+            }) {
+              return SizedBox(
+                width: 100,
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  autocorrect: false,
+                  maxLength: 4,
+                  textAlign: TextAlign.center,
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: const InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    ),
+                    filled: true,
+                    counterText: '',
+                    counterStyle: TextStyle(fontSize: 1),
+                  ),
+                  style: PfsAppTheme.defaultLargeTextFieldTextStyle,
+                  onSubmitted: onSubmitted,
+                ),
+              );
+            },
             appWindowBorderSide: cspWindowBorderSide.copyWith(width: 4),
             boxPanelMaterialBuilder: ({required Widget child}) {
               return Material(
@@ -721,7 +781,7 @@ class PfsTheme {
                 ),
                 child: child,
               );
-            })
+            }),
       },
     );
 
