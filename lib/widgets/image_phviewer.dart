@@ -160,21 +160,13 @@ class ImagePhviewer {
           imageFile,
         );
 
-        // final imageFilenameLayer = Align(
-        //   heightFactor: 2,
-        //   alignment: Alignment.topCenter,
-        //   child: ImageClickableLabel(
-        //     label: imageFileData.fileName,
-        //     tooltip: PfsLocalization.revealInExplorer,
-        //     onTap: () => revealInExplorer(imageFileData),
-        //   ),
-        // );
-
         final imageFilenameLayer = Align(
+          heightFactor: 2,
           alignment: Alignment.topCenter,
-          child: TextButton(
-            onPressed: () {},
-            child: const Text('Hello there!'),
+          child: ImageClickableLabel(
+            label: imageFileData.fileName,
+            tooltip: PfsLocalization.revealInExplorer,
+            onTap: () => revealInExplorer(imageFileData),
           ),
         );
 
@@ -323,11 +315,7 @@ class ImageClickableLabel extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       preferBelow: true,
-      child: TextButton(
-        style: style,
-        onPressed: onTap,
-        child: Text(label),
-      ),
+      child: TextButton(style: style, onPressed: onTap, child: Text(label)),
     );
   }
 }
