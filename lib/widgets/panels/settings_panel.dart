@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -54,41 +52,32 @@ class SettingsPanel extends StatelessWidget {
   }
 
   Widget _panelContent(BuildContext context) {
+    Widget themesWidgets(BuildContext context, {required Widget child}) {
+      return DropdownMenuTheme(
+        data: DropdownMenuThemeData(
+            menuStyle: const MenuStyle(alignment: Alignment.center),
+            textStyle: Theme.of(context).textTheme.labelLarge),
+        child: child,
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _heading(context),
-        DropdownMenuTheme(
-          data: DropdownMenuThemeData(
-              menuStyle: const MenuStyle(alignment: Alignment.center),
-              textStyle: Theme.of(context).textTheme.labelLarge),
+        themesWidgets(
+          context,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               smallHeading('Window', context),
-              ValueListenableBuilder(
-                valueListenable: windowState.isSoundsEnabled,
-                builder: (_, isSoundsEnabled, __) {
-                  return switchItem(
-                    context,
-                    title: const Text('Sounds'),
-                    value: isSoundsEnabled,
-                    onChanged: (newValue) =>
-                        windowState.isSoundsEnabled.value = newValue,
-                  );
-                },
+              NotifierSwitchItem(
+                notifier: windowState.isSoundsEnabled,
+                title: const Text('Sounds'),
               ),
-              ValueListenableBuilder(
-                valueListenable: windowState.isAlwaysOnTop,
-                builder: (_, isAlwaysOnTop, __) {
-                  return switchItem(
-                    context,
-                    title: const Text(PfsLocalization.alwaysOnTop),
-                    value: isAlwaysOnTop,
-                    onChanged: (newValue) =>
-                        windowState.isAlwaysOnTop.value = newValue,
-                  );
-                },
+              NotifierSwitchItem(
+                notifier: windowState.isAlwaysOnTop,
+                title: const Text(PfsLocalization.alwaysOnTop),
               ),
               const Divider(height: 32, thickness: 1),
               smallHeading('Appearance', context),
@@ -97,21 +86,6 @@ class SettingsPanel extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget switchItem(
-    BuildContext context, {
-    required Widget title,
-    required bool value,
-    required Function(bool newValue)? onChanged,
-  }) {
-    return SwitchListTile(
-      value: value,
-      onChanged: onChanged,
-      title: title,
-      dense: true,
-      visualDensity: VisualDensity.compact,
     );
   }
 
@@ -201,6 +175,38 @@ class SettingsPanel extends StatelessWidget {
         'Settings',
         style: Theme.of(context).textTheme.titleMedium,
       ),
+    );
+  }
+}
+
+class NotifierSwitchItem extends StatelessWidget {
+  const NotifierSwitchItem({
+    super.key,
+    required this.notifier,
+    required this.title,
+    this.onChanged,
+  });
+
+  final ValueNotifier<bool> notifier;
+  final Widget title;
+  final Function()? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: notifier,
+      builder: (_, value, __) {
+        return SwitchListTile(
+          value: value,
+          onChanged: (value) {
+            notifier.value = value;
+            onChanged?.call();
+          },
+          title: title,
+          dense: true,
+          visualDensity: VisualDensity.compact,
+        );
+      },
     );
   }
 }
