@@ -11,7 +11,7 @@ import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
-import 'package:pfs2/widgets/panels/filter_menu.dart';
+import 'package:pfs2/widgets/panels/filter_panel.dart';
 import 'package:pfs2/widgets/panels/first_action_sheet.dart';
 import 'package:pfs2/widgets/panels/help_sheet.dart';
 import 'package:pfs2/widgets/panels/image_drop_target.dart';
@@ -43,7 +43,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late final ModalMenu filtersMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
     builder: (closeMenu) {
-      return FilterMenu(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
+      return FilterPanel(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
     },
   );
 

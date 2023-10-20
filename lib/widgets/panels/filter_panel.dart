@@ -7,8 +7,8 @@ import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
-class FilterMenu extends StatelessWidget {
-  const FilterMenu({
+class FilterPanel extends StatelessWidget {
+  const FilterPanel({
     super.key,
     required this.imagePhviewer,
     required this.onDismiss,
