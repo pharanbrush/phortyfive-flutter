@@ -85,6 +85,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     },
   );
 
+  late final modalMenus = [
+    filtersMenu,
+    helpMenu,
+    settingsMenu,
+    timerDurationMenu
+  ];
+
   BuildContext? currentContext;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
@@ -352,9 +359,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
 
-    tryDismiss(settingsMenu);
-    tryDismiss(helpMenu);
-    tryDismiss(filtersMenu);
+    for (final menu in modalMenus) {
+      tryDismiss(menu);
+    }
   }
 
   void _handleAlwaysOnTopChanged() {
