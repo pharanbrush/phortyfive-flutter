@@ -885,21 +885,34 @@ class PfsTheme {
   }
 }
 
+typedef TextBoxBuilderFunction = Widget Function({
+  required FocusNode focusNode,
+  required TextEditingController controller,
+  required Function(String) onSubmitted,
+});
+
+typedef MaterialBuilderFunction = Material Function({required Widget child});
+
 class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
   PfsAppTheme({
     this.appWindowBorderSide,
     this.boxPanelMaterialBuilder,
     this.pawPanelMaterialBuilder,
+    this.giantTextBoxBuilder,
   });
 
-  final Material Function({required Widget child})? boxPanelMaterialBuilder;
-  final Material Function({required Widget child})? pawPanelMaterialBuilder;
+  final MaterialBuilderFunction? boxPanelMaterialBuilder;
+  final MaterialBuilderFunction? pawPanelMaterialBuilder;
+  final TextBoxBuilderFunction? giantTextBoxBuilder;
+
   final BorderSide? appWindowBorderSide;
 
-  Material Function({required Widget child}) get boxPanel =>
+  MaterialBuilderFunction get boxPanel =>
       boxPanelMaterialBuilder ?? defaultBoxPanelMaterial;
-  Material Function({required Widget child}) get pawPanel =>
+  MaterialBuilderFunction get pawPanel =>
       pawPanelMaterialBuilder ?? defaultPawPanelMaterial;
+  TextBoxBuilderFunction get giantTextField =>
+      giantTextBoxBuilder ?? defaultGiantTextField;
 
   @override
   ThemeExtension<PfsAppTheme> copyWith() {
@@ -924,23 +937,63 @@ class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
     counterStyle: TextStyle(fontSize: 1),
   );
 
-  // POPUP PANEL
-  static Material Function({required Widget child}) boxPanelFrom(
-      ThemeData? theme) {
-    if (theme == null) return defaultBoxPanelMaterial;
-    final appTheme = theme.extension<PfsAppTheme>();
-
-    if (appTheme == null) return defaultBoxPanelMaterial;
-    return appTheme.boxPanel;
+  static Widget defaultGiantTextField({
+    required FocusNode focusNode,
+    required TextEditingController controller,
+    required Function(String) onSubmitted,
+  }) {
+    return SizedBox(
+      width: 100,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        autofocus: true,
+        autocorrect: false,
+        maxLength: 4,
+        textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
+        decoration: PfsAppTheme.defaultLargeTextFieldInputDecoration,
+        style: PfsAppTheme.defaultLargeTextFieldTextStyle,
+        onSubmitted: onSubmitted,
+      ),
+    );
   }
 
-  static Material Function({required Widget child}) pawPanelFrom(
-      ThemeData? theme) {
-    if (theme == null) return defaultPawPanelMaterial;
+  // POPUP PANEL
+  static MaterialBuilderFunction boxPanelFrom(ThemeData? theme) {
+    return getFrom(
+      theme: theme,
+      defaultValue: defaultBoxPanelMaterial,
+      getter: (appTheme) => appTheme.boxPanel,
+    );
+  }
+
+  static MaterialBuilderFunction pawPanelFrom(ThemeData? theme) {
+    return getFrom(
+      theme: theme,
+      defaultValue: defaultPawPanelMaterial,
+      getter: (appTheme) => appTheme.pawPanel,
+    );
+  }
+
+  static TextBoxBuilderFunction giantTextFieldFrom(ThemeData? theme) {
+    return getFrom(
+      theme: theme,
+      defaultValue: defaultGiantTextField,
+      getter: (appTheme) => appTheme.giantTextField,
+    );
+  }
+
+  static T getFrom<T>({
+    required ThemeData? theme,
+    required T defaultValue,
+    required T Function(PfsAppTheme appTheme) getter,
+  }) {
+    if (theme == null) return defaultValue;
     final appTheme = theme.extension<PfsAppTheme>();
 
-    if (appTheme == null) return defaultPawPanelMaterial;
-    return appTheme.pawPanel;
+    if (appTheme == null) return defaultValue;
+    return getter(appTheme);
   }
 
   static const double popupPanelElevation = 10;

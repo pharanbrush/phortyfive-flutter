@@ -100,23 +100,14 @@ class TimerDurationPanel extends StatelessWidget {
         );
       }
 
-      final secondsTextField = SizedBox(
-        width: 100,
-        child: TextField(
-          controller: timerTextEditorController,
-          focusNode: timerTextEditorFocusNode,
-          autofocus: true,
-          autocorrect: false,
-          maxLength: 4,
-          textAlign: TextAlign.center,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: PfsAppTheme.defaultLargeTextFieldInputDecoration,
-          style: PfsAppTheme.defaultLargeTextFieldTextStyle,
-          onSubmitted: (value) {
-            model.trySetDurationSecondsInput(value);
-            onDismiss?.call();
-          },
-        ),
+      final textFieldBuilder = PfsAppTheme.giantTextFieldFrom(Theme.of(context));
+      final secondsTextField = textFieldBuilder(
+        focusNode: timerTextEditorFocusNode,
+        controller: timerTextEditorController,
+        onSubmitted: (value) {
+          model.trySetDurationSecondsInput(value);
+          onDismiss?.call();
+        },
       );
 
       Widget tapToDismiss({Widget? child}) {
