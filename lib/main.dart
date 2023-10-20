@@ -59,14 +59,12 @@ class MyApp extends StatelessWidget {
               title: pfsAppTitle,
               theme: PfsTheme.getTheme(theme.value),
               home: Scaffold(
-                body: Builder(builder: (context) {
-                  return WindowWrapper(
-                    child: MainScreen(
-                      model: appModel,
-                      theme: theme,
-                    ),
-                  );
-                }),
+                body: WindowWrapper(
+                  child: MainScreen(
+                    model: appModel,
+                    theme: theme,
+                  ),
+                ),
               ),
             );
           },
