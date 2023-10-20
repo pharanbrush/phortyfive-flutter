@@ -5,8 +5,8 @@ final buttonColorsOnLight = WindowButtonColors(
   mouseOver: Colors.grey.withAlpha(0x55),
   mouseDown: Colors.grey.withAlpha(0xCC),
   iconNormal: Colors.black,
-  iconMouseOver: Colors.black,
-  iconMouseDown: Colors.black,
+  iconMouseOver: const Color(0xFF1C1B17),
+  iconMouseDown: const Color(0xFF1C1B17),
 );
 
 final buttonColorsOnDark = WindowButtonColors(
@@ -18,15 +18,15 @@ final buttonColorsOnDark = WindowButtonColors(
 );
 
 final closeButtonColorsOnLight = WindowButtonColors(
-  mouseOver: const Color(0xFFD32F2F),
-  mouseDown: const Color(0xFFB71C1C),
-  iconNormal: Colors.black,
+  mouseOver: const Color(0xFFF23F42),
+  mouseDown: const Color(0xFFF16F7A),
+  iconNormal: const Color(0xFF1C1B17),
   iconMouseOver: Colors.white,
 );
 
 final closeButtonColorsOnDark = WindowButtonColors(
-  mouseOver: const Color(0xFFD32F2F),
-  mouseDown: const Color(0xFFB71C1C),
+  mouseOver: const Color(0xFFF23F42),
+  mouseDown: const Color(0xFFF16F7A),
   iconNormal: Colors.white70,
   iconMouseOver: Colors.white,
 );
