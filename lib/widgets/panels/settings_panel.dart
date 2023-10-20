@@ -72,12 +72,12 @@ class SettingsPanel extends StatelessWidget {
             children: [
               smallHeading('Window', context),
               NotifierSwitchItem(
-                notifier: windowState.isSoundsEnabled,
                 title: const Text('Sounds'),
+                notifier: windowState.isSoundsEnabled,
               ),
               NotifierSwitchItem(
-                notifier: windowState.isAlwaysOnTop,
                 title: const Text(PfsLocalization.alwaysOnTop),
+                notifier: windowState.isAlwaysOnTop,
               ),
               const Divider(height: 32, thickness: 1),
               smallHeading('Appearance', context),
