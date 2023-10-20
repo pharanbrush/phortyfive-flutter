@@ -17,7 +17,7 @@ class CornerWindowControls extends StatelessWidget {
   final PfsWindowState windowState;
   final ImagePhviewer imagePhviewer;
   final ModalMenu helpMenu, settingsMenu;
-  
+
   static const double controlsWidth = 130;
 
   @override
@@ -48,33 +48,26 @@ class CornerWindowControls extends StatelessWidget {
                 icon: Icons.settings,
                 tooltip: 'Settings',
               ),
-              ValueListenableBuilder(
-                valueListenable: windowState.isSoundsEnabled,
-                builder: (_, isSoundsEnabled, __) {
-                  return CornerButton(
-                    onPressed: () => windowState.isSoundsEnabled.toggle(),
-                    icon: isSoundsEnabled ? Icons.volume_up : Icons.volume_off,
-                    tooltip: isSoundsEnabled
-                        ? 'Mute sounds ($soundShortcut)'
-                        : 'Unmute sounds ($soundShortcut)',
-                  );
-                },
+              NotifierToggleCornerButton(
+                notifier: windowState.isSoundsEnabled,
+                falseIcon: Icons.volume_off,
+                trueIcon: Icons.volume_up,
+                trueTooltip: 'Mute sounds ($soundShortcut)',
+                falseTooltip: 'Unmute sounds ($soundShortcut)',
               ),
-              ValueListenableBuilder(
-                valueListenable: windowState.isAlwaysOnTop,
-                builder: (_, isAlwaysOnTop, __) {
-                  return CornerButton(
-                    onPressed: () => windowState.isAlwaysOnTop.toggle(),
-                    icon: isAlwaysOnTop
-                        ? Icons.picture_in_picture
-                        : Icons.picture_in_picture_outlined,
-                    tooltip: PfsLocalization.buttonTooltip(
-                      commandName: PfsLocalization.alwaysOnTop,
-                      shortcut: Phshortcuts.alwaysOnTop,
-                    ),
-                    isSelected: isAlwaysOnTop,
-                  );
-                },
+              NotifierToggleCornerButton(
+                notifier: windowState.isAlwaysOnTop,
+                falseIcon: Icons.picture_in_picture_outlined,
+                trueIcon: Icons.picture_in_picture,
+                highlightIfTrue: true,
+                trueTooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.alwaysOnTop,
+                  shortcut: Phshortcuts.alwaysOnTop,
+                ),
+                falseTooltip: PfsLocalization.buttonTooltip(
+                  commandName: PfsLocalization.alwaysOnTop,
+                  shortcut: Phshortcuts.alwaysOnTop,
+                ),
               ),
               CornerButton(
                 onPressed: () => helpMenu.open(),
@@ -115,6 +108,38 @@ class CornerWindowControls extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class NotifierToggleCornerButton extends StatelessWidget {
+  const NotifierToggleCornerButton({
+    super.key,
+    required this.notifier,
+    required this.falseIcon,
+    required this.trueIcon,
+    this.falseTooltip,
+    this.trueTooltip,
+    this.highlightIfTrue = false,
+  });
+
+  final ValueNotifier<bool> notifier;
+  final IconData falseIcon, trueIcon;
+  final String? falseTooltip, trueTooltip;
+  final bool highlightIfTrue;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: notifier,
+      builder: (_, valueIsTrue, __) {
+        return CornerButton(
+          onPressed: () => notifier.toggle(),
+          icon: valueIsTrue ? trueIcon : falseIcon,
+          tooltip: valueIsTrue ? trueTooltip : falseTooltip,
+          isSelected: highlightIfTrue && valueIsTrue,
+        );
+      },
     );
   }
 }
