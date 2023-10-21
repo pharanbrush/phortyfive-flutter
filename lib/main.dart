@@ -85,51 +85,64 @@ class WindowWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget titlebar() {
+      final theme = Theme.of(context);
+      final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
+      final Color titleBarColor =
+          borderSide == null ? Colors.transparent : borderSide.color;
+
       return WindowTitleBarBox(
-        child: Row(children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 8,
-                  ),
-                  child: Opacity(
-                    opacity: 0.5,
-                    child: Row(
-                      children: [
-                        Image.memory(
-                          PfsTheme.pfsIconBytes,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                        const SizedBox(width: 5),
-                        const Text(
-                          pfsAppTitle,
-                          style:
-                              TextStyle(color: Color(0xFF999999), fontSize: 12),
-                        ),
-                      ],
+        child: Container(
+          decoration: BoxDecoration(color: titleBarColor),
+          child: Row(children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 8,
+                    ),
+                    child: Opacity(
+                      opacity: 0.5,
+                      child: Row(
+                        children: [
+                          Image.memory(
+                            PfsTheme.pfsIconBytes,
+                            filterQuality: FilterQuality.medium,
+                          ),
+                          const SizedBox(width: 5),
+                          const Text(
+                            pfsAppTitle,
+                            style: TextStyle(
+                                color: Color(0xFF999999), fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                MoveWindow(),
-              ],
+                  MoveWindow(),
+                ],
+              ),
             ),
-          ),
-          const WindowButtons(),
-        ]),
+            const WindowButtons(),
+          ]),
+        ),
       );
     }
 
     Widget windowBorderWrapper(BuildContext context, {required Widget child}) {
       final theme = Theme.of(context);
       final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
+      final double borderSideWidth = borderSide?.width ?? 0;
 
       return Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(borderSide?.width ?? 0),
+            padding: EdgeInsets.only(
+              left: borderSideWidth,
+              right: borderSideWidth,
+              bottom: borderSideWidth,
+            ),
             child: child,
           ),
           Column(
@@ -141,7 +154,11 @@ class WindowWrapper extends StatelessWidget {
           if (borderSide != null)
             Material(
               type: MaterialType.transparency,
-              shape: Border.fromBorderSide(borderSide),
+              shape: Border(
+                bottom: borderSide,
+                left: borderSide,
+                right: borderSide,
+              ),
               child: const SizedBox.expand(),
             )
         ],
