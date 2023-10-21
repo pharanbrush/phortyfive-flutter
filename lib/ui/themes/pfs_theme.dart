@@ -41,6 +41,26 @@ class PfsTheme {
   };
 
   //
+  static const windowsTenTooltipTheme = TooltipThemeData(
+    verticalOffset: 26,
+    height: 16,
+    padding: EdgeInsets.only(
+      top: 0,
+      left: 5,
+      right: 5,
+      bottom: 2,
+    ),
+    textStyle: TextStyle(
+      color: Color(0xFF575757),
+      fontSize: 12,
+    ),
+    decoration: BoxDecoration(
+      color: Color(0xFFFFFFFF),
+      border: Border.fromBorderSide(
+        BorderSide(width: 1, color: Color(0xFF767676)),
+      ),
+    ),
+  );
 
   static const Color hyperlinkColorHovered = Colors.blue;
 
@@ -231,9 +251,6 @@ class PfsTheme {
       const Color outline = Color(0xFFC0C0C0);
       const Color dullBlue = Color(0xDD95A0A6);
 
-      const Color tooltipBackgroundColor = Color(0xFFFFFFFF);
-      const Color tooltipTextColor = Color(0xFF575757);
-
       const Color filledbuttonContentColor = appBackground;
       const double panelElevation = 20;
 
@@ -269,17 +286,7 @@ class PfsTheme {
         textSelectionTheme: const TextSelectionThemeData(
           selectionColor: textHighlightColor,
         ),
-        tooltipTheme: const TooltipThemeData(
-          verticalOffset: 26,
-          textStyle: TextStyle(
-            color: tooltipTextColor,
-            fontSize: 12,
-          ),
-          decoration: BoxDecoration(
-              color: tooltipBackgroundColor,
-              border: Border.fromBorderSide(
-                  BorderSide(width: 1, color: Color(0xFF767676)))),
-        ),
+        tooltipTheme: windowsTenTooltipTheme,
         filledButtonTheme: const FilledButtonThemeData(
           style: buttonShapeStyle,
         ),
@@ -700,6 +707,7 @@ class PfsTheme {
           // Text field background, slider background
           surfaceVariant: cspTextBoxColor,
         ),
+        tooltipTheme: windowsTenTooltipTheme,
         textSelectionTheme: const TextSelectionThemeData(
           selectionColor: Color(0xFF5B75A1),
         ),
