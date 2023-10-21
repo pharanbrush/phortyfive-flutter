@@ -100,7 +100,8 @@ class TimerDurationPanel extends StatelessWidget {
         );
       }
 
-      final textFieldBuilder = PfsAppTheme.giantTextFieldFrom(Theme.of(context));
+      final textFieldBuilder =
+          PfsAppTheme.giantTextFieldFrom(Theme.of(context));
       final secondsTextField = textFieldBuilder(
         focusNode: timerTextEditorFocusNode,
         controller: timerTextEditorController,
