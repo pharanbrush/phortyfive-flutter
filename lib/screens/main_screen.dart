@@ -10,6 +10,7 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/widgets/panels/about_sheet.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_panel.dart';
 import 'package:pfs2/widgets/panels/first_action_sheet.dart';
@@ -64,6 +65,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         windowState: windowState,
         appModel: widget.model,
         themeNotifier: widget.theme,
+        aboutMenu: aboutMenu,
         onDismiss: closeMenu,
       );
     },
@@ -82,6 +84,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     },
     builder: (closeMenu) {
       return timerDurationWidget;
+    },
+  );
+
+  late final ModalMenu aboutMenu = ModalMenu(
+    onBeforeOpen: () => _cancelAllMenus(except: aboutMenu),
+    builder: (closeMenu) {
+      return AboutSheet(
+        onDismiss: closeMenu,
+      );
     },
   );
 
@@ -165,6 +176,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
           _fileDropZone,
           settingsMenu.widget(context),
+          aboutMenu.widget(context),
         ],
       );
 
@@ -222,6 +234,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           helpMenu.widget(context),
           filtersMenu.widget(context),
           settingsMenu.widget(context),
+          aboutMenu.widget(context),
           _dockingControls(),
         ],
       ),

@@ -17,12 +17,14 @@ class SettingsPanel extends StatelessWidget {
     required this.windowState,
     required this.appModel,
     required this.themeNotifier,
+    required this.aboutMenu,
   });
 
   final VoidCallback? onDismiss;
   final PfsWindowState windowState;
   final PfsAppModel appModel;
   final ValueNotifier<String> themeNotifier;
+  final ModalMenu aboutMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +42,11 @@ class SettingsPanel extends StatelessWidget {
     );
   }
 
-  static TextStyle? smallHeadingStyle(BuildContext context) {
-    return Theme.of(context).textTheme.titleSmall;
-  }
-
   Widget smallHeading(String text, BuildContext context) {
+    final smallHeadingStyle = Theme.of(context).textTheme.titleSmall;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: smallHeadingStyle(context)),
+      child: Text(text, style: smallHeadingStyle),
     );
   }
 
@@ -60,6 +59,8 @@ class SettingsPanel extends StatelessWidget {
         child: child,
       );
     }
+
+    const divider = Divider(height: 32, thickness: 0.5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,9 +80,14 @@ class SettingsPanel extends StatelessWidget {
                 title: const Text(PfsLocalization.alwaysOnTop),
                 notifier: windowState.isAlwaysOnTop,
               ),
-              const Divider(height: 32, thickness: 1),
+              divider,
               smallHeading('Appearance', context),
               themeSetting(context),
+              divider,
+              TextButton(
+                onPressed: () => aboutMenu.open(),
+                child: const Text('About...'),
+              ),
             ],
           ),
         ),
