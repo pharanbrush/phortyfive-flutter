@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
 class OverlayButton extends StatelessWidget {
-  const OverlayButton({super.key, required this.child, this.onPressed});
+  const OverlayButton({
+    super.key,
+    required this.child,
+    this.onPressed,
+  });
 
   final Widget child;
   final Function()? onPressed;

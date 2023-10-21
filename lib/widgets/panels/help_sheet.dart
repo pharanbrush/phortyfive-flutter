@@ -3,14 +3,17 @@ import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
 
 class HelpSheet extends StatelessWidget {
-  static const double sheetHeight = 500;
+  const HelpSheet({
+    super.key,
+    this.onDismiss,
+  });
 
+  static const double sheetHeight = 500;
   static const Icon headingIcon = Icon(
     Icons.keyboard,
     size: 40,
   );
 
-  const HelpSheet({super.key, this.onDismiss});
   final Function()? onDismiss;
 
   @override

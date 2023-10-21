@@ -7,6 +7,11 @@ import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 class TimerDurationPanel extends StatelessWidget {
+  TimerDurationPanel({
+    super.key,
+    required this.onDismiss,
+  });
+
   static const double diameter = 350;
   static const double radius = diameter * 0.5;
   static const double bottomOffset = 20;
@@ -18,8 +23,6 @@ class TimerDurationPanel extends StatelessWidget {
 
   final FocusNode timerTextEditorFocusNode =
       FocusNode(debugLabel: 'Timer Text Editor');
-
-  TimerDurationPanel({super.key, required this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
