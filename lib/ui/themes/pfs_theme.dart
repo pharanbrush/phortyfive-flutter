@@ -154,7 +154,7 @@ class PfsTheme {
   static ThemeData getPhilesTenTheme() {
     const Brightness themeBrightness = Brightness.light;
     const Color seedColor = Color(0xFF26A0DA);
-    const Color panelBackground = Color(0xFFEEEEEE);
+    const Color panelBackground = Color(0xFFF5F6F7);
     const Color appBackground = Color(0xFFFFFFFF);
 
     // APP SPECIFIC
@@ -209,7 +209,9 @@ class PfsTheme {
     const Color selectedButtonContentColor = Colors.white;
 
     const Color cardColor = panelBackground;
-    const Color outline = Color.fromARGB(255, 192, 192, 192);
+    const Color cardOutlineColor = Color(0xFFDADBDC);
+    const Color outline = Color(0xFFC0C0C0);
+    const Color dullBlue = Color(0xDD95A0A6);
 
     const Color tooltipBackgroundColor = Color(0xFFFFFFFF);
     const Color tooltipTextColor = Color(0xFF575757);
@@ -264,7 +266,7 @@ class PfsTheme {
         style: buttonShapeStyle,
       ),
       textTheme: const TextTheme(
-        titleMedium: TextStyle(color: outline),
+        titleMedium: TextStyle(color: dullBlue),
         labelLarge: TextStyle(
             fontWeight: FontWeight.normal, fontSize: 12), // Control labels
       ),
@@ -306,8 +308,8 @@ class PfsTheme {
         elevation: 2,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          //side: BorderSide(color: cardOutlineColor),
+          borderRadius: BorderRadius.all(Radius.circular(0)),
+          side: BorderSide(color: cardOutlineColor),
         ),
       ),
       extensions: {
@@ -356,7 +358,9 @@ class PfsTheme {
               type: MaterialType.canvas,
               elevation: panelElevation,
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(0))),
+                borderRadius: BorderRadius.all(Radius.circular(0)),
+                side: BorderSide(color: cardOutlineColor),
+              ),
               child: child,
             );
           },
