@@ -26,14 +26,17 @@ class FirstActionSheet extends StatelessWidget {
   }
 
   Widget _box(BuildContext context) {
-    final TextStyle? titleStyle = Theme.of(context).textTheme.titleMedium;
-        
+    final theme = Theme.of(context);
+
+    final TextStyle? titleStyle = theme.textTheme.titleMedium;
+    final Color downArrowColor = theme.colorScheme.onSurfaceVariant;
+
     const double firstActionIconSize = 100;
 
     Icon firstActionIcon = Icon(
       Icons.image,
       size: firstActionIconSize,
-      color: Theme.of(context).colorScheme.outline,
+      color: titleStyle?.color ?? downArrowColor,
     );
 
     return SizedBox(
@@ -44,8 +47,7 @@ class FirstActionSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Stack(children: [
             DefaultTextStyle(
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -70,7 +72,10 @@ class FirstActionSheet extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: const Icon(PfsTheme.downIcon).animate(
+                child: Icon(
+                  PfsTheme.downIcon,
+                  color: downArrowColor,
+                ).animate(
                   effects: const [Phanimations.slideUpEffect],
                   onPlay: (controller) => controller.repeat(reverse: true),
                 ),
