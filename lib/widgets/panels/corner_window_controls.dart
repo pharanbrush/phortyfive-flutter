@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
@@ -31,54 +33,64 @@ class CornerWindowControls extends StatelessWidget {
     final soundShortcut =
         PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
 
+    final containerBorderRadius =
+        theme.extension<PfsAppTheme>()?.borderRadius ??
+            BorderRadius.circular(25);
+
     return Positioned(
       right: 7,
-      top: Phbuttons.windowTitleBarHeight + 2,
+      top: Phbuttons.windowTitleBarHeight,
       child: Wrap(
         direction: Axis.vertical,
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          Wrap(
-            spacing: 3,
-            direction: Axis.horizontal,
-            alignment: WrapAlignment.end,
-            children: [
-              CornerButton(
-                onPressed: () => settingsMenu.open(),
-                icon: Icons.settings,
-                tooltip: 'Settings',
+          HoverContainer(
+            hoverBackgroundColor: theme.scaffoldBackgroundColor,
+            borderRadius: containerBorderRadius,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Wrap(
+                spacing: 3,
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.end,
+                children: [
+                  CornerButton(
+                    onPressed: () => settingsMenu.open(),
+                    icon: Icons.settings,
+                    tooltip: 'Settings',
+                  ),
+                  NotifierToggleCornerButton(
+                    notifier: windowState.isSoundsEnabled,
+                    falseIcon: Icons.volume_off,
+                    trueIcon: Icons.volume_up,
+                    trueTooltip: 'Mute sounds ($soundShortcut)',
+                    falseTooltip: 'Unmute sounds ($soundShortcut)',
+                  ),
+                  NotifierToggleCornerButton(
+                    notifier: windowState.isAlwaysOnTop,
+                    falseIcon: Icons.picture_in_picture_outlined,
+                    trueIcon: Icons.picture_in_picture,
+                    highlightIfTrue: true,
+                    trueTooltip: PfsLocalization.buttonTooltip(
+                      commandName: PfsLocalization.alwaysOnTop,
+                      shortcut: Phshortcuts.alwaysOnTop,
+                    ),
+                    falseTooltip: PfsLocalization.buttonTooltip(
+                      commandName: PfsLocalization.alwaysOnTop,
+                      shortcut: Phshortcuts.alwaysOnTop,
+                    ),
+                  ),
+                  CornerButton(
+                    onPressed: () => helpMenu.open(),
+                    icon: Icons.help_rounded,
+                    tooltip: PfsLocalization.buttonTooltip(
+                      commandName: PfsLocalization.help,
+                      shortcut: Phshortcuts.help,
+                    ),
+                  ),
+                ],
               ),
-              NotifierToggleCornerButton(
-                notifier: windowState.isSoundsEnabled,
-                falseIcon: Icons.volume_off,
-                trueIcon: Icons.volume_up,
-                trueTooltip: 'Mute sounds ($soundShortcut)',
-                falseTooltip: 'Unmute sounds ($soundShortcut)',
-              ),
-              NotifierToggleCornerButton(
-                notifier: windowState.isAlwaysOnTop,
-                falseIcon: Icons.picture_in_picture_outlined,
-                trueIcon: Icons.picture_in_picture,
-                highlightIfTrue: true,
-                trueTooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.alwaysOnTop,
-                  shortcut: Phshortcuts.alwaysOnTop,
-                ),
-                falseTooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.alwaysOnTop,
-                  shortcut: Phshortcuts.alwaysOnTop,
-                ),
-              ),
-              CornerButton(
-                onPressed: () => helpMenu.open(),
-                icon: Icons.help_rounded,
-                tooltip: PfsLocalization.buttonTooltip(
-                  commandName: PfsLocalization.help,
-                  shortcut: Phshortcuts.help,
-                ),
-              ),
-              //Phbuttons.topControl(() {}, Icons.info_outline_rounded, 'About...'),
-            ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
