@@ -20,18 +20,18 @@ class HoverContainer extends StatefulWidget {
 }
 
 class _HoverContainerState extends State<HoverContainer> {
-  bool isHovering = false;
+  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onHover: (event) => setState(() => isHovering = true),
-      onExit: (event) => setState(() => isHovering = false),
+      onHover: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
       child: AnimatedContainer(
         duration: widget.duration,
         decoration: BoxDecoration(
           borderRadius: widget.borderRadius,
-          color: isHovering
+          color: _isHovering
               ? widget.hoverBackgroundColor
               : widget.hoverBackgroundColor.withAlpha(0x00),
         ),
