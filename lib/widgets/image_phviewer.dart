@@ -15,9 +15,7 @@ import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
-  ImagePhviewer({this.onNotify});
-
-  final Function(String text, IconData icon)? onNotify;
+  ImagePhviewer();
 
   static const List<double> _zoomScales = [
     0.25,

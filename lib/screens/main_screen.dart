@@ -124,11 +124,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
   late TimerDurationPanel timerDurationWidget =
       TimerDurationPanel(onDismiss: () => timerDurationMenu.close());
-  late ImagePhviewer imagePhviewer = ImagePhviewer(
-    onNotify: (message, icon) {
-      showImagePhviewerToast(message: message, icon: icon);
-    },
-  );
+  late ImagePhviewer imagePhviewer = ImagePhviewer();
 
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
@@ -311,16 +307,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _handleOnImageChange() {
     setState(() => imagePhviewer.resetZoomLevel());
-  }
-
-  void showImagePhviewerToast({required String message, IconData? icon}) {
-    if (currentContext == null) return;
-    Phtoasts.show(
-      currentContext,
-      message: message,
-      icon: icon,
-      alignment: Phtoasts.topControlsAlign,
-    );
   }
 
   void _handleStateChange() {
