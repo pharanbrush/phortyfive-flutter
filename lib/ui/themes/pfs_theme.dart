@@ -66,7 +66,7 @@ class PfsTheme {
 
   static final lysaris = CachedTheme(
     builder: () {
-      const Brightness themeBrightness = Brightness.light;
+      const Brightness themeBrightness = Brightness.dark;
       const Color seedColor = Color.fromARGB(255, 0, 226, 177);
       const Color panelBackground = Color.fromARGB(255, 97, 107, 110);
       const Color appBackground = Color.fromARGB(255, 97, 97, 97);
@@ -74,12 +74,23 @@ class PfsTheme {
       const Color primary = Color.fromARGB(255, 33, 177, 165);
       const Color secondary = Color.fromARGB(255, 228, 169, 134);
       const Color tertiary = Color.fromARGB(255, 179, 119, 190);
-      const Color buttonContentColor = Color.fromARGB(108, 197, 212, 212);
+      const Color buttonContentColor = Color.fromARGB(136, 182, 196, 196);
       const Color buttonActiveColor = Color.fromARGB(149, 85, 185, 189);
-      const Color buttonHoverColor = Color.fromARGB(220, 8, 70, 112);
+      const Color buttonHoverColor = Color.fromARGB(220, 59, 228, 228);
       const Color buttonHoverOverlayColor = Color.fromARGB(45, 112, 138, 144);
       const Color buttonHoverBackgroundColor =
-          Color.fromARGB(75, 140, 208, 224);
+          Color.fromARGB(162, 125, 184, 197);
+
+      const Color tooltipBackgroundColor = primary;
+      const Color tooltipTextColor = Colors.white;
+      const tooltipBoxDecoration = BoxDecoration(
+          color: tooltipBackgroundColor,
+          borderRadius: BorderRadius.all(Radius.circular(15)));
+      const tooltipTextStyle = TextStyle(
+        fontSize: 12,
+        color: tooltipTextColor,
+      );
+      const tooltipPadding = EdgeInsets.symmetric(vertical: 7, horizontal: 10);
 
       const Color snackbarBackground = Color.fromARGB(255, 8, 116, 107);
 
@@ -99,9 +110,9 @@ class PfsTheme {
         ),
       );
 
-      const Color cardColor = Color.fromARGB(255, 244, 251, 255);
+      const Color cardColor = Color.fromARGB(255, 234, 246, 253);
       const Color cardOutlineColor = Color(0xFFEEEEEE);
-      const Color outline = Color.fromARGB(64, 144, 192, 192);
+      const Color outline = Color.fromARGB(166, 128, 182, 182);
 
       const Color textColor = Color.fromARGB(221, 219, 226, 228);
       const Color textBoxColor = Color.fromARGB(255, 58, 58, 58);
@@ -111,6 +122,8 @@ class PfsTheme {
           Color.fromARGB(255, 211, 235, 231);
 
       const Color scrim = Color.fromARGB(195, 40, 56, 51);
+
+      const Color filledbuttonContentColor = Color.fromARGB(223, 241, 237, 241);
 
       var newData = ThemeData(
         useMaterial3: true,
@@ -127,7 +140,6 @@ class PfsTheme {
           surface: cardColor,
           onSurfaceVariant: primary.withAlpha(0xAA),
           scrim: scrim,
-
           // Most text
           onSurface: textColor,
 
@@ -143,6 +155,11 @@ class PfsTheme {
           // Text field background, slider background
           surfaceVariant: const Color(0xFFACCEBE),
         ),
+        tooltipTheme: const TooltipThemeData(
+          decoration: tooltipBoxDecoration,
+          textStyle: tooltipTextStyle,
+          padding: tooltipPadding,
+        ),
         textTheme: const TextTheme(
           titleMedium: TextStyle(color: outline),
         ),
@@ -157,6 +174,11 @@ class PfsTheme {
         ),
         textButtonTheme: TextButtonThemeData(style: buttonStyle),
         iconButtonTheme: IconButtonThemeData(style: buttonStyle),
+        filledButtonTheme: const FilledButtonThemeData(
+          style: ButtonStyle(
+            iconColor: MaterialStatePropertyAll(filledbuttonContentColor),
+          ),
+        ),
         badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
@@ -173,12 +195,12 @@ class PfsTheme {
         ),
         extensions: const {
           PhtimerTheme(
-            pausedColor: Color.fromARGB(201, 24, 131, 117),
+            pausedColor: Color.fromARGB(200, 35, 131, 118),
             runningColor: Color.fromARGB(126, 89, 151, 187),
             almostZeroColor: Color.fromARGB(195, 249, 76, 255),
             disabledColor: Color.fromARGB(150, 158, 158, 158),
             barBackgroundColor: Color.fromARGB(15, 0, 0, 0),
-            pausedButton: Color.fromARGB(161, 51, 129, 119),
+            pausedButton: Color.fromARGB(159, 37, 78, 72),
             runningButton: Color.fromARGB(117, 95, 164, 185),
           )
         },
