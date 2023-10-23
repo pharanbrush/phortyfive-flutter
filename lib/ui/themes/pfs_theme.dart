@@ -370,6 +370,7 @@ class PfsTheme {
             runningButton: Color(0xB2BEE6FD),
           ),
           PfsAppTheme(
+            borderRadius: const BorderRadius.all(Radius.circular(buttonRadius)),
             giantTextBoxBuilder: ({
               required FocusNode focusNode,
               required TextEditingController controller,
@@ -595,6 +596,7 @@ class PfsTheme {
             pausedButton: Color(0x7852545C),
           ),
           PfsAppTheme(
+            borderRadius: const BorderRadius.all(Radius.circular(buttonRadius)),
             boxPanelMaterialBuilder: ({required Widget child}) {
               return Material(
                 type: MaterialType.canvas,
@@ -789,6 +791,8 @@ class PfsTheme {
             runningButton: Color(0x665F687D),
           ),
           PfsAppTheme(
+              borderRadius:
+                  const BorderRadius.all(Radius.circular(cspButtonRadius)),
               giantTextBoxBuilder: ({
                 required FocusNode focusNode,
                 required TextEditingController controller,
@@ -1020,12 +1024,14 @@ class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
     this.boxPanelMaterialBuilder,
     this.pawPanelMaterialBuilder,
     this.giantTextBoxBuilder,
+    this.borderRadius,
   });
 
   final MaterialBuilderFunction? boxPanelMaterialBuilder;
   final MaterialBuilderFunction? pawPanelMaterialBuilder;
   final TextBoxBuilderFunction? giantTextBoxBuilder;
 
+  final BorderRadius? borderRadius;
   final BorderSide? appWindowBorderSide;
 
   MaterialBuilderFunction get boxPanel =>
