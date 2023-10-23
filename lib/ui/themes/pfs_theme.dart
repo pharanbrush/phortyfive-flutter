@@ -76,7 +76,7 @@ class PfsTheme {
       const Color tertiary = Color.fromARGB(255, 179, 119, 190);
       const Color buttonContentColor = Color.fromARGB(136, 182, 196, 196);
       const Color buttonActiveColor = Color.fromARGB(149, 85, 185, 189);
-      const Color buttonHoverColor = Color.fromARGB(220, 59, 228, 228);
+      const Color buttonHoverColor = Color.fromARGB(220, 86, 233, 252);
       const Color buttonHoverOverlayColor = Color.fromARGB(45, 112, 138, 144);
       const Color buttonHoverBackgroundColor =
           Color.fromARGB(162, 125, 184, 197);
@@ -110,12 +110,12 @@ class PfsTheme {
         ),
       );
 
-      const Color cardColor = Color.fromARGB(255, 234, 246, 253);
-      const Color cardOutlineColor = Color(0xFFEEEEEE);
-      const Color outline = Color.fromARGB(166, 128, 182, 182);
+      const Color cardColor = Color(0xFFEAF6FD);
+      const Color cardOutlineColor = Color(0xA1697973);
+      const Color outline = Color(0xA680B6B6);
 
-      const Color textColor = Color.fromARGB(221, 219, 226, 228);
-      const Color textBoxColor = Color.fromARGB(255, 58, 58, 58);
+      const Color textFieldTextColor = Color(0xDDC5ECEE);
+      const Color textFieldBackground = Color(0xFF4B6157);
 
       const Color selectedButton = Color.fromARGB(255, 56, 156, 173);
       const Color selectedButtonContentColor =
@@ -141,19 +141,17 @@ class PfsTheme {
           onSurfaceVariant: primary.withAlpha(0xAA),
           scrim: scrim,
           // Most text
-          onSurface: textColor,
+          onSurface: textFieldTextColor,
 
           // Selected button text, slider value label text
           onPrimary: selectedButtonContentColor,
-
-          primaryContainer: textBoxColor,
 
           // Selected Segmented button
           secondaryContainer: selectedButton,
           onSecondaryContainer: selectedButtonContentColor,
 
           // Text field background, slider background
-          surfaceVariant: const Color(0xFFACCEBE),
+          surfaceVariant: textFieldBackground,
         ),
         tooltipTheme: const TooltipThemeData(
           decoration: tooltipBoxDecoration,
@@ -186,8 +184,9 @@ class PfsTheme {
           ),
         ),
         cardTheme: const CardTheme(
-          elevation: 0,
+          elevation: 10,
           surfaceTintColor: Colors.transparent,
+          color: panelBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
             side: BorderSide(color: cardOutlineColor),
@@ -195,12 +194,12 @@ class PfsTheme {
         ),
         extensions: const {
           PhtimerTheme(
-            pausedColor: Color.fromARGB(200, 35, 131, 118),
+            pausedColor: Color.fromARGB(199, 84, 121, 116),
             runningColor: Color.fromARGB(126, 89, 151, 187),
             almostZeroColor: Color.fromARGB(195, 249, 76, 255),
             disabledColor: Color.fromARGB(150, 158, 158, 158),
             barBackgroundColor: Color.fromARGB(15, 0, 0, 0),
-            pausedButton: Color.fromARGB(159, 37, 78, 72),
+            pausedButton: Color.fromARGB(90, 69, 153, 138),
             runningButton: Color.fromARGB(117, 95, 164, 185),
           )
         },
