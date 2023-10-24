@@ -19,6 +19,7 @@ import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/panels/corner_window_controls.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 import 'package:pfs2/widgets/panels/settings_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
@@ -74,16 +75,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late final ModalMenu timerDurationMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: timerDurationMenu),
     onOpened: () {
-      timerDurationWidget.setActive(timerDurationMenu.isOpen,
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
           widget.model.timerModel.currentDurationSeconds);
     },
     onClosed: () {
       mainWindowFocus.requestFocus();
-      timerDurationWidget.setActive(timerDurationMenu.isOpen,
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
           widget.model.timerModel.currentDurationSeconds);
     },
     builder: (closeMenu) {
-      return timerDurationWidget;
+      return timerDurationEditor.widget();
     },
   );
 
@@ -121,9 +122,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (ReturnHomeIntent, (_) => _tryReturnHome())
   ];
 
-  //WORKAROUND: widget with persistent state that can be commanded directly by the main window.
-  late TimerDurationPanel timerDurationWidget =
-      TimerDurationPanel(onDismiss: () => timerDurationMenu.close());
+  late TimerDurationEditor timerDurationEditor = TimerDurationEditor();
   late ImagePhviewer imagePhviewer = ImagePhviewer();
 
   late final AnimationController _playPauseIconStateAnimator =
@@ -691,10 +690,13 @@ class ModalMenu {
     return ValueListenableBuilder(
       valueListenable: _isOpen,
       builder: (_, value, __) {
-        return AnimatedSwitcher(
-          transitionBuilder: transitionBuilder,
-          duration: Phanimations.fastDuration,
-          child: value ? builder(close) : null,
+        return PanelDismissContext(
+          onDismiss: close,
+          child: AnimatedSwitcher(
+            transitionBuilder: transitionBuilder,
+            duration: Phanimations.fastDuration,
+            child: value ? builder(close) : null,
+          ),
         );
       },
     );

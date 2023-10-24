@@ -4,29 +4,23 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-class TimerDurationPanel extends StatelessWidget {
-  TimerDurationPanel({
-    super.key,
-    required this.onDismiss,
-  });
-
-  static const double diameter = 350;
-  static const double radius = diameter * 0.5;
-  static const double bottomOffset = 20;
-
-  final Function()? onDismiss;
+class TimerDurationEditor {
+  TimerDurationEditor();
 
   final TextEditingController timerTextEditorController =
       TextEditingController(text: '');
-
   final FocusNode timerTextEditorFocusNode =
       FocusNode(debugLabel: 'Timer Text Editor');
 
-  @override
-  Widget build(BuildContext context) {
-    return _setTimerDurationWidget();
+  Widget widget() {
+    return TimerDurationPanel(
+      timerTextEditorController: timerTextEditorController,
+      timerTextEditorFocusNode: timerTextEditorFocusNode,
+    );
   }
 
   void setActive(bool active, int currentTimerDuration) {
@@ -38,7 +32,31 @@ class TimerDurationPanel extends StatelessWidget {
     }
   }
 
-  Widget _setTimerDurationWidget() {
+  static void _selectAllText(TextEditingController controller) {
+    controller.selection =
+        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+  }
+}
+
+class TimerDurationPanel extends StatelessWidget {
+  const TimerDurationPanel({
+    super.key,
+    required this.timerTextEditorController,
+    required this.timerTextEditorFocusNode,
+  });
+
+  static const double diameter = 350;
+  static const double radius = diameter * 0.5;
+  static const double bottomOffset = 20;
+
+  //final VoidCallback? onDismiss;
+  final TextEditingController timerTextEditorController;
+  final FocusNode timerTextEditorFocusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+
     return PhtimerModel.scope((context, __, model) {
       final windowSize = MediaQuery.of(context).size;
 
@@ -58,51 +76,6 @@ class TimerDurationPanel extends StatelessWidget {
         oRegular: rightMarginNormal,
       );
 
-      const presetButtonStyle = ButtonStyle(
-        shape: MaterialStatePropertyAll(CircleBorder()),
-        fixedSize: MaterialStatePropertyAll(Size(50, 50)),
-        padding: MaterialStatePropertyAll(EdgeInsets.zero),
-      );
-
-      Widget preset(String text, int seconds, double left, double top) {
-        final isCurrentSelectedButton =
-            (seconds == model.currentDurationSeconds);
-        if (isCurrentSelectedButton) {
-          final selectedColor = MaterialStatePropertyAll(
-            Theme.of(context).colorScheme.primary,
-          );
-          var selectedButtonStyle = presetButtonStyle.copyWith(
-            backgroundColor: selectedColor,
-          );
-
-          return Positioned(
-            left: left,
-            top: top,
-            child: FilledButton(
-              style: selectedButtonStyle,
-              onPressed: () {
-                model.setDurationSeconds(seconds);
-                onDismiss?.call();
-              },
-              child: Text(text),
-            ),
-          );
-        }
-
-        return Positioned(
-          left: left,
-          top: top,
-          child: TextButton(
-            style: presetButtonStyle,
-            onPressed: () {
-              model.setDurationSeconds(seconds);
-              onDismiss?.call();
-            },
-            child: Text(text),
-          ),
-        );
-      }
-
       final textFieldBuilder =
           PfsAppTheme.giantTextFieldFrom(Theme.of(context));
       final secondsTextField = textFieldBuilder(
@@ -110,15 +83,24 @@ class TimerDurationPanel extends StatelessWidget {
         controller: timerTextEditorController,
         onSubmitted: (value) {
           model.trySetDurationSecondsInput(value);
-          onDismiss?.call();
+          onDismiss.call();
         },
       );
 
       Widget tapToDismiss({Widget? child}) {
         return GestureDetector(
-          onTap: () => onDismiss?.call(),
+          onTap: () => onDismiss.call(),
           behavior: HitTestBehavior.translucent,
           child: child,
+        );
+      }
+
+      Widget preset(String text, int seconds, double left, double top) {
+        return Positioned(
+          key: Key('$seconds seconds button'),
+          left: left,
+          top: top,
+          child: TimerPresetButton(text, seconds),
         );
       }
 
@@ -204,9 +186,58 @@ class TimerDurationPanel extends StatelessWidget {
       );
     });
   }
+}
 
-  static void _selectAllText(TextEditingController controller) {
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+class TimerPresetButton extends StatelessWidget {
+  const TimerPresetButton(
+    this.text,
+    this.seconds, {
+    super.key,
+  });
+
+  final String text;
+  final int seconds;
+
+  @override
+  Widget build(BuildContext context) {
+    const presetButtonStyle = ButtonStyle(
+      shape: MaterialStatePropertyAll(CircleBorder()),
+      fixedSize: MaterialStatePropertyAll(Size(50, 50)),
+      padding: MaterialStatePropertyAll(EdgeInsets.zero),
+    );
+
+    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+
+    Widget button;
+
+    final model = ScopedModel.of<PhtimerModel>(context, rebuildOnChange: true);
+    void onPressed() {
+      model.setDurationSeconds(seconds);
+      onDismiss.call();
+    }
+
+    final isCurrentSelectedButton = (seconds == model.currentDurationSeconds);
+    if (isCurrentSelectedButton) {
+      final selectedColor = MaterialStatePropertyAll(
+        Theme.of(context).colorScheme.primary,
+      );
+      var selectedButtonStyle = presetButtonStyle.copyWith(
+        backgroundColor: selectedColor,
+      );
+
+      button = FilledButton(
+        style: selectedButtonStyle,
+        onPressed: onPressed,
+        child: Text(text),
+      );
+    } else {
+      button = TextButton(
+        style: presetButtonStyle,
+        onPressed: onPressed,
+        child: Text(text),
+      );
+    }
+
+    return button;
   }
 }
