@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 
 class HelpSheet extends StatelessWidget {
   const HelpSheet({
     super.key,
-    this.onDismiss,
   });
 
   static const double sheetHeight = 500;
@@ -13,8 +13,6 @@ class HelpSheet extends StatelessWidget {
     Icons.keyboard,
     size: 40,
   );
-
-  final Function()? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +29,7 @@ class HelpSheet extends StatelessWidget {
     final dynamicPadding = isWindowNarrow ? narrowPadding : normalPadding;
 
     final headingStyle = Theme.of(context).textTheme.headlineSmall;
+    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
 
     return Stack(
       alignment: AlignmentDirectional.center,

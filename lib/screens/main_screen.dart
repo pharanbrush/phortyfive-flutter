@@ -44,30 +44,27 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   late final ModalMenu filtersMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
-    builder: (closeMenu) {
-      return FilterPanel(imagePhviewer: imagePhviewer, onDismiss: closeMenu);
-    },
+    builder: () => FilterPanel(imagePhviewer: imagePhviewer),
   );
 
   late final ModalMenu helpMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: helpMenu),
-    builder: (closeMenu) {
+    builder: () {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
-        child: HelpSheet(onDismiss: closeMenu),
+        child: const HelpSheet(),
       );
     },
   );
 
   late final ModalMenu settingsMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: settingsMenu),
-    builder: (closeMenu) {
+    builder: () {
       return SettingsPanel(
         windowState: windowState,
         appModel: widget.model,
         themeNotifier: widget.theme,
         aboutMenu: aboutMenu,
-        onDismiss: closeMenu,
       );
     },
   );
@@ -83,18 +80,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       timerDurationEditor.setActive(timerDurationMenu.isOpen,
           widget.model.timerModel.currentDurationSeconds);
     },
-    builder: (closeMenu) {
-      return timerDurationEditor.widget();
-    },
+    builder: () => timerDurationEditor.widget(),
   );
 
   late final ModalMenu aboutMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: aboutMenu),
-    builder: (closeMenu) {
-      return AboutSheet(
-        onDismiss: closeMenu,
-      );
-    },
+    builder: () => const AboutSheet(),
   );
 
   late final modalMenus = [
@@ -663,7 +654,7 @@ class ModalMenu {
 
   final Widget Function(Widget, Animation<double>) transitionBuilder;
 
-  final Widget Function(Function() closeMenu) builder;
+  final Widget Function() builder;
   final Function()? onBeforeOpen;
   final Function()? onOpened;
 
@@ -695,7 +686,7 @@ class ModalMenu {
           child: AnimatedSwitcher(
             transitionBuilder: transitionBuilder,
             duration: Phanimations.fastDuration,
-            child: value ? builder(close) : null,
+            child: value ? builder() : null,
           ),
         );
       },

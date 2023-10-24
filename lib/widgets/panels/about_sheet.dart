@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 
 class AboutSheet extends StatelessWidget {
   const AboutSheet({
     super.key,
-    this.onDismiss,
   });
-
-  final Function()? onDismiss;
 
   @override
   Widget build(BuildContext context) {
+    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+
     return Stack(
       children: [
         ModalUnderlay(onDismiss: onDismiss),

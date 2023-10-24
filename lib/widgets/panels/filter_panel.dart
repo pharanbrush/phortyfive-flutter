@@ -4,6 +4,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
@@ -11,11 +12,9 @@ class FilterPanel extends StatelessWidget {
   const FilterPanel({
     super.key,
     required this.imagePhviewer,
-    required this.onDismiss,
   });
 
   final ImagePhviewer imagePhviewer;
-  final Function()? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +107,8 @@ class FilterPanel extends StatelessWidget {
 
     // HIERARCHY
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
+    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+
     return Stack(
       children: [
         ModalUnderlay(
