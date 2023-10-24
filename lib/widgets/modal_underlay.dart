@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 
 class ModalUnderlay extends StatelessWidget {
   const ModalUnderlay({
@@ -12,9 +13,12 @@ class ModalUnderlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dismissFunction =
+        onDismiss ?? PanelDismissContext.of(context)?.onDismiss ?? () {};
+
     return ModalBarrier(
       dismissible: true,
-      onDismiss: onDismiss,
+      onDismiss: dismissFunction,
       color: isTransparent
           ? Colors.transparent
           : Theme.of(context).colorScheme.scrim,

@@ -49,7 +49,6 @@ class TimerDurationPanel extends StatelessWidget {
   static const double radius = diameter * 0.5;
   static const double bottomOffset = 20;
 
-  //final VoidCallback? onDismiss;
   final TextEditingController timerTextEditorController;
   final FocusNode timerTextEditorFocusNode;
 
@@ -120,7 +119,7 @@ class TimerDurationPanel extends StatelessWidget {
 
       return Stack(
         children: [
-          ModalUnderlay(onDismiss: onDismiss),
+          const ModalUnderlay(),
           Positioned(
             right: rightOffset,
             bottom: (-radius) + bottomOffset,

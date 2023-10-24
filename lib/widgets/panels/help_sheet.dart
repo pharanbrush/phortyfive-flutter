@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
-import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 
 class HelpSheet extends StatelessWidget {
   const HelpSheet({
@@ -29,12 +28,11 @@ class HelpSheet extends StatelessWidget {
     final dynamicPadding = isWindowNarrow ? narrowPadding : normalPadding;
 
     final headingStyle = Theme.of(context).textTheme.headlineSmall;
-    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
 
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        ModalUnderlay(onDismiss: onDismiss),
+        const ModalUnderlay(),
         Center(
           child: Material(
             type: MaterialType.transparency,

@@ -8,7 +8,6 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
-import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 class SettingsPanel extends StatelessWidget {
@@ -27,11 +26,9 @@ class SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
-
     return Stack(
       children: [
-        ModalUnderlay(onDismiss: onDismiss),
+        const ModalUnderlay(),
         _panelContainer(
           context,
           child: _panelContent(context),
