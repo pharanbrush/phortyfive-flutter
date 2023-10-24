@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class CachedTheme {
@@ -383,6 +384,7 @@ class PfsTheme {
                   autofocus: true,
                   autocorrect: false,
                   maxLength: 4,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   textAlign: TextAlign.center,
                   textAlignVertical: TextAlignVertical.center,
                   decoration: const InputDecoration(
@@ -805,6 +807,7 @@ class PfsTheme {
                     autofocus: true,
                     autocorrect: false,
                     maxLength: 4,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     textAlign: TextAlign.center,
                     textAlignVertical: TextAlignVertical.center,
                     decoration: const InputDecoration(
@@ -1076,6 +1079,7 @@ class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
         autofocus: true,
         autocorrect: false,
         maxLength: 4,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
         decoration: PfsAppTheme.defaultLargeTextFieldInputDecoration,
