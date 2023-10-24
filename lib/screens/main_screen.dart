@@ -19,7 +19,7 @@ import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/panels/corner_window_controls.dart';
-import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
+import 'package:pfs2/widgets/panels/modal_dismiss_context.dart';
 import 'package:pfs2/widgets/panels/settings_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
@@ -681,7 +681,7 @@ class ModalMenu {
     return ValueListenableBuilder(
       valueListenable: _isOpen,
       builder: (_, value, __) {
-        return PanelDismissContext(
+        return ModalDismissContext(
           onDismiss: close,
           child: AnimatedSwitcher(
             transitionBuilder: transitionBuilder,

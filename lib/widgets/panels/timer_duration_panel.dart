@@ -4,7 +4,7 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/modal_underlay.dart';
-import 'package:pfs2/widgets/panels/panel_dismiss_context.dart';
+import 'package:pfs2/widgets/panels/modal_dismiss_context.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -54,7 +54,7 @@ class TimerDurationPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+    final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
 
     return PhtimerModel.scope((context, __, model) {
       final windowSize = MediaQuery.of(context).size;
@@ -205,7 +205,7 @@ class TimerPresetButton extends StatelessWidget {
       padding: MaterialStatePropertyAll(EdgeInsets.zero),
     );
 
-    final onDismiss = PanelDismissContext.of(context)?.onDismiss ?? () {};
+    final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
 
     Widget button;
 
