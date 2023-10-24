@@ -11,24 +11,24 @@ import 'package:scoped_model/scoped_model.dart';
 class TimerDurationEditor {
   TimerDurationEditor();
 
-  final TextEditingController timerTextEditorController =
+  final TextEditingController _textEditingController =
       TextEditingController(text: '');
-  final FocusNode timerTextEditorFocusNode =
+  final FocusNode _textFieldFocusNode =
       FocusNode(debugLabel: 'Timer Text Editor');
 
   Widget widget() {
     return TimerDurationPanel(
-      timerTextEditorController: timerTextEditorController,
-      timerTextEditorFocusNode: timerTextEditorFocusNode,
+      timerTextEditorController: _textEditingController,
+      timerTextEditorFocusNode: _textFieldFocusNode,
     );
   }
 
   void setActive(bool active, int currentTimerDuration) {
-    timerTextEditorController.text = currentTimerDuration.toString();
+    _textEditingController.text = currentTimerDuration.toString();
 
     if (active) {
-      timerTextEditorFocusNode.requestFocus();
-      _selectAllText(timerTextEditorController);
+      _textFieldFocusNode.requestFocus();
+      _selectAllText(_textEditingController);
     }
   }
 
