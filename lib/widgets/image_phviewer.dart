@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:contextual_menu/contextual_menu.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
@@ -76,146 +77,20 @@ class ImagePhviewer {
     }
   }
 
+  Widget widget(ValueListenable<bool> isBottomBarMinimized) {
+    return ImageDisplay(
+      isBottomBarMinimized: isBottomBarMinimized,
+      blurLevelListenable: blurLevelListenable,
+      usingGrayscaleListenable: usingGrayscaleListenable,
+      zoomLevelListenable: zoomLevelListenable,
+      getCurrentZoomScale: () => currentZoomScale,
+      revealInExplorerHandler: revealInExplorer,
+    );
+  }
+
   void incrementZoomLevel(int increment) {
     final newZoomLevel = zoomLevelListenable.value + increment;
     zoomLevelListenable.value = newZoomLevel.clamp(0, _zoomScales.length - 1);
-  }
-
-  Widget imageRightClick({
-    required Widget child,
-    void Function({required String newClipboardText, String? toastMessage})?
-        clipboardCopyHandler,
-  }) {
-    return PfsAppModel.scope((_, __, model) {
-      void handleCopyFilePath() {
-        clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageData().filePath,
-          toastMessage: 'File path copied to clipboard.',
-        );
-      }
-
-      void handleRevealInExplorer() {
-        revealInExplorer(model.getCurrentImageData());
-      }
-
-      final copyFilePathItem = MenuItem(
-        label: PfsLocalization.copyFilePath,
-        onClick: (menuItem) => handleCopyFilePath(),
-      );
-
-      final revealInExplorerItem = MenuItem(
-        label: PfsLocalization.revealInExplorer,
-        onClick: (menuItem) => handleRevealInExplorer(),
-      );
-
-      final contextMenu = Menu(
-        items: [
-          copyFilePathItem,
-          MenuItem.separator(),
-          revealInExplorerItem,
-        ],
-      );
-
-      void openContextMenu() {
-        popUpContextualMenu(contextMenu);
-      }
-
-      return GestureDetector(
-        onTertiaryTapDown: (details) => () => resetZoomLevel(),
-        onSecondaryTapDown: (details) => openContextMenu(),
-        child: child,
-      );
-    });
-  }
-
-  Widget widget(bool isBottomBarMinimized) {
-    const minimizedPadding = EdgeInsets.only(
-      bottom: 5,
-      top: Phbuttons.windowTitleBarHeight,
-    );
-    const normalPadding = EdgeInsets.only(
-      bottom: 46,
-      top: Phbuttons.windowTitleBarHeight,
-    );
-
-    final padding = isBottomBarMinimized ? minimizedPadding : normalPadding;
-
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutExpo,
-      padding: padding,
-      child: PfsAppModel.scope((_, __, model) {
-        const defaultImage = '';
-
-        final FileData imageFileData = model.hasFilesLoaded
-            ? model.getCurrentImageData()
-            : FileList.fileDataFromPath(defaultImage);
-
-        final File imageFile = File(imageFileData.filePath);
-        final imageWidget = Image.file(
-          gaplessPlayback: true,
-          filterQuality: FilterQuality.medium,
-          imageFile,
-        );
-
-        final imageFilenameLayer = Align(
-          heightFactor: 2,
-          alignment: Alignment.topCenter,
-          child: ImageClickableLabel(
-            label: imageFileData.fileName,
-            tooltip: PfsLocalization.revealInExplorer,
-            onTap: () => revealInExplorer(imageFileData),
-          ),
-        );
-
-        final isNextImageTransition = model.lastIncrement > 0;
-        final currentImageIndexString = model.currentImageIndex.toString();
-        final slideKeyString = model.isCountingDown
-            ? 'countingDownImage'
-            : 'i$currentImageIndexString';
-
-        return Stack(
-          children: [
-            Animate(
-              key: Key(slideKeyString),
-              effects: isNextImageTransition
-                  ? Phanimations.imageNext
-                  : Phanimations.imagePrevious,
-              child: SizedBox.expand(
-                child: ValueListenableBuilder(
-                  valueListenable: zoomLevelListenable,
-                  builder: (_, __, ___) {
-                    return AnimatedScale(
-                      duration: Phanimations.zoomTransitionDuration,
-                      curve: Phanimations.zoomTransitionCurve,
-                      scale: currentZoomScale,
-                      child: imageWidget,
-                    );
-                  },
-                ),
-              ),
-            ),
-            ValueListenableBuilder(
-              valueListenable: blurLevelListenable,
-              builder: (_, blurValue, __) {
-                if (blurLevel <= 0) return const SizedBox.expand();
-                final sigma = pow(1.3, blurValue).toDouble();
-                return BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                  child: const SizedBox.expand(),
-                );
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: usingGrayscaleListenable,
-              builder: (_, value, ___) =>
-                  value ? _grayscaleBackdropFilter : const SizedBox.expand(),
-            ),
-            imageFilenameLayer,
-          ],
-        );
-      }),
-    );
   }
 
   static void revealInExplorer(FileData fileData) async {
@@ -227,32 +102,6 @@ class ImagePhviewer {
       await launchUrl(fileFolder);
     }
   }
-
-  static const Widget _grayscaleBackdropFilter = BackdropFilter(
-    filter: ColorFilter.matrix(<double>[
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0
-    ]),
-    child: SizedBox.expand(),
-  );
 }
 
 enum ImageColorMode { color, grayscale }
@@ -316,4 +165,204 @@ class ImageClickableLabel extends StatelessWidget {
       child: TextButton(style: style, onPressed: onTap, child: Text(label)),
     );
   }
+}
+
+typedef ClipboardCopyHandler = void Function(
+    {required String newClipboardText, String? toastMessage});
+
+class ImageRightClick extends StatelessWidget {
+  const ImageRightClick({
+    super.key,
+    required this.child,
+    this.clipboardCopyHandler,
+    required this.resetZoomLevelHandler,
+    required this.revealInExplorerHandler,
+  });
+
+  final Widget child;
+  final ClipboardCopyHandler? clipboardCopyHandler;
+  final VoidCallback resetZoomLevelHandler;
+  final VoidCallback revealInExplorerHandler;
+
+  @override
+  Widget build(BuildContext context) {
+    return PfsAppModel.scope((_, __, model) {
+      void handleCopyFilePath() {
+        clipboardCopyHandler?.call(
+          newClipboardText: model.getCurrentImageData().filePath,
+          toastMessage: 'File path copied to clipboard.',
+        );
+      }
+
+      final copyFilePathItem = MenuItem(
+        label: PfsLocalization.copyFilePath,
+        onClick: (menuItem) => handleCopyFilePath(),
+      );
+
+      final revealInExplorerItem = MenuItem(
+        label: PfsLocalization.revealInExplorer,
+        onClick: (menuItem) => revealInExplorerHandler(),
+      );
+
+      final contextMenu = Menu(
+        items: [
+          copyFilePathItem,
+          MenuItem.separator(),
+          revealInExplorerItem,
+        ],
+      );
+
+      void openContextMenu() {
+        popUpContextualMenu(contextMenu);
+      }
+
+      return GestureDetector(
+        onTertiaryTapDown: (details) => resetZoomLevelHandler(),
+        onSecondaryTapDown: (details) => openContextMenu(),
+        child: child,
+      );
+    });
+  }
+}
+
+class ImageDisplay extends StatelessWidget {
+  const ImageDisplay({
+    super.key,
+    required this.isBottomBarMinimized,
+    required this.zoomLevelListenable,
+    required this.blurLevelListenable,
+    required this.usingGrayscaleListenable,
+    required this.getCurrentZoomScale,
+    required this.revealInExplorerHandler,
+  });
+
+  final ValueListenable<bool> isBottomBarMinimized;
+  final ValueNotifier<int> zoomLevelListenable;
+  final ValueNotifier<double> blurLevelListenable;
+  final ValueNotifier<bool> usingGrayscaleListenable;
+  final double Function() getCurrentZoomScale;
+  final Function(FileData fileData) revealInExplorerHandler;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = PfsAppModel.scope((_, __, model) {
+      const defaultImage = '';
+
+      final FileData imageFileData = model.hasFilesLoaded
+          ? model.getCurrentImageData()
+          : FileList.fileDataFromPath(defaultImage);
+
+      final File imageFile = File(imageFileData.filePath);
+      final imageWidget = Image.file(
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.medium,
+        imageFile,
+      );
+
+      final imageFilenameLayer = Align(
+        heightFactor: 2,
+        alignment: Alignment.topCenter,
+        child: ImageClickableLabel(
+          label: imageFileData.fileName,
+          tooltip: PfsLocalization.revealInExplorer,
+          onTap: () => revealInExplorerHandler(imageFileData),
+        ),
+      );
+
+      final isNextImageTransition = model.lastIncrement > 0;
+      final currentImageIndexString = model.currentImageIndex.toString();
+      final slideKeyString = model.isCountingDown
+          ? 'countingDownImage'
+          : 'i$currentImageIndexString';
+
+      return Stack(
+        children: [
+          Animate(
+            key: Key(slideKeyString),
+            effects: isNextImageTransition
+                ? Phanimations.imageNext
+                : Phanimations.imagePrevious,
+            child: SizedBox.expand(
+              child: ValueListenableBuilder(
+                valueListenable: zoomLevelListenable,
+                builder: (_, __, ___) {
+                  return AnimatedScale(
+                    duration: Phanimations.zoomTransitionDuration,
+                    curve: Phanimations.zoomTransitionCurve,
+                    scale: getCurrentZoomScale(),
+                    child: imageWidget,
+                  );
+                },
+              ),
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: blurLevelListenable,
+            builder: (_, blurValue, __) {
+              if (blurValue <= 0) return const SizedBox.expand();
+              final sigma = pow(1.3, blurValue).toDouble();
+              return BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                child: const SizedBox.expand(),
+              );
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: usingGrayscaleListenable,
+            builder: (_, value, ___) =>
+                value ? grayscaleBackdropFilter : const SizedBox.expand(),
+          ),
+          imageFilenameLayer,
+        ],
+      );
+    });
+
+    return ValueListenableBuilder(
+      valueListenable: isBottomBarMinimized,
+      builder: (_, isMinimized, __) {
+        const minimizedPadding = EdgeInsets.only(
+          bottom: 5,
+          top: Phbuttons.windowTitleBarHeight,
+        );
+        const normalPadding = EdgeInsets.only(
+          bottom: 46,
+          top: Phbuttons.windowTitleBarHeight,
+        );
+
+        final padding = isMinimized ? minimizedPadding : normalPadding;
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutExpo,
+          padding: padding,
+          child: content,
+        );
+      },
+    );
+  }
+
+  static const Widget grayscaleBackdropFilter = BackdropFilter(
+    filter: ColorFilter.matrix(<double>[
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ]),
+    child: SizedBox.expand(),
+  );
 }

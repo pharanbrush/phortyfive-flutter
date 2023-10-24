@@ -202,12 +202,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final appWindowContent = shortcutsWrapper(
       Stack(
         children: [
-          ValueListenableBuilder(
-            valueListenable: windowState.isBottomBarMinimized,
-            builder: (_, isBottomBarMinimized, __) {
-              return imagePhviewer.widget(isBottomBarMinimized);
-            },
-          ),
+          imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone,
           _gestureControls(),
           const CountdownSheet(),
@@ -452,7 +447,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             Expanded(
                 flex: 4,
                 child: zoomOnScrollListener(
-                  child: imagePhviewer.imageRightClick(
+                  child: ImageRightClick(
+                    revealInExplorerHandler: () {
+                      ImagePhviewer.revealInExplorer(
+                          model.getCurrentImageData());
+                    },
+                    resetZoomLevelHandler: () => imagePhviewer.resetZoomLevel(),
                     clipboardCopyHandler: _clipboardCopyHandler,
                     child: OverlayButton(
                       onPressed: () => model.tryTogglePlayPauseTimer(),
