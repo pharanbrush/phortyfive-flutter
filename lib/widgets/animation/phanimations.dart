@@ -72,6 +72,19 @@ class Phanimations {
     );
   }
 
+  static Widget rightMenuTransition(Widget child, Animation<double> animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.05, 0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
   static const double _imageSlideOriginX = 0.05;
   static const _imageSwapDuration = Duration(milliseconds: 300);
   static const _imageSwapCurve = Curves.easeOutQuint;

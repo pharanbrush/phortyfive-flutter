@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
 
 class HelpSheet extends StatelessWidget {
   const HelpSheet({
@@ -32,7 +31,6 @@ class HelpSheet extends StatelessWidget {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        const ModalUnderlay(),
         Center(
           child: Material(
             type: MaterialType.transparency,

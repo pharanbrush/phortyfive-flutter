@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 class SettingsPanel extends StatelessWidget {
@@ -28,14 +25,10 @@ class SettingsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const ModalUnderlay(),
         _panelContainer(
           context,
           child: _panelContent(context),
-        ).animate(effects: [
-          Phanimations.fadeInEffect,
-          Phanimations.largeRightPanelSlideInEffect
-        ]),
+        ),
       ],
     );
   }

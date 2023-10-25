@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
 
 class AboutSheet extends StatelessWidget {
   const AboutSheet({
@@ -11,7 +10,6 @@ class AboutSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const ModalUnderlay(),
         _container(
           context,
           child: _contents(context),

@@ -8,6 +8,9 @@ class ModalUnderlay extends StatelessWidget {
     this.isTransparent = false,
   });
 
+  const ModalUnderlay.transparent({super.key, this.onDismiss})
+      : isTransparent = true;
+
   final Function()? onDismiss;
   final bool isTransparent;
 

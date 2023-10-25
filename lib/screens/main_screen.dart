@@ -10,6 +10,7 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/panels/about_sheet.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_panel.dart';
@@ -44,7 +45,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   late final ModalMenu filtersMenu = ModalMenu(
     onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
+    isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
+    transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalMenu helpMenu = ModalMenu(
@@ -67,6 +70,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         aboutMenu: aboutMenu,
       );
     },
+    transitionBuilder: Phanimations.rightMenuTransition,
   );
 
   late final ModalMenu timerDurationMenu = ModalMenu(
@@ -81,6 +85,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           widget.model.timerModel.currentDurationSeconds);
     },
     builder: () => timerDurationEditor.widget(),
+    transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalMenu aboutMenu = ModalMenu(
@@ -650,6 +655,7 @@ class ModalMenu {
     this.onBeforeOpen,
     this.onClosed,
     this.onOpened,
+    this.isUnderlayTransparent = false,
   });
 
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
@@ -659,6 +665,7 @@ class ModalMenu {
   final Function()? onOpened;
 
   final Function()? onClosed;
+  final bool isUnderlayTransparent;
 
   final ValueNotifier<bool> _isOpen = ValueNotifier(false);
 
@@ -683,10 +690,25 @@ class ModalMenu {
       builder: (_, value, __) {
         return ModalDismissContext(
           onDismiss: close,
-          child: AnimatedSwitcher(
-            transitionBuilder: transitionBuilder,
-            duration: Phanimations.fastDuration,
-            child: value ? builder() : null,
+          child: Stack(
+            children: [
+              AnimatedSwitcher(
+                duration: Phanimations.fastDuration,
+                child: value
+                    ? (isUnderlayTransparent
+                        ? const ModalUnderlay.transparent()
+                        : const ModalUnderlay())
+                    : null,
+              ),
+              AnimatedSwitcher(
+                transitionBuilder: transitionBuilder,
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                duration: Phanimations.defaultDuration,
+                reverseDuration: Phanimations.fastDuration,
+                child: value ? builder() : null,
+              ),
+            ],
           ),
         );
       },

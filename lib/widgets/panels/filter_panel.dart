@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 
@@ -109,43 +108,39 @@ class FilterPanel extends StatelessWidget {
 
     return Stack(
       children: [
-        const ModalUnderlay(isTransparent: true),
         Positioned(
           bottom: 10,
           right: rightOffset,
-          child: Animate(
-            effects: Phanimations.bottomMenuEffects,
-            child: panelMaterial(
-              child: Padding(
-                padding: panelPadding,
-                child: Wrap(
-                  direction: Axis.vertical,
-                  spacing: 5,
-                  children: [
-                    headerRow,
-                    ValueListenableBuilder(
-                      valueListenable: imagePhviewer.usingGrayscaleListenable,
-                      builder: (_, __, ___) {
-                        return ColorModeButtons(
-                          imagePhviewer: imagePhviewer,
-                          onSelectionChanged: handleImageModeSelectionChanged,
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: imagePhviewer.blurLevelListenable,
-                      builder: (_, __, ___) {
-                        return BlurSlider(
-                          imagePhviewer: imagePhviewer,
-                          onChanged: handleBlurSliderChanged,
-                        );
-                      },
-                    ),
-                  ],
-                ),
+          child: panelMaterial(
+            child: Padding(
+              padding: panelPadding,
+              child: Wrap(
+                direction: Axis.vertical,
+                spacing: 5,
+                children: [
+                  headerRow,
+                  ValueListenableBuilder(
+                    valueListenable: imagePhviewer.usingGrayscaleListenable,
+                    builder: (_, __, ___) {
+                      return ColorModeButtons(
+                        imagePhviewer: imagePhviewer,
+                        onSelectionChanged: handleImageModeSelectionChanged,
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: imagePhviewer.blurLevelListenable,
+                    builder: (_, __, ___) {
+                      return BlurSlider(
+                        imagePhviewer: imagePhviewer,
+                        onChanged: handleBlurSliderChanged,
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-          ),
+          ).animate(effects: const [Phanimations.growBottomEffect]),
         ),
       ],
     );
