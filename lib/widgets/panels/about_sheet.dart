@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/widgets/phtext_widgets.dart';
 
 class AboutSheet extends StatelessWidget {
   const AboutSheet({
@@ -22,6 +23,7 @@ class AboutSheet extends StatelessWidget {
     final headingStyle = Theme.of(context).textTheme.titleMedium;
 
     const spacing = SizedBox(height: 10);
+    const pharanBrushUrl = 'ko-fi.com/Pharanbrush';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +42,11 @@ class AboutSheet extends StatelessWidget {
         const Text('Timed Image Viewer for Drawing Practice'),
         spacing,
         const Text('Build 0.6.20231021b'),
-        const Text('For more info, visit: https://kofi.com/PharanBrush'),
+        const HyperlinkRichText(
+          'For more info, visit: ',
+          urlText: pharanBrushUrl,
+          url: 'https://$pharanBrushUrl',
+        ),
         const Spacer(),
         Align(
           alignment: Alignment.topRight,
