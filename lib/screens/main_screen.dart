@@ -95,7 +95,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     filtersMenu,
     helpMenu,
     settingsMenu,
-    timerDurationMenu
+    timerDurationMenu,
+    aboutMenu,
   ];
 
   BuildContext? currentContext;
