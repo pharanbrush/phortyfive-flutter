@@ -63,6 +63,7 @@ class PfsTheme {
     ),
   );
 
+  static const Color hyperlinkColorPassive = Color.fromARGB(255, 84, 201, 255);
   static const Color hyperlinkColorHovered = Colors.blue;
 
   static final lysaris = CachedTheme(
