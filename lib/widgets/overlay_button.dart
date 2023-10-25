@@ -32,13 +32,10 @@ class OverlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.4,
-      child: TextButton(
-        style: style,
-        onPressed: onPressed,
-        child: child,
-      ),
+    return TextButton(
+      style: style,
+      onPressed: onPressed,
+      child: child,
     );
   }
 }

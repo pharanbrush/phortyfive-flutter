@@ -438,31 +438,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         bottom: 80,
         left: 10,
         right: 10,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            nextPreviousGestureButton(
-                width: 100,
-                onPressed: () => model.previousImageNewTimer(),
-                child: PfsTheme.beforeGestureIcon),
-            Expanded(
-                flex: 4,
-                child: zoomOnScrollListener(
-                  child: ImageRightClick(
-                    revealInExplorerHandler: revealCurrentImageInExplorer,
-                    resetZoomLevelHandler: () => imagePhviewer.resetZoomLevel(),
-                    clipboardCopyHandler: _clipboardCopyHandler,
-                    child: OverlayButton(
-                      onPressed: () => model.tryTogglePlayPauseTimer(),
-                      child: playPauseIcon,
+        child: Opacity(
+          opacity: 0.4,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              nextPreviousGestureButton(
+                  width: 100,
+                  onPressed: () => model.previousImageNewTimer(),
+                  child: PfsTheme.beforeGestureIcon),
+              Expanded(
+                  flex: 4,
+                  child: zoomOnScrollListener(
+                    child: ImageRightClick(
+                      revealInExplorerHandler: revealCurrentImageInExplorer,
+                      resetZoomLevelHandler: () =>
+                          imagePhviewer.resetZoomLevel(),
+                      clipboardCopyHandler: _clipboardCopyHandler,
+                      child: OverlayButton(
+                        onPressed: () => model.tryTogglePlayPauseTimer(),
+                        child: playPauseIcon,
+                      ),
                     ),
-                  ),
-                )),
-            nextPreviousGestureButton(
-                width: 140,
-                onPressed: () => model.nextImageNewTimer(),
-                child: PfsTheme.nextGestureIcon),
-          ],
+                  )),
+              nextPreviousGestureButton(
+                  width: 140,
+                  onPressed: () => model.nextImageNewTimer(),
+                  child: PfsTheme.nextGestureIcon),
+            ],
+          ),
         ),
       );
     });
@@ -563,11 +567,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           Phbuttons.timerSettingsButton(
               onPressed: () => timerDurationMenu.open()),
           spacingBox,
-          Opacity(
-            opacity: model.allowTimerPlayPause ? 1 : 0.5,
-            child: TimerControls(
-                playPauseIconController: _playPauseIconStateAnimator),
-          ),
+          TimerControls(playPauseIconController: _playPauseIconStateAnimator),
           SizedBox(width: spacing + 3),
           ImageSetButton(narrowButton: isNarrowWindow),
           const SizedBox(width: 20),

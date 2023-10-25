@@ -102,22 +102,21 @@ class WindowWrapper extends StatelessWidget {
                       vertical: 6,
                       horizontal: 8,
                     ),
-                    child: Opacity(
-                      opacity: 0.5,
-                      child: Row(
-                        children: [
-                          Image.memory(
-                            PfsTheme.pfsIconBytes,
-                            filterQuality: FilterQuality.medium,
-                          ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            pfsAppTitle,
-                            style: TextStyle(
-                                color: Color(0xFF999999), fontSize: 12),
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      children: [
+                        Image.memory(
+                          PfsTheme.pfsIconBytes,
+                          filterQuality: FilterQuality.medium,
+                          color: const Color(0x7EFFFFFF),
+                          colorBlendMode: BlendMode.modulate,
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          pfsAppTitle,
+                          style:
+                              TextStyle(color: Color(0x7E999999), fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
                   MoveWindow(),
