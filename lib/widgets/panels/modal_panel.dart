@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// It is a modal that can block things behind it.
 ///
 /// The user can click anywhere outside the panel to close it. But any descendant widgets in the builder can use
-/// ```dart 
+/// ```dart
 /// ModalDismissContext.of(context).onDismiss?.call()
 /// ```
 /// to manually close the ModalPanel.
@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 /// Use the callbacks to add additional logic when opening and closing the panel.
 class ModalPanel {
   ModalPanel({
+    this.key,
     required this.builder,
     this.onBeforeOpen,
     this.onOpened,
@@ -21,6 +22,7 @@ class ModalPanel {
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
   });
 
+  final Key? key;
   final Widget Function() builder;
   final Function()? onBeforeOpen;
   final Function()? onOpened;
@@ -29,9 +31,6 @@ class ModalPanel {
   /// [ModalPanel] automatically adds a clickable scrim/underlay to make the underlying elements
   /// less prominent. [isUnderlayTransparent] makes the underlay invisible but still clickable.
   final bool isUnderlayTransparent;
-
-  static const defaultDuration = Duration(milliseconds: 200);
-  static const fastDuration = Duration(milliseconds: 100);
 
   /// Defines the transition animation widget builder used by the internal [AnimatedSwitcher].
   /// See documentation on [AnimatedSwitcher] for more info.
@@ -54,9 +53,41 @@ class ModalPanel {
     onClosed?.call();
   }
 
-  Widget widget(BuildContext context) {
+  Widget widget() {
+    return _ModalPanelWidget(
+      key: key,
+      isOpen: _isOpen,
+      close: close,
+      isUnderlayTransparent: isUnderlayTransparent,
+      transitionBuilder: transitionBuilder,
+      builder: builder,
+    );
+  }
+}
+
+class _ModalPanelWidget extends StatelessWidget {
+  const _ModalPanelWidget({
+    super.key,
+    required this.isOpen,
+    required this.close,
+    required this.isUnderlayTransparent,
+    required this.transitionBuilder,
+    required this.builder,
+  });
+
+  final ValueListenable<bool> isOpen;
+  final VoidCallback close;
+  final bool isUnderlayTransparent;
+  final AnimatedSwitcherTransitionBuilder transitionBuilder;
+  final Widget Function() builder;
+
+  static const defaultDuration = Duration(milliseconds: 200);
+  static const fastDuration = Duration(milliseconds: 100);
+
+  @override
+  Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: _isOpen,
+      valueListenable: isOpen,
       builder: (_, value, __) {
         return ModalDismissContext(
           onDismiss: close,
