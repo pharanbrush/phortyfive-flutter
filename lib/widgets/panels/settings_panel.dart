@@ -6,6 +6,7 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:pfs2/widgets/phtext_widgets.dart';
 
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({
@@ -33,14 +34,6 @@ class SettingsPanel extends StatelessWidget {
     );
   }
 
-  Widget smallHeading(String text, BuildContext context) {
-    final smallHeadingStyle = Theme.of(context).textTheme.titleSmall;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: smallHeadingStyle),
-    );
-  }
-
   Widget _panelContent(BuildContext context) {
     Widget themesWidgets(BuildContext context, {required Widget child}) {
       return DropdownMenuTheme(
@@ -62,7 +55,7 @@ class SettingsPanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              smallHeading('Window', context),
+              const SmallHeading('Window'),
               NotifierSwitchItem(
                 title: const Text('Sounds'),
                 notifier: windowState.isSoundsEnabled,
@@ -72,7 +65,7 @@ class SettingsPanel extends StatelessWidget {
                 notifier: windowState.isAlwaysOnTop,
               ),
               divider,
-              smallHeading('Appearance', context),
+              const SmallHeading('Appearance'),
               themeSetting(context),
               divider,
               TextButton(
