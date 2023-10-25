@@ -115,7 +115,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
-    (ReturnHomeIntent, (_) => _tryReturnHome())
+    (ReturnHomeIntent, (_) => _tryReturnHome()),
+    (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
+    (OpenPreferencesIntent, (_) => settingsMenu.open()),
   ];
 
   late TimerDurationEditor timerDurationEditor = TimerDurationEditor();
@@ -166,6 +168,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             },
           ),
           _fileDropZone,
+          helpMenu.widget(context),
           settingsMenu.widget(context),
           aboutMenu.widget(context),
         ],
@@ -395,6 +398,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
+  void revealCurrentImageInExplorer() {
+    ImagePhviewer.revealInExplorer(widget.model.getCurrentImageData());
+  }
+
   Widget _gestureControls() {
     AnimatedIcon playPauseIcon = AnimatedIcon(
       icon: AnimatedIcons.play_pause,
@@ -443,10 +450,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 flex: 4,
                 child: zoomOnScrollListener(
                   child: ImageRightClick(
-                    revealInExplorerHandler: () {
-                      ImagePhviewer.revealInExplorer(
-                          model.getCurrentImageData());
-                    },
+                    revealInExplorerHandler: revealCurrentImageInExplorer,
                     resetZoomLevelHandler: () => imagePhviewer.resetZoomLevel(),
                     clipboardCopyHandler: _clipboardCopyHandler,
                     child: OverlayButton(

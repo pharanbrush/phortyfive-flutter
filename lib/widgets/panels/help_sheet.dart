@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 
 class HelpSheet extends StatelessWidget {
@@ -65,53 +67,69 @@ class HelpSheet extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(child: Text('')),
+                        const Spacer(),
                         AnimatedPadding(
                           duration: Phanimations.fastDuration,
                           padding: dynamicPadding,
-                          child: const Column(
+                          child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 ShortcutListItem(
-                                    text: 'Next image', keyLabel: 'J'),
+                                    text: 'Next image',
+                                    keyLabel:
+                                        Phshortcuts.next2.trigger.keyLabel),
                                 ShortcutListItem(
-                                    text: 'Previous image', keyLabel: 'K'),
-                                Text(''),
+                                    text: 'Previous image',
+                                    keyLabel:
+                                        Phshortcuts.previous2.trigger.keyLabel),
+                                const Text(''),
                                 ShortcutListItem(
-                                    text: 'Play/Pause', keyLabel: 'P'),
+                                    text: 'Play/Pause',
+                                    keyLabel:
+                                        Phshortcuts.playPause.trigger.keyLabel),
                                 ShortcutListItem(
-                                    text: 'Restart timer', keyLabel: 'R'),
+                                    text: 'Restart timer',
+                                    keyLabel: Phshortcuts
+                                        .restartTimer.trigger.keyLabel),
                                 ShortcutListItem(
                                     text: 'Change timer duration',
-                                    keyLabel: 'F2'),
+                                    keyLabel: Phshortcuts
+                                        .openTimerMenu.trigger.keyLabel),
                               ]),
                         ),
                         if (!isWindowVeryNarrow)
                           AnimatedPadding(
                             duration: Phanimations.fastDuration,
                             padding: dynamicPadding,
-                            child: const Column(
+                            child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   ShortcutListItem(
                                     text: 'Open images...',
                                     modifier: 'Ctrl',
-                                    keyLabel: 'O',
+                                    keyLabel:
+                                        Phshortcuts.openFiles.trigger.keyLabel,
                                   ),
                                   ShortcutListItem(
-                                    text: 'Toggle "Always on top"',
+                                    text:
+                                        'Toggle "${PfsLocalization.alwaysOnTop}"',
                                     modifier: 'Ctrl',
-                                    keyLabel: 'T',
+                                    keyLabel: Phshortcuts
+                                        .alwaysOnTop.trigger.keyLabel,
                                   ),
                                   ShortcutListItem(
                                       text: 'Show/hide bottom bar',
-                                      keyLabel: 'H'),
+                                      keyLabel: Phshortcuts
+                                          .toggleBottomBar.trigger.keyLabel),
                                   ShortcutListItem(
-                                      text: 'Open help sheet', keyLabel: 'F1'),
+                                      text: 'Open help sheet',
+                                      keyLabel:
+                                          Phshortcuts.help.trigger.keyLabel),
                                   ShortcutListItem(
                                       text: 'Mute/unmute sounds',
-                                      keyLabel: 'M'),
+                                      keyLabel: Phshortcuts
+                                          .toggleSounds.trigger.keyLabel),
                                 ]),
                           ),
                         if (isWindowVeryNarrow)
@@ -126,7 +144,7 @@ class HelpSheet extends StatelessWidget {
                                   style: headingStyle,
                                 )),
                           ),
-                        const Expanded(child: Text('')),
+                        const Spacer(),
                       ],
                     ),
                   ),
@@ -169,8 +187,13 @@ class HelpSheet extends StatelessWidget {
 }
 
 class ShortcutListItem extends StatelessWidget {
-  const ShortcutListItem(
-      {super.key, this.text, this.keyLabel, this.modifier, this.modifier2});
+  const ShortcutListItem({
+    super.key,
+    this.text,
+    this.keyLabel,
+    this.modifier,
+    this.modifier2,
+  });
 
   final String? text, keyLabel, modifier, modifier2;
 

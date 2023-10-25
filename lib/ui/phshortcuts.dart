@@ -25,6 +25,12 @@ class Phshortcuts {
   static const alwaysOnTop =
       SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
+  static const revealInExplorer =
+      SingleActivator(LogicalKeyboardKey.enter, shift: true);
+
+  static const preferences =
+      SingleActivator(LogicalKeyboardKey.comma, control: true);
+
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
   static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
@@ -50,6 +56,8 @@ class Phshortcuts {
     Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
     Phshortcuts.toggleSounds: ToggleSoundIntent(),
     Phshortcuts.returnHome: ReturnHomeIntent(),
+    Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
+    Phshortcuts.preferences: OpenPreferencesIntent(),
   };
 }
 
@@ -99,4 +107,12 @@ class BottomBarToggleIntent extends Intent {
 
 class AlwaysOnTopIntent extends Intent {
   const AlwaysOnTopIntent();
+}
+
+class RevealInExplorerIntent extends Intent {
+  const RevealInExplorerIntent();
+}
+
+class OpenPreferencesIntent extends Intent {
+  const OpenPreferencesIntent();
 }
