@@ -1,32 +1,46 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// ModalPanel encapsulates the stateful controls needed for a widget to be able to open and close.
+/// It is a modal that can block things behind it.
+///
+/// The user can click anywhere outside the panel to close it. But any descendant widgets in the builder can use
+/// ```dart 
+/// ModalDismissContext.of(context).onDismiss?.call()
+/// ```
+/// to manually close the ModalPanel.
+///
+/// Use the callbacks to add additional logic when opening and closing the panel.
 class ModalPanel {
   ModalPanel({
     required this.builder,
-    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
     this.onBeforeOpen,
-    this.onClosed,
     this.onOpened,
+    this.onClosed,
     this.isUnderlayTransparent = false,
+    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
   });
-
-  static const defaultDuration = Duration(milliseconds: 200);
-  static const fastDuration = Duration(milliseconds: 100);
-
-  final AnimatedSwitcherTransitionBuilder transitionBuilder;
 
   final Widget Function() builder;
   final Function()? onBeforeOpen;
   final Function()? onOpened;
-
   final Function()? onClosed;
+
+  /// [ModalPanel] automatically adds a clickable scrim/underlay to make the underlying elements
+  /// less prominent. [isUnderlayTransparent] makes the underlay invisible but still clickable.
   final bool isUnderlayTransparent;
 
-  final ValueNotifier<bool> _isOpen = ValueNotifier(false);
+  static const defaultDuration = Duration(milliseconds: 200);
+  static const fastDuration = Duration(milliseconds: 100);
 
+  /// Defines the transition animation widget builder used by the internal [AnimatedSwitcher].
+  /// See documentation on [AnimatedSwitcher] for more info.
+  final AnimatedSwitcherTransitionBuilder transitionBuilder;
+
+  final ValueNotifier<bool> _isOpen = ValueNotifier(false);
   bool get isOpen => _isOpen.value;
 
+  /// A listenable for the opened state of the panel.
   ValueListenable<bool> get openStateListenable => _isOpen;
 
   void open() {
