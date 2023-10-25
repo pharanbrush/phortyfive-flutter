@@ -5,6 +5,7 @@ import 'package:pfs2/screens/main_screen.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
+import 'package:pfs2/widgets/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtext_widgets.dart';
 
@@ -20,7 +21,7 @@ class SettingsPanel extends StatelessWidget {
   final PfsWindowState windowState;
   final PfsAppModel appModel;
   final ValueNotifier<String> themeNotifier;
-  final ModalMenu aboutMenu;
+  final ModalPanel aboutMenu;
 
   @override
   Widget build(BuildContext context) {

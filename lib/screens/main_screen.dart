@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,7 +9,7 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/modal_underlay.dart';
+import 'package:pfs2/widgets/panels/modal_panel.dart';
 import 'package:pfs2/widgets/panels/about_sheet.dart';
 import 'package:pfs2/widgets/panels/countdown_sheet.dart';
 import 'package:pfs2/widgets/panels/filter_panel.dart';
@@ -20,7 +19,6 @@ import 'package:pfs2/widgets/panels/image_drop_target.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/panels/corner_window_controls.dart';
-import 'package:pfs2/widgets/panels/modal_dismiss_context.dart';
 import 'package:pfs2/widgets/panels/settings_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
@@ -43,14 +41,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final Phclicker clicker = Phclicker();
   final PfsWindowState windowState = PfsWindowState();
 
-  late final ModalMenu filtersMenu = ModalMenu(
+  late final ModalPanel filtersMenu = ModalPanel(
     onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
     isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
-  late final ModalMenu helpMenu = ModalMenu(
+  late final ModalPanel helpMenu = ModalPanel(
     onBeforeOpen: () => _cancelAllMenus(except: helpMenu),
     builder: () {
       return Theme(
@@ -60,7 +58,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     },
   );
 
-  late final ModalMenu settingsMenu = ModalMenu(
+  late final ModalPanel settingsMenu = ModalPanel(
     onBeforeOpen: () => _cancelAllMenus(except: settingsMenu),
     builder: () {
       return SettingsPanel(
@@ -73,7 +71,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     transitionBuilder: Phanimations.rightMenuTransition,
   );
 
-  late final ModalMenu timerDurationMenu = ModalMenu(
+  late final ModalPanel timerDurationMenu = ModalPanel(
     onBeforeOpen: () => _cancelAllMenus(except: timerDurationMenu),
     onOpened: () {
       timerDurationEditor.setActive(timerDurationMenu.isOpen,
@@ -88,7 +86,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
-  late final ModalMenu aboutMenu = ModalMenu(
+  late final ModalPanel aboutMenu = ModalPanel(
     onBeforeOpen: () => _cancelAllMenus(except: aboutMenu),
     builder: () => const AboutSheet(),
   );
@@ -344,8 +342,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _cancelAllMenus({ModalMenu? except}) {
-    void tryDismiss(ModalMenu toDismiss) {
+  void _cancelAllMenus({ModalPanel? except}) {
+    void tryDismiss(ModalPanel toDismiss) {
       if (except != null || toDismiss != except) {
         toDismiss.close();
       }
@@ -649,73 +647,5 @@ class PfsWindowState {
 extension BoolNotifierToggle on ValueNotifier<bool> {
   void toggle() {
     value = !value;
-  }
-}
-
-class ModalMenu {
-  ModalMenu({
-    required this.builder,
-    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-    this.onBeforeOpen,
-    this.onClosed,
-    this.onOpened,
-    this.isUnderlayTransparent = false,
-  });
-
-  final AnimatedSwitcherTransitionBuilder transitionBuilder;
-
-  final Widget Function() builder;
-  final Function()? onBeforeOpen;
-  final Function()? onOpened;
-
-  final Function()? onClosed;
-  final bool isUnderlayTransparent;
-
-  final ValueNotifier<bool> _isOpen = ValueNotifier(false);
-
-  bool get isOpen => _isOpen.value;
-
-  ValueListenable<bool> get openStateListenable => _isOpen;
-
-  void open() {
-    onBeforeOpen?.call();
-    _isOpen.value = true;
-    onOpened?.call();
-  }
-
-  void close() {
-    _isOpen.value = false;
-    onClosed?.call();
-  }
-
-  Widget widget(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _isOpen,
-      builder: (_, value, __) {
-        return ModalDismissContext(
-          onDismiss: close,
-          child: Stack(
-            children: [
-              AnimatedSwitcher(
-                duration: Phanimations.fastDuration,
-                child: value
-                    ? (isUnderlayTransparent
-                        ? const ModalUnderlay.transparent()
-                        : const ModalUnderlay())
-                    : null,
-              ),
-              AnimatedSwitcher(
-                transitionBuilder: transitionBuilder,
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeOutCubic,
-                duration: Phanimations.defaultDuration,
-                reverseDuration: Phanimations.fastDuration,
-                child: value ? builder() : null,
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }

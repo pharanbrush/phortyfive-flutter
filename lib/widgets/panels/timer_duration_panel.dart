@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/panels/modal_dismiss_context.dart';
+import 'package:pfs2/widgets/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:scoped_model/scoped_model.dart';
 

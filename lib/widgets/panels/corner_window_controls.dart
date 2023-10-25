@@ -5,6 +5,7 @@ import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_phviewer.dart';
+import 'package:pfs2/widgets/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 class CornerWindowControls extends StatelessWidget {
@@ -18,7 +19,7 @@ class CornerWindowControls extends StatelessWidget {
 
   final PfsWindowState windowState;
   final ImagePhviewer imagePhviewer;
-  final ModalMenu helpMenu, settingsMenu;
+  final ModalPanel helpMenu, settingsMenu;
 
   static const double controlsWidth = 130;
 
