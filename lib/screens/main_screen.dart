@@ -652,7 +652,7 @@ class ModalMenu {
     this.onOpened,
   });
 
-  final Widget Function(Widget, Animation<double>) transitionBuilder;
+  final AnimatedSwitcherTransitionBuilder transitionBuilder;
 
   final Widget Function() builder;
   final Function()? onBeforeOpen;
