@@ -58,6 +58,20 @@ class Phanimations {
     slideUpEffect,
   ];
 
+  static Widget bottomMenuTransition(
+      Widget child, Animation<double> animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.05),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
   static const double _imageSlideOriginX = 0.05;
   static const _imageSwapDuration = Duration(milliseconds: 300);
   static const _imageSwapCurve = Curves.easeOutQuint;
