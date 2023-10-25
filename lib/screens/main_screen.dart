@@ -42,14 +42,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final PfsWindowState windowState = PfsWindowState();
 
   late final ModalPanel filtersMenu = ModalPanel(
-    onBeforeOpen: () => _cancelAllMenus(except: filtersMenu),
+    onBeforeOpen: () => _closeAllPanels(except: filtersMenu),
     isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalPanel helpMenu = ModalPanel(
-    onBeforeOpen: () => _cancelAllMenus(except: helpMenu),
+    onBeforeOpen: () => _closeAllPanels(except: helpMenu),
     builder: () {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   late final ModalPanel settingsMenu = ModalPanel(
-    onBeforeOpen: () => _cancelAllMenus(except: settingsMenu),
+    onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
     builder: () {
       return SettingsPanel(
         windowState: windowState,
@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   late final ModalPanel timerDurationMenu = ModalPanel(
-    onBeforeOpen: () => _cancelAllMenus(except: timerDurationMenu),
+    onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
     onOpened: () {
       timerDurationEditor.setActive(timerDurationMenu.isOpen,
           widget.model.timerModel.currentDurationSeconds);
@@ -87,11 +87,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   );
 
   late final ModalPanel aboutMenu = ModalPanel(
-    onBeforeOpen: () => _cancelAllMenus(except: aboutMenu),
+    onBeforeOpen: () => _closeAllPanels(except: aboutMenu),
     builder: () => const AboutSheet(),
   );
 
-  late final modalMenus = [
+  late final modalPanels = [
     filtersMenu,
     helpMenu,
     settingsMenu,
@@ -167,9 +167,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             },
           ),
           _fileDropZone,
-          helpMenu.widget(),
-          settingsMenu.widget(),
-          aboutMenu.widget(),
+          ...modalPanelWidgets,
         ],
       );
 
@@ -218,17 +216,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          timerDurationMenu.widget(),
-          helpMenu.widget(),
-          filtersMenu.widget(),
-          settingsMenu.widget(),
-          aboutMenu.widget(),
           _dockingControls(),
+          ...modalPanelWidgets,
         ],
       ),
     );
 
     return appWindowContent;
+  }
+
+  Iterable<Widget> get modalPanelWidgets sync* {
+    for (var panel in modalPanels) {
+      yield panel.widget();
+    }
   }
 
   void _loadSettings() async {
@@ -259,7 +259,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _tryReturnHome() {
-    _cancelAllMenus();
+    _closeAllPanels();
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
@@ -343,15 +343,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _cancelAllMenus({ModalPanel? except}) {
+  void _closeAllPanels({ModalPanel? except}) {
     void tryDismiss(ModalPanel toDismiss) {
       if (except != null || toDismiss != except) {
         toDismiss.close();
       }
     }
 
-    for (final menu in modalMenus) {
-      tryDismiss(menu);
+    for (final panel in modalPanels) {
+      tryDismiss(panel);
     }
   }
 
