@@ -132,8 +132,8 @@ class PfsAppModel extends Model {
     _setStateFilePickerOpen(false);
 
     if (files.isEmpty) return;
-    
-    final pathList = files.map((file) => file.path).toList();// = result.paths;
+
+    final pathList = files.map((file) => file.path).toList();
     loadImages(pathList);
   }
 
@@ -145,7 +145,7 @@ class PfsAppModel extends Model {
     _setStateFilePickerOpen(false);
 
     if (folder == null || folder.isEmpty) return;
-    
+
     loadFolder(folder);
   }
 
