@@ -303,7 +303,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleOnImageChange() {
-    setState(() => imagePhviewer.resetZoomLevel());
+    setState(() => imagePhviewer.resetTransform());
   }
 
   void _handleStateChange() {
@@ -483,7 +483,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             visible: !imagePhviewer.isZoomLevelDefault,
             child: IconButton(
               tooltip: 'Reset zoom',
-              onPressed: () => imagePhviewer.resetZoomLevel(),
+              onPressed: () => imagePhviewer.resetTransform(),
               icon: const Icon(Icons.youtube_searched_for),
             ),
           );
@@ -610,15 +610,34 @@ class PhgestureControls extends StatelessWidget {
       }
 
       Widget middleButton() {
+        Widget playPauseButton() {
+          return OverlayButton(
+            onPressed: () => model.tryTogglePlayPauseTimer(),
+            child: playPauseIcon,
+          );
+        }
+
+        Widget panner() {
+          return GestureDetector(
+            onPanUpdate: (details) {
+              final delta = details.delta;
+              imagePhviewer.panImage(delta);
+            },
+            child: const Text(''),
+          );
+        }
+
         return ZoomOnScrollListener(
           imagePhviewer: imagePhviewer,
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
-            resetZoomLevelHandler: () => imagePhviewer.resetZoomLevel(),
+            resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
             clipboardCopyHandler: clipboardCopyHandler,
-            child: OverlayButton(
-              onPressed: () => model.tryTogglePlayPauseTimer(),
-              child: playPauseIcon,
+            child: ValueListenableBuilder(
+              valueListenable: imagePhviewer.zoomLevelListenable,
+              builder: (_, __, ___) {
+                return imagePhviewer.isZoomedIn ? panner() : playPauseButton();
+              },
             ),
           ),
         );

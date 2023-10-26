@@ -29,15 +29,20 @@ class ImagePhviewer {
     4.0
   ];
   static const _defaultZoomLevel = 3;
+
   final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
   double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
   int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
   bool get isZoomLevelDefault =>
       (zoomLevelListenable.value == _defaultZoomLevel);
+  bool get isZoomedIn => currentZoomScale > 1;
 
   bool get isUsingGrayscale => usingGrayscaleListenable.value;
   set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
   final usingGrayscaleListenable = ValueNotifier<bool>(false);
+
+  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
+  Offset get panOffset => offsetListenable.value;
 
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
@@ -60,8 +65,21 @@ class ImagePhviewer {
     return currentActiveFiltersCount;
   }
 
-  void resetZoomLevel() {
+  void panImage(Offset delta) {
+    offsetListenable.value = offsetListenable.value + delta;
+  }
+
+  void _resetZoomLevel() {
     zoomLevelListenable.value = _defaultZoomLevel;
+  }
+
+  void resetOffset() {
+    offsetListenable.value = Offset.zero;
+  }
+
+  void resetTransform() {
+    _resetZoomLevel();
+    resetOffset();
   }
 
   void resetAllFilters() {
@@ -80,6 +98,7 @@ class ImagePhviewer {
   Widget widget(ValueListenable<bool> isBottomBarMinimized) {
     return ImageDisplay(
       isBottomBarMinimized: isBottomBarMinimized,
+      offsetListenable: offsetListenable,
       blurLevelListenable: blurLevelListenable,
       usingGrayscaleListenable: usingGrayscaleListenable,
       zoomLevelListenable: zoomLevelListenable,
@@ -234,9 +253,11 @@ class ImageDisplay extends StatelessWidget {
     required this.usingGrayscaleListenable,
     required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
+    required this.offsetListenable,
   });
 
   final ValueListenable<bool> isBottomBarMinimized;
+  final ValueListenable<Offset> offsetListenable;
   final ValueNotifier<int> zoomLevelListenable;
   final ValueNotifier<double> blurLevelListenable;
   final ValueNotifier<bool> usingGrayscaleListenable;
@@ -284,13 +305,21 @@ class ImageDisplay extends StatelessWidget {
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
               child: ValueListenableBuilder(
-                valueListenable: zoomLevelListenable,
-                builder: (_, __, ___) {
-                  return AnimatedScale(
-                    duration: Phanimations.zoomTransitionDuration,
-                    curve: Phanimations.zoomTransitionCurve,
-                    scale: getCurrentZoomScale(),
-                    child: imageWidget,
+                valueListenable: offsetListenable,
+                builder: (_, offset, ___) {
+                  return Transform.translate(
+                    offset: offset,
+                    child: ValueListenableBuilder(
+                      valueListenable: zoomLevelListenable,
+                      builder: (_, __, ___) {
+                        return AnimatedScale(
+                          duration: Phanimations.zoomTransitionDuration,
+                          curve: Phanimations.zoomTransitionCurve,
+                          scale: getCurrentZoomScale(),
+                          child: imageWidget,
+                        );
+                      },
+                    ),
                   );
                 },
               ),
