@@ -199,7 +199,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone,
-          _gestureControls(),
+          PhgestureControls(
+            playPauseIconProgress: _playPauseIconStateAnimator,
+            imagePhviewer: imagePhviewer,
+            revealInExplorerHandler: revealCurrentImageInExplorer,
+            clipboardCopyHandler: _clipboardCopyHandler,
+          ),
           const CountdownSheet(),
           CornerWindowControls(
             windowState: windowState,
@@ -401,77 +406,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     ImagePhviewer.revealInExplorer(widget.model.getCurrentImageData());
   }
 
-  Widget _gestureControls() {
-    AnimatedIcon playPauseIcon = AnimatedIcon(
-      icon: AnimatedIcons.play_pause,
-      size: 80,
-      progress: _playPauseIconStateAnimator,
-    );
-
-    return PfsAppModel.scope((_, __, model) {
-      Widget zoomOnScrollListener({Widget? child}) {
-        return ScrollListener(
-          onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
-          onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
-          child: child,
-        );
-      }
-
-      Widget nextPreviousGestureButton(
-          {required double width,
-          required Function()? onPressed,
-          required Widget child}) {
-        return SizedBox(
-          width: 100,
-          child: Phbuttons.nextPreviousOnScrollListener(
-            model: model,
-            child: OverlayButton(
-              onPressed: onPressed,
-              child: child,
-            ),
-          ),
-        );
-      }
-
-      return Positioned.fill(
-        top: Phbuttons.windowTitleBarHeight + 50,
-        bottom: 80,
-        left: 10,
-        right: 10,
-        child: Opacity(
-          opacity: 0.4,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              nextPreviousGestureButton(
-                  width: 100,
-                  onPressed: () => model.previousImageNewTimer(),
-                  child: PfsTheme.beforeGestureIcon),
-              Expanded(
-                  flex: 4,
-                  child: zoomOnScrollListener(
-                    child: ImageRightClick(
-                      revealInExplorerHandler: revealCurrentImageInExplorer,
-                      resetZoomLevelHandler: () =>
-                          imagePhviewer.resetZoomLevel(),
-                      clipboardCopyHandler: _clipboardCopyHandler,
-                      child: OverlayButton(
-                        onPressed: () => model.tryTogglePlayPauseTimer(),
-                        child: playPauseIcon,
-                      ),
-                    ),
-                  )),
-              nextPreviousGestureButton(
-                  width: 140,
-                  onPressed: () => model.nextImageNewTimer(),
-                  child: PfsTheme.nextGestureIcon),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
   void _clipboardCopyHandler({newClipboardText, toastMessage}) =>
       _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 
@@ -633,6 +567,112 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     if (!windowState.isSoundsEnabled.value) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
+  }
+}
+
+class PhgestureControls extends StatelessWidget {
+  const PhgestureControls({
+    super.key,
+    required this.playPauseIconProgress,
+    required this.imagePhviewer,
+    required this.revealInExplorerHandler,
+    required this.clipboardCopyHandler,
+  });
+
+  final Animation<double> playPauseIconProgress;
+  final ImagePhviewer imagePhviewer;
+  final VoidCallback revealInExplorerHandler;
+  final ClipboardCopyHandler clipboardCopyHandler;
+
+  @override
+  Widget build(BuildContext context) {
+    AnimatedIcon playPauseIcon = AnimatedIcon(
+      icon: AnimatedIcons.play_pause,
+      size: 80,
+      progress: playPauseIconProgress,
+    );
+
+    return PfsAppModel.scope((_, __, model) {
+      Widget nextPreviousGestureButton(
+          {required double width,
+          required Function()? onPressed,
+          required Widget child}) {
+        return SizedBox(
+          width: 100,
+          child: Phbuttons.nextPreviousOnScrollListener(
+            model: model,
+            child: OverlayButton(
+              onPressed: onPressed,
+              child: child,
+            ),
+          ),
+        );
+      }
+
+      Widget middleButton() {
+        return ZoomOnScrollListener(
+          imagePhviewer: imagePhviewer,
+          child: ImageRightClick(
+            revealInExplorerHandler: revealInExplorerHandler,
+            resetZoomLevelHandler: () => imagePhviewer.resetZoomLevel(),
+            clipboardCopyHandler: clipboardCopyHandler,
+            child: OverlayButton(
+              onPressed: () => model.tryTogglePlayPauseTimer(),
+              child: playPauseIcon,
+            ),
+          ),
+        );
+      }
+
+      return Positioned.fill(
+        top: Phbuttons.windowTitleBarHeight + 50,
+        bottom: 80,
+        left: 10,
+        right: 10,
+        child: Opacity(
+          opacity: 0.4,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              nextPreviousGestureButton(
+                width: 100,
+                onPressed: () => model.previousImageNewTimer(),
+                child: PfsTheme.beforeGestureIcon,
+              ),
+              Expanded(
+                flex: 4,
+                child: middleButton(),
+              ),
+              nextPreviousGestureButton(
+                width: 140,
+                onPressed: () => model.nextImageNewTimer(),
+                child: PfsTheme.nextGestureIcon,
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class ZoomOnScrollListener extends StatelessWidget {
+  const ZoomOnScrollListener({
+    super.key,
+    required this.child,
+    required this.imagePhviewer,
+  });
+
+  final Widget child;
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollListener(
+      onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
+      onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
+      child: child,
+    );
   }
 }
 
