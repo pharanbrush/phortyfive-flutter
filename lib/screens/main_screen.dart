@@ -617,16 +617,6 @@ class PhgestureControls extends StatelessWidget {
           );
         }
 
-        Widget panner() {
-          return GestureDetector(
-            onPanUpdate: (details) {
-              final delta = details.delta;
-              imagePhviewer.panImage(delta);
-            },
-            child: const Text(''),
-          );
-        }
-
         return ZoomOnScrollListener(
           imagePhviewer: imagePhviewer,
           child: ImageRightClick(
@@ -636,7 +626,10 @@ class PhgestureControls extends StatelessWidget {
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
-                return imagePhviewer.isZoomedIn ? panner() : playPauseButton();
+                return PanListener(
+                  imagePhviewer: imagePhviewer,
+                  child: playPauseButton(),
+                );
               },
             ),
           ),
@@ -672,6 +665,29 @@ class PhgestureControls extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class PanListener extends StatelessWidget {
+  const PanListener({
+    super.key,
+    required this.imagePhviewer,
+    required this.child,
+  });
+
+  final ImagePhviewer imagePhviewer;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanUpdate: (details) {
+        if (!imagePhviewer.isZoomedIn) return;
+
+        imagePhviewer.panImage(details.delta);
+      },
+      child: child,
+    );
   }
 }
 

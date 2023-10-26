@@ -30,6 +30,8 @@ class ImagePhviewer {
   ];
   static const _defaultZoomLevel = 3;
 
+  static final imageWidgetKey = GlobalKey();
+
   final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
   double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
   int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
@@ -63,10 +65,6 @@ class ImagePhviewer {
     if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
-  }
-
-  void panImage(Offset delta) {
-    offsetListenable.value = offsetListenable.value + delta;
   }
 
   void _resetZoomLevel() {
@@ -108,8 +106,50 @@ class ImagePhviewer {
   }
 
   void incrementZoomLevel(int increment) {
-    final newZoomLevel = zoomLevelListenable.value + increment;
-    zoomLevelListenable.value = newZoomLevel.clamp(0, _zoomScales.length - 1);
+    final previousZoomLevel = zoomLevelListenable.value;
+    final newZoomLevel =
+        (previousZoomLevel + increment).clamp(0, _zoomScales.length - 1);
+
+    if (newZoomLevel != previousZoomLevel) {
+      final newZoomScale = _zoomScales[newZoomLevel];
+      final previousZoomScale = _zoomScales[previousZoomLevel];
+      _scalePanOffset(previousZoomScale, newZoomScale);
+    }
+
+    if (newZoomLevel <= _defaultZoomLevel) {
+      resetOffset();
+    } else if (increment < 1) {
+      offsetListenable.value *= 0.75;
+    }
+
+    zoomLevelListenable.value = newZoomLevel;
+  }
+
+  void _scalePanOffset(double previousZoomScale, double newZoomScale) {
+    final scaleDifference = newZoomScale / previousZoomScale;
+    var newOffsetValue = offsetListenable.value * scaleDifference;
+    _setPanOffsetClamped(newOffsetValue);
+  }
+
+  void _setPanOffsetClamped(Offset newOffset) {
+    Offset clampPanOffset(Offset offset) {
+      final imageSize = imageWidgetKey.currentContext?.size ?? Size.zero;
+      final scaledSize = imageSize * currentZoomScale;
+
+      final xMax = scaledSize.width * 0.5;
+      final yMax = scaledSize.height * 0.5;
+      var dx = clampDouble(offset.dx, -xMax, xMax);
+      var dy = clampDouble(offset.dy, -yMax, yMax);
+
+      return Offset(dx, dy);
+    }
+
+    offsetListenable.value = clampPanOffset(newOffset);
+  }
+
+  void panImage(Offset delta) {
+    var newOffsetValue = offsetListenable.value + delta;
+    _setPanOffsetClamped(newOffsetValue);
   }
 
   static void revealInExplorer(FileData fileData) async {
@@ -277,6 +317,7 @@ class ImageDisplay extends StatelessWidget {
       final imageWidget = Image.file(
         gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
+        key: ImagePhviewer.imageWidgetKey,
         imageFile,
       );
 
@@ -304,24 +345,19 @@ class ImageDisplay extends StatelessWidget {
                 ? Phanimations.imageNext
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
-              child: ValueListenableBuilder(
-                valueListenable: offsetListenable,
-                builder: (_, offset, ___) {
-                  return Transform.translate(
-                    offset: offset,
-                    child: ValueListenableBuilder(
-                      valueListenable: zoomLevelListenable,
-                      builder: (_, __, ___) {
-                        return AnimatedScale(
-                          duration: Phanimations.zoomTransitionDuration,
-                          curve: Phanimations.zoomTransitionCurve,
-                          scale: getCurrentZoomScale(),
-                          child: imageWidget,
-                        );
-                      },
-                    ),
-                  );
-                },
+              child: ListeningAnimatedTranslate(
+                offsetListenable: offsetListenable,
+                child: ValueListenableBuilder(
+                  valueListenable: zoomLevelListenable,
+                  builder: (_, __, ___) {
+                    return AnimatedScale(
+                      duration: Phanimations.zoomTransitionDuration,
+                      curve: Phanimations.zoomTransitionCurve,
+                      scale: getCurrentZoomScale(),
+                      child: imageWidget,
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -394,4 +430,60 @@ class ImageDisplay extends StatelessWidget {
     ]),
     child: SizedBox.expand(),
   );
+}
+
+class ListeningAnimatedTranslate extends StatelessWidget {
+  const ListeningAnimatedTranslate({
+    super.key,
+    required this.offsetListenable,
+    required this.child,
+  });
+
+  final ValueListenable<Offset> offsetListenable;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: offsetListenable,
+      builder: (_, offset, __) {
+        return AnimatedTranslate(
+          curve: Phanimations.zoomTransitionCurve,
+          duration: Phanimations.zoomTransitionDuration,
+          offset: offset,
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+class AnimatedTranslate extends StatelessWidget {
+  const AnimatedTranslate({
+    super.key,
+    required this.child,
+    required this.offset,
+    this.duration = const Duration(milliseconds: 150),
+    this.curve = Curves.easeOutQuint,
+  });
+
+  final Widget child;
+  final Offset offset;
+  final Duration duration;
+  final Curve curve;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<Offset>(
+      duration: duration,
+      curve: curve,
+      tween: Tween<Offset>(begin: Offset.zero, end: offset),
+      builder: (_, animatedOffsetValue, __) {
+        return Transform.translate(
+          offset: animatedOffsetValue,
+          child: child,
+        );
+      },
+    );
+  }
 }
