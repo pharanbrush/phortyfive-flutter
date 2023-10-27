@@ -14,6 +14,9 @@ class Phshortcuts {
   static const previous4 = SingleActivator(LogicalKeyboardKey.period);
   static const next4 = SingleActivator(LogicalKeyboardKey.comma);
 
+  static const previous5 = SingleActivator(LogicalKeyboardKey.navigatePrevious);
+  static const next5 = SingleActivator(LogicalKeyboardKey.navigateNext);
+
   static const playPause = SingleActivator(LogicalKeyboardKey.keyP);
   static const restartTimer = SingleActivator(LogicalKeyboardKey.keyR);
   static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
@@ -48,6 +51,8 @@ class Phshortcuts {
     Phshortcuts.next3: NextImageIntent(),
     Phshortcuts.previous4: PreviousImageIntent(),
     Phshortcuts.next4: NextImageIntent(),
+    Phshortcuts.previous5: PreviousImageIntent(),
+    Phshortcuts.next5: NextImageIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
     Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
     Phshortcuts.restartTimer: RestartTimerIntent(),
