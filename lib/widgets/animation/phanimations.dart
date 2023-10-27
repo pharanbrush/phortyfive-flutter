@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class Phanimations {
-  static const zoomTransitionDuration = Duration(milliseconds: 300);
+  static const zoomTransitionDuration = Duration(milliseconds: 200);
   static const zoomTransitionCurve = Curves.easeOutQuint;
 
   static const toastCurve = Curves.easeOutExpo;
