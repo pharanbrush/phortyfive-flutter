@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/ui/phanimations.dart';
 
 class Phtoasts {
   static const double iconSize = 16;

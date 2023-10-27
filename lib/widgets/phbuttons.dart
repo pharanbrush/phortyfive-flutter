@@ -6,8 +6,8 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
+import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/widgets/scroll_listener.dart';
 
 class Phbuttons {
   static const double windowTitleBarHeight = 32;

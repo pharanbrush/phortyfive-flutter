@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/image_phviewer.dart';
+import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
+import 'package:pfs2/widgets/scroll_listener.dart';
 
 class FilterPanel extends StatelessWidget {
   const FilterPanel({

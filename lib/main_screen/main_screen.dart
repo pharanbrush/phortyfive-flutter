@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/main_screen/about_sheet.dart';
+import 'package:pfs2/main_screen/countdown_sheet.dart';
+import 'package:pfs2/main_screen/filter_panel.dart';
+import 'package:pfs2/main_screen/first_action_sheet.dart';
+import 'package:pfs2/main_screen/settings_panel.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
-import 'package:pfs2/widgets/panels/modal_panel.dart';
-import 'package:pfs2/widgets/panels/about_sheet.dart';
-import 'package:pfs2/widgets/panels/countdown_sheet.dart';
-import 'package:pfs2/widgets/panels/filter_panel.dart';
-import 'package:pfs2/widgets/panels/first_action_sheet.dart';
-import 'package:pfs2/widgets/panels/help_sheet.dart';
-import 'package:pfs2/widgets/panels/image_drop_target.dart';
-import 'package:pfs2/widgets/image_phviewer.dart';
+import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/widgets/modal_panel.dart';
+import 'package:pfs2/main_screen/help_sheet.dart';
+import 'package:pfs2/widgets/image_drop_target.dart';
+import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
-import 'package:pfs2/widgets/panels/corner_window_controls.dart';
-import 'package:pfs2/widgets/panels/settings_panel.dart';
+import 'package:pfs2/main_screen/corner_window_controls.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
-import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
+import 'package:pfs2/main_screen/timer_duration_panel.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
@@ -165,7 +166,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               return _bottomBar(context);
             },
           ),
-          _fileDropZone,
+          _fileDropZone(widget.model),
           ...modalPanelWidgets,
         ],
       );
@@ -197,7 +198,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       Stack(
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
-          _fileDropZone,
+          _fileDropZone(widget.model),
           PhgestureControls(
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
@@ -429,13 +430,33 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
-  late final Widget _fileDropZone = Positioned.fill(
-    left: 20,
-    right: 20,
-    bottom: 40,
-    top: 30,
-    child: ImageDropTarget(onDragSuccess: _handleFileDropped),
-  );
+  Widget _fileDropZone(PfsAppModel model) {
+    return Positioned.fill(
+      left: 20,
+      right: 20,
+      bottom: 40,
+      top: 30,
+      child: ImageDropTarget(
+        dragImagesHandler: (details) {
+          if (details.files.isEmpty) return;
+          List<String> filePaths = [];
+          for (var file in details.files) {
+            var filePath = file.path;
+            if (FileList.fileIsImage(filePath)) {
+              filePaths.add(filePath);
+            }
+          }
+          if (filePaths.isEmpty) return;
+
+          model.loadImages(filePaths);
+
+          if (model.hasFilesLoaded) {
+            _handleFileDropped();
+          }
+        },
+      ),
+    );
+  }
 
   void _handleFileDropped() {
     windowManager.focus();

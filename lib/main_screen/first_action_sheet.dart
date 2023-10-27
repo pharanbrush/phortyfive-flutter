@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/ui/phanimations.dart';
 
 class FirstActionSheet extends StatelessWidget {
   const FirstActionSheet({super.key});

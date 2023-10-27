@@ -1,15 +1,15 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/core/file_list.dart';
-import 'package:pfs2/models/pfs_model.dart';
 
 class ImageDropTarget extends StatefulWidget {
   const ImageDropTarget({
     super.key,
-    this.onDragSuccess,
+    //this.onDragSuccess,
+    this.dragImagesHandler,
   });
 
-  final Function()? onDragSuccess;
+  //final Function()? onDragSuccess;
+  final OnDragDoneCallback? dragImagesHandler;
 
   @override
   State<ImageDropTarget> createState() => _ImageDropTargetState();
@@ -75,39 +75,22 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       ),
     );
 
-    return PfsAppModel.scope((_, __, model) {
-      return DropTarget(
-        onDragDone: (details) {
-          _setDraggingActive(false);
-
-          if (details.files.isEmpty) return;
-          List<String> filePaths = [];
-          for (var file in details.files) {
-            var filePath = file.path;
-            if (FileList.fileIsImage(filePath)) {
-              filePaths.add(filePath);
-            }
-          }
-          if (filePaths.isEmpty) return;
-
-          model.loadImages(filePaths);
-
-          if (model.hasFilesLoaded) {
-            widget.onDragSuccess!();
-          }
-        },
-        onDragEntered: (details) => _setDraggingActive(true),
-        onDragExited: (details) => _setDraggingActive(false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutQuart,
-          key: const Key('dropContainer'),
-          margin:
-              _isDragging ? const EdgeInsets.all(30) : const EdgeInsets.all(50),
-          decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
-          child: _isDragging ? visibleDropWidget : hiddenDropWidget,
-        ),
-      );
-    });
+    return DropTarget(
+      onDragDone: (details) {
+        _setDraggingActive(false);
+        widget.dragImagesHandler?.call(details);
+      },
+      onDragEntered: (details) => _setDraggingActive(true),
+      onDragExited: (details) => _setDraggingActive(false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutQuart,
+        key: const Key('dropContainer'),
+        margin:
+            _isDragging ? const EdgeInsets.all(30) : const EdgeInsets.all(50),
+        decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
+        child: _isDragging ? visibleDropWidget : hiddenDropWidget,
+      ),
+    );
   }
 }

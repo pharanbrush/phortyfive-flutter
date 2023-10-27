@@ -107,13 +107,14 @@ class Phanimations {
 }
 
 class AnimatedSizedBoxWidth extends StatelessWidget {
-  const AnimatedSizedBoxWidth(
-      {super.key,
-      required this.child,
-      required this.width,
-      this.height,
-      required this.duration,
-      required this.defaultWidth});
+  const AnimatedSizedBoxWidth({
+    super.key,
+    required this.child,
+    required this.width,
+    this.height,
+    required this.duration,
+    required this.defaultWidth,
+  });
 
   final Widget child;
   final double width;

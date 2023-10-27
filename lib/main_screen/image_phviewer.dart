@@ -11,9 +11,9 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
+import 'package:pfs2/widgets/scroll_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {

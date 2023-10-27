@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/ui/phanimations.dart';
 
 class HelpSheet extends StatelessWidget {
   const HelpSheet({

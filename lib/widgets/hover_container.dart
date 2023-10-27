@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/widgets/animation/phanimations.dart';
+import 'package:pfs2/ui/phanimations.dart';
 
 class HoverContainer extends StatefulWidget {
   const HoverContainer({
