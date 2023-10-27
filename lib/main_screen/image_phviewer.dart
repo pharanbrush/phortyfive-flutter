@@ -554,3 +554,29 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
     );
   }
 }
+
+class ResetZoomButton extends StatelessWidget {
+  const ResetZoomButton({
+    super.key,
+    required this.imagePhviewer,
+  });
+
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.zoomLevelListenable,
+      builder: (_, __, ___) {
+        return Visibility(
+          visible: !imagePhviewer.isZoomLevelDefault,
+          child: IconButton(
+            tooltip: 'Reset zoom',
+            onPressed: () => imagePhviewer.resetTransform(),
+            icon: const Icon(Icons.youtube_searched_for),
+          ),
+        );
+      },
+    );
+  }
+}
