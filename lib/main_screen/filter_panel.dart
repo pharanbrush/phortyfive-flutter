@@ -16,38 +16,19 @@ class FilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headerRow = Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: SizedBox(
-        width: 250,
-        child: Row(
-          children: [
-            const FilterPanelHeading(),
-            const Spacer(),
-            ResetAllFiltersButton(imagePhviewer: imagePhviewer),
-          ],
-        ),
-      ),
-    );
-
-    // HANDLERS
-    void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
-      final isSelectionGrayscale =
-          newSelection.contains(ImageColorMode.grayscale);
-      imagePhviewer.isUsingGrayscale = isSelectionGrayscale;
-    }
-
-    void handleBlurSliderChanged(value) {
-      imagePhviewer.blurLevel = value;
-    }
-
     return _container(
       context,
       content: Wrap(
         direction: Axis.vertical,
         spacing: 5,
         children: [
-          headerRow,
+          _headerRow(
+            children: [
+              const FilterPanelHeading(),
+              const Spacer(),
+              ResetAllFiltersButton(imagePhviewer: imagePhviewer),
+            ],
+          ),
           ColorModeButtons(
             imagePhviewer: imagePhviewer,
             onSelectionChanged: handleImageModeSelectionChanged,
@@ -57,6 +38,28 @@ class FilterPanel extends StatelessWidget {
             onChanged: handleBlurSliderChanged,
           ),
         ],
+      ),
+    );
+  }
+
+  void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
+    final isSelectionGrayscale =
+        newSelection.contains(ImageColorMode.grayscale);
+    imagePhviewer.isUsingGrayscale = isSelectionGrayscale;
+  }
+
+  void handleBlurSliderChanged(value) {
+    imagePhviewer.blurLevel = value;
+  }
+
+  Widget _headerRow({required List<Widget> children}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SizedBox(
+        width: 250,
+        child: Row(
+          children: children,
+        ),
       ),
     );
   }
@@ -144,8 +147,8 @@ class ColorModeButtons extends StatelessWidget {
               icon: Icon(Icons.invert_colors)),
         ],
         selected: imagePhviewer.isUsingGrayscale
-            ? {ImageColorMode.grayscale}
-            : {ImageColorMode.color},
+            ? const {ImageColorMode.grayscale}
+            : const {ImageColorMode.color},
         onSelectionChanged: (Set<ImageColorMode> newSelection) {
           onSelectionChanged(newSelection);
         },
@@ -176,7 +179,7 @@ class BlurSlider extends StatelessWidget {
 
     return ValueListenableBuilder(
       valueListenable: imagePhviewer.blurLevelListenable,
-      builder: (context, value, child) {
+      builder: (_, __, ___) {
         return ScrollListener(
           onScrollUp: () => imagePhviewer.incrementBlurLevel(1),
           onScrollDown: () => imagePhviewer.incrementBlurLevel(-1),
