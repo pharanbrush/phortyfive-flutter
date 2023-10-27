@@ -48,23 +48,13 @@ class FilterPanel extends StatelessWidget {
         spacing: 5,
         children: [
           headerRow,
-          ValueListenableBuilder(
-            valueListenable: imagePhviewer.usingGrayscaleListenable,
-            builder: (_, __, ___) {
-              return ColorModeButtons(
-                imagePhviewer: imagePhviewer,
-                onSelectionChanged: handleImageModeSelectionChanged,
-              );
-            },
+          ColorModeButtons(
+            imagePhviewer: imagePhviewer,
+            onSelectionChanged: handleImageModeSelectionChanged,
           ),
-          ValueListenableBuilder(
-            valueListenable: imagePhviewer.blurLevelListenable,
-            builder: (_, __, ___) {
-              return BlurSlider(
-                imagePhviewer: imagePhviewer,
-                onChanged: handleBlurSliderChanged,
-              );
-            },
+          BlurSlider(
+            imagePhviewer: imagePhviewer,
+            onChanged: handleBlurSliderChanged,
           ),
         ],
       ),
@@ -117,16 +107,26 @@ class FilterPanel extends StatelessWidget {
 }
 
 class ColorModeButtons extends StatelessWidget {
-  const ColorModeButtons(
-      {super.key,
-      required this.imagePhviewer,
-      required this.onSelectionChanged});
+  const ColorModeButtons({
+    super.key,
+    required this.imagePhviewer,
+    required this.onSelectionChanged,
+  });
 
   final ImagePhviewer imagePhviewer;
   final Function(Set<ImageColorMode> newSelection) onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.filtersChangeListenable,
+      builder: (_, __, ___) {
+        return buttons(context, imagePhviewer);
+      },
+    );
+  }
+
+  Widget buttons(BuildContext context, ImagePhviewer imagePhviewer) {
     return SizedBox(
       width: 250,
       child: SegmentedButton<ImageColorMode>(
@@ -174,25 +174,30 @@ class BlurSlider extends StatelessWidget {
       ),
     );
 
-    return ScrollListener(
-      onScrollUp: () => imagePhviewer.incrementBlurLevel(1),
-      onScrollDown: () => imagePhviewer.incrementBlurLevel(-1),
-      child: Row(
-        children: [
-          label,
-          SizedBox(
-            width: 220,
-            child: Slider.adaptive(
-              min: 0,
-              max: 12,
-              divisions: 12,
-              label: imagePhviewer.blurLevel.toInt().toString(),
-              onChanged: onChanged,
-              value: imagePhviewer.blurLevel,
-            ),
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.blurLevelListenable,
+      builder: (context, value, child) {
+        return ScrollListener(
+          onScrollUp: () => imagePhviewer.incrementBlurLevel(1),
+          onScrollDown: () => imagePhviewer.incrementBlurLevel(-1),
+          child: Row(
+            children: [
+              label,
+              SizedBox(
+                width: 220,
+                child: Slider.adaptive(
+                  min: 0,
+                  max: 12,
+                  divisions: 12,
+                  label: imagePhviewer.blurLevel.toInt().toString(),
+                  onChanged: onChanged,
+                  value: imagePhviewer.blurLevel,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
