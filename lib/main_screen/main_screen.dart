@@ -479,60 +479,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
-      final filtersButton = ValueListenableBuilder(
-        valueListenable: imagePhviewer.filtersChangeListenable,
-        builder: (_, __, ___) {
-          const double filterIconSize = 20;
-          const filterIconOff = Icon(
-            Icons.contrast,
-            size: filterIconSize,
-          );
-          const filterIconOn = Icon(
-            Icons.contrast,
-            size: filterIconSize,
-          );
-
-          String tooltip = imagePhviewer.isFilterActive
-              ? 'Filters (${imagePhviewer.activeFilterCount})'
-              : 'Filters';
-
-          return GestureDetector(
-            onTertiaryTapDown: (details) {
-              if (imagePhviewer.isFilterActive) {
-                imagePhviewer.resetAllFilters();
-              }
-            },
-            child: IconButton(
-              onPressed: () => filtersMenu.open(),
-              isSelected: imagePhviewer.isFilterActive,
-              tooltip: tooltip,
-              icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
-            ),
-          );
-        },
-      );
-
-      final resetZoomButton = ValueListenableBuilder(
-        valueListenable: imagePhviewer.zoomLevelListenable,
-        builder: (_, __, ___) {
-          return Visibility(
-            visible: !imagePhviewer.isZoomLevelDefault,
-            child: IconButton(
-              tooltip: 'Reset zoom',
-              onPressed: () => imagePhviewer.resetTransform(),
-              icon: const Icon(Icons.youtube_searched_for),
-            ),
-          );
-        },
-      );
-
       final SizedBox spacingBox = SizedBox(width: spacing);
 
       if (model.hasFilesLoaded) {
         return [
-          resetZoomButton,
-          filtersButton,
-          //_bottomButton(() => null, Icons.swap_horiz, 'Flip controls'), // Do this in the settings menu
+          ResetZoomButton(imagePhviewer: imagePhviewer),
+          FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
           Phbuttons.timerSettingsButton(
               onPressed: () => timerDurationMenu.open()),
@@ -587,6 +539,79 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     if (!windowState.isSoundsEnabled.value) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
+  }
+}
+
+class ResetZoomButton extends StatelessWidget {
+  const ResetZoomButton({
+    super.key,
+    required this.imagePhviewer,
+  });
+
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.zoomLevelListenable,
+      builder: (_, __, ___) {
+        return Visibility(
+          visible: !imagePhviewer.isZoomLevelDefault,
+          child: IconButton(
+            tooltip: 'Reset zoom',
+            onPressed: () => imagePhviewer.resetTransform(),
+            icon: const Icon(Icons.youtube_searched_for),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class FiltersButton extends StatelessWidget {
+  const FiltersButton({
+    super.key,
+    required this.imagePhviewer,
+    required this.filtersMenu,
+  });
+
+  final ImagePhviewer imagePhviewer;
+  final ModalPanel filtersMenu;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.filtersChangeListenable,
+      builder: (_, __, ___) {
+        const double filterIconSize = 20;
+        const filterIconOff = Icon(
+          Icons.contrast,
+          size: filterIconSize,
+        );
+        const filterIconOn = Icon(
+          Icons.contrast,
+          size: filterIconSize,
+        );
+
+        String tooltip = imagePhviewer.isFilterActive
+            ? 'Filters (${imagePhviewer.activeFilterCount})'
+            : 'Filters';
+
+        return GestureDetector(
+          onTertiaryTapDown: (details) {
+            if (imagePhviewer.isFilterActive) {
+              imagePhviewer.resetAllFilters();
+            }
+          },
+          child: IconButton(
+            onPressed: () => filtersMenu.open(),
+            isSelected: imagePhviewer.isFilterActive,
+            tooltip: tooltip,
+            icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+          ),
+        );
+      },
+    );
   }
 }
 
