@@ -13,6 +13,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/widgets/animation/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -484,6 +485,49 @@ class AnimatedTranslate extends StatelessWidget {
           child: child,
         );
       },
+    );
+  }
+}
+
+class ImagePhviewerPanListener extends StatelessWidget {
+  const ImagePhviewerPanListener({
+    super.key,
+    required this.imagePhviewer,
+    required this.child,
+  });
+
+  final ImagePhviewer imagePhviewer;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanUpdate: (details) {
+        if (!imagePhviewer.isZoomedIn) return;
+
+        imagePhviewer.panImage(details.delta);
+      },
+      child: child,
+    );
+  }
+}
+
+class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
+  const ImagePhviewerZoomOnScrollListener({
+    super.key,
+    required this.child,
+    required this.imagePhviewer,
+  });
+
+  final Widget child;
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollListener(
+      onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
+      onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
+      child: child,
     );
   }
 }

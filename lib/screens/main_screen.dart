@@ -23,7 +23,6 @@ import 'package:pfs2/widgets/panels/settings_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:pfs2/widgets/panels/timer_duration_panel.dart';
-import 'package:pfs2/widgets/wrappers/scroll_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
@@ -221,7 +220,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          _dockingControls(),
+          WindowDockingControls(
+            isBottomBarMinimized: windowState.isBottomBarMinimized,
+          ),
           ...modalPanelWidgets,
         ],
       ),
@@ -323,10 +324,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void _handleTimerPlayPause() {
-    if (widget.model.timerModel.isRunning) {
-      _playPauseIconStateAnimator.forward();
-    } else {
-      _playPauseIconStateAnimator.reverse();
+    void updateTimerPlayPauseIcon() {
+      if (widget.model.timerModel.isRunning) {
+        _playPauseIconStateAnimator.forward();
+      } else {
+        _playPauseIconStateAnimator.reverse();
+      }
     }
 
     showTimerToast() {
@@ -344,6 +347,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
     }
 
+    updateTimerPlayPauseIcon();
     showTimerToast();
     _playClickSound(playWhilePaused: true);
   }
@@ -547,26 +551,36 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return normalBottomBar;
   }
 
-  Widget _dockingControls() {
-    return Positioned(
-      bottom: 3,
-      right: 3,
-      child: ValueListenableBuilder(
-        valueListenable: windowState.isBottomBarMinimized,
-        builder: (_, __, ___) {
-          return CollapseBottomBarButton(
-            isMinimized: windowState.isBottomBarMinimized.value,
-            onPressed: () => windowState.isBottomBarMinimized.toggle(),
-          );
-        },
-      ),
-    );
-  }
-
   void _playClickSound({bool playWhilePaused = false}) {
     if (!windowState.isSoundsEnabled.value) return;
     if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
     clicker.playSound();
+  }
+}
+
+class WindowDockingControls extends StatelessWidget {
+  const WindowDockingControls({
+    super.key,
+    required this.isBottomBarMinimized,
+  });
+
+  final ValueNotifier<bool> isBottomBarMinimized;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 3,
+      right: 3,
+      child: ValueListenableBuilder(
+        valueListenable: isBottomBarMinimized,
+        builder: (_, __, ___) {
+          return CollapseBottomBarButton(
+            isMinimized: isBottomBarMinimized.value,
+            onPressed: () => isBottomBarMinimized.toggle(),
+          );
+        },
+      ),
+    );
   }
 }
 
@@ -617,7 +631,7 @@ class PhgestureControls extends StatelessWidget {
           );
         }
 
-        return ZoomOnScrollListener(
+        return ImagePhviewerZoomOnScrollListener(
           imagePhviewer: imagePhviewer,
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
@@ -626,7 +640,7 @@ class PhgestureControls extends StatelessWidget {
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
-                return PanListener(
+                return ImagePhviewerPanListener(
                   imagePhviewer: imagePhviewer,
                   child: playPauseButton(),
                 );
@@ -665,49 +679,6 @@ class PhgestureControls extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-class PanListener extends StatelessWidget {
-  const PanListener({
-    super.key,
-    required this.imagePhviewer,
-    required this.child,
-  });
-
-  final ImagePhviewer imagePhviewer;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (details) {
-        if (!imagePhviewer.isZoomedIn) return;
-
-        imagePhviewer.panImage(details.delta);
-      },
-      child: child,
-    );
-  }
-}
-
-class ZoomOnScrollListener extends StatelessWidget {
-  const ZoomOnScrollListener({
-    super.key,
-    required this.child,
-    required this.imagePhviewer,
-  });
-
-  final Widget child;
-  final ImagePhviewer imagePhviewer;
-
-  @override
-  Widget build(BuildContext context) {
-    return ScrollListener(
-      onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
-      onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
-      child: child,
-    );
   }
 }
 
