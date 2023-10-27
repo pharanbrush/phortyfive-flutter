@@ -33,6 +33,9 @@ class ImagePhviewer {
 
   static final imageWidgetKey = GlobalKey();
 
+  final panDurationListenable =
+      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
+
   final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
   double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
   int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
@@ -77,6 +80,7 @@ class ImagePhviewer {
   }
 
   void resetTransform() {
+    panRelease();
     _resetZoomLevel();
     resetOffset();
   }
@@ -96,6 +100,7 @@ class ImagePhviewer {
 
   Widget widget(ValueListenable<bool> isBottomBarMinimized) {
     return ImageDisplay(
+      panDurationListenable: panDurationListenable,
       isBottomBarMinimized: isBottomBarMinimized,
       offsetListenable: offsetListenable,
       blurLevelListenable: blurLevelListenable,
@@ -150,7 +155,12 @@ class ImagePhviewer {
 
   void panImage(Offset delta) {
     var newOffsetValue = offsetListenable.value + delta;
+    panDurationListenable.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
+  }
+
+  void panRelease() {
+    panDurationListenable.value = Phanimations.zoomTransitionDuration;
   }
 
   static void revealInExplorer(FileData fileData) async {
@@ -295,8 +305,10 @@ class ImageDisplay extends StatelessWidget {
     required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
     required this.offsetListenable,
+    required this.panDurationListenable,
   });
 
+  final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<bool> isBottomBarMinimized;
   final ValueListenable<Offset> offsetListenable;
   final ValueNotifier<int> zoomLevelListenable;
@@ -345,20 +357,25 @@ class ImageDisplay extends StatelessWidget {
                 ? Phanimations.imageNext
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
-              child: ListeningAnimatedTranslate(
-                offsetListenable: offsetListenable,
-                child: ValueListenableBuilder(
-                  valueListenable: zoomLevelListenable,
-                  builder: (_, __, ___) {
-                    return AnimatedScale(
-                      duration: Phanimations.zoomTransitionDuration,
-                      curve: Phanimations.zoomTransitionCurve,
-                      scale: getCurrentZoomScale(),
-                      child: imageWidget,
+              child: ValueListenableBuilder(
+                  valueListenable: panDurationListenable,
+                  builder: (_, panDuration, ___) {
+                    return ListeningAnimatedTranslate(
+                      offsetListenable: offsetListenable,
+                      duration: panDuration,
+                      child: ValueListenableBuilder(
+                        valueListenable: zoomLevelListenable,
+                        builder: (_, __, ___) {
+                          return AnimatedScale(
+                            duration: Phanimations.zoomTransitionDuration,
+                            curve: Phanimations.zoomTransitionCurve,
+                            scale: getCurrentZoomScale(),
+                            child: imageWidget,
+                          );
+                        },
+                      ),
                     );
-                  },
-                ),
-              ),
+                  }),
             ),
           ),
           ValueListenableBuilder(
@@ -437,10 +454,12 @@ class ListeningAnimatedTranslate extends StatelessWidget {
     super.key,
     required this.offsetListenable,
     required this.child,
+    required this.duration,
   });
 
   final ValueListenable<Offset> offsetListenable;
   final Widget child;
+  final Duration duration;
 
   @override
   Widget build(BuildContext context) {
@@ -449,7 +468,7 @@ class ListeningAnimatedTranslate extends StatelessWidget {
       builder: (_, offset, __) {
         return AnimatedTranslate(
           curve: Phanimations.zoomTransitionCurve,
-          duration: Phanimations.zoomTransitionDuration,
+          duration: duration,
           offset: offset,
           child: child,
         );
@@ -505,6 +524,11 @@ class ImagePhviewerPanListener extends StatelessWidget {
         if (!imagePhviewer.isZoomedIn) return;
 
         imagePhviewer.panImage(details.delta);
+      },
+      onPanEnd: (details) {
+        if (!imagePhviewer.isZoomedIn) return;
+
+        imagePhviewer.panRelease();
       },
       child: child,
     );
