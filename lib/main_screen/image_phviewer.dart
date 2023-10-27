@@ -316,7 +316,6 @@ class ImageDisplay extends StatelessWidget {
 
       final File imageFile = File(imageFileData.filePath);
       final imageWidget = Image.file(
-        gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
         key: ImagePhviewer.imageWidgetKey,
         imageFile,
