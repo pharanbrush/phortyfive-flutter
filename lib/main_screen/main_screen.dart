@@ -492,11 +492,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             size: filterIconSize,
           );
 
-          return IconButton(
-            onPressed: () => filtersMenu.open(),
-            isSelected: imagePhviewer.isFilterActive,
-            tooltip: 'Filters',
-            icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+          String tooltip = imagePhviewer.isFilterActive
+              ? 'Filters (${imagePhviewer.activeFilterCount})'
+              : 'Filters';
+
+          return GestureDetector(
+            onTertiaryTapDown: (details) {
+              if (imagePhviewer.isFilterActive) {
+                imagePhviewer.resetAllFilters();
+              }
+            },
+            child: IconButton(
+              onPressed: () => filtersMenu.open(),
+              isSelected: imagePhviewer.isFilterActive,
+              tooltip: tooltip,
+              icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+            ),
           );
         },
       );
