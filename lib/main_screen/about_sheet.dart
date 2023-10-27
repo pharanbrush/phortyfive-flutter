@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phtext_widgets.dart';
 
@@ -41,7 +42,7 @@ class AboutSheet extends StatelessWidget {
         ),
         const Text('Timed Image Viewer for Drawing Practice'),
         spacing,
-        const Text('Build 0.6.20231021b'),
+        const Text('Build ${PfsLocalization.version}'),
         const HyperlinkRichText(
           'For more info, visit: ',
           urlText: pharanBrushUrl,
