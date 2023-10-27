@@ -680,7 +680,7 @@ class PhgestureControls extends StatelessWidget {
         );
       }
 
-      Widget middleButton() {
+      Widget middleGestureButton() {
         Widget playPauseButton() {
           return OverlayButton(
             onPressed: () => model.tryTogglePlayPauseTimer(),
@@ -724,7 +724,7 @@ class PhgestureControls extends StatelessWidget {
               ),
               Expanded(
                 flex: 4,
-                child: middleButton(),
+                child: middleGestureButton(),
               ),
               nextPreviousGestureButton(
                 width: 140,
