@@ -16,59 +16,15 @@ class FilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const panelPadding = EdgeInsets.only(
-      left: 22,
-      right: 25,
-      top: 15,
-      bottom: 15,
-    );
-
-    // PARTS
-    final headingIcon = Padding(
-      padding: const EdgeInsets.only(top: 2),
-      child: Icon(
-        Icons.invert_colors,
-        size: 18,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-    );
-
-    final heading = Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 6,
-      children: [
-        headingIcon,
-        Text(
-          'Filters',
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-      ],
-    );
-
-    final resetAllFiltersButton = ValueListenableBuilder(
-      valueListenable: imagePhviewer.filtersChangeListenable,
-      builder: (_, __, ___) => IconButton(
-        tooltip: 'Reset all filters',
-        color: Theme.of(context).colorScheme.tertiary,
-        onPressed: imagePhviewer.isFilterActive
-            ? () => imagePhviewer.resetAllFilters()
-            : null,
-        icon: const Icon(Icons.format_color_reset),
-      ),
-    );
-
     final headerRow = Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: SizedBox(
         width: 250,
         child: Row(
           children: [
-            heading,
+            const FilterPanelHeading(),
             const Spacer(),
-            resetAllFiltersButton,
+            ResetAllFiltersButton(imagePhviewer: imagePhviewer),
           ],
         ),
       ),
@@ -84,6 +40,44 @@ class FilterPanel extends StatelessWidget {
     void handleBlurSliderChanged(value) {
       imagePhviewer.blurLevel = value;
     }
+
+    return _container(
+      context,
+      content: Wrap(
+        direction: Axis.vertical,
+        spacing: 5,
+        children: [
+          headerRow,
+          ValueListenableBuilder(
+            valueListenable: imagePhviewer.usingGrayscaleListenable,
+            builder: (_, __, ___) {
+              return ColorModeButtons(
+                imagePhviewer: imagePhviewer,
+                onSelectionChanged: handleImageModeSelectionChanged,
+              );
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: imagePhviewer.blurLevelListenable,
+            builder: (_, __, ___) {
+              return BlurSlider(
+                imagePhviewer: imagePhviewer,
+                onChanged: handleBlurSliderChanged,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _container(BuildContext context, {required Widget content}) {
+    const panelPadding = EdgeInsets.only(
+      left: 22,
+      right: 25,
+      top: 15,
+      bottom: 15,
+    );
 
     final windowSize = MediaQuery.of(context).size;
 
@@ -103,7 +97,6 @@ class FilterPanel extends StatelessWidget {
       oRegular: rightMarginNormal,
     );
 
-    // HIERARCHY
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     return Stack(
@@ -114,31 +107,7 @@ class FilterPanel extends StatelessWidget {
           child: panelMaterial(
             child: Padding(
               padding: panelPadding,
-              child: Wrap(
-                direction: Axis.vertical,
-                spacing: 5,
-                children: [
-                  headerRow,
-                  ValueListenableBuilder(
-                    valueListenable: imagePhviewer.usingGrayscaleListenable,
-                    builder: (_, __, ___) {
-                      return ColorModeButtons(
-                        imagePhviewer: imagePhviewer,
-                        onSelectionChanged: handleImageModeSelectionChanged,
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: imagePhviewer.blurLevelListenable,
-                    builder: (_, __, ___) {
-                      return BlurSlider(
-                        imagePhviewer: imagePhviewer,
-                        onChanged: handleBlurSliderChanged,
-                      );
-                    },
-                  ),
-                ],
-              ),
+              child: content,
             ),
           ).animate(effects: const [Phanimations.growBottomEffect]),
         ),
@@ -223,6 +192,63 @@ class BlurSlider extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FilterPanelHeading extends StatelessWidget {
+  const FilterPanelHeading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final headingIcon = Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Icon(
+        Icons.invert_colors,
+        size: 18,
+        color: Theme.of(context).colorScheme.outline,
+      ),
+    );
+
+    final heading = Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 6,
+      children: [
+        headingIcon,
+        Text(
+          'Filters',
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+
+    return heading;
+  }
+}
+
+class ResetAllFiltersButton extends StatelessWidget {
+  const ResetAllFiltersButton({
+    super.key,
+    required this.imagePhviewer,
+  });
+
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.filtersChangeListenable,
+      builder: (_, __, ___) => IconButton(
+        tooltip: 'Reset all filters',
+        color: Theme.of(context).colorScheme.tertiary,
+        onPressed: imagePhviewer.isFilterActive
+            ? () => imagePhviewer.resetAllFilters()
+            : null,
+        icon: const Icon(Icons.format_color_reset),
       ),
     );
   }
