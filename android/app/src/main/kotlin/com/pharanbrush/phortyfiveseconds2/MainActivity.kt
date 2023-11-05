@@ -1,4 +1,4 @@
-package com.example.pfs2
+package com.pharanbrush.phortyfiveseconds2
 
 import io.flutter.embedding.android.FlutterActivity
 
