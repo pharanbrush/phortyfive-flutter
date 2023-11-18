@@ -3,11 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phanimations.dart';
-import 'package:pfs2/widgets/scroll_listener.dart';
+import 'package:pfs2/phlutter/scroll_listener.dart';
 
 class Phbuttons {
   static const double windowTitleBarHeight = 32;
@@ -180,7 +181,7 @@ class MinorWindowControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = Theme.of(context).colorScheme.onSurface;
-    final foregroundColors = PfsTheme.hoverColors(
+    final foregroundColors = hoverColors(
       idle: iconColor.withAlpha(0x44),
       hover: iconColor.withAlpha(0xDD),
     );

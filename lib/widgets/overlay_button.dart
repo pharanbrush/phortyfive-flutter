@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/phlutter/material_state_property_utils.dart';
 
 class OverlayButton extends StatelessWidget {
   const OverlayButton({
@@ -20,11 +20,11 @@ class OverlayButton extends StatelessWidget {
 
   static final ButtonStyle style = ButtonStyle(
     shape: MaterialStateProperty.all(shape),
-    iconColor: PfsTheme.hoverColors(
+    iconColor: hoverColors(
       idle: iconColor.withAlpha(0x00),
       hover: iconColor,
     ),
-    overlayColor: PfsTheme.hoverColors(
+    overlayColor: hoverColors(
       idle: hoverAreaColor.withAlpha(0x00),
       hover: hoverAreaColor,
     ),

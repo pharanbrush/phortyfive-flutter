@@ -15,7 +15,7 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/ui/phanimations.dart';
-import 'package:pfs2/utils/value_notifier_extensions.dart';
+import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/widgets/modal_panel.dart';
 import 'package:pfs2/main_screen/help_sheet.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/ui/phanimations.dart';
 
 class HoverContainer extends StatefulWidget {
   const HoverContainer({
     super.key,
     required this.hoverBackgroundColor,
     required this.child,
-    this.duration = Phanimations.defaultDuration,
+    this.fadeDuration = defaultDuration,
     this.borderRadius = const BorderRadius.all(Radius.circular(25)),
+    this.unhoveredAlpha = 0,
   });
 
+  static const defaultDuration = Duration(milliseconds: 200);
+
   final Color hoverBackgroundColor;
+  final int unhoveredAlpha;
   final Widget child;
-  final Duration duration;
+  final Duration fadeDuration;
   final BorderRadius borderRadius;
 
   @override
@@ -28,12 +31,12 @@ class _HoverContainerState extends State<HoverContainer> {
       onHover: (_) => setState(() => _isHovering = true),
       onExit: (_) => setState(() => _isHovering = false),
       child: AnimatedContainer(
-        duration: widget.duration,
+        duration: widget.fadeDuration,
         decoration: BoxDecoration(
           borderRadius: widget.borderRadius,
           color: _isHovering
               ? widget.hoverBackgroundColor
-              : widget.hoverBackgroundColor.withAlpha(0x00),
+              : widget.hoverBackgroundColor.withAlpha(widget.unhoveredAlpha),
         ),
         child: widget.child,
       ),

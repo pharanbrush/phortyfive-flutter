@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class CachedTheme {
@@ -959,58 +960,6 @@ class PfsTheme {
   // FIRST ACTION
   static const IconData downIcon = Icons.keyboard_double_arrow_down_rounded;
   static const double timerButtonIconSize = 18;
-
-  // THEME UTILITIES
-  static MaterialStateProperty<Color> hoverColors({
-    required Color idle,
-    required Color hover,
-  }) {
-    return MaterialStateProperty.resolveWith(
-        (states) => states.contains(MaterialState.hovered) ? hover : idle);
-  }
-
-  static MaterialStateProperty<T> hoverProperty<T>({
-    required T idle,
-    required T hover,
-  }) {
-    return MaterialStateProperty.resolveWith(
-        (states) => states.contains(MaterialState.hovered) ? hover : idle);
-  }
-
-  static MaterialStateProperty<T> hoverActiveDisabledProperty<T>({
-    required T idle,
-    required T hover,
-    required T active,
-    required T disabled,
-  }) {
-    return MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.hovered)) {
-        return hover;
-      } else if (states.contains(MaterialState.selected)) {
-        return active;
-      } else if (states.contains(MaterialState.disabled)) {
-        return disabled;
-      }
-
-      return idle;
-    });
-  }
-
-  static MaterialStateProperty<Color> hoverActiveColors({
-    required Color idle,
-    required Color hover,
-    required Color active,
-  }) {
-    return MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.hovered)) {
-        return hover;
-      } else if (states.contains(MaterialState.selected)) {
-        return active;
-      }
-
-      return idle;
-    });
-  }
 }
 
 typedef TextBoxBuilderFunction = Widget Function({

@@ -8,12 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:pfs2/widgets/scroll_listener.dart';
+import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ImagePhviewer {
@@ -193,7 +194,7 @@ class ImageClickableLabel extends StatelessWidget {
   static const Size minSize = Size(280, 36);
   static const Size maxSize = Size(380, 50);
 
-  static final textMaterialStyles = PfsTheme.hoverProperty(
+  static final textMaterialStyles = hoverProperty(
     idle: const TextStyle(
       decoration: TextDecoration.none,
       fontSize: fontSize,
@@ -209,12 +210,12 @@ class ImageClickableLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
-    final buttonMaterialColors = PfsTheme.hoverColors(
+    final buttonMaterialColors = hoverColors(
       idle: buttonHoverBackground.withAlpha(0x00),
       hover: buttonHoverBackground,
     );
 
-    final textMaterialColors = PfsTheme.hoverColors(
+    final textMaterialColors = hoverColors(
       idle: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(0x6C),
       hover: PfsTheme.hyperlinkColorHovered,
     );
