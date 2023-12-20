@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -24,13 +25,35 @@ class Phbuttons {
         final style = FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.tertiary,
         );
+
+        final openMenu = Menu(
+          items: [
+            MenuItem(
+              label: 'Open images...',
+              onClick: (menuItem) {
+                model.openFilePickerForImages();
+              },
+            ),
+            MenuItem.separator(),
+            MenuItem(
+              label: 'Open image folder...',
+              onClick: (menuItem) {
+                model.openFilePickerForFolder();
+              },
+            ),
+          ],
+        );
+
         return Tooltip(
           message: toolTipText,
           child: GestureDetector(
             onSecondaryTap: () => model.openFilePickerForFolder(),
             child: FilledButton(
               style: style,
-              onPressed: () => model.openFilePickerForImages(),
+              onPressed: () => popUpContextualMenu(
+                openMenu,
+                placement: Placement.topLeft,
+              ),
               child: SizedBox(
                 width: width,
                 child: const Icon(Icons.folder_open),
