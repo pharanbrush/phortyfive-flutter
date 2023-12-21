@@ -68,20 +68,6 @@ class CornerWindowControls extends StatelessWidget {
                     trueTooltip: 'Mute sounds ($soundShortcut)',
                     falseTooltip: 'Unmute sounds ($soundShortcut)',
                   ),
-                  NotifierToggleCornerButton(
-                    notifier: windowState.isAlwaysOnTop,
-                    falseIcon: Icons.picture_in_picture_outlined,
-                    trueIcon: Icons.picture_in_picture,
-                    highlightIfTrue: true,
-                    trueTooltip: PfsLocalization.buttonTooltip(
-                      commandName: PfsLocalization.alwaysOnTop,
-                      shortcut: Phshortcuts.alwaysOnTop,
-                    ),
-                    falseTooltip: PfsLocalization.buttonTooltip(
-                      commandName: PfsLocalization.alwaysOnTop,
-                      shortcut: Phshortcuts.alwaysOnTop,
-                    ),
-                  ),
                   CornerButton(
                     onPressed: () => helpMenu.open(),
                     icon: Icons.help_rounded,

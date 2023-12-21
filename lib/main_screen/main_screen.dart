@@ -28,10 +28,16 @@ import 'package:pfs2/main_screen/timer_duration_panel.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required this.model, required this.theme});
+  const MainScreen({
+    super.key,
+    required this.model,
+    required this.theme,
+    required this.windowState,
+  });
 
   final PfsAppModel model;
   final ValueNotifier<String> theme;
+  final PfsWindowState windowState;
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -40,7 +46,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode();
   final Phclicker clicker = Phclicker();
-  final PfsWindowState windowState = PfsWindowState();
+  PfsWindowState get windowState => widget.windowState;
 
   late final ModalPanel filtersMenu = ModalPanel(
     onBeforeOpen: () => _closeAllPanels(except: filtersMenu),

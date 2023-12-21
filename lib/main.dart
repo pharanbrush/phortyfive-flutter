@@ -4,6 +4,7 @@ import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
+import 'package:pfs2/phlutter/bitsdojo_phwindow.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
 import 'package:pfs2/utils/preferences.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
   final PfsAppModel appModel;
   final ValueNotifier<String> theme;
+  final PfsWindowState windowState = PfsWindowState();
 
   MyApp({
     super.key,
@@ -60,9 +62,11 @@ class MyApp extends StatelessWidget {
               theme: PfsTheme.getTheme(theme.value),
               home: Scaffold(
                 body: WindowWrapper(
+                  windowState: windowState,
                   child: MainScreen(
                     model: appModel,
                     theme: theme,
+                    windowState: windowState,
                   ),
                 ),
               ),
@@ -78,9 +82,11 @@ class WindowWrapper extends StatelessWidget {
   const WindowWrapper({
     super.key,
     required this.child,
+    required this.windowState,
   });
 
   final Widget child;
+  final PfsWindowState windowState;
 
   @override
   Widget build(BuildContext context) {
@@ -93,38 +99,41 @@ class WindowWrapper extends StatelessWidget {
       return WindowTitleBarBox(
         child: Container(
           decoration: BoxDecoration(color: titleBarColor),
-          child: Row(children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 6,
-                      horizontal: 8,
+          child: Row(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Image.memory(
+                            PfsTheme.pfsIconBytes,
+                            filterQuality: FilterQuality.medium,
+                            color: const Color(0x7EFFFFFF),
+                            colorBlendMode: BlendMode.modulate,
+                          ),
+                          const SizedBox(width: 5),
+                          const Text(
+                            pfsAppTitle,
+                            style: TextStyle(
+                                color: Color(0x7E999999), fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Image.memory(
-                          PfsTheme.pfsIconBytes,
-                          filterQuality: FilterQuality.medium,
-                          color: const Color(0x7EFFFFFF),
-                          colorBlendMode: BlendMode.modulate,
-                        ),
-                        const SizedBox(width: 5),
-                        const Text(
-                          pfsAppTitle,
-                          style:
-                              TextStyle(color: Color(0x7E999999), fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  MoveWindow(),
-                ],
+                    MoveWindow(),
+                  ],
+                ),
               ),
-            ),
-            const WindowButtons(),
-          ]),
+              KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
+              const WindowButtons(),
+            ],
+          ),
         ),
       );
     }

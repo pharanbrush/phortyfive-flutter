@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
-import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/modal_panel.dart';
@@ -61,10 +60,10 @@ class SettingsPanel extends StatelessWidget {
                 title: const Text('Sounds'),
                 notifier: windowState.isSoundsEnabled,
               ),
-              NotifierSwitchItem(
-                title: const Text(PfsLocalization.alwaysOnTop),
-                notifier: windowState.isAlwaysOnTop,
-              ),
+              // NotifierSwitchItem(
+              //   title: const Text(PfsLocalization.alwaysOnTop),
+              //   notifier: windowState.isAlwaysOnTop,
+              // ),
               divider,
               const SmallHeading('Appearance'),
               themeSetting(context),
