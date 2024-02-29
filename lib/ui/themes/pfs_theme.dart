@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
+
+const browseIcon = FluentIcons.folder_open_24_regular;
 
 class CachedTheme {
   CachedTheme({

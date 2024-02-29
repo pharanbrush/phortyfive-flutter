@@ -56,7 +56,7 @@ class Phbuttons {
               ),
               child: SizedBox(
                 width: width,
-                child: const Icon(Icons.folder_open),
+                child: const Icon(browseIcon),
               ),
             ),
           ),
