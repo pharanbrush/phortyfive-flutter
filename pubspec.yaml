@@ -50,6 +50,7 @@ dependencies:
   shared_preferences: ^2.2.2
   bitsdojo_window: ^0.1.5
   change_app_package_name: ^1.1.0
+  fluentui_system_icons: ^1.1.229
 
 dev_dependencies:
   flutter_test:
