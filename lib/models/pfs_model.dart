@@ -31,6 +31,7 @@ class PfsAppModel extends Model {
   bool get isCountdownEnabled => _isCountdownEnabled;
   static const int countdownStart = 3;
   int countdownLeft = 0;
+  bool countdownCancelled = false;
   bool get isCountingDown => countdownLeft > 0;
   void Function()? onCountdownStart;
   void Function()? onCountdownElapsed;
@@ -47,6 +48,7 @@ class PfsAppModel extends Model {
   void tryTogglePlayPauseTimer() {
     if (!allowTimerPlayPause) return;
 
+    tryCancelCountdown();
     timerModel.playPauseToggleTimer();
   }
 
@@ -56,6 +58,14 @@ class PfsAppModel extends Model {
     } else {
       _countdownElapse();
     }
+  }
+
+  void tryCancelCountdown() {
+    if (countdownLeft > 0) {
+      countdownCancelled = true;
+      notifyListeners();
+    }
+    countdownLeft = 0;
   }
 
   void setCountdownActive(bool active) {
@@ -70,6 +80,13 @@ class PfsAppModel extends Model {
 
     for (int i = 30; i > 0; i++) {
       await Future.delayed(const Duration(seconds: 1));
+
+      if (countdownCancelled) {
+        timerModel.deregisterPauser(this);
+        countdownCancelled = false;
+        return;
+      }
+
       countdownLeft--;
       onCountdownUpdate?.call();
       notifyListeners();
@@ -88,6 +105,7 @@ class PfsAppModel extends Model {
   void previousImageNewTimer() {
     if (!allowCirculatorControl) return;
 
+    tryCancelCountdown();
     timerModel.restartTimer();
     onImageChange?.call();
     _previousImage();
@@ -96,6 +114,7 @@ class PfsAppModel extends Model {
   void nextImageNewTimer() {
     if (!allowCirculatorControl) return;
 
+    tryCancelCountdown();
     timerModel.restartTimer();
     onImageChange?.call();
     _nextImage();
