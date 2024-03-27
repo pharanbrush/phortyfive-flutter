@@ -647,7 +647,7 @@ class PfsTheme {
       const Color secondary = Color(0xFF707A90);
       const Color tertiary = Color(0xFF5F687D);
       const Color buttonContentColor = Color(0x6D9E9E9E);
-      const Color buttonActiveColor = Color(0x783D507C);
+      const Color buttonActiveColor = Color(0x9F6581C4);
       const Color buttonHoverColor = Color(0xDCD8D8D8);
 
       //const Color clipLighterSelected = Color(0xFF7C89A3);
