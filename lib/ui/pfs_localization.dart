@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 class PfsLocalization {
   static const bool isDesktop = true;
-  static const String version = '0.9.20231027b';
+  static const String version = '0.9.20240327b';
 
   static const String alwaysOnTop = 'Keep window on top';
   static const String help = 'Help...';

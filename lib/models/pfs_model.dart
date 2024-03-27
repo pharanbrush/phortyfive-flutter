@@ -22,6 +22,7 @@ class PfsAppModel extends Model {
 
   int lastIncrement = 1;
   bool get hasFilesLoaded => fileList.isPopulated();
+  String lastFolder = '';
   int get currentImageIndex => circulator.currentIndex;
   bool get allowCirculatorControl => hasFilesLoaded;
   void Function()? onImageChange;
@@ -194,6 +195,14 @@ class PfsAppModel extends Model {
     await fileList.load(filePaths);
 
     final loadedCount = fileList.getCount();
+    final lastFile = fileList.getLast();
+    final potentialFolderPath = lastFile.fileFolder;
+    if (potentialFolderPath.trim().isNotEmpty) {
+      lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
+    } else {
+      lastFolder = '';
+    }
+
     circulator.startNewOrder(loadedCount);
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);

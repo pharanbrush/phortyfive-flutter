@@ -17,6 +17,7 @@ class FileList {
   int getCount() => files.length;
   bool isPopulated() => getCount() > 0;
   FileData getFirst() => get(0);
+  FileData getLast() => get(files.length - 1);
 
   FileData get(int index) {
     final count = getCount();
