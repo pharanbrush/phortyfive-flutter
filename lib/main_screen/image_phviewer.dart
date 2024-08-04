@@ -248,12 +248,14 @@ class ImageRightClick extends StatelessWidget {
     this.clipboardCopyHandler,
     required this.resetZoomLevelHandler,
     required this.revealInExplorerHandler,
+    required this.copyImageHandler,
   });
 
   final Widget child;
   final ClipboardCopyTextHandler? clipboardCopyHandler;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
+  final VoidCallback copyImageHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +266,11 @@ class ImageRightClick extends StatelessWidget {
           toastMessage: 'File path copied to clipboard.',
         );
       }
+
+      final copyImageItem = MenuItem(
+        label: PfsLocalization.copyImageToClipboard,
+        onClick: (menuItem) => copyImageHandler(),
+      );
 
       final copyFilePathItem = MenuItem(
         label: PfsLocalization.copyFilePath,
@@ -277,6 +284,7 @@ class ImageRightClick extends StatelessWidget {
 
       final contextMenu = Menu(
         items: [
+          copyImageItem,
           copyFilePathItem,
           MenuItem.separator(),
           revealInExplorerItem,

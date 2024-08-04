@@ -9,6 +9,7 @@ class PfsLocalization {
   static const String help = 'Help...';
   static const String revealInExplorer = 'Show in Explorer';
   static const String copyFilePath = 'Copy file path';
+  static const String copyImageToClipboard = 'Copy Image';
 
   static const String timerPlaying = 'Timer running';
   static const String timerPaused = 'Timer paused';

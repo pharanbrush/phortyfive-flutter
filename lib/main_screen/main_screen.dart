@@ -13,6 +13,8 @@ import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
+import 'package:pfs2/utils/image_data.dart';
+import 'package:pfs2/utils/phclipboard.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
@@ -210,6 +212,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
             revealInExplorerHandler: revealCurrentImageInExplorer,
+            clipboardCopyImageHandler: copyCurrentImagePixelsToClipboard,
             clipboardCopyTextHandler: _clipboardCopyTextHandler,
           ),
           const CountdownSheet(),
@@ -415,7 +418,29 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   void revealCurrentImageInExplorer() {
-    ImagePhviewer.revealInExplorer(widget.model.getCurrentImageData());
+    final currentImageData = widget.model.getCurrentImageFileData();
+    ImagePhviewer.revealInExplorer(currentImageData);
+  }
+
+  void copyCurrentImagePixelsToClipboard() async {
+    final currentImageData = widget.model.getCurrentImageFileData();
+    final filePath = currentImageData.filePath;
+    try {
+      final imageData = await getImageDataFromFile(filePath);
+      copyImageToClipboardAsPng(imageData, currentImageData.fileName);
+      Phtoasts.show(
+        currentContext,
+        message: "Image copied to clipboard",
+        icon: Icons.copy,
+        alignment: Alignment.center,
+      );
+    } catch (e) {
+      Phtoasts.show(
+        currentContext,
+        message: "Image copy failed",
+        icon: Icons.error,
+      );
+    }
   }
 
   void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
@@ -629,12 +654,14 @@ class PhgestureControls extends StatelessWidget {
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
     required this.clipboardCopyTextHandler,
+    required this.clipboardCopyImageHandler,
   });
 
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
   final ClipboardCopyTextHandler clipboardCopyTextHandler;
+  final VoidCallback clipboardCopyImageHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -675,6 +702,7 @@ class PhgestureControls extends StatelessWidget {
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
             clipboardCopyHandler: clipboardCopyTextHandler,
+            copyImageHandler: clipboardCopyImageHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
