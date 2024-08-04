@@ -238,7 +238,7 @@ class ImageClickableLabel extends StatelessWidget {
   }
 }
 
-typedef ClipboardCopyHandler = void Function(
+typedef ClipboardCopyTextHandler = void Function(
     {required String newClipboardText, String? toastMessage});
 
 class ImageRightClick extends StatelessWidget {
@@ -251,7 +251,7 @@ class ImageRightClick extends StatelessWidget {
   });
 
   final Widget child;
-  final ClipboardCopyHandler? clipboardCopyHandler;
+  final ClipboardCopyTextHandler? clipboardCopyHandler;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
 
@@ -260,7 +260,7 @@ class ImageRightClick extends StatelessWidget {
     return PfsAppModel.scope((_, __, model) {
       void handleCopyFilePath() {
         clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageData().filePath,
+          newClipboardText: model.getCurrentImageFileData().filePath,
           toastMessage: 'File path copied to clipboard.',
         );
       }
@@ -324,7 +324,7 @@ class ImageDisplay extends StatelessWidget {
       const defaultImage = '';
 
       final FileData imageFileData = model.hasFilesLoaded
-          ? model.getCurrentImageData()
+          ? model.getCurrentImageFileData()
           : FileList.fileDataFromPath(defaultImage);
 
       final File imageFile = File(imageFileData.filePath);

@@ -42,7 +42,7 @@ class PfsAppModel extends Model {
   void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
   void Function()? onFilePickerStateChange;
 
-  FileData getCurrentImageData() {
+  FileData getCurrentImageFileData() {
     return fileList.get(circulator.currentIndex);
   }
 

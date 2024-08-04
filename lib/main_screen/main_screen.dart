@@ -210,7 +210,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
             revealInExplorerHandler: revealCurrentImageInExplorer,
-            clipboardCopyHandler: _clipboardCopyHandler,
+            clipboardCopyTextHandler: _clipboardCopyTextHandler,
           ),
           const CountdownSheet(),
           CornerWindowControls(
@@ -418,7 +418,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     ImagePhviewer.revealInExplorer(widget.model.getCurrentImageData());
   }
 
-  void _clipboardCopyHandler({newClipboardText, toastMessage}) =>
+  void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
       _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 
   void _setClipboardText({
@@ -628,13 +628,13 @@ class PhgestureControls extends StatelessWidget {
     required this.playPauseIconProgress,
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
-    required this.clipboardCopyHandler,
+    required this.clipboardCopyTextHandler,
   });
 
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
-  final ClipboardCopyHandler clipboardCopyHandler;
+  final ClipboardCopyTextHandler clipboardCopyTextHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -674,7 +674,7 @@ class PhgestureControls extends StatelessWidget {
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-            clipboardCopyHandler: clipboardCopyHandler,
+            clipboardCopyHandler: clipboardCopyTextHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
