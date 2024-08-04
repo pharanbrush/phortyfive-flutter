@@ -117,10 +117,10 @@ packages:
     dependency: transitive
     description:
       name: bitsdojo_window_windows
-      sha256: "8766a40aac84a6d7bdcaa716b24997e028fc9a9a1800495fc031721fd5a22ed0"
+      sha256: fa982cf61ede53f483e50b257344a1c250af231a3cdc93a7064dd6dc0d720b68
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.5"
+    version: "0.1.6"
   boolean_selector:
     dependency: transitive
     description:
@@ -225,6 +225,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.4"
+  device_info_plus:
+    dependency: transitive
+    description:
+      name: device_info_plus
+      sha256: "77f757b789ff68e4eaf9c56d1752309bd9f7ad557cb105b938a7f8eb89e59110"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.1.2"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      sha256: "282d3cf731045a2feb66abfe61bbc40870ae50a3ed10a4d3d217556c35c8c2ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -413,6 +429,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.18.1"
+  irondash_engine_context:
+    dependency: transitive
+    description:
+      name: irondash_engine_context
+      sha256: cd7b769db11a2b5243b037c8a9b1ecaef02e1ae27a2d909ffa78c1dad747bb10
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.4"
+  irondash_message_channel:
+    dependency: transitive
+    description:
+      name: irondash_message_channel
+      sha256: dd581214215dca054bd9873209d690ec3609288c28774cb509dbd86b21180cf8
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   js:
     dependency: transitive
     description:
@@ -541,6 +573,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.2"
+  pixel_snap:
+    dependency: transitive
+    description:
+      name: pixel_snap
+      sha256: "677410ea37b07cd37ecb6d5e6c0d8d7615a7cf3bd92ba406fd1ac57e937d1fb0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   platform:
     dependency: transitive
     description:
@@ -690,6 +730,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  super_clipboard:
+    dependency: "direct main"
+    description:
+      name: super_clipboard
+      sha256: "15d25eb88df8e904e0c2ef77378c6010cc57bbfc0b6f91f2416d08fad5fcca92"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.5"
+  super_native_extensions:
+    dependency: transitive
+    description:
+      name: super_native_extensions
+      sha256: f96db6b137a0b135e43034289bb55ca6447b65225076036e81f97ebb6381ffeb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.5"
   synchronized:
     dependency: transitive
     description:
@@ -814,10 +870,18 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: a6f0236dbda0f63aa9a25ad1ff9a9d8a4eaaa5012da0dc59d21afdb1dc361ca4
+      sha256: "464f5674532865248444b4c3daca12bd9bf2d7c47f759ce2617986e7229494a8"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.4"
+    version: "5.2.0"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      sha256: "41fd8a189940d8696b1b810efb9abcf60827b6cbfab90b0c43e8439e3a39d85a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   window_manager:
     dependency: "direct main"
     description:
