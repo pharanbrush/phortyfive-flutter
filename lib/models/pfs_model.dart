@@ -7,7 +7,8 @@ import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class PfsAppModel extends Model {
+class PfsAppModel extends Model
+    with PfsImageFileManager, PfsModelTimer, PfsCountdownCounter {
   static ScopedModelDescendant<PfsAppModel> scope(
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
@@ -15,32 +16,10 @@ class PfsAppModel extends Model {
   bool get allowTimerPlayPause => hasFilesLoaded;
 
   final Circulator circulator = Circulator();
-  final FileList fileList = FileList();
-  final PhtimerModel timerModel = PhtimerModel();
-
-  bool isPickerOpen = false;
 
   int lastIncrement = 1;
-  bool get hasFilesLoaded => fileList.isPopulated();
-  String lastFolder = '';
   int get currentImageIndex => circulator.currentIndex;
   bool get allowCirculatorControl => hasFilesLoaded;
-  void Function()? onImageChange;
-  void Function()? onFilesChanged;
-
-  bool _isCountdownEnabled = true;
-  bool get isCountdownEnabled => _isCountdownEnabled;
-  static const int countdownStart = 3;
-  int countdownLeft = 0;
-  bool countdownCancelled = false;
-  bool get isCountingDown => countdownLeft > 0;
-  void Function()? onCountdownStart;
-  void Function()? onCountdownElapsed;
-  void Function()? onCountdownUpdate;
-  void Function()? onImageDurationElapse;
-
-  void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
-  void Function()? onFilePickerStateChange;
 
   FileData getCurrentImageFileData() {
     return fileList.get(circulator.currentIndex);
@@ -51,56 +30,6 @@ class PfsAppModel extends Model {
 
     tryCancelCountdown();
     timerModel.playPauseToggleTimer();
-  }
-
-  void tryStartCountdown() {
-    if (_isCountdownEnabled && timerModel.isRunning) {
-      _countdownRoutine();
-    } else {
-      _countdownElapse();
-    }
-  }
-
-  void tryCancelCountdown() {
-    if (countdownLeft > 0) {
-      countdownCancelled = true;
-      notifyListeners();
-    }
-    countdownLeft = 0;
-  }
-
-  void setCountdownActive(bool active) {
-    _isCountdownEnabled = active;
-    notifyListeners();
-  }
-
-  void _countdownRoutine() async {
-    countdownLeft = countdownStart;
-    timerModel.registerPauser(this);
-    onCountdownStart?.call();
-
-    for (int i = 30; i > 0; i++) {
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (countdownCancelled) {
-        timerModel.deregisterPauser(this);
-        countdownCancelled = false;
-        return;
-      }
-
-      countdownLeft--;
-      onCountdownUpdate?.call();
-      notifyListeners();
-      if (countdownLeft <= 0) break;
-    }
-
-    timerModel.deregisterPauser(this);
-    timerModel.restartTimer();
-    _countdownElapse();
-  }
-
-  void _countdownElapse() {
-    onCountdownElapsed?.call();
   }
 
   void previousImageNewTimer() {
@@ -135,6 +64,146 @@ class PfsAppModel extends Model {
     circulator.moveNext();
     lastIncrement = 1;
     notifyListeners();
+  }
+
+  void _handleTimerElapsed() {
+    nextImageNewTimer();
+    onImageDurationElapse?.call;
+    tryStartCountdown();
+    notifyListeners();
+  }
+
+  @override
+  void _onImagesLoaded() {
+    final loadedCount = fileList.getCount();
+    circulator.startNewOrder(loadedCount);
+
+    timerModel.tryInitialize();
+    timerModel.onElapse ??= () => _handleTimerElapsed();
+
+    tryStartCountdown();
+    timerModel.restartTimer();
+    notifyListeners();
+  }
+
+  @override
+  void _onCountdownActiveStateChanged() => notifyListeners();
+
+  @override
+  void _onCountdownCountChanged() => notifyListeners();
+
+  @override
+  void _onCountdownCanceled() {
+    timerModel.deregisterPauser(this);
+    notifyListeners();
+  }
+
+  @override
+  void _onCountdownStartInternal() {
+    timerModel.registerPauser(this);
+  }
+
+  @override
+  void _onCountdownElapsedInternal() {
+    timerModel.deregisterPauser(this);
+    timerModel.restartTimer();
+  }
+
+  @override
+  bool _canStartCountdown() => timerModel.isRunning;
+}
+
+mixin PfsModelTimer {
+  final PhtimerModel timerModel = PhtimerModel();
+
+  void Function()? onImageDurationElapse;
+}
+
+mixin PfsCountdownCounter {
+  bool _isCountdownEnabled = true;
+  bool get isCountdownEnabled => _isCountdownEnabled;
+  static const int countdownStart = 3;
+  int countdownLeft = 0;
+  bool countdownCancelled = false;
+  bool get isCountingDown => countdownLeft > 0;
+  void Function()? onCountdownStart;
+  void Function()? onCountdownElapsed;
+  void Function()? onCountdownUpdate;
+
+  void _onCountdownActiveStateChanged();
+  void _onCountdownCountChanged();
+  void _onCountdownCanceled();
+  void _onCountdownStartInternal();
+  void _onCountdownElapsedInternal();
+  bool _canStartCountdown();
+
+  void setCountdownActive(bool active) {
+    _isCountdownEnabled = active;
+    _onCountdownActiveStateChanged();
+  }
+
+  void tryStartCountdown() {
+    if (_isCountdownEnabled && _canStartCountdown()) {
+      _countdownRoutine();
+    } else {
+      _countdownElapse();
+    }
+  }
+
+  void tryCancelCountdown() {
+    if (countdownLeft > 0) {
+      countdownCancelled = true;
+      _onCountdownCanceled();
+    }
+    countdownLeft = 0;
+  }
+
+  void _countdownRoutine() async {
+    countdownLeft = countdownStart;
+    _onCountdownStartInternal();
+    onCountdownStart?.call();
+
+    for (int i = 30; i > 0; i++) {
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (countdownCancelled) {
+        countdownCancelled = false;
+        _onCountdownCanceled();
+        return;
+      }
+
+      countdownLeft--;
+      onCountdownUpdate?.call();
+      _onCountdownCountChanged();
+      if (countdownLeft <= 0) break;
+    }
+
+    _onCountdownElapsedInternal();
+    _countdownElapse();
+  }
+
+  void _countdownElapse() {
+    onCountdownElapsed?.call();
+  }
+}
+
+mixin PfsImageFileManager {
+  final FileList fileList = FileList();
+
+  String lastFolder = '';
+  bool isPickerOpen = false;
+  bool get hasFilesLoaded => fileList.isPopulated();
+
+  void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
+  void Function()? onFilePickerStateChange;
+  void Function()? onImageChange;
+  void Function()? onFilesChanged;
+
+  void _onImagesLoaded();
+
+  void _setStateFilePickerOpen(bool active) {
+    isPickerOpen = active;
+    onFilePickerStateChange?.call();
   }
 
   void openFilePickerForImages() async {
@@ -202,28 +271,9 @@ class PfsAppModel extends Model {
     } else {
       lastFolder = '';
     }
-
-    circulator.startNewOrder(loadedCount);
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
 
-    timerModel.tryInitialize();
-    timerModel.onElapse ??= () => _handleTimerElapsed();
-
-    tryStartCountdown();
-    timerModel.restartTimer();
-    notifyListeners();
-  }
-
-  void _handleTimerElapsed() {
-    nextImageNewTimer();
-    onImageDurationElapse?.call;
-    tryStartCountdown();
-    notifyListeners();
-  }
-
-  void _setStateFilePickerOpen(bool active) {
-    isPickerOpen = active;
-    onFilePickerStateChange?.call();
+    _onImagesLoaded();
   }
 }
