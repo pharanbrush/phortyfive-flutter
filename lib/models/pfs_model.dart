@@ -5,6 +5,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/utils/path_directory_expand.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model
@@ -226,7 +227,7 @@ mixin PfsImageFileManager {
     loadImages(pathList);
   }
 
-  void openFilePickerForFolder() async {
+  void openFilePickerForFolder({bool includeSubfolders = false}) async {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
@@ -235,16 +236,16 @@ mixin PfsImageFileManager {
 
     if (folder == null || folder.isEmpty) return;
 
-    loadFolder(folder);
+    loadFolder(folder, recursive: includeSubfolders);
   }
 
-  void loadFolder(String folderPath) async {
+  void loadFolder(String folderPath, {bool recursive = false}) async {
     if (folderPath.isEmpty) return;
 
     final directory = Directory(folderPath);
 
     try {
-      final directoryContents = directory.list();
+      final directoryContents = directory.list(recursive: recursive);
       final List<String?> filePaths = [];
       await for (final FileSystemEntity entry in directoryContents) {
         if (entry is File) {
@@ -260,8 +261,10 @@ mixin PfsImageFileManager {
 
   void loadImages(List<String?> filePaths) async {
     if (filePaths.isEmpty) return;
+    
+    final expandedFilePaths = await getExpandedList(filePaths);
 
-    await fileList.load(filePaths);
+    await fileList.load(expandedFilePaths);
 
     final loadedCount = fileList.getCount();
     final lastFile = fileList.getLast();

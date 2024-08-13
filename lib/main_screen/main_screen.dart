@@ -14,6 +14,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/utils/image_data.dart';
+import 'package:pfs2/utils/path_directory_expand.dart';
 import 'package:pfs2/utils/phclipboard.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -476,6 +477,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             var filePath = file.path;
             if (FileList.fileIsImage(filePath)) {
               filePaths.add(filePath);
+            } else if (pathIsDirectory(filePath)) {
+              filePaths.add(filePath);
             }
           }
           if (filePaths.isEmpty) return;
@@ -483,14 +486,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           model.loadImages(filePaths);
 
           if (model.hasFilesLoaded) {
-            _handleFileDropped();
+            _onFileDropped();
           }
         },
       ),
     );
   }
 
-  void _handleFileDropped() {
+  void _onFileDropped() {
     windowManager.focus();
   }
 

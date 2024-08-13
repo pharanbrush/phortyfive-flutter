@@ -41,6 +41,12 @@ class Phbuttons {
                 model.openFilePickerForFolder();
               },
             ),
+            MenuItem(
+              label: 'Open folder and subfolders...',
+              onClick: (menuItem) {
+                model.openFilePickerForFolder(includeSubfolders: true);
+              },
+            )
           ],
         );
 
