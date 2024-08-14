@@ -19,7 +19,7 @@ class ImageAnnotation extends StatefulWidget {
   });
 
   @override
-  _ImageAnnotationState createState() => _ImageAnnotationState();
+  State<ImageAnnotation> createState() => _ImageAnnotationState();
 }
 
 class _ImageAnnotationState extends State<ImageAnnotation> {
