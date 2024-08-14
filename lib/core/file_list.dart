@@ -52,12 +52,12 @@ class FileList {
     final isImage = FileList.allowedExtensions.contains(fileExtension);
     return isImage;
   }
+}
 
-  static String getFileName(String filePath) {
-    return File(filePath).uri.pathSegments.last;
-  }
+String getFileName(String filePath) {
+  return File(filePath).uri.pathSegments.last;
+}
 
-  static String getFileExtension(String filePath) {
-    return p.extension(filePath).split('.').last;
-  }
+String getFileExtension(String filePath) {
+  return p.extension(filePath).split('.').last;
 }
