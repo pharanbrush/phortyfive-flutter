@@ -7,36 +7,6 @@ import 'package:pfs2/widgets/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class TimerDurationEditor {
-  TimerDurationEditor();
-
-  final TextEditingController _textEditingController =
-      TextEditingController(text: '');
-  final FocusNode _textFieldFocusNode =
-      FocusNode(debugLabel: 'Timer Text Editor');
-
-  Widget widget() {
-    return TimerDurationPanel(
-      timerTextEditorController: _textEditingController,
-      timerTextEditorFocusNode: _textFieldFocusNode,
-    );
-  }
-
-  void setActive(bool active, int currentTimerDuration) {
-    _textEditingController.text = currentTimerDuration.toString();
-
-    if (active) {
-      _textFieldFocusNode.requestFocus();
-      _selectAllText(_textEditingController);
-    }
-  }
-
-  static void _selectAllText(TextEditingController controller) {
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
-  }
-}
-
 class TimerDurationPanel extends StatelessWidget {
   const TimerDurationPanel({
     super.key,
@@ -235,5 +205,35 @@ class TimerPresetButton extends StatelessWidget {
     }
 
     return button;
+  }
+}
+
+class TimerDurationEditor {
+  TimerDurationEditor();
+
+  final TextEditingController _textEditingController =
+      TextEditingController(text: '');
+  final FocusNode _textFieldFocusNode =
+      FocusNode(debugLabel: 'Timer Text Editor');
+
+  Widget widget() {
+    return TimerDurationPanel(
+      timerTextEditorController: _textEditingController,
+      timerTextEditorFocusNode: _textFieldFocusNode,
+    );
+  }
+
+  void setActive(bool active, int currentTimerDuration) {
+    _textEditingController.text = currentTimerDuration.toString();
+
+    if (active) {
+      _textFieldFocusNode.requestFocus();
+      _selectAllText(_textEditingController);
+    }
+  }
+
+  static void _selectAllText(TextEditingController controller) {
+    controller.selection =
+        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
   }
 }
