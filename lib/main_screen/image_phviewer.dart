@@ -6,7 +6,8 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_data.dart';
+import 'package:pfs2/core/file_data.dart' as file_data;
+import 'package:pfs2/core/file_data.dart' show FileData;
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -36,7 +37,7 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
       usingGrayscaleListenable: usingGrayscaleListenable,
       zoomLevelListenable: zoomLevelListenable,
       getCurrentZoomScale: () => currentZoomScale,
-      revealInExplorerHandler: revealInExplorer,
+      revealInExplorerHandler: file_data.revealInExplorer,
     );
   }
 }
@@ -335,7 +336,7 @@ class ImageViewerStackWidget extends StatelessWidget {
 
       final FileData imageFileData = model.hasFilesLoaded
           ? model.getCurrentImageFileData()
-          : fileDataFromPath(defaultImage);
+          : file_data.fileDataFromPath(defaultImage);
 
       final File imageFile = File(imageFileData.filePath);
       final imageWidget = Image.file(
