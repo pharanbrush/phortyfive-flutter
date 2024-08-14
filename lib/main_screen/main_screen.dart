@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/main_screen/sheets/about_sheet.dart';
@@ -420,7 +421,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void revealCurrentImageInExplorer() {
     final currentImageData = widget.model.getCurrentImageFileData();
-    ImagePhviewer.revealInExplorer(currentImageData);
+    revealInExplorer(currentImageData);
   }
 
   void copyCurrentImagePixelsToClipboard() async {
@@ -518,7 +519,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
       if (model.hasFilesLoaded) {
         return [
-          ResetZoomButton(imagePhviewer: imagePhviewer),
+          ResetZoomButton(imageZoomPanner: imagePhviewer),
           FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
           Phbuttons.timerSettingsButton(

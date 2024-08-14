@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:pfs2/core/circulator.dart';
+import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/utils/path_directory_expand.dart';
@@ -261,7 +262,7 @@ mixin PfsImageFileManager {
 
   void loadImages(List<String?> filePaths) async {
     if (filePaths.isEmpty) return;
-    
+
     final expandedFilePaths = await getExpandedList(filePaths);
 
     await fileList.load(expandedFilePaths);

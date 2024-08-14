@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
+import 'package:pfs2/core/file_data.dart';
 
 class FileList {
   static const List<String> allowedExtensions = [
@@ -59,20 +60,4 @@ class FileList {
   static String getFileExtension(String filePath) {
     return p.extension(filePath).split('.').last;
   }
-
-  static FileData fileDataFromPath(String filePath) {
-    if (filePath.isEmpty) return FileData.empty;
-    return FileData(filePath);
-  }
-}
-
-class FileData {
-  final String filePath;
-
-  const FileData(this.filePath);
-
-  String get fileName => File(filePath).uri.pathSegments.last;
-  String get fileFolder => File(filePath).parent.path;
-
-  static const empty = FileData('');
 }

@@ -6,7 +6,7 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -15,42 +15,33 @@ import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-class ImagePhviewer {
+/// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
+class ImagePhviewer with ImageZoomPanner, ImageFilters {
   ImagePhviewer();
-
-  static const List<double> _zoomScales = [
-    0.25,
-    0.5,
-    0.75,
-    1.0,
-    1.5,
-    2.0,
-    3.0,
-    4.0
-  ];
-  static const _defaultZoomLevel = 3;
 
   static final imageWidgetKey = GlobalKey();
 
-  final panDurationListenable =
-      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
+  @override
+  Size getImageSize() {
+    return imageWidgetKey.currentContext?.size ?? Size.zero;
+  }
 
-  final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
-  double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
-  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
-  bool get isZoomLevelDefault =>
-      (zoomLevelListenable.value == _defaultZoomLevel);
-  bool get isZoomedIn => currentZoomScale > 1;
+  Widget widget(ValueListenable<bool> isBottomBarMinimized) {
+    return ImageViewerStackWidget(
+      panDurationListenable: panDurationListenable,
+      isBottomBarMinimized: isBottomBarMinimized,
+      offsetListenable: offsetListenable,
+      blurLevelListenable: blurLevelListenable,
+      usingGrayscaleListenable: usingGrayscaleListenable,
+      zoomLevelListenable: zoomLevelListenable,
+      getCurrentZoomScale: () => currentZoomScale,
+      revealInExplorerHandler: revealInExplorer,
+    );
+  }
+}
 
-  bool get isUsingGrayscale => usingGrayscaleListenable.value;
-  set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
-  final usingGrayscaleListenable = ValueNotifier<bool>(false);
-
-  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
-  Offset get panOffset => offsetListenable.value;
-
+mixin ImageFilters {
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
   final blurLevelListenable = ValueNotifier<double>(0.0);
@@ -58,32 +49,24 @@ class ImagePhviewer {
   set blurLevel(double val) => blurLevelListenable.value =
       clampDouble(val, _minBlurLevel, _maxBlurLevel);
 
+  bool get isUsingGrayscale => usingGrayscaleListenable.value;
+  set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
+  final usingGrayscaleListenable = ValueNotifier<bool>(false);
+
   late final filtersChangeListenable = ValuesNotifier([
     blurLevelListenable,
     usingGrayscaleListenable,
   ]);
+
   bool get isFilterActive =>
       (isUsingGrayscale || blurLevelListenable.value > 0);
+
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
     if (blurLevelListenable.value > 0) currentActiveFiltersCount++;
     if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
-  }
-
-  void _resetZoomLevel() {
-    zoomLevelListenable.value = _defaultZoomLevel;
-  }
-
-  void resetOffset() {
-    offsetListenable.value = Offset.zero;
-  }
-
-  void resetTransform() {
-    panRelease();
-    _resetZoomLevel();
-    resetOffset();
   }
 
   void resetAllFilters() {
@@ -98,19 +81,32 @@ class ImagePhviewer {
       blurLevel -= 1;
     }
   }
+}
 
-  Widget widget(ValueListenable<bool> isBottomBarMinimized) {
-    return ImageDisplay(
-      panDurationListenable: panDurationListenable,
-      isBottomBarMinimized: isBottomBarMinimized,
-      offsetListenable: offsetListenable,
-      blurLevelListenable: blurLevelListenable,
-      usingGrayscaleListenable: usingGrayscaleListenable,
-      zoomLevelListenable: zoomLevelListenable,
-      getCurrentZoomScale: () => currentZoomScale,
-      revealInExplorerHandler: revealInExplorer,
-    );
-  }
+mixin ImageZoomPanner {
+  static const List<double> _zoomScales = [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    4.0
+  ];
+  static const _defaultZoomLevel = 3;
+
+  final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
+  double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
+  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
+  bool get isZoomLevelDefault =>
+      (zoomLevelListenable.value == _defaultZoomLevel);
+  bool get isZoomedIn => currentZoomScale > 1;
+
+  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
+  Offset get panOffset => offsetListenable.value;
+  final panDurationListenable =
+      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
 
   void incrementZoomLevel(int increment) {
     final previousZoomLevel = zoomLevelListenable.value;
@@ -132,26 +128,24 @@ class ImagePhviewer {
     zoomLevelListenable.value = newZoomLevel;
   }
 
+  void _resetZoomLevel() {
+    zoomLevelListenable.value = _defaultZoomLevel;
+  }
+
+  void resetOffset() {
+    offsetListenable.value = Offset.zero;
+  }
+
+  void resetTransform() {
+    panRelease();
+    _resetZoomLevel();
+    resetOffset();
+  }
+
   void _scalePanOffset(double previousZoomScale, double newZoomScale) {
     final scaleDifference = newZoomScale / previousZoomScale;
     var newOffsetValue = offsetListenable.value * scaleDifference;
     _setPanOffsetClamped(newOffsetValue);
-  }
-
-  void _setPanOffsetClamped(Offset newOffset) {
-    Offset clampPanOffset(Offset offset) {
-      final imageSize = imageWidgetKey.currentContext?.size ?? Size.zero;
-      final scaledSize = imageSize * currentZoomScale;
-
-      final xMax = scaledSize.width * 0.5;
-      final yMax = scaledSize.height * 0.5;
-      var dx = clampDouble(offset.dx, -xMax, xMax);
-      var dy = clampDouble(offset.dy, -yMax, yMax);
-
-      return Offset(dx, dy);
-    }
-
-    offsetListenable.value = clampPanOffset(newOffset);
   }
 
   void panImage(Offset delta) {
@@ -164,14 +158,22 @@ class ImagePhviewer {
     panDurationListenable.value = Phanimations.zoomTransitionDuration;
   }
 
-  static void revealInExplorer(FileData fileData) async {
-    if (Platform.isWindows) {
-      final windowsFilePath = fileData.filePath.replaceAll('/', '\\');
-      await Process.start('explorer', ['/select,', windowsFilePath]);
-    } else {
-      Uri fileFolder = Uri.file(fileData.fileFolder);
-      await launchUrl(fileFolder);
+  Size getImageSize();
+
+  void _setPanOffsetClamped(Offset newOffset) {
+    Offset clampPanOffset(Offset offset) {
+      final imageSize = getImageSize();
+      final scaledSize = imageSize * currentZoomScale;
+
+      final xMax = scaledSize.width * 0.5;
+      final yMax = scaledSize.height * 0.5;
+      var dx = clampDouble(offset.dx, -xMax, xMax);
+      var dy = clampDouble(offset.dy, -yMax, yMax);
+
+      return Offset(dx, dy);
     }
+
+    offsetListenable.value = clampPanOffset(newOffset);
   }
 }
 
@@ -304,8 +306,8 @@ class ImageRightClick extends StatelessWidget {
   }
 }
 
-class ImageDisplay extends StatelessWidget {
-  const ImageDisplay({
+class ImageViewerStackWidget extends StatelessWidget {
+  const ImageViewerStackWidget({
     super.key,
     required this.isBottomBarMinimized,
     required this.zoomLevelListenable,
@@ -333,7 +335,7 @@ class ImageDisplay extends StatelessWidget {
 
       final FileData imageFileData = model.hasFilesLoaded
           ? model.getCurrentImageFileData()
-          : FileList.fileDataFromPath(defaultImage);
+          : fileDataFromPath(defaultImage);
 
       final File imageFile = File(imageFileData.filePath);
       final imageWidget = Image.file(
@@ -567,21 +569,21 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
 class ResetZoomButton extends StatelessWidget {
   const ResetZoomButton({
     super.key,
-    required this.imagePhviewer,
+    required this.imageZoomPanner,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner imageZoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.zoomLevelListenable,
+      valueListenable: imageZoomPanner.zoomLevelListenable,
       builder: (_, __, ___) {
         return Visibility(
-          visible: !imagePhviewer.isZoomLevelDefault,
+          visible: !imageZoomPanner.isZoomLevelDefault,
           child: IconButton(
             tooltip: 'Reset zoom',
-            onPressed: () => imagePhviewer.resetTransform(),
+            onPressed: () => imageZoomPanner.resetTransform(),
             icon: const Icon(Icons.youtube_searched_for),
           ),
         );
