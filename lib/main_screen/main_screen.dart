@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
+import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/main_screen/sheets/about_sheet.dart';
@@ -47,70 +48,42 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen>
+    with
+        TickerProviderStateMixin,
+        MainScreenModels,
+        MainScreenPanels,
+        MainScreenSound,
+        MainScreenToaster,
+        MainScreenClipboardFunctions {
   final FocusNode mainWindowFocus = FocusNode();
-  final Phclicker clicker = Phclicker();
   PfsWindowState get windowState => widget.windowState;
 
-  late final ModalPanel filtersMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: filtersMenu),
-    isUnderlayTransparent: true,
-    builder: () => FilterPanel(imagePhviewer: imagePhviewer),
-    transitionBuilder: Phanimations.bottomMenuTransition,
-  );
-
-  late final ModalPanel helpMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: helpMenu),
-    builder: () {
-      return Theme(
-        data: ThemeData.dark(useMaterial3: true),
-        child: const HelpSheet(),
-      );
-    },
-  );
-
-  late final ModalPanel settingsMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
-    builder: () {
-      return SettingsPanel(
-        windowState: windowState,
-        appModel: widget.model,
-        themeNotifier: widget.theme,
-        aboutMenu: aboutMenu,
-      );
-    },
-    transitionBuilder: Phanimations.rightMenuTransition,
-  );
-
-  late final ModalPanel timerDurationMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
-    onOpened: () {
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          widget.model.timerModel.currentDurationSeconds);
-    },
-    onClosed: () {
-      mainWindowFocus.requestFocus();
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          widget.model.timerModel.currentDurationSeconds);
-    },
-    builder: () => timerDurationEditor.widget(),
-    transitionBuilder: Phanimations.bottomMenuTransition,
-  );
-
-  late final ModalPanel aboutMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: aboutMenu),
-    builder: () => const AboutSheet(),
-  );
-
-  late final modalPanels = [
-    filtersMenu,
-    helpMenu,
-    settingsMenu,
-    timerDurationMenu,
-    aboutMenu,
-  ];
-
   BuildContext? currentContext;
+
+  @override
+  PfsAppModel getModel() => widget.model;
+
+  @override
+  void refocusMainWindow() {
+    mainWindowFocus.requestFocus();
+  }
+
+  @override
+  ValueNotifier<bool> getSoundEnabledNotifier() =>
+      widget.windowState.isSoundsEnabled;
+
+  @override
+  ValueNotifier<String> getThemeNotifier() => widget.theme;
+
+  @override
+  bool get isSoundsEnabled => windowState.isSoundsEnabled.value;
+
+  @override
+  bool get isTimerRunning => widget.model.timerModel.isRunning;
+
+  @override
+  FileData getCurrentImageFileData() => widget.model.getCurrentImageFileData();
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -129,9 +102,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
     (OpenPreferencesIntent, (_) => settingsMenu.open()),
   ];
-
-  late TimerDurationEditor timerDurationEditor = TimerDurationEditor();
-  late ImagePhviewer imagePhviewer = ImagePhviewer();
 
   late final AnimationController _playPauseIconStateAnimator =
       AnimationController(
@@ -244,12 +214,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return appWindowContent;
   }
 
-  Iterable<Widget> get modalPanelWidgets sync* {
-    for (var panel in modalPanels) {
-      yield panel.widget();
-    }
-  }
-
   void _loadSettings() async {
     windowState.isSoundsEnabled.value = await Preferences.getSoundsEnabled();
   }
@@ -346,15 +310,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
 
     showTimerToast() {
-      if (currentContext == null) return;
-      BuildContext context = currentContext!;
-
       bool isRunning = widget.model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
-      Phtoasts.show(
-        context,
+      showToast(
         message: message,
         icon: icon,
       );
@@ -365,23 +325,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _playClickSound(playWhilePaused: true);
   }
 
-  void _closeAllPanels({ModalPanel? except}) {
-    void tryDismiss(ModalPanel toDismiss) {
-      if (except != null || toDismiss != except) {
-        toDismiss.close();
-      }
-    }
-
-    for (final panel in modalPanels) {
-      tryDismiss(panel);
-    }
-  }
-
   void _handleAlwaysOnTopChanged() {
     showAlwaysOnTopToast() {
-      if (currentContext == null) return;
-      BuildContext context = currentContext!;
-
       bool wasEnabled = windowState.isAlwaysOnTop.value;
       final message = PfsLocalization.alwaysOnTopSwitched(wasEnabled);
 
@@ -389,8 +334,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ? Icons.picture_in_picture
           : Icons.picture_in_picture_outlined;
 
-      Phtoasts.show(
-        context,
+      showToast(
         message: message,
         icon: icon,
         alignment: Phtoasts.topControlsAlign,
@@ -407,8 +351,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       final message = PfsLocalization.soundsSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
-      Phtoasts.show(
-        context,
+      showToast(
         message: message,
         icon: icon,
         alignment: Phtoasts.topControlsAlign,
@@ -419,49 +362,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
+  @override
+  void showToast({
+    required String message,
+    IconData? icon,
+    Alignment alignment = Alignment.bottomCenter,
+  }) {
+    if (currentContext == null) return;
+
+    Phtoasts.show(
+      currentContext,
+      message: message,
+      icon: icon,
+      alignment: Phtoasts.topControlsAlign,
+    );
+  }
+
   void revealCurrentImageInExplorer() {
-    final currentImageData = widget.model.getCurrentImageFileData();
+    final currentImageData = getCurrentImageFileData();
     file_data.revealInExplorer(currentImageData);
-  }
-
-  void copyCurrentImagePixelsToClipboard() async {
-    final currentImageData = widget.model.getCurrentImageFileData();
-    final filePath = currentImageData.filePath;
-    try {
-      final imageData = await getImageDataFromFile(filePath);
-      copyImageToClipboardAsPng(imageData, currentImageData.fileName);
-      Phtoasts.show(
-        currentContext,
-        message: "Image copied to clipboard",
-        icon: Icons.copy,
-        alignment: Alignment.center,
-      );
-    } catch (e) {
-      Phtoasts.show(
-        currentContext,
-        message: "Image copy failed",
-        icon: Icons.error,
-      );
-    }
-  }
-
-  void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
-      _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
-
-  void _setClipboardText({
-    required String text,
-    String? toastMessage,
-    IconData? icon = Icons.copy,
-  }) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    if (toastMessage != null) {
-      Phtoasts.show(
-        currentContext,
-        message: toastMessage,
-        icon: icon,
-        alignment: Phtoasts.topControlsAlign,
-      );
-    }
   }
 
   Widget _fileDropZone(PfsAppModel model) {
@@ -570,11 +489,156 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     return normalBottomBar;
   }
+}
+
+mixin MainScreenToaster {
+  void showToast({
+    required String message,
+    IconData? icon,
+    Alignment alignment = Alignment.bottomCenter,
+  });
+}
+
+mixin MainScreenSound {
+  final Phclicker clicker = Phclicker();
+
+  bool get isSoundsEnabled;
+  bool get isTimerRunning;
 
   void _playClickSound({bool playWhilePaused = false}) {
-    if (!windowState.isSoundsEnabled.value) return;
-    if (!widget.model.timerModel.isRunning && !playWhilePaused) return;
+    if (!isSoundsEnabled) return;
+    if (!isTimerRunning && !playWhilePaused) return;
     clicker.playSound();
+  }
+}
+
+mixin MainScreenModels {
+  late TimerDurationEditor timerDurationEditor = TimerDurationEditor();
+  late ImagePhviewer imagePhviewer = ImagePhviewer();
+}
+
+mixin MainScreenClipboardFunctions on MainScreenToaster {
+  FileData getCurrentImageFileData();
+
+  void _setClipboardText({
+    required String text,
+    String? toastMessage,
+    IconData? icon = Icons.copy,
+  }) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (toastMessage != null) {
+      showToast(
+        message: toastMessage,
+        icon: icon,
+        alignment: Phtoasts.topControlsAlign,
+      );
+    }
+  }
+
+  void copyCurrentImagePixelsToClipboard() async {
+    final currentImageData = getCurrentImageFileData();
+    final filePath = currentImageData.filePath;
+    try {
+      final imageData = await getImageDataFromFile(filePath);
+      copyImageToClipboardAsPng(imageData, currentImageData.fileName);
+      showToast(
+        message: "Image copied to clipboard",
+        icon: Icons.copy,
+        alignment: Alignment.center,
+      );
+    } catch (e) {
+      showToast(
+        message: "Image copy failed",
+        icon: Icons.error,
+      );
+    }
+  }
+
+  void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
+      _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
+}
+
+mixin MainScreenPanels on MainScreenModels {
+  PfsAppModel getModel();
+  void refocusMainWindow();
+
+  ValueNotifier<bool> getSoundEnabledNotifier();
+  ValueNotifier<String> getThemeNotifier();
+
+  late final ModalPanel filtersMenu = ModalPanel(
+    onBeforeOpen: () => _closeAllPanels(except: filtersMenu),
+    isUnderlayTransparent: true,
+    builder: () => FilterPanel(imagePhviewer: imagePhviewer),
+    transitionBuilder: Phanimations.bottomMenuTransition,
+  );
+
+  late final ModalPanel helpMenu = ModalPanel(
+    onBeforeOpen: () => _closeAllPanels(except: helpMenu),
+    builder: () {
+      return Theme(
+        data: ThemeData.dark(useMaterial3: true),
+        child: const HelpSheet(),
+      );
+    },
+  );
+
+  late final ModalPanel settingsMenu = ModalPanel(
+    onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
+    builder: () {
+      return SettingsPanel(
+        appModel: getModel(),
+        themeNotifier: getThemeNotifier(),
+        soundEnabledNotifier: getSoundEnabledNotifier(),
+        aboutMenu: aboutMenu,
+      );
+    },
+    transitionBuilder: Phanimations.rightMenuTransition,
+  );
+
+  late final ModalPanel timerDurationMenu = ModalPanel(
+    onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
+    onOpened: () {
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
+          getModel().timerModel.currentDurationSeconds);
+    },
+    onClosed: () {
+      refocusMainWindow();
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
+          getModel().timerModel.currentDurationSeconds);
+    },
+    builder: () => timerDurationEditor.widget(),
+    transitionBuilder: Phanimations.bottomMenuTransition,
+  );
+
+  late final ModalPanel aboutMenu = ModalPanel(
+    onBeforeOpen: () => _closeAllPanels(except: aboutMenu),
+    builder: () => const AboutSheet(),
+  );
+
+  late final modalPanels = [
+    filtersMenu,
+    helpMenu,
+    settingsMenu,
+    timerDurationMenu,
+    aboutMenu,
+  ];
+
+  Iterable<Widget> get modalPanelWidgets sync* {
+    for (var panel in modalPanels) {
+      yield panel.widget();
+    }
+  }
+
+  void _closeAllPanels({ModalPanel? except}) {
+    void tryDismiss(ModalPanel toDismiss) {
+      if (except != null || toDismiss != except) {
+        toDismiss.close();
+      }
+    }
+
+    for (final panel in modalPanels) {
+      tryDismiss(panel);
+    }
   }
 }
 

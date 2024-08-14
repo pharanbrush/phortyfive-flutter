@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
 import 'package:pfs2/widgets/modal_panel.dart';
@@ -11,15 +10,15 @@ import 'package:pfs2/widgets/phtext_widgets.dart';
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({
     super.key,
-    required this.windowState,
     required this.appModel,
     required this.themeNotifier,
     required this.aboutMenu,
+    required this.soundEnabledNotifier,
   });
 
-  final PfsWindowState windowState;
   final PfsAppModel appModel;
   final ValueNotifier<String> themeNotifier;
+  final ValueNotifier<bool> soundEnabledNotifier;
   final ModalPanel aboutMenu;
 
   @override
@@ -58,7 +57,7 @@ class SettingsPanel extends StatelessWidget {
               const SmallHeading('Window'),
               NotifierSwitchItem(
                 title: const Text('Sounds'),
-                notifier: windowState.isSoundsEnabled,
+                notifier: soundEnabledNotifier,
               ),
               // NotifierSwitchItem(
               //   title: const Text(PfsLocalization.alwaysOnTop),
