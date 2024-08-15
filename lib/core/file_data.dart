@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 
 class FileData {
@@ -9,6 +10,7 @@ class FileData {
 
   String get fileName => File(filePath).uri.pathSegments.last;
   String get fileFolder => File(filePath).parent.path;
+  String get parentFolderName => path.basename(File(filePath).parent.path);
 
   static const empty = FileData('');
 }

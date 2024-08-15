@@ -350,7 +350,8 @@ class ImageViewerStackWidget extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: ImageClickableLabel(
           label: imageFileData.fileName,
-          tooltip: PfsLocalization.revealInExplorer,
+          tooltip:
+              "${PfsLocalization.revealInExplorer} : ${imageFileData.parentFolderName}",
           onTap: () => revealInExplorerHandler(imageFileData),
         ),
       );
