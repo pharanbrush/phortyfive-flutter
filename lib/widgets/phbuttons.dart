@@ -26,40 +26,13 @@ class Phbuttons {
           backgroundColor: Theme.of(context).colorScheme.tertiary,
         );
 
-        final openMenu = Menu(
-          items: [
-            MenuItem(
-              label: 'Open images...',
-              onClick: (menuItem) {
-                model.openFilePickerForImages();
-              },
-            ),
-            MenuItem.separator(),
-            MenuItem(
-              label: 'Open image folder...',
-              onClick: (menuItem) {
-                model.openFilePickerForFolder();
-              },
-            ),
-            MenuItem(
-              label: 'Open folder and subfolders...',
-              onClick: (menuItem) {
-                model.openFilePickerForFolder(includeSubfolders: true);
-              },
-            )
-          ],
-        );
-
         return Tooltip(
           message: toolTipText,
           child: GestureDetector(
             onSecondaryTap: () => model.openFilePickerForFolder(),
             child: FilledButton(
               style: style,
-              onPressed: () => popUpContextualMenu(
-                openMenu,
-                placement: Placement.topLeft,
-              ),
+              onPressed: () => _popupImagesMenu(model),
               child: SizedBox(
                 width: width,
                 child: const Icon(browseIcon),
@@ -133,6 +106,39 @@ class Phbuttons {
   }
 }
 
+void _popupImagesMenu(PfsAppModel model) {
+  popUpContextualMenu(
+    _getOpenImagesMenu(model),
+    placement: Placement.topLeft,
+  );
+}
+
+Menu _getOpenImagesMenu(PfsAppModel model) {
+  return Menu(
+    items: [
+      MenuItem(
+        label: 'Open images...',
+        onClick: (menuItem) {
+          model.openFilePickerForImages();
+        },
+      ),
+      MenuItem.separator(),
+      MenuItem(
+        label: 'Open image folder...',
+        onClick: (menuItem) {
+          model.openFilePickerForFolder();
+        },
+      ),
+      MenuItem(
+        label: 'Open folder and subfolders...',
+        onClick: (menuItem) {
+          model.openFilePickerForFolder(includeSubfolders: true);
+        },
+      )
+    ],
+  );
+}
+
 class ImageSetButton extends StatelessWidget {
   const ImageSetButton({
     super.key,
@@ -164,7 +170,7 @@ class ImageSetButton extends StatelessWidget {
         child: GestureDetector(
           onSecondaryTap: () => model.openFilePickerForFolder(),
           child: TextButton(
-            onPressed: () => model.openFilePickerForImages(),
+            onPressed: () => _popupImagesMenu(model),
             child: AnimatedSizedBoxWidth(
               defaultWidth: narrowWidth,
               width: currentWidth,
