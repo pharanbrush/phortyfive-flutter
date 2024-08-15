@@ -8,7 +8,7 @@ class FileData {
 
   const FileData(this.filePath);
 
-  String get fileName => File(filePath).uri.pathSegments.last;
+  String get fileName => path.basename(filePath);
   String get fileFolder => File(filePath).parent.path;
   String get parentFolderName => path.basename(File(filePath).parent.path);
 
