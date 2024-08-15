@@ -21,6 +21,15 @@ class Phshortcuts {
   static const restartTimer = SingleActivator(LogicalKeyboardKey.keyR);
   static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
 
+  static const zoomIn = SingleActivator(LogicalKeyboardKey.equal);
+  static const zoomOut = SingleActivator(LogicalKeyboardKey.minus);
+  static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
+
+  static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
+  static const zoomOutNumpad =
+      SingleActivator(LogicalKeyboardKey.numpadSubtract);
+  static const zoomResetNav = SingleActivator(LogicalKeyboardKey.insert);
+
   static const openFiles =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
   static const openFolder =
@@ -63,6 +72,12 @@ class Phshortcuts {
     Phshortcuts.returnHome: ReturnHomeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
+    Phshortcuts.zoomIn: ZoomInIntent(),
+    Phshortcuts.zoomInNumpad: ZoomInIntent(),
+    Phshortcuts.zoomOut: ZoomOutIntent(),
+    Phshortcuts.zoomOutNumpad: ZoomOutIntent(),
+    Phshortcuts.zoomReset: ZoomResetIntent(),
+    Phshortcuts.zoomResetNav: ZoomResetIntent(),
   };
 }
 
@@ -120,4 +135,16 @@ class RevealInExplorerIntent extends Intent {
 
 class OpenPreferencesIntent extends Intent {
   const OpenPreferencesIntent();
+}
+
+class ZoomInIntent extends Intent {
+  const ZoomInIntent();
+}
+
+class ZoomOutIntent extends Intent {
+  const ZoomOutIntent();
+}
+
+class ZoomResetIntent extends Intent {
+  const ZoomResetIntent();
 }

@@ -101,6 +101,9 @@ class _MainScreenState extends State<MainScreen>
     (ReturnHomeIntent, (_) => _tryReturnHome()),
     (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
     (OpenPreferencesIntent, (_) => settingsMenu.open()),
+    (ZoomInIntent, (_) => imagePhviewer.incrementZoomLevel(1)),
+    (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
+    (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
   ];
 
   late final AnimationController _playPauseIconStateAnimator =
