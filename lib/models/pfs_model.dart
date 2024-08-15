@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
@@ -201,6 +202,9 @@ mixin PfsImageFileManager {
   void Function()? onImageChange;
   void Function()? onFilesChanged;
 
+  final isLoadingImages = ValueNotifier(false);
+  final currentlyLoadingImages = ValueNotifier<int>(0);
+
   void _onImagesLoaded();
 
   void _setStateFilePickerOpen(bool active) {
@@ -263,7 +267,11 @@ mixin PfsImageFileManager {
   void loadImages(List<String?> filePaths) async {
     if (filePaths.isEmpty) return;
 
-    final expandedFilePaths = await getExpandedList(filePaths);
+    isLoadingImages.value = true;
+    final expandedFilePaths = await getExpandedList(
+      filePaths,
+      onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
+    );
 
     await fileList.load(expandedFilePaths);
 
@@ -277,6 +285,7 @@ mixin PfsImageFileManager {
     }
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
+    isLoadingImages.value = false;
 
     _onImagesLoaded();
   }

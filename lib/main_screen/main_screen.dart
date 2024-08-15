@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
 import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/main_screen/sheets/about_sheet.dart';
 import 'package:pfs2/main_screen/sheets/countdown_sheet.dart';
@@ -134,6 +135,18 @@ class _MainScreenState extends State<MainScreen>
 
     final Size windowSize = MediaQuery.of(context).size;
 
+    final loadingSheetLayer = ValueListenableBuilder(
+      valueListenable: widget.model.isLoadingImages,
+      builder: (_, isLoading, __) {
+        return Visibility(
+          visible: isLoading,
+          child: LoadingSheet(
+            loadedFileCountListenable: widget.model.currentlyLoadingImages,
+          ),
+        );
+      },
+    );
+
     if (!widget.model.hasFilesLoaded) {
       final firstActionApp = Stack(
         children: [
@@ -152,6 +165,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           _fileDropZone(widget.model),
           ...modalPanelWidgets,
+          loadingSheetLayer,
         ],
       );
 
@@ -210,6 +224,7 @@ class _MainScreenState extends State<MainScreen>
             isBottomBarMinimized: windowState.isBottomBarMinimized,
           ),
           ...modalPanelWidgets,
+          loadingSheetLayer,
         ],
       ),
     );
