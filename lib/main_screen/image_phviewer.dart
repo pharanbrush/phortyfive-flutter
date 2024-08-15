@@ -93,7 +93,8 @@ mixin ImageZoomPanner {
     1.5,
     2.0,
     3.0,
-    4.0
+    4.0,
+    8.0,
   ];
   static const _defaultZoomLevel = 3;
 
