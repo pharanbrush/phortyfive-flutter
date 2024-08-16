@@ -25,6 +25,10 @@ class Phshortcuts {
   static const zoomOut = SingleActivator(LogicalKeyboardKey.minus);
   static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
 
+  static const toggleAnnotation = SingleActivator(LogicalKeyboardKey.keyN);
+  static const clearAnnotations = SingleActivator(LogicalKeyboardKey.backspace);
+  static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
+
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
 
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
@@ -81,6 +85,9 @@ class Phshortcuts {
     Phshortcuts.zoomReset: ZoomResetIntent(),
     Phshortcuts.zoomResetNav: ZoomResetIntent(),
     Phshortcuts.undo: UndoIntent(),
+    Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
+    Phshortcuts.clearAnnotations: AnnotationClearIntent(),
+    Phshortcuts.cycleAnnotationColors: AnnotationCycleColorsIntent(),
   };
 }
 
@@ -150,6 +157,18 @@ class ZoomOutIntent extends Intent {
 
 class ZoomResetIntent extends Intent {
   const ZoomResetIntent();
+}
+
+class AnnotationToggleIntent extends Intent {
+  const AnnotationToggleIntent();
+}
+
+class AnnotationClearIntent extends Intent {
+  const AnnotationClearIntent();
+}
+
+class AnnotationCycleColorsIntent extends Intent {
+  const AnnotationCycleColorsIntent();
 }
 
 class UndoIntent extends Intent {
