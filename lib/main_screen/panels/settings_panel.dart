@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/preferences.dart';
-import 'package:pfs2/widgets/modal_panel.dart';
+import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtext_widgets.dart';
 

@@ -6,7 +6,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
-import 'package:pfs2/widgets/modal_panel.dart';
+import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 class CornerWindowControls extends StatelessWidget {
