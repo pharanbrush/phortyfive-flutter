@@ -90,12 +90,6 @@ class PfsAppModel extends Model
   }
 
   @override
-  void _onCountdownActiveStateChanged() => notifyListeners();
-
-  @override
-  void _onCountdownCountChanged() => notifyListeners();
-
-  @override
   void _onCountdownCanceled() {
     timerModel.deregisterPauser(this);
     notifyListeners();
@@ -122,7 +116,7 @@ mixin PfsModelTimer {
   void Function()? onImageDurationElapse;
 }
 
-mixin PfsCountdownCounter {
+mixin PfsCountdownCounter on Model {
   bool _isCountdownEnabled = true;
   bool get isCountdownEnabled => _isCountdownEnabled;
   static const int countdownStart = 3;
@@ -133,8 +127,8 @@ mixin PfsCountdownCounter {
   void Function()? onCountdownElapsed;
   void Function()? onCountdownUpdate;
 
-  void _onCountdownActiveStateChanged();
-  void _onCountdownCountChanged();
+  void _onCountdownActiveStateChanged() => notifyListeners();
+  void _onCountdownCountChanged() => notifyListeners();
   void _onCountdownCanceled();
   void _onCountdownStartInternal();
   void _onCountdownElapsedInternal();
