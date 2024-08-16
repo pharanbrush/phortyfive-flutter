@@ -52,24 +52,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
+        MainScreenBuildContext,
         MainScreenModels,
+        MainScreenWindow,
         MainScreenPanels,
         MainScreenSound,
         MainScreenToaster,
         MainScreenClipboardFunctions {
-  final FocusNode mainWindowFocus = FocusNode();
-  PfsWindowState get windowState => widget.windowState;
-
-  BuildContext? currentContext;
-
   @override
-  PfsAppModel getModel() => widget.model;
-
-  @override
-  void refocusMainWindow() {
-    mainWindowFocus.requestFocus();
-  }
-
   @override
   ValueNotifier<bool> getSoundEnabledNotifier() =>
       widget.windowState.isSoundsEnabled;
@@ -81,19 +71,19 @@ class _MainScreenState extends State<MainScreen>
   bool get isSoundsEnabled => windowState.isSoundsEnabled.value;
 
   @override
-  bool get isTimerRunning => widget.model.timerModel.isRunning;
+  bool get isTimerRunning => model.timerModel.isRunning;
 
   @override
-  FileData getCurrentImageFileData() => widget.model.getCurrentImageFileData();
+  FileData getCurrentImageFileData() => model.getCurrentImageFileData();
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
-    (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
-    (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
-    (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
-    (RestartTimerIntent, (_) => widget.model.timerModel.restartTimer()),
-    (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
-    (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
+    (PreviousImageIntent, (_) => model.previousImageNewTimer()),
+    (NextImageIntent, (_) => model.nextImageNewTimer()),
+    (PlayPauseIntent, (_) => model.tryTogglePlayPauseTimer()),
+    (RestartTimerIntent, (_) => model.timerModel.restartTimer()),
+    (OpenFilesIntent, (_) => model.openFilePickerForImages()),
+    (OpenFolderIntent, (_) => model.openFilePickerForFolder()),
     (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
     (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
@@ -131,23 +121,23 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    currentContext = context;
+    updateCurrentBuildContext(context: context);
 
     final Size windowSize = MediaQuery.of(context).size;
 
     final loadingSheetLayer = ValueListenableBuilder(
-      valueListenable: widget.model.isLoadingImages,
+      valueListenable: model.isLoadingImages,
       builder: (_, isLoading, __) {
         return Visibility(
           visible: isLoading,
           child: LoadingSheet(
-            loadedFileCountListenable: widget.model.currentlyLoadingImages,
+            loadedFileCountListenable: model.currentlyLoadingImages,
           ),
         );
       },
     );
 
-    if (!widget.model.hasFilesLoaded) {
+    if (!model.hasFilesLoaded) {
       final firstActionApp = Stack(
         children: [
           const FirstActionSheet(),
@@ -163,7 +153,7 @@ class _MainScreenState extends State<MainScreen>
               return _bottomBar(context);
             },
           ),
-          _fileDropZone(widget.model),
+          _fileDropZone(model),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
@@ -196,7 +186,7 @@ class _MainScreenState extends State<MainScreen>
       Stack(
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
-          _fileDropZone(widget.model),
+          _fileDropZone(model),
           PhgestureControls(
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
@@ -237,7 +227,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _bindModelCallbacks() {
-    final model = widget.model;
+    final model = this.model;
     model.onFilesChanged ??= () => _handleStateChange();
     model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
@@ -292,7 +282,7 @@ class _MainScreenState extends State<MainScreen>
   void _handleTimerChangeSuccess() {
     final toastContent = PfsLocalization.textWithMultiBold(
       text1: 'Timer is set to ',
-      boldText1: '${widget.model.timerModel.currentDurationSeconds} seconds',
+      boldText1: '${model.timerModel.currentDurationSeconds} seconds',
       text2: ' per image.',
     );
     Phtoasts.showWidget(currentContext, child: toastContent);
@@ -310,17 +300,9 @@ class _MainScreenState extends State<MainScreen>
     _updateAlwaysOnTop();
   }
 
-  void _updateAlwaysOnTop() {
-    bool isPickingFiles = widget.model.isPickerOpen;
-    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
-
-    bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
-    windowManager.setAlwaysOnTop(currentAlwaysOnTop);
-  }
-
   void _handleTimerPlayPause() {
     void updateTimerPlayPauseIcon() {
-      if (widget.model.timerModel.isRunning) {
+      if (model.timerModel.isRunning) {
         _playPauseIconStateAnimator.forward();
       } else {
         _playPauseIconStateAnimator.reverse();
@@ -328,7 +310,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     showTimerToast() {
-      bool isRunning = widget.model.timerModel.isRunning;
+      bool isRunning = model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
@@ -378,22 +360,6 @@ class _MainScreenState extends State<MainScreen>
 
     showSoundToggleToast();
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
-  }
-
-  @override
-  void showToast({
-    required String message,
-    IconData? icon,
-    Alignment alignment = Alignment.bottomCenter,
-  }) {
-    if (currentContext == null) return;
-
-    Phtoasts.show(
-      currentContext,
-      message: message,
-      icon: icon,
-      alignment: Phtoasts.topControlsAlign,
-    );
   }
 
   void revealCurrentImageInExplorer() {
@@ -509,12 +475,29 @@ class _MainScreenState extends State<MainScreen>
   }
 }
 
-mixin MainScreenToaster {
+mixin MainScreenBuildContext {
+  BuildContext? currentContext;
+
+  void updateCurrentBuildContext({required BuildContext context}) {
+    currentContext = context;
+  }
+}
+
+mixin MainScreenToaster on MainScreenBuildContext {
   void showToast({
     required String message,
     IconData? icon,
     Alignment alignment = Alignment.bottomCenter,
-  });
+  }) {
+    if (currentContext == null) return;
+
+    Phtoasts.show(
+      currentContext,
+      message: message,
+      icon: icon,
+      alignment: Phtoasts.topControlsAlign,
+    );
+  }
 }
 
 mixin MainScreenSound {
@@ -530,9 +513,28 @@ mixin MainScreenSound {
   }
 }
 
-mixin MainScreenModels {
+mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
+  final FocusNode mainWindowFocus = FocusNode();
   late TimerDurationEditor timerDurationEditor = TimerDurationEditor();
+  PfsWindowState get windowState => widget.windowState;
+
+  void refocusMainWindow() {
+    mainWindowFocus.requestFocus();
+  }
+
+  void _updateAlwaysOnTop() {
+    bool isPickingFiles = model.isPickerOpen;
+    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
+
+    bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
+    windowManager.setAlwaysOnTop(currentAlwaysOnTop);
+  }
+}
+
+mixin MainScreenModels on State<MainScreen> {
   late ImagePhviewer imagePhviewer = ImagePhviewer();
+
+  PfsAppModel get model => widget.model;
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {
@@ -576,10 +578,7 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
       _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 }
 
-mixin MainScreenPanels on MainScreenModels {
-  PfsAppModel getModel();
-  void refocusMainWindow();
-
+mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<String> getThemeNotifier();
 
@@ -604,7 +603,7 @@ mixin MainScreenPanels on MainScreenModels {
     onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
     builder: () {
       return SettingsPanel(
-        appModel: getModel(),
+        appModel: model,
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
         aboutMenu: aboutMenu,
@@ -616,13 +615,13 @@ mixin MainScreenPanels on MainScreenModels {
   late final ModalPanel timerDurationMenu = ModalPanel(
     onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
     onOpened: () {
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          getModel().timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(
+          timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
     },
     onClosed: () {
       refocusMainWindow();
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          getModel().timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(
+          timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
     },
     builder: () => timerDurationEditor.widget(),
     transitionBuilder: Phanimations.bottomMenuTransition,
