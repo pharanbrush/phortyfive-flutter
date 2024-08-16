@@ -13,7 +13,7 @@ bool pathIsDirectory(String fullPath) {
 
 Future<List<String>> getExpandedList(
   List<String?> filePaths, {
-  ValueChanged<int>? onFileAdded,
+  ValueChanged<int>? onFileAdded, //FIXME: make this flutter-independent
 }) async {
   final expandedFilePaths = List<String>.empty(growable: true);
   Timer? timer;
