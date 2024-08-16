@@ -11,18 +11,22 @@ import 'package:pfs2/utils/path_directory_expand.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model
-    with PfsImageFileManager, PfsModelTimer, PfsCountdownCounter {
+    with
+        PfsImageFileManager,
+        PfsModelTimer,
+        PfsCountdownCounter,
+        PfsCirculator,
+        PfsAnnotator {
   static ScopedModelDescendant<PfsAppModel> scope(
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  bool get allowTimerPlayPause => hasFilesLoaded;
-
-  final Circulator circulator = Circulator();
-
-  int lastIncrement = 1;
-  int get currentImageIndex => circulator.currentIndex;
-  bool get allowCirculatorControl => hasFilesLoaded;
+  bool get allowTimerPlayPause => hasFilesLoaded && !isAnnotating;
+  bool get allowCirculatorControl => hasFilesLoaded && !isAnnotating;
+  bool get isAnnotating => isAnnotatingMode.value;
+  
+  @override
+  bool _canStartCountdown() => timerModel.isRunning && !isAnnotating;
 
   FileData getCurrentImageFileData() {
     return fileList.get(circulator.currentIndex);
@@ -105,9 +109,21 @@ class PfsAppModel extends Model
     timerModel.deregisterPauser(this);
     timerModel.restartTimer();
   }
+}
 
-  @override
-  bool _canStartCountdown() => timerModel.isRunning;
+mixin PfsAnnotator {
+  final isAnnotatingMode = ValueNotifier(false);
+
+  void toggleAnnotationMode() {
+    isAnnotatingMode.value = !isAnnotatingMode.value;
+  }
+}
+
+mixin PfsCirculator {
+  final Circulator circulator = Circulator();
+
+  int lastIncrement = 1;
+  int get currentImageIndex => circulator.currentIndex;
 }
 
 mixin PfsModelTimer {
