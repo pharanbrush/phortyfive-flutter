@@ -149,9 +149,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) {
-              return _bottomBar(context);
-            },
+            builder: (context, __, ___) => _bottomBar(context),
           ),
           _fileDropZone(model),
           ...modalPanelWidgets,
@@ -187,6 +185,7 @@ class _MainScreenState extends State<MainScreen>
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone(model),
+          // TODO: Make gesture controls conditional to annotation mode.
           PhgestureControls(
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
