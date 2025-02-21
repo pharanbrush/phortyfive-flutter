@@ -1,4 +1,4 @@
-library image_annotation;
+// library image_annotation;
 
 // Based on image_annotation by Mikita Drazdou
 

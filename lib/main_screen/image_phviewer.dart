@@ -14,11 +14,12 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/widgets/annotation_overlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
-class ImagePhviewer with ImageZoomPanner, ImageFilters {
+class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
   ImagePhviewer();
 
   static final imageWidgetKey = GlobalKey();
@@ -35,11 +36,16 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
       offsetListenable: offsetListenable,
       blurLevelListenable: blurLevelListenable,
       usingGrayscaleListenable: usingGrayscaleListenable,
+      isAnnotatingListenable: isAnnotatingListenable,
       zoomLevelListenable: zoomLevelListenable,
       getCurrentZoomScale: () => currentZoomScale,
       revealInExplorerHandler: file_data.revealInExplorer,
     );
   }
+}
+
+mixin ImageAnnotator {
+  final isAnnotatingListenable = ValueNotifier<bool>(false);
 }
 
 mixin ImageFilters {
@@ -317,6 +323,7 @@ class ImageViewerStackWidget extends StatelessWidget {
     required this.usingGrayscaleListenable,
     required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
+    required this.isAnnotatingListenable,
     required this.offsetListenable,
     required this.panDurationListenable,
   });
@@ -326,6 +333,7 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ValueListenable<Offset> offsetListenable;
   final ValueNotifier<int> zoomLevelListenable;
   final ValueNotifier<double> blurLevelListenable;
+  final ValueNotifier<bool> isAnnotatingListenable;
   final ValueNotifier<bool> usingGrayscaleListenable;
   final double Function() getCurrentZoomScale;
   final Function(FileData fileData) revealInExplorerHandler;
@@ -344,6 +352,22 @@ class ImageViewerStackWidget extends StatelessWidget {
         filterQuality: FilterQuality.medium,
         key: ImagePhviewer.imageWidgetKey,
         imageFile,
+      );
+
+      final possiblyAnnotatedImageWidget = ValueListenableBuilder(
+        valueListenable: isAnnotatingListenable,
+        builder: (BuildContext context, bool useAnnotation, Widget? child) {
+          if (useAnnotation) {
+            final annotatedImageWidget = AnnotationOverlay(
+              image: imageWidget,
+              annotationType: AnnotationType.line,
+              child: imageWidget,
+            );
+            return annotatedImageWidget;
+          } else {
+            return imageWidget;
+          }
+        },
       );
 
       final imageFilenameLayer = Align(
@@ -384,7 +408,7 @@ class ImageViewerStackWidget extends StatelessWidget {
                             duration: Phanimations.zoomTransitionDuration,
                             curve: Phanimations.zoomTransitionCurve,
                             scale: getCurrentZoomScale(),
-                            child: imageWidget,
+                            child: possiblyAnnotatedImageWidget,
                           );
                         },
                       ),
