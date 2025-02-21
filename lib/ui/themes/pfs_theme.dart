@@ -137,7 +137,7 @@ class PfsTheme {
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
-          background: panelBackground,
+          //background: panelBackground,
           primary: primary,
           secondary: secondary,
           tertiary: tertiary,
@@ -157,7 +157,7 @@ class PfsTheme {
           onSecondaryContainer: selectedButtonContentColor,
 
           // Text field background, slider background
-          surfaceVariant: textFieldBackground,
+          surfaceContainerHighest: textFieldBackground,
         ),
         tooltipTheme: const TooltipThemeData(
           decoration: tooltipBoxDecoration,
@@ -287,7 +287,7 @@ class PfsTheme {
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
-          background: panelBackground,
+          // background: panelBackground,
           primary: primary,
           tertiary: tertiary,
           onSecondary: Colors.white,
@@ -308,7 +308,7 @@ class PfsTheme {
           onSecondaryContainer: textColor.withAlpha(0xFF),
 
           // Text field background, slider background
-          surfaceVariant: textBoxColor,
+          surfaceContainerHighest: textBoxColor,
         ),
         textSelectionTheme: const TextSelectionThemeData(
           selectionColor: textHighlightColor,
@@ -499,7 +499,7 @@ class PfsTheme {
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
-          background: panelBackground,
+          // background: panelBackground,
           primary: primary,
           tertiary: tertiary,
           secondary: secondary,
@@ -524,7 +524,7 @@ class PfsTheme {
           onSecondaryContainer: textColor.withAlpha(0xFF),
 
           // Text field background, slider background
-          surfaceVariant: textBoxColor,
+          surfaceContainerHighest: textBoxColor,
         ),
         textSelectionTheme: const TextSelectionThemeData(
           selectionColor: Color(0xFF0B69D9),
@@ -712,7 +712,7 @@ class PfsTheme {
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
-          background: panelBackground,
+          //background: panelBackground,
           primary: primary,
           tertiary: tertiary,
           onSecondary: Colors.white,
@@ -735,7 +735,7 @@ class PfsTheme {
           onSecondaryContainer: cspTextColor.withAlpha(0xFF),
 
           // Text field background, slider background
-          surfaceVariant: cspTextBoxColor,
+          surfaceContainerHighest: cspTextBoxColor,
         ),
         tooltipTheme: windowsTenTooltipTheme,
         textSelectionTheme: const TextSelectionThemeData(
@@ -894,7 +894,7 @@ class PfsTheme {
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
-          background: panelBackground,
+          // background: panelBackground,
           primary: primary,
           secondary: secondary,
           tertiary: tertiary,
