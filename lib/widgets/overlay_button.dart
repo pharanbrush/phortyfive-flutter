@@ -19,7 +19,7 @@ class OverlayButton extends StatelessWidget {
   static const hoverAreaColor = Color(0x22DDDDDD);
 
   static final ButtonStyle style = ButtonStyle(
-    shape: MaterialStateProperty.all(shape),
+    shape: WidgetStateProperty.all(shape),
     iconColor: hoverColors(
       idle: iconColor.withAlpha(0x00),
       hover: iconColor,

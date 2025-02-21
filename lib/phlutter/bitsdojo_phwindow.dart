@@ -23,8 +23,8 @@ class _KeepWindowOnTopButtonState extends State<KeepWindowOnTopButton> {
       builder: (_, value, __) {
         return IconButton(
           style: const ButtonStyle(
-            iconSize: MaterialStatePropertyAll(16),
-            shape: MaterialStatePropertyAll(LinearBorder()),
+            iconSize: WidgetStatePropertyAll(16),
+            shape: WidgetStatePropertyAll(LinearBorder()),
           ),
           isSelected: value,
           tooltip: value

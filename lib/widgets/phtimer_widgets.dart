@@ -156,14 +156,14 @@ class PlayPauseTimerButton extends StatelessWidget {
         final style = ButtonStyle(
           animationDuration: const Duration(milliseconds: 300),
           backgroundColor:
-              MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-            if (states.contains(MaterialState.hovered)) {
+              WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+            if (states.contains(WidgetState.hovered)) {
               return buttonColor.withOpacity(1);
             }
             return buttonColor;
           }),
-          overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-          elevation: const MaterialStatePropertyAll(0),
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: const WidgetStatePropertyAll(0),
         );
 
         final tooltipText =

@@ -162,13 +162,13 @@ class CornerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     const double topControlDiameter = 32;
     const Size topControlSize = Size(topControlDiameter, topControlDiameter);
-    const sizes = MaterialStatePropertyAll(topControlSize);
+    const sizes = WidgetStatePropertyAll(topControlSize);
 
     const buttonStyle = ButtonStyle(
       fixedSize: sizes,
       minimumSize: sizes,
-      iconSize: MaterialStatePropertyAll(topControlDiameter * .55),
-      padding: MaterialStatePropertyAll(EdgeInsets.zero),
+      iconSize: WidgetStatePropertyAll(topControlDiameter * .55),
+      padding: WidgetStatePropertyAll(EdgeInsets.zero),
     );
 
     return IconButton(

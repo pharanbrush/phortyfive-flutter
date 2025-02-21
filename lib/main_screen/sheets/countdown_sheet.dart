@@ -36,7 +36,7 @@ class CountdownSheet extends StatelessWidget {
       return Stack(
         children: [
           ModalBarrier(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             dismissible: false,
           ),
           Center(

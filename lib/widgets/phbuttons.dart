@@ -223,10 +223,10 @@ class MinorWindowControlButton extends StatelessWidget {
     );
 
     final buttonStyle = ButtonStyle(
-      shape: const MaterialStatePropertyAll(CircleBorder()),
-      minimumSize: const MaterialStatePropertyAll(buttonSize),
-      maximumSize: const MaterialStatePropertyAll(buttonSize),
-      padding: const MaterialStatePropertyAll(EdgeInsets.all(0)),
+      shape: const WidgetStatePropertyAll(CircleBorder()),
+      minimumSize: const WidgetStatePropertyAll(buttonSize),
+      maximumSize: const WidgetStatePropertyAll(buttonSize),
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
       foregroundColor: foregroundColors,
     );
 

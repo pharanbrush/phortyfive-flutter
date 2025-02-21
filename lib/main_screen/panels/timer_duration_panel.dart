@@ -167,9 +167,9 @@ class TimerPresetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const presetButtonStyle = ButtonStyle(
-      shape: MaterialStatePropertyAll(CircleBorder()),
-      fixedSize: MaterialStatePropertyAll(Size(50, 50)),
-      padding: MaterialStatePropertyAll(EdgeInsets.zero),
+      shape: WidgetStatePropertyAll(CircleBorder()),
+      fixedSize: WidgetStatePropertyAll(Size(50, 50)),
+      padding: WidgetStatePropertyAll(EdgeInsets.zero),
     );
 
     final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
@@ -184,7 +184,7 @@ class TimerPresetButton extends StatelessWidget {
 
     final isCurrentSelectedButton = (seconds == model.currentDurationSeconds);
     if (isCurrentSelectedButton) {
-      final selectedColor = MaterialStatePropertyAll(
+      final selectedColor = WidgetStatePropertyAll(
         Theme.of(context).colorScheme.primary,
       );
       var selectedButtonStyle = presetButtonStyle.copyWith(

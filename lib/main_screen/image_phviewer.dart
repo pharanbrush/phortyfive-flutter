@@ -225,10 +225,10 @@ class ImageClickableLabel extends StatelessWidget {
     );
 
     final ButtonStyle style = ButtonStyle(
-      minimumSize: const MaterialStatePropertyAll(minSize),
-      maximumSize: const MaterialStatePropertyAll(maxSize),
-      padding: const MaterialStatePropertyAll(padding),
-      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+      minimumSize: const WidgetStatePropertyAll(minSize),
+      maximumSize: const WidgetStatePropertyAll(maxSize),
+      padding: const WidgetStatePropertyAll(padding),
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       textStyle: textMaterialStyles,
       backgroundColor: buttonMaterialColors,
       foregroundColor: textMaterialColors,

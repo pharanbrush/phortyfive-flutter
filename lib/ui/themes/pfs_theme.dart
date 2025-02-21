@@ -180,13 +180,13 @@ class PfsTheme {
         iconButtonTheme: IconButtonThemeData(style: buttonStyle),
         filledButtonTheme: const FilledButtonThemeData(
           style: ButtonStyle(
-            iconColor: MaterialStatePropertyAll(filledbuttonContentColor),
+            iconColor: WidgetStatePropertyAll(filledbuttonContentColor),
           ),
         ),
         badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(panelBackground),
+            backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
         cardTheme: const CardTheme(
@@ -242,12 +242,12 @@ class PfsTheme {
       );
 
       const ButtonStyle buttonShapeStyle = ButtonStyle(
-        shape: MaterialStatePropertyAll(buttonMaterialShape),
+        shape: WidgetStatePropertyAll(buttonMaterialShape),
       );
 
       final ButtonStyle buttonColorStyle = ButtonStyle(
-        foregroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return buttonActiveColor;
           }
 
@@ -345,7 +345,7 @@ class PfsTheme {
         iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
         segmentedButtonTheme: SegmentedButtonThemeData(
           style: buttonShapeStyle.copyWith(
-            iconColor: const MaterialStatePropertyAll(Color(0xBB333333)),
+            iconColor: const WidgetStatePropertyAll(Color(0xBB333333)),
           ),
         ),
         iconTheme: const IconThemeData(
@@ -353,7 +353,7 @@ class PfsTheme {
         ),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(panelBackground),
+            backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
         cardTheme: const CardTheme(
@@ -454,7 +454,7 @@ class PfsTheme {
       );
 
       const ButtonStyle buttonShapeStyle = ButtonStyle(
-        shape: MaterialStatePropertyAll(buttonMaterialShape),
+        shape: WidgetStatePropertyAll(buttonMaterialShape),
       );
 
       final ButtonStyle buttonColorStyle = ButtonStyle(
@@ -572,7 +572,7 @@ class PfsTheme {
         iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
         segmentedButtonTheme: SegmentedButtonThemeData(
           style: buttonShapeStyle.copyWith(
-            iconColor: const MaterialStatePropertyAll(Color(0xBBB5BAC1)),
+            iconColor: const WidgetStatePropertyAll(Color(0xBBB5BAC1)),
           ),
         ),
         iconTheme: const IconThemeData(
@@ -580,7 +580,7 @@ class PfsTheme {
         ),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(panelBackground),
+            backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
         cardTheme: const CardTheme(
@@ -660,7 +660,7 @@ class PfsTheme {
       );
 
       const ButtonStyle buttonShapeStyle = ButtonStyle(
-        shape: MaterialStatePropertyAll(buttonMaterialShape),
+        shape: WidgetStatePropertyAll(buttonMaterialShape),
       );
 
       final ButtonStyle buttonColorStyle = ButtonStyle(
@@ -773,7 +773,7 @@ class PfsTheme {
         ),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(panelBackground),
+            backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
         cardTheme: CardTheme(
@@ -921,7 +921,7 @@ class PfsTheme {
         badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(panelBackground),
+            backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
         cardTheme: const CardTheme(
