@@ -24,7 +24,7 @@ class PfsAppModel extends Model
   bool get allowTimerPlayPause => hasFilesLoaded && !isAnnotating;
   bool get allowCirculatorControl => hasFilesLoaded && !isAnnotating;
   bool get isAnnotating => isAnnotatingMode.value;
-  
+
   @override
   bool _canStartCountdown() => timerModel.isRunning && !isAnnotating;
 
