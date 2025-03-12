@@ -267,14 +267,15 @@ mixin PfsImageFileManager {
           filePaths.add(entry.path);
         }
       }
-      loadImages(filePaths);
+      await loadImages(filePaths);
+      lastFolder = directory.path.split(Platform.pathSeparator).last;
     } catch (e) {
       isPickerOpen = false;
       onFilePickerStateChange?.call();
     }
   }
 
-  void loadImages(List<String?> filePaths) async {
+  Future loadImages(List<String?> filePaths) async {
     if (filePaths.isEmpty) return;
 
     isLoadingImages.value = true;
