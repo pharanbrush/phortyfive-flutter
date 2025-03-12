@@ -16,9 +16,7 @@ class Phbuttons {
 
   static Widget openFiles({double width = 40.0}) {
     final toolTipText =
-        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'
-        '${PfsLocalization.secondaryPressCapital} to open image folder... '
-        '(${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+        'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})';
 
     return PfsAppModel.scope(
       (context, __, model) {
@@ -28,15 +26,12 @@ class Phbuttons {
 
         return Tooltip(
           message: toolTipText,
-          child: GestureDetector(
-            onSecondaryTap: () => model.openFilePickerForFolder(),
-            child: FilledButton(
-              style: style,
-              onPressed: () => _popupImagesMenu(model),
-              child: SizedBox(
-                width: width,
-                child: const Icon(browseIcon),
-              ),
+          child: FilledButton(
+            style: style,
+            onPressed: () => _popupImagesMenu(model),
+            child: SizedBox(
+              width: width,
+              child: const Icon(browseIcon),
             ),
           ),
         );
@@ -156,9 +151,7 @@ class ImageSetButton extends StatelessWidget {
       final fileCount = model.fileList.getCount();
       final lastFolder = model.lastFolder;
       final String tooltip = 'Folder: .../$lastFolder\n'
-          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n'
-          '${PfsLocalization.pressCapital} to open a different image set... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})\n'
-          '${PfsLocalization.secondaryPressCapital} to open an image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})';
+          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n';
 
       const double wideWidth = 80;
       const double narrowWidth = 18;
@@ -167,28 +160,25 @@ class ImageSetButton extends StatelessWidget {
 
       return Tooltip(
         message: tooltip,
-        child: GestureDetector(
-          onSecondaryTap: () => model.openFilePickerForFolder(),
-          child: TextButton(
-            onPressed: () => _popupImagesMenu(model),
-            child: AnimatedSizedBoxWidth(
-              defaultWidth: narrowWidth,
-              width: currentWidth,
-              height: 28,
-              duration: Phanimations.defaultDuration,
-              child: Align(
-                alignment: Alignment.center,
-                child: OverflowBox(
-                  maxWidth: currentWidth,
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      narrowButton
-                          ? _icon
-                          : Phbuttons.textThenIcon(fileCount.toString(), _icon),
-                      const Spacer(),
-                    ],
-                  ),
+        child: TextButton(
+          onPressed: () => _popupImagesMenu(model),
+          child: AnimatedSizedBoxWidth(
+            defaultWidth: narrowWidth,
+            width: currentWidth,
+            height: 28,
+            duration: Phanimations.defaultDuration,
+            child: Align(
+              alignment: Alignment.center,
+              child: OverflowBox(
+                maxWidth: currentWidth,
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    narrowButton
+                        ? _icon
+                        : Phbuttons.textThenIcon(fileCount.toString(), _icon),
+                    const Spacer(),
+                  ],
                 ),
               ),
             ),
