@@ -151,7 +151,7 @@ class ImageSetButton extends StatelessWidget {
       final fileCount = model.fileList.getCount();
       final lastFolder = model.lastFolder;
       final String tooltip = 'Folder: .../$lastFolder\n'
-          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.\n';
+          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
 
       const double wideWidth = 80;
       const double narrowWidth = 18;
