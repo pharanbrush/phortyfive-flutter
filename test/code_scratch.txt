@@ -1,0 +1,29 @@
+void _tryLoadDroppedItems(DropDoneDetails details) async {
+  if (details.files.length == 1) {
+    var folderPath = details.files[0].path;
+    if (folderPath.isNotEmpty && pathIsDirectory(folderPath)) {
+      await popUpContextualMenu(
+        Menu(
+          items: [
+            MenuItem(
+              label: 'Import folder',
+              onClick: (menuItem) =>
+                  model.loadFolder(folderPath, recursive: false),
+            ),
+            MenuItem(
+              label: 'Import folder including subfolders',
+              onClick: (menuItem) =>
+                  model.loadFolder(folderPath, recursive: true),
+            )
+          ],
+        ),
+      );
+      model.loadFolder(folderPath, recursive: true);
+
+      if (model.hasFilesLoaded) {
+        _onFileDropped();
+      }
+      return;
+    }
+  }
+}
