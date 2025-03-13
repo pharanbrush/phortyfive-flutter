@@ -386,7 +386,7 @@ class _MainScreenState extends State<MainScreen>
           }
           if (filePaths.isEmpty) return;
 
-          model.loadImages(filePaths);
+          model.loadImages(filePaths, recursive: true);
 
           if (model.hasFilesLoaded) {
             _onFileDropped();

@@ -275,13 +275,17 @@ mixin PfsImageFileManager {
     }
   }
 
-  Future loadImages(List<String?> filePaths) async {
+  Future loadImages(
+    List<String?> filePaths, {
+    bool recursive = false,
+  }) async {
     if (filePaths.isEmpty) return;
 
     isLoadingImages.value = true;
     final expandedFilePaths = await getExpandedList(
       filePaths,
       onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
+      recursive: recursive,
     );
 
     await fileList.load(expandedFilePaths);
@@ -292,7 +296,7 @@ mixin PfsImageFileManager {
     if (potentialFolderPath.trim().isNotEmpty) {
       lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
     } else {
-      lastFolder = '';
+      lastFolder = '[mixed]';
     }
     onFilesChanged?.call();
     onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);

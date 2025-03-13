@@ -14,6 +14,7 @@ bool pathIsDirectory(String fullPath) {
 Future<List<String>> getExpandedList(
   List<String?> filePaths, {
   ValueChanged<int>? onFileAdded, //FIXME: make this flutter-independent
+  bool recursive = false,
 }) async {
   final expandedFilePaths = List<String>.empty(growable: true);
   Timer? timer;
@@ -39,7 +40,7 @@ Future<List<String>> getExpandedList(
       } else {
         final d = Directory(filePath);
         if (await d.exists()) {
-          final directoryFileList = d.list(recursive: false);
+          final directoryFileList = d.list(recursive: recursive);
           await for (final f in directoryFileList) {
             expandedFilePaths.add(f.path);
           }
