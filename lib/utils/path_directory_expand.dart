@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+// Matches flutter/foundation.dart
+typedef ValueChanged<T> = void Function(T value);
 
 bool pathIsDirectory(String fullPath) {
   if (fullPath.isEmpty) return false;
@@ -13,7 +14,7 @@ bool pathIsDirectory(String fullPath) {
 
 Future<List<String>> getExpandedList(
   List<String?> filePaths, {
-  ValueChanged<int>? onFileAdded, //FIXME: make this flutter-independent
+  ValueChanged<int>? onFileAdded,
   bool recursive = false,
 }) async {
   final expandedFilePaths = List<String>.empty(growable: true);
