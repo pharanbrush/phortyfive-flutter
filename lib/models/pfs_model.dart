@@ -75,7 +75,7 @@ class PfsAppModel extends Model
 
   void _handleTimerElapsed() {
     nextImageNewTimer();
-    onImageDurationElapse?.call;
+    onImageDurationElapse?.call();
     tryStartCountdown();
     notifyListeners();
   }
