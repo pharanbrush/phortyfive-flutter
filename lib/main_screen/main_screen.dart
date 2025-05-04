@@ -34,6 +34,7 @@ import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:window_manager/window_manager.dart';
+import 'dart:async';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({
@@ -60,6 +61,7 @@ class _MainScreenState extends State<MainScreen>
         MainScreenPanels,
         MainScreenSound,
         MainScreenToaster,
+        MainScreenScore,
         MainScreenClipboardFunctions {
   @override
   @override
@@ -302,6 +304,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleOnImageChange() {
+    waitThenAddImageToScore();
     setState(() => imagePhviewer.resetTransform());
   }
 
@@ -443,7 +446,14 @@ class _MainScreenState extends State<MainScreen>
           spacingBox,
           TimerControls(playPauseIconController: _playPauseIconStateAnimator),
           SizedBox(width: spacing + 3),
-          ImageSetButton(narrowButton: isNarrowWindow),
+          ValueListenableBuilder(
+              valueListenable: imagesViewed,
+              builder: (context, value, child) {
+                return ImageSetButton(
+                  narrowButton: isNarrowWindow,
+                  extraTooltip: getScoreText(),
+                );
+              }),
           const SizedBox(width: 20),
         ];
       } else {
@@ -493,6 +503,34 @@ mixin MainScreenBuildContext {
 
   void updateCurrentBuildContext({required BuildContext context}) {
     currentContext = context;
+  }
+}
+
+mixin MainScreenScore {
+  ValueNotifier<int> imagesViewed = ValueNotifier(0);
+  Timer? imageQualifiedTimer;
+
+  static const secondsViewedForImageToScoreCount = 10;
+
+  String getScoreText() {
+    return "Images observed: ${imagesViewed.value}";
+  }
+
+  void waitThenAddImageToScore() {
+    imageQualifiedTimer?.cancel();
+
+    imageQualifiedTimer = Timer(
+      const Duration(seconds: secondsViewedForImageToScoreCount),
+      () => imagesViewed.value += 1,
+    );
+  }
+
+  void cancelLastCount() {
+    imageQualifiedTimer?.cancel();
+  }
+
+  void resetScore() {
+    imagesViewed.value = 0;
   }
 }
 

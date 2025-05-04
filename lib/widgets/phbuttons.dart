@@ -138,19 +138,21 @@ class ImageSetButton extends StatelessWidget {
   const ImageSetButton({
     super.key,
     this.narrowButton = false,
+    this.extraTooltip,
   });
 
   static const double _iconSize = 18;
   static const Icon _icon = Icon(Icons.image, size: _iconSize);
 
   final bool narrowButton;
+  final String? extraTooltip;
 
   @override
   Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
       final fileCount = model.fileList.getCount();
       final lastFolder = model.lastFolder;
-      final String tooltip = 'Folder: .../$lastFolder\n'
+      final String tooltip = '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
           '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
 
       const double wideWidth = 80;
