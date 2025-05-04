@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -110,6 +112,8 @@ class _MainScreenState extends State<MainScreen>
     _bindModelCallbacks();
     _loadSettings();
     super.initState();
+
+    _checkAndLoadLaunchArgPath();
   }
 
   @override
@@ -223,6 +227,16 @@ class _MainScreenState extends State<MainScreen>
 
   void _loadSettings() async {
     windowState.isSoundsEnabled.value = await Preferences.getSoundsEnabled();
+  }
+
+  void _checkAndLoadLaunchArgPath() {
+    if (Platform.executableArguments.isEmpty) return;
+    final possiblePath = Platform.executableArguments[0];
+    if (possiblePath.isEmpty) return;
+
+    if (Directory(possiblePath).existsSync()) {
+      model.loadFolder(possiblePath, recursive: true);
+    }
   }
 
   void _bindModelCallbacks() {
