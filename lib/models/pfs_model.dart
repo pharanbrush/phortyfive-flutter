@@ -90,6 +90,8 @@ class PfsAppModel extends Model
 
     tryStartCountdown();
     timerModel.restartTimer();
+
+    onImageChange?.call();
     notifyListeners();
   }
 
