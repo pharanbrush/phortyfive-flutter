@@ -64,7 +64,6 @@ class _MainScreenState extends State<MainScreen>
         MainScreenScore,
         MainScreenClipboardFunctions {
   @override
-  @override
   ValueNotifier<bool> getSoundEnabledNotifier() =>
       widget.windowState.isSoundsEnabled;
 
@@ -79,6 +78,9 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   FileData getCurrentImageFileData() => model.getCurrentImageFileData();
+
+  @override
+  String getCurrentImagePath() => getCurrentImageFileData().filePath;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -447,7 +449,7 @@ class _MainScreenState extends State<MainScreen>
           TimerControls(playPauseIconController: _playPauseIconStateAnimator),
           SizedBox(width: spacing + 3),
           ValueListenableBuilder(
-              valueListenable: imagesViewed,
+              valueListenable: imagesViewedCounter,
               builder: (context, value, child) {
                 return ImageSetButton(
                   narrowButton: isNarrowWindow,
@@ -507,30 +509,38 @@ mixin MainScreenBuildContext {
 }
 
 mixin MainScreenScore {
-  ValueNotifier<int> imagesViewed = ValueNotifier(0);
-  Timer? imageQualifiedTimer;
+  final imagesViewedCounter = ValueNotifier<int>(0);
+  
+  final _viewedImages = <String>{};
+  Timer? _imageQualifiedTimer;
+
+  String getCurrentImagePath();
 
   static const secondsViewedForImageToScoreCount = 10;
 
   String getScoreText() {
-    return "Images observed: ${imagesViewed.value}";
+    return "Images observed: ${imagesViewedCounter.value}";
   }
 
   void waitThenAddImageToScore() {
-    imageQualifiedTimer?.cancel();
+    _imageQualifiedTimer?.cancel();
 
-    imageQualifiedTimer = Timer(
+    _imageQualifiedTimer = Timer(
       const Duration(seconds: secondsViewedForImageToScoreCount),
-      () => imagesViewed.value += 1,
+      () {
+        _viewedImages.add(getCurrentImagePath());
+        imagesViewedCounter.value = _viewedImages.length;
+      },
     );
   }
 
   void cancelLastCount() {
-    imageQualifiedTimer?.cancel();
+    _imageQualifiedTimer?.cancel();
   }
 
   void resetScore() {
-    imagesViewed.value = 0;
+    _viewedImages.clear();
+    imagesViewedCounter.value = 0;
   }
 }
 
