@@ -198,7 +198,7 @@ class _MainScreenState extends State<MainScreen>
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
             revealInExplorerHandler: revealCurrentImageInExplorer,
-            clipboardCopyImageHandler: copyCurrentImagePixelsToClipboard,
+            clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
             clipboardCopyTextHandler: _clipboardCopyTextHandler,
           ),
           const CountdownSheet(),
@@ -510,7 +510,7 @@ mixin MainScreenBuildContext {
 
 mixin MainScreenScore {
   final imagesViewedCounter = ValueNotifier<int>(0);
-  
+
   final _viewedImages = <String>{};
   Timer? _imageQualifiedTimer;
 
@@ -616,12 +616,16 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
     }
   }
 
-  void copyCurrentImagePixelsToClipboard() async {
+  void copyCurrentImageToClipboard() async {
     final currentImageData = getCurrentImageFileData();
     final filePath = currentImageData.filePath;
     try {
       final imageData = await getImageDataFromFile(filePath);
-      copyImageToClipboardAsPng(imageData, currentImageData.fileName);
+      await copyImageFileToClipboardAsPngAndFileUri(
+        image: imageData,
+        filePath: currentImageData.filePath,
+        suggestedName: currentImageData.fileName,
+      );
       showToast(
         message: "Image copied to clipboard",
         icon: Icons.copy,
@@ -800,14 +804,14 @@ class PhgestureControls extends StatelessWidget {
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
     required this.clipboardCopyTextHandler,
-    required this.clipboardCopyImageHandler,
+    required this.clipboardCopyImageFileHandler,
   });
 
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
   final ClipboardCopyTextHandler clipboardCopyTextHandler;
-  final VoidCallback clipboardCopyImageHandler;
+  final VoidCallback clipboardCopyImageFileHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -848,7 +852,7 @@ class PhgestureControls extends StatelessWidget {
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
             clipboardCopyHandler: clipboardCopyTextHandler,
-            copyImageHandler: clipboardCopyImageHandler,
+            copyImageFileHandler: clipboardCopyImageFileHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
