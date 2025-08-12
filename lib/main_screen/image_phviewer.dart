@@ -277,9 +277,21 @@ class ImageRightClick extends StatelessWidget {
         );
       }
 
+      void handleCopyFilename() {
+        clipboardCopyHandler?.call(
+          newClipboardText: model.getCurrentImageFileData().fileName,
+          toastMessage: 'Filename copied to clipboard.',
+        );
+      }
+
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,
         onClick: (menuItem) => copyImageFileHandler(),
+      );
+
+      final copyFilename = MenuItem(
+        label: PfsLocalization.copyFileName,
+        onClick: (menuItem) => handleCopyFilename(),
       );
 
       final copyFilePathItem = MenuItem(
@@ -296,6 +308,7 @@ class ImageRightClick extends StatelessWidget {
         items: [
           copyImageItem,
           copyFilePathItem,
+          copyFilename,
           MenuItem.separator(),
           revealInExplorerItem,
         ],

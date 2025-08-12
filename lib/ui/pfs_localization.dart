@@ -10,6 +10,7 @@ class PfsLocalization {
   static const String revealInExplorer = 'Reveal file in Explorer';
   static const String copyFilePath = 'Copy file path';
   static const String copyImageToClipboard = 'Copy Image';
+  static const String copyFileName = 'Copy filename';
 
   static const String timerPlaying = 'Timer running';
   static const String timerPaused = 'Timer paused';
