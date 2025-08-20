@@ -36,6 +36,9 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.numpadSubtract);
   static const zoomResetNav = SingleActivator(LogicalKeyboardKey.insert);
 
+  static const zoomInArrow = SingleActivator(LogicalKeyboardKey.arrowUp);
+  static const zoomOutArrow = SingleActivator(LogicalKeyboardKey.arrowDown);
+
   static const openFiles =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
   static const openFolder =
@@ -82,6 +85,8 @@ class Phshortcuts {
     Phshortcuts.zoomInNumpad: ZoomInIntent(),
     Phshortcuts.zoomOut: ZoomOutIntent(),
     Phshortcuts.zoomOutNumpad: ZoomOutIntent(),
+    Phshortcuts.zoomInArrow: ZoomInIntent(),
+    Phshortcuts.zoomOutArrow: ZoomOutIntent(),
     Phshortcuts.zoomReset: ZoomResetIntent(),
     Phshortcuts.zoomResetNav: ZoomResetIntent(),
     Phshortcuts.undo: UndoIntent(),
