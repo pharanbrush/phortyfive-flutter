@@ -90,6 +90,7 @@ class _MainScreenState extends State<MainScreen>
     (RestartTimerIntent, (_) => model.timerModel.restartTimer()),
     (OpenFilesIntent, (_) => model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => model.openFilePickerForFolder()),
+    (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
     (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
     (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),

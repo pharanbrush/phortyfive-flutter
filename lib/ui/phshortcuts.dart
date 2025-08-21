@@ -30,6 +30,8 @@ class Phshortcuts {
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
+  static const copyFile =
+      SingleActivator(LogicalKeyboardKey.keyC, control: true);
 
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
@@ -54,7 +56,8 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.comma, control: true);
 
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
-  static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH, control: true);
+  static const toggleBottomBar =
+      SingleActivator(LogicalKeyboardKey.keyH, control: true);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
   static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
@@ -91,6 +94,7 @@ class Phshortcuts {
     Phshortcuts.zoomOutArrow: ZoomOutIntent(),
     Phshortcuts.zoomReset: ZoomResetIntent(),
     Phshortcuts.zoomResetNav: ZoomResetIntent(),
+    Phshortcuts.copyFile: CopyFileIntent(),
     Phshortcuts.undo: UndoIntent(),
     Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
     Phshortcuts.clearAnnotations: AnnotationClearIntent(),
@@ -184,4 +188,8 @@ class UndoIntent extends Intent {
 
 class FlipHorizontalIntent extends Intent {
   const FlipHorizontalIntent();
+}
+
+class CopyFileIntent extends Intent {
+  const CopyFileIntent();
 }
