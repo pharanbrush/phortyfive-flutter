@@ -31,6 +31,7 @@ class Phshortcuts {
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
 
+  static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
   static const zoomOutNumpad =
       SingleActivator(LogicalKeyboardKey.numpadSubtract);
@@ -53,7 +54,7 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.comma, control: true);
 
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
-  static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH);
+  static const toggleBottomBar = SingleActivator(LogicalKeyboardKey.keyH, control: true);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
   static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
@@ -81,6 +82,7 @@ class Phshortcuts {
     Phshortcuts.returnHome: ReturnHomeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
+    Phshortcuts.flipHorizontal: FlipHorizontalIntent(),
     Phshortcuts.zoomIn: ZoomInIntent(),
     Phshortcuts.zoomInNumpad: ZoomInIntent(),
     Phshortcuts.zoomOut: ZoomOutIntent(),
@@ -178,4 +180,8 @@ class AnnotationCycleColorsIntent extends Intent {
 
 class UndoIntent extends Intent {
   const UndoIntent();
+}
+
+class FlipHorizontalIntent extends Intent {
+  const FlipHorizontalIntent();
 }

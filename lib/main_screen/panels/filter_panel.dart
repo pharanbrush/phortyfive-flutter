@@ -37,6 +37,7 @@ class FilterPanel extends StatelessWidget {
             imagePhviewer: imagePhviewer,
             onChanged: handleBlurSliderChanged,
           ),
+          FlipControls(imagePhviewer: imagePhviewer),
         ],
       ),
     );
@@ -105,6 +106,38 @@ class FilterPanel extends StatelessWidget {
           ).animate(effects: const [Phanimations.growBottomEffect]),
         ),
       ],
+    );
+  }
+}
+
+class FlipControls extends StatelessWidget {
+  const FlipControls({
+    super.key,
+    required this.imagePhviewer,
+  });
+
+  final ImagePhviewer imagePhviewer;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: imagePhviewer.flipHorizontalListenable,
+      builder: (_, __, ___) {
+        return Row(
+          children: [
+            Text(
+              "Flip",
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            IconButton.filled(
+              onPressed: () => imagePhviewer.flipHorizontal(),
+              icon: Icon(Icons.flip),
+              isSelected: imagePhviewer.flipHorizontalListenable.value,
+              tooltip: "Flip the view horizontally (H)",
+            ),
+          ],
+        );
+      },
     );
   }
 }

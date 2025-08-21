@@ -99,6 +99,7 @@ class _MainScreenState extends State<MainScreen>
     (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
     (OpenPreferencesIntent, (_) => settingsMenu.open()),
     (ZoomInIntent, (_) => imagePhviewer.incrementZoomLevel(1)),
+    (FlipHorizontalIntent, (_) => imagePhviewer.flipHorizontal()),
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
   ];

@@ -31,6 +31,7 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
 
   Widget widget(ValueListenable<bool> isBottomBarMinimized) {
     return ImageViewerStackWidget(
+      flipHorizontalListenable: flipHorizontalListenable,
       panDurationListenable: panDurationListenable,
       isBottomBarMinimized: isBottomBarMinimized,
       offsetListenable: offsetListenable,
@@ -104,6 +105,8 @@ mixin ImageZoomPanner {
   ];
   static const _defaultZoomLevel = 3;
 
+  final flipHorizontalListenable = ValueNotifier<bool>(false);
+
   final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
   double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
   int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
@@ -148,6 +151,15 @@ mixin ImageZoomPanner {
     panRelease();
     _resetZoomLevel();
     resetOffset();
+    resetFlip();
+  }
+
+  void resetFlip() {
+    flipHorizontalListenable.value = false;
+  }
+
+  void flipHorizontal() {
+    flipHorizontalListenable.value = !flipHorizontalListenable.value;
   }
 
   void _scalePanOffset(double previousZoomScale, double newZoomScale) {
@@ -157,6 +169,11 @@ mixin ImageZoomPanner {
   }
 
   void panImage(Offset delta) {
+    final isFlippedHorizontal = flipHorizontalListenable.value;
+    if (isFlippedHorizontal) {
+      delta = delta.scale(-1, 1);
+    }
+    
     var newOffsetValue = offsetListenable.value + delta;
     panDurationListenable.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
@@ -338,6 +355,7 @@ class ImageViewerStackWidget extends StatelessWidget {
     required this.revealInExplorerHandler,
     required this.isAnnotatingListenable,
     required this.offsetListenable,
+    required this.flipHorizontalListenable,
     required this.panDurationListenable,
   });
 
@@ -347,6 +365,7 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ValueNotifier<int> zoomLevelListenable;
   final ValueNotifier<double> blurLevelListenable;
   final ValueNotifier<bool> isAnnotatingListenable;
+  final ValueNotifier<bool> flipHorizontalListenable;
   final ValueNotifier<bool> usingGrayscaleListenable;
   final double Function() getCurrentZoomScale;
   final Function(FileData fileData) revealInExplorerHandler;
@@ -409,24 +428,33 @@ class ImageViewerStackWidget extends StatelessWidget {
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
               child: ValueListenableBuilder(
-                  valueListenable: panDurationListenable,
-                  builder: (_, panDuration, ___) {
-                    return ListeningAnimatedTranslate(
-                      offsetListenable: offsetListenable,
-                      duration: panDuration,
-                      child: ValueListenableBuilder(
-                        valueListenable: zoomLevelListenable,
-                        builder: (_, __, ___) {
-                          return AnimatedScale(
-                            duration: Phanimations.zoomTransitionDuration,
-                            curve: Phanimations.zoomTransitionCurve,
-                            scale: getCurrentZoomScale(),
-                            child: possiblyAnnotatedImageWidget,
+                valueListenable: flipHorizontalListenable,
+                builder: (_, __, ___) {
+                  return Transform.flip(
+                    flipX: flipHorizontalListenable.value,
+                    flipY: false,
+                    child: ValueListenableBuilder(
+                        valueListenable: panDurationListenable,
+                        builder: (_, panDuration, ___) {
+                          return ListeningAnimatedTranslate(
+                            offsetListenable: offsetListenable,
+                            duration: panDuration,
+                            child: ValueListenableBuilder(
+                              valueListenable: zoomLevelListenable,
+                              builder: (_, __, ___) {
+                                return AnimatedScale(
+                                  duration: Phanimations.zoomTransitionDuration,
+                                  curve: Phanimations.zoomTransitionCurve,
+                                  scale: getCurrentZoomScale(),
+                                  child: possiblyAnnotatedImageWidget,
+                                );
+                              },
+                            ),
                           );
-                        },
-                      ),
-                    );
-                  }),
+                        }),
+                  );
+                },
+              ),
             ),
           ),
           ValueListenableBuilder(
