@@ -55,7 +55,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       // onDoubleTap: clearLastAnnotation,
       onPanDown: (details) {
         startNewAnnotation();
-        print("starting annotation");
+        //print("starting annotation");
         // if (widget.annotationType == 'text') {
         //   _showTextAnnotationDialog(context, details.localPosition);
         // } else {
@@ -132,7 +132,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
     final returnSize = Size(width, height);
 
-    print("image size calculated: $returnSize");
+    //print("image size calculated: $returnSize");
     return returnSize;
   }
 
@@ -154,7 +154,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   // Start a new annotation
   void startNewAnnotation() {
     setState(() {
-      print("startNewAnnotation");
+      //print("startNewAnnotation");
       currentAnnotation = [];
       annotations.add(currentAnnotation);
     });
@@ -162,7 +162,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   // Draw shape based on the current position
   void drawShape(Offset position) {
-    print("drawShape");
+    //print("drawShape");
     if (position.dx >= 0 &&
         position.dy >= 0 &&
         position.dx <= imageSize!.width &&

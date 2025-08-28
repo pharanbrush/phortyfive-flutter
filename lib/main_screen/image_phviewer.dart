@@ -173,7 +173,7 @@ mixin ImageZoomPanner {
     if (isFlippedHorizontal) {
       delta = delta.scale(-1, 1);
     }
-    
+
     var newOffsetValue = offsetListenable.value + delta;
     panDurationListenable.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
