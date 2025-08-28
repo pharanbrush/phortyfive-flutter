@@ -34,7 +34,7 @@ class PfsTheme {
     'phriends': () => phriends.themeData,
     'phaint': () => clip.themeData,
     'philes': () => philesTen.themeData,
-    'phish': () => lysaris.themeData,
+    //'phish': () => lysaris.themeData,
   };
 
   static const themeNames = <String, String>{
