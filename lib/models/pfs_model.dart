@@ -15,14 +15,15 @@ class PfsAppModel extends Model
         PfsImageFileManager,
         PfsModelTimer,
         PfsCountdownCounter,
+        PfsWelcomer,
         PfsCirculator,
         PfsAnnotator {
   static ScopedModelDescendant<PfsAppModel> scope(
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  bool get allowTimerPlayPause => hasFilesLoaded && !isAnnotating;
-  bool get allowCirculatorControl => hasFilesLoaded && !isAnnotating;
+  bool get allowTimerPlayPause => hasFilesLoaded && isWelcomeDone && !isAnnotating;
+  bool get allowCirculatorControl => hasFilesLoaded && isWelcomeDone && !isAnnotating;
   bool get isAnnotating => isAnnotatingMode.value;
 
   @override
@@ -85,14 +86,33 @@ class PfsAppModel extends Model
     final loadedCount = fileList.getCount();
     circulator.startNewOrder(loadedCount);
 
-    timerModel.tryInitialize();
-    timerModel.onElapse ??= () => _handleTimerElapsed();
+    if (isWelcomeDone) {
+      reinitializeTimer();
+      if (timerModel.isRunning) {
+        tryStartCountdown();
+      }
 
-    tryStartCountdown();
-    timerModel.restartTimer();
+      onImageChange?.call();
+      notifyListeners();
+    }
+  }
+
+  void tryStartSession() {
+    reinitializeTimer();
+    if (isUserChoseToStartTimer) {
+      tryStartCountdown();
+    } else {
+      timerModel.setActive(false);
+    }
 
     onImageChange?.call();
     notifyListeners();
+  }  
+
+  void reinitializeTimer() {
+    timerModel.tryInitialize();
+    timerModel.onElapse ??= () => _handleTimerElapsed();
+    timerModel.restartTimer();
   }
 
   @override
@@ -111,6 +131,13 @@ class PfsAppModel extends Model
     timerModel.deregisterPauser(this);
     timerModel.restartTimer();
   }
+}
+
+mixin PfsWelcomer {
+  bool isWelcomeDone = false;
+  bool isUserChoseToStartTimer = false;
+
+  void Function()? onWelcomeComplete;
 }
 
 mixin PfsAnnotator {

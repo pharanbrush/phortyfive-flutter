@@ -17,6 +17,7 @@ import 'package:pfs2/main_screen/sheets/countdown_sheet.dart';
 import 'package:pfs2/main_screen/sheets/first_action_sheet.dart';
 import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
+import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -55,6 +56,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
+        PlayPauseAnimatedIcon,
         MainScreenBuildContext,
         MainScreenModels,
         MainScreenWindow,
@@ -104,14 +106,6 @@ class _MainScreenState extends State<MainScreen>
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
   ];
-
-  late final AnimationController _playPauseIconStateAnimator =
-      AnimationController(
-    duration: Phanimations.defaultDuration,
-    // WORKAROUND: the default value: 0 causes the icon to have the wrong initial state when the timer first plays.
-    value: 1,
-    vsync: this,
-  );
 
   @override
   void initState() {
@@ -168,6 +162,28 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return firstActionApp;
+    }
+
+    if (model.hasFilesLoaded && !model.isWelcomeDone) {
+      final welcomeChooseModeApp = Stack(
+        children: [
+          WelcomeChooseModeSheet(model: model),
+          // CornerWindowControls(
+          //   windowState: windowState,
+          //   imagePhviewer: imagePhviewer,
+          //   helpMenu: helpMenu,
+          //   settingsMenu: settingsMenu,
+          // ),
+          // ValueListenableBuilder(
+          //   valueListenable: windowState.isBottomBarMinimized,
+          //   builder: (context, __, ___) => _bottomBar(context),
+          // ),
+          ...modalPanelWidgets,
+          loadingSheetLayer,
+        ],
+      );
+
+      return welcomeChooseModeApp;
     }
 
     Widget shortcutsWrapper(Widget childWidget) {
@@ -253,6 +269,7 @@ class _MainScreenState extends State<MainScreen>
     model.onCountdownUpdate ??= () => _playClickSound();
     model.onImageDurationElapse ??= () => _playClickSound();
     model.onFilePickerStateChange ??= () => _handleFilePickerOpenClose();
+    model.onWelcomeComplete ??= () => _handleWelcomeComplete();
 
     final timerModel = model.timerModel;
     timerModel.onPlayPause ??= () => _handleTimerPlayPause();
@@ -266,6 +283,10 @@ class _MainScreenState extends State<MainScreen>
   void _handleDisposeCallbacks() {
     windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
+  }
+
+  void _handleWelcomeComplete() {
+    _handleTimerPlayPause();
   }
 
   void _tryReturnHome() {
@@ -320,15 +341,12 @@ class _MainScreenState extends State<MainScreen>
     _updateAlwaysOnTop();
   }
 
-  void _handleTimerPlayPause() {
-    void updateTimerPlayPauseIcon() {
-      if (model.timerModel.isRunning) {
-        _playPauseIconStateAnimator.forward();
-      } else {
-        _playPauseIconStateAnimator.reverse();
-      }
-    }
+  void updateTimerPlayPauseIcon() {
+    final isTimerRunning = model.timerModel.isRunning;
+    animateTimerIconTo(isTimerRunning);
+  }
 
+  void _handleTimerPlayPause() {
     showTimerToast() {
       bool isRunning = model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
@@ -499,6 +517,24 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return normalBottomBar;
+  }
+}
+
+mixin PlayPauseAnimatedIcon on TickerProvider {
+  late final AnimationController _playPauseIconStateAnimator =
+      AnimationController(
+    duration: Phanimations.defaultDuration,
+    // WORKAROUND: the default value: 0 causes the icon to have the wrong initial state when the timer first plays.
+    value: 1,
+    vsync: this,
+  );
+
+  void animateTimerIconTo(bool isTimerRunning) {
+    if (isTimerRunning) {
+      _playPauseIconStateAnimator.forward();
+    } else {
+      _playPauseIconStateAnimator.reverse();
+    }
   }
 }
 
