@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -20,6 +22,48 @@ class TimerDurationPanel extends StatelessWidget {
 
   final TextEditingController timerTextEditorController;
   final FocusNode timerTextEditorFocusNode;
+
+  static const List<Offset> presetPositions = [
+    Offset(-5, 140),
+    Offset(12, 84),
+    Offset(54, 34),
+    Offset(113, 3),
+    Offset(187, 4),
+    Offset(246, 38),
+    Offset(283, 84),
+    Offset(298, 140),
+  ];
+
+  static const List<(String, int)> timerPresets = [
+    ('15s', 15),
+    ('30s', 30),
+    ('45s', 45),
+    ('60s', 60),
+    ('90s', 90),
+    ('2m', 2 * 60),
+    ('3m', 3 * 60),
+    ('5m', 5 * 60),
+  ];
+
+  Iterable<Widget> presetButtons() sync* {
+    Widget preset(String text, int seconds, Offset offset) {
+      const double leftOffset = 75;
+      const double topOffset = 70;
+
+      return Positioned(
+        key: Key('$seconds seconds button'),
+        left: leftOffset + offset.dx,
+        top: topOffset + offset.dy,
+        child: TimerPresetButton(text, seconds),
+      );
+    }
+
+    final n = min(timerPresets.length, presetPositions.length);
+    for (var i = 0; i < n; i++) {
+      final (String text, int seconds) = timerPresets[i];
+      yield preset(text, seconds, presetPositions[i]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,18 +106,6 @@ class TimerDurationPanel extends StatelessWidget {
           child: child,
         );
       }
-
-      Widget preset(String text, int seconds, double left, double top) {
-        return Positioned(
-          key: Key('$seconds seconds button'),
-          left: left,
-          top: top,
-          child: TimerPresetButton(text, seconds),
-        );
-      }
-
-      const double leftOffset = 75;
-      const double topOffset = 70;
 
       final labelStyle = TextStyle(
         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -123,17 +155,9 @@ class TimerDurationPanel extends StatelessWidget {
                   height: 500,
                   width: 500,
                   child: Stack(
-                    children: [
-                      preset('15s', 15, leftOffset + 13, topOffset + 84),
-                      preset('30s', 30, leftOffset + 54, topOffset + 34),
-                      preset('45s', 45, leftOffset + 113, topOffset + 3),
-                      preset('60s', 60, leftOffset + 187, topOffset + 4),
-                      preset('90s', 90, leftOffset + 246, topOffset + 38),
-                      preset('2m', 2 * 60, leftOffset + 283, topOffset + 84),
-                      preset('3m', 3 * 60, leftOffset + 298, topOffset + 140),
-                    ].animate(
-                      interval: const Duration(milliseconds: 40),
-                      delay: const Duration(milliseconds: 120),
+                    children: presetButtons().toList().animate(
+                      interval: const Duration(milliseconds: 30),
+                      delay: const Duration(milliseconds: 100),
                       effects: const [
                         Phanimations.slideUpEffect,
                         Phanimations.fadeInEffect,
