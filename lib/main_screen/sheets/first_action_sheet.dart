@@ -38,11 +38,13 @@ class FirstActionSheet extends StatelessWidget {
       size: firstActionIconSize,
       color: titleStyle?.color ?? downArrowColor,
     );
+    
+    final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     return SizedBox(
       width: 350,
       height: 250,
-      child: Card(
+      child: panelMaterial(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Stack(children: [
