@@ -63,7 +63,7 @@ class FirstActionSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   const Text(
-                    'You can also drag & drop images into the window.',
+                    'You can also drag & drop image folders into the window.',
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(flex: 5),

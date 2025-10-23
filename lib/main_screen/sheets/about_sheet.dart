@@ -40,7 +40,7 @@ class AboutSheet extends StatelessWidget {
           'Phorty-Five Seconds by PharanBrush',
           style: headingStyle,
         ),
-        const Text('Timed Image Viewer for Drawing Practice'),
+        const Text('Image Shuffler for Drawing Practice'),
         spacing,
         const Text('Build ${PfsLocalization.version}'),
         const HyperlinkRichText(
