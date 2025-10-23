@@ -5,12 +5,14 @@ import 'dart:ui';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
 import 'package:pfs2/core/file_data.dart' show FileData;
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/utils/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -104,6 +106,27 @@ mixin ImageZoomPanner {
     8.0,
   ];
   static const _defaultZoomLevel = 3;
+  
+  double zoomAccumulator = 0;
+  void incrementZoomAccumulator (double dragIncrement) {
+    final zoomSensitivity = 0.04;
+    
+    zoomAccumulator += dragIncrement * zoomSensitivity;
+    print (dragIncrement * zoomSensitivity);
+    
+    if (zoomAccumulator > 1) {
+      zoomAccumulator -= 1;
+      incrementZoomLevel(1);
+    } else if (zoomAccumulator < -1) {
+      zoomAccumulator += 1;
+      incrementZoomLevel(-1);
+    }
+  }
+  
+  void resetZoomAccumulator() {
+    zoomAccumulator = 0;
+  }
+  
 
   final flipHorizontalListenable = ValueNotifier<bool>(false);
 
@@ -600,11 +623,21 @@ class ImagePhviewerPanListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
+        final pointerDelta = details.delta;
+
+        if (Phshortcuts.isDragZoomModifierPressed()) {
+          imagePhviewer.incrementZoomAccumulator(pointerDelta.dx);
+          imagePhviewer.incrementZoomAccumulator(-pointerDelta.dy);
+          return;
+        }
+
         if (!imagePhviewer.isZoomedIn) return;
 
-        imagePhviewer.panImage(details.delta);
+        imagePhviewer.panImage(pointerDelta);
       },
       onPanEnd: (details) {
+        imagePhviewer.resetZoomAccumulator();
+        
         if (!imagePhviewer.isZoomedIn) return;
 
         imagePhviewer.panRelease();

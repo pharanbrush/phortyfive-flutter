@@ -62,6 +62,15 @@ class Phshortcuts {
 
   static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
 
+  static bool isDragZoomModifierPressed() {
+    final keyboard = HardwareKeyboard.instance;
+    final isSpacePressed =
+        keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
+    final isShiftPressed = keyboard.isShiftPressed;
+    
+    return isSpacePressed && isShiftPressed;
+  }
+
   static const intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
