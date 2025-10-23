@@ -6,7 +6,7 @@ class PfsLocalization {
   static const String version = '0.9.20250828a';
 
   static const String alwaysOnTop = 'Keep window on top';
-  static const String help = 'Help...';
+  static const String shortcutHelp = 'Shortcut help...';
   static const String revealInExplorer = 'Reveal file in Explorer';
   static const String copyFilePath = 'Copy file path';
   static const String copyImageToClipboard = 'Copy Image';

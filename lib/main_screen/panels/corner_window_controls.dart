@@ -72,7 +72,7 @@ class CornerWindowControls extends StatelessWidget {
                     onPressed: () => helpMenu.open(),
                     icon: Icons.help_rounded,
                     tooltip: PfsLocalization.buttonTooltip(
-                      commandName: PfsLocalization.help,
+                      commandName: PfsLocalization.shortcutHelp,
                       shortcut: Phshortcuts.help,
                     ),
                   ),
