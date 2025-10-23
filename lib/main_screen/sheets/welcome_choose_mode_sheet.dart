@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class WelcomeChooseModeSheet extends StatelessWidget {
@@ -34,12 +35,13 @@ class WelcomeChooseModeSheet extends StatelessWidget {
     final currentTheme = Theme.of(context).extension<PhtimerTheme>();
     final playColor = currentTheme?.runningColor;
     final pausedColor = currentTheme?.pausedColor;
+    final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     return Center(
       child: SizedBox(
         width: 350,
-        height: 300,
-        child: Card(
+        height: 320,
+        child: panelMaterial(
           child: Padding(
             padding: padding,
             child: Column(
