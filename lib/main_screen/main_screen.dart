@@ -211,7 +211,6 @@ class _MainScreenState extends State<MainScreen>
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone(model),
-          // TODO: Make gesture controls conditional to annotation mode.
           PhgestureControls(
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
