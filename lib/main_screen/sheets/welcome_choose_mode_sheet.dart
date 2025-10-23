@@ -31,10 +31,12 @@ class WelcomeChooseModeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     int imageCount = model.circulator.count;
     const padding = EdgeInsets.symmetric(vertical: 10, horizontal: 20);
-    
-    final currentTheme = Theme.of(context).extension<PhtimerTheme>();
-    final playColor = currentTheme?.runningColor;
-    final pausedColor = currentTheme?.pausedColor;
+
+    // final currentTheme = Theme.of(context).extension<PhtimerTheme>();
+    // final playColor = currentTheme?.runningColor;
+    // final pausedColor = currentTheme?.pausedColor;
+    final labelSmall = Theme.of(context).textTheme.labelSmall;
+
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     return Center(
@@ -46,28 +48,48 @@ class WelcomeChooseModeSheet extends StatelessWidget {
             padding: padding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    "$imageCount ${PfsLocalization.imageNoun(imageCount)} loaded.",
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(9.0),
+                        child: Icon(Icons.image),
+                      ),
+                      Text(
+                        textAlign: TextAlign.center,
+                        "$imageCount ${PfsLocalization.imageNoun(imageCount)} loaded",
+                      ),
+                      SizedBox(width: 28, height: 28),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Center(
+                    child: Text(
+                      "How do you want to start this session?",
+                      //style: labelSmall,
+                    ),
                   ),
                 ),
                 welcomeChoiceButton(
                   text: "Just browse",
-                  icon: Icon(Icons.pause),
-                  color: pausedColor,
+                  icon: Icon(Icons.folder),
+                  //color: pausedColor,
                   onPressed: () => _chooseBrowseSession(),
                 ),
-                SizedBox(width: 10, height: 10),
                 welcomeChoiceButton(
                   text: "Start timer",
-                  icon: Icon(Icons.play_arrow),
-                  color: playColor,
+                  icon: Icon(Icons.timer),
+                  //color: playColor,
                   onPressed: () => _chooseTimerSession(),
                 ),
+                SizedBox(width: 10, height: 22),
               ],
             ),
           ),
@@ -83,15 +105,20 @@ class WelcomeChooseModeSheet extends StatelessWidget {
     Color? color,
   }) {
     final buttonStyle = OutlinedButton.styleFrom(
-      minimumSize: Size(200, 100),
-      foregroundColor: color,
+      minimumSize: Size(200, 70),
+      //foregroundColor: color,
     );
 
-    return TextButton.icon(
-      icon: icon,
+    var button = FilledButton.tonalIcon(
       onPressed: onPressed,
-      label: Text(text),
+      icon: icon,
       style: buttonStyle,
+      label: Text(text),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 3),
+      child: button,
     );
   }
 }
