@@ -110,9 +110,7 @@ mixin ImageZoomPanner {
   double zoomAccumulator = 0;
   void incrementZoomAccumulator (double dragIncrement) {
     final zoomSensitivity = 0.04;
-    
     zoomAccumulator += dragIncrement * zoomSensitivity;
-    print (dragIncrement * zoomSensitivity);
     
     if (zoomAccumulator > 1) {
       zoomAccumulator -= 1;
