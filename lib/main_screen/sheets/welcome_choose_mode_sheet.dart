@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 class WelcomeChooseModeSheet extends StatelessWidget {
   const WelcomeChooseModeSheet({
@@ -35,7 +34,7 @@ class WelcomeChooseModeSheet extends StatelessWidget {
     // final currentTheme = Theme.of(context).extension<PhtimerTheme>();
     // final playColor = currentTheme?.runningColor;
     // final pausedColor = currentTheme?.pausedColor;
-    final labelSmall = Theme.of(context).textTheme.labelSmall;
+    // final labelSmall = Theme.of(context).textTheme.labelSmall;
 
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
@@ -78,16 +77,16 @@ class WelcomeChooseModeSheet extends StatelessWidget {
                   ),
                 ),
                 welcomeChoiceButton(
-                  text: "Just browse",
-                  icon: Icon(Icons.folder),
-                  //color: pausedColor,
-                  onPressed: () => _chooseBrowseSession(),
-                ),
-                welcomeChoiceButton(
                   text: "Start timer",
                   icon: Icon(Icons.timer),
                   //color: playColor,
                   onPressed: () => _chooseTimerSession(),
+                ),
+                welcomeChoiceButton(
+                  text: "Just browse",
+                  icon: Icon(Icons.folder),
+                  //color: pausedColor,
+                  onPressed: () => _chooseBrowseSession(),
                 ),
                 SizedBox(width: 10, height: 22),
               ],
