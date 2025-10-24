@@ -53,6 +53,8 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
+class AppControlsMode {}
+
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
@@ -107,11 +109,18 @@ class _MainScreenState extends State<MainScreen>
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
   ];
 
+  final imageBrowseMode = AppControlsMode();
+  final annotationMode = AppControlsMode(); 
+  final colorPickMode = AppControlsMode();
+  late AppControlsMode currentAppControlsMode = imageBrowseMode;
+
   @override
   void initState() {
     _bindModelCallbacks();
     _loadSettings();
     super.initState();
+
+    currentAppControlsMode = imageBrowseMode;
 
     _checkAndLoadLaunchArgPath();
   }
@@ -123,11 +132,37 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
+  Widget overlayGestureControls(BuildContext context) {
+    if (currentAppControlsMode == colorPickMode) {
+      return SizedBox.shrink();
+    }
+
+    return ImageBrowseGestureControls(
+      playPauseIconProgress: _playPauseIconStateAnimator,
+      imagePhviewer: imagePhviewer,
+      revealInExplorerHandler: revealCurrentImageInExplorer,
+      clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
+      clipboardCopyTextHandler: _clipboardCopyTextHandler,
+    );
+  }
+
+  Widget bottomControlBar(BuildContext context) {
+    final Size windowSize = MediaQuery.of(context).size;
+
+    return ValueListenableBuilder(
+      valueListenable: windowState.isBottomBarMinimized,
+      builder: (_, __, ___) {
+        return _imageBrowseBottomControls(
+          context,
+          windowWidth: windowSize.width,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     updateCurrentBuildContext(context: context);
-
-    final Size windowSize = MediaQuery.of(context).size;
 
     final loadingSheetLayer = ValueListenableBuilder(
       valueListenable: model.isLoadingImages,
@@ -153,7 +188,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) => _bottomBar(context),
+            builder: (context, __, ___) => _imageBrowseBottomControls(context),
           ),
           _fileDropZone(model),
           ...modalPanelWidgets,
@@ -211,13 +246,7 @@ class _MainScreenState extends State<MainScreen>
         children: [
           imagePhviewer.widget(windowState.isBottomBarMinimized),
           _fileDropZone(model),
-          PhgestureControls(
-            playPauseIconProgress: _playPauseIconStateAnimator,
-            imagePhviewer: imagePhviewer,
-            revealInExplorerHandler: revealCurrentImageInExplorer,
-            clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
-            clipboardCopyTextHandler: _clipboardCopyTextHandler,
-          ),
+          overlayGestureControls(context),
           const CountdownSheet(),
           CornerWindowControls(
             windowState: windowState,
@@ -225,15 +254,7 @@ class _MainScreenState extends State<MainScreen>
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
-          ValueListenableBuilder(
-            valueListenable: windowState.isBottomBarMinimized,
-            builder: (_, __, ___) {
-              return _bottomBar(
-                context,
-                windowWidth: windowSize.width,
-              );
-            },
-          ),
+          bottomControlBar(context),
           WindowDockingControls(
             isBottomBarMinimized: windowState.isBottomBarMinimized,
           ),
@@ -438,7 +459,7 @@ class _MainScreenState extends State<MainScreen>
     windowManager.focus();
   }
 
-  Widget _bottomBar(BuildContext context, {double? windowWidth}) {
+  Widget _imageBrowseBottomControls(BuildContext context, {double? windowWidth}) {
     bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
 
     const Widget minimizedBottomBar = Positioned(
@@ -834,8 +855,8 @@ class WindowDockingControls extends StatelessWidget {
   }
 }
 
-class PhgestureControls extends StatelessWidget {
-  const PhgestureControls({
+class ImageBrowseGestureControls extends StatelessWidget {
+  const ImageBrowseGestureControls({
     super.key,
     required this.playPauseIconProgress,
     required this.imagePhviewer,
