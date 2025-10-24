@@ -621,22 +621,22 @@ class ImagePhviewerPanListener extends StatelessWidget {
     return GestureDetector(
       onPanUpdate: (details) {
         final pointerDelta = details.delta;
-
+    
         if (Phshortcuts.isDragZoomModifierPressed()) {
           imagePhviewer.incrementZoomAccumulator(pointerDelta.dx);
           imagePhviewer.incrementZoomAccumulator(-pointerDelta.dy);
           return;
         }
-
+    
         if (!imagePhviewer.isZoomedIn) return;
-
+    
         imagePhviewer.panImage(pointerDelta);
       },
       onPanEnd: (details) {
         imagePhviewer.resetZoomAccumulator();
         
         if (!imagePhviewer.isZoomedIn) return;
-
+    
         imagePhviewer.panRelease();
       },
       child: child,
