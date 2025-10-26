@@ -7,7 +7,7 @@ import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
-import 'package:pfs2/utils/path_directory_expand.dart';
+import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model

@@ -7,7 +7,7 @@ import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/phlutter/bitsdojo_phwindow.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
-import 'package:pfs2/utils/preferences.dart';
+import 'package:pfs2/models/preferences.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 

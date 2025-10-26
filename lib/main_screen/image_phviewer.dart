@@ -13,7 +13,7 @@ import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/utils/values_notifier.dart';
+import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/annotation_overlay.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
