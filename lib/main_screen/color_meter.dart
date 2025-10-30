@@ -48,6 +48,7 @@ class ColorLoupe {
         context,
         _handleOnColorClicked,
         _handleOnColorHover,
+        _handleSecondaryTap,
       );
     } catch (err) {
       debugPrint('ERROR !!! showOverlay $err');
@@ -56,6 +57,10 @@ class ColorLoupe {
 
   void endOverlay() {
     EyeDrop.endEyeDrop();
+  }
+
+  void _handleSecondaryTap() {
+    onSecondaryTap?.call();
   }
 
   void _handleOnColorHover(Color value) {
@@ -67,6 +72,28 @@ class ColorLoupe {
     onColorClicked(value);
   }
 }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// eye_dropper_layer.dart
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 final captureKey = GlobalKey();
 
@@ -84,6 +111,7 @@ class EyeDropperModel {
 
   ValueChanged<Color>? onColorSelected;
   ValueChanged<Color>? onColorChanged;
+  void Function()? onSecondaryTap;
 
   EyeDropperModel();
 }
@@ -106,7 +134,14 @@ class EyeDrop extends InheritedWidget {
                 details.position,
                 details.kind == PointerDeviceKind.touch,
               ),
-              onPointerUp: (details) => _onPointerUp(details.position),
+              onPointerDown: (PointerDownEvent details) {
+                if (details.buttons == 2) {
+                  data.onSecondaryTap!();
+                }
+              },
+              onPointerUp: (PointerUpEvent details) {
+                _onPrimaryTapUp(details.position);
+              },
               child: child,
             ),
           ),
@@ -121,13 +156,11 @@ class EyeDrop extends InheritedWidget {
     return eyeDrop;
   }
 
-  static void _onPointerUp(Offset position) {
+  static void _onPrimaryTapUp(Offset position) {
     _onHover(position, data.isTouchInterface);
     if (data.onColorSelected != null) {
       data.onColorSelected!(data.hoverColors.center);
     }
-
-    //endEyeDrop();
   }
 
   static void endEyeDrop() {
@@ -164,6 +197,7 @@ class EyeDrop extends InheritedWidget {
     BuildContext context,
     ValueChanged<Color> onColorSelected,
     ValueChanged<Color>? onColorChanged,
+    void Function()? onSecondaryTap,
   ) async {
     await _capturePickableImage();
 
@@ -171,6 +205,7 @@ class EyeDrop extends InheritedWidget {
 
     data.onColorSelected = onColorSelected;
     data.onColorChanged = onColorChanged;
+    data.onSecondaryTap = onSecondaryTap;
 
     data.eyeOverlayEntry = OverlayEntry(
       builder: (_) => EyeDropOverlay(
@@ -203,7 +238,21 @@ class EyeDrop extends InheritedWidget {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 // eye_dropper_overlay.dart
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -360,14 +409,24 @@ class _PixelGridPainter extends CustomPainter {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 // utils.dart
 //
 //
 //
-
-extension Screen on MediaQueryData {
-  bool get isPhone => size.shortestSide < 600;
-}
+//
+//
+//
+//
+//
+//
+//
 
 extension Chroma on String {
   /// converts string to [Color]

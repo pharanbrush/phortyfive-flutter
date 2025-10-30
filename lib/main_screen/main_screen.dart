@@ -296,6 +296,12 @@ class _MainScreenState extends State<MainScreen>
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
+
+    onColorMeterSecondaryTap = () {
+      setState(() {
+        setAppMode(PfsAppControlsMode.imageBrowse);
+      });
+    };
   }
 
   void _handleDisposeCallbacks() {
@@ -494,8 +500,7 @@ class _MainScreenState extends State<MainScreen>
 
       if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
         return [
-          currentColorForBottomBar(),
-          referenceColorPreviewForBottomBar(),
+          ...colorMeterBottomBarItems(),
           IconButton(
             onPressed: () {
               setState(() {
@@ -686,10 +691,12 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
 mixin MainScreenColorMeter {
   late final referenceColor = ValueNotifier(Colors.white);
   late final currentColor = ValueNotifier(Colors.white);
+  void Function()? onColorMeterSecondaryTap;
 
   late final loupe = ColorLoupe(
     onColorHover: onColorHover,
     onColorClicked: onColorSelected,
+    onSecondaryTap: onColorMeterSecondaryTap,
   );
 
   bool isColorMetering = false;
@@ -710,15 +717,24 @@ mixin MainScreenColorMeter {
     );
   }
 
-  Widget currentColorForBottomBar() {
+  Iterable<Widget> colorMeterBottomBarItems() {
+    return [
+      _currentColorForBottomBar(),
+      _referenceColorPreviewForBottomBar(),
+    ];
+  }
+
+  Widget _currentColorForBottomBar() {
     return valueListeningColorBox(currentColor);
   }
 
-  Widget referenceColorPreviewForBottomBar() {
+  Widget _referenceColorPreviewForBottomBar() {
     return valueListeningColorBox(referenceColor);
   }
 
   Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
+    const double boxSize = 40;
+
     return ValueListenableBuilder(
       valueListenable: listenableColor,
       builder: (context, colorInBox, child) {
@@ -726,8 +742,8 @@ mixin MainScreenColorMeter {
           elevation: 3,
           shape: RoundedRectangleBorder(),
           child: Container(
-            width: 48,
-            height: 48,
+            width: boxSize,
+            height: boxSize,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: colorInBox,
