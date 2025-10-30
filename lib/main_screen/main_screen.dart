@@ -513,10 +513,8 @@ class _MainScreenState extends State<MainScreen>
         return [
           ...colorMeterBottomBarItems(),
           IconButton(
-            onPressed: () {
-              setAppMode(PfsAppControlsMode.imageBrowse);
-            },
-            icon: Icon(Icons.arrow_back),
+            onPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
+            icon: Icon(Icons.close),
           ),
           const SizedBox(width: 20),
         ];
