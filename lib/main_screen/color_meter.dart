@@ -330,13 +330,13 @@ class _PixelGridPainter extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    final stroke = Paint()
-      ..color = Colors.white
+    final gridStroke = Paint()
+      ..color = Colors.white.withAlpha(15)
       ..style = PaintingStyle.stroke;
 
     final blackLine = Paint()
       ..color = Colors.black
-      ..strokeWidth = 2
+      ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
     final selectedStroke = Paint()
@@ -368,7 +368,7 @@ class _PixelGridPainter extends CustomPainter {
         _cellSize.toDouble(),
       );
       canvas.drawRect(
-          rect, colorIndex == colors.length ~/ 2 ? selectedStroke : stroke);
+          rect, colorIndex == colors.length ~/ 2 ? selectedStroke : gridStroke);
 
       if (colorIndex == colors.length ~/ 2) {
         canvas.drawRect(rect.deflate(1), blackLine);
