@@ -443,6 +443,10 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget _fileDropZone(PfsAppModel model) {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) {
+      return const SizedBox.shrink();
+    }
+
     return Positioned.fill(
       left: 20,
       right: 20,
@@ -691,6 +695,8 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
 mixin MainScreenColorMeter {
   late final referenceColor = ValueNotifier(Colors.white);
   late final currentColor = ValueNotifier(Colors.white);
+  late final vectorTerminusColor = ValueNotifier(Colors.white);
+  late final vectorTerminusPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
 
   late final loupe = ColorLoupe(
@@ -707,6 +713,82 @@ mixin MainScreenColorMeter {
 
   void onColorHover(Color value) {
     currentColor.value = value;
+    _updateTerminalColor();
+  }
+
+  static double calculateSafeStretchFactor8bit(
+      int r, int g, int b, int vr, int vg, int vb) {
+    // Distance to colorspace edge (candidate factors for stretching the vector)
+    final dr = vr > 0 ? 255 - r : -r;
+    final dg = vg > 0 ? 255 - g : -g;
+    final db = vb > 0 ? 255 - b : -b;
+
+    final double rDistanceFactor = vr == 0 ? double.infinity : dr / vr;
+    final double gDistanceFactor = vg == 0 ? double.infinity : dg / vg;
+    final double bDistanceFactor = vb == 0 ? double.infinity : db / vb;
+
+    double minOfThree(double a, double b, double c) {
+      if (a <= b && a <= c && a.isFinite) {
+        return a;
+      } else if (b <= a && b <= c && b.isFinite) {
+        return b;
+      } else if (c <= a && c <= b && c.isFinite) {
+        return c;
+      } else {
+        return 0;
+      }
+    }
+
+    return minOfThree(rDistanceFactor, gDistanceFactor, bDistanceFactor);
+  }
+
+  void _updateTerminalColor() {
+    final reference = referenceColor.value;
+    final current = currentColor.value;
+
+    final rr = reference.red;
+    final rg = reference.green;
+    final rb = reference.blue;
+
+    final cr = current.red;
+    final cg = current.green;
+    final cb = current.blue;
+
+    // Color difference vector. An arrow pointing towards where the color is moving.
+    final vr = cr - rr;
+    final vg = cg - rg;
+    final vb = cb - rb;
+
+    final vectorScaleToEdge =
+        calculateSafeStretchFactor8bit(rr, rg, rb, vr, vg, vb);
+
+    // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
+    final svr = (vr * vectorScaleToEdge).floor();
+    final svg = (vg * vectorScaleToEdge).floor();
+    final svb = (vb * vectorScaleToEdge).floor();
+
+    // debugPrint("rr:$rr rg:$rg rb:$rb");
+    // debugPrint("cr:$cr cg:$cg cb:$cb");
+    // debugPrint("vr:$vr vg:$vg vb:$vb");
+    // debugPrint("dr:$dr dg:$dg db:$db");
+    // debugPrint(
+    //     "drf:$rDistanceFactor dgf:$gDistanceFactor dbf:$bDistanceFactor");
+    // debugPrint("svr:$svr svg:$svg svb:$svb  (stretch: $stretch)");
+
+    try {
+      final tr = rr + svr;
+      final tg = rg + svg;
+      final tb = rb + svb;
+      //debugPrint("tr:$tr tg:$tg tb:$tb ");
+
+      var outputColor = Color.fromARGB(255, tr, tg, tb);
+      vectorTerminusColor.value = outputColor;
+      vectorTerminusPercent.value = vectorScaleToEdge;
+
+      //debugPrint(outputColor.toString());
+    } catch (err) {
+      debugPrint("color error? $err");
+    }
   }
 
   Widget colorMeterModeButton({void Function()? onPressed}) {
@@ -719,8 +801,106 @@ mixin MainScreenColorMeter {
 
   Iterable<Widget> colorMeterBottomBarItems() {
     return [
-      _currentColorForBottomBar(),
       _referenceColorPreviewForBottomBar(),
+      _rightArrow,
+      ValueListenableBuilder(
+        valueListenable: currentColor,
+        builder: (_, __, ___) {
+          return ValueListenableBuilder(
+            valueListenable: referenceColor,
+            builder: (_, __, ___) {
+              final reference = referenceColor.value.hsl;
+              final current = currentColor.value.hsl;
+
+              var hueDifference = current.hue - reference.hue;
+              if (hueDifference < -180) {
+                hueDifference += 180;
+              } else if (hueDifference > 180) {
+                hueDifference -= 180;
+              }
+              hueDifference *= 100.0 / 180.0;
+
+              // double deg2rad(double deg) {
+              //   return deg / 180.0 * pi;
+              // }
+              //hueDifference = deg2rad(hueDifference);
+
+              // final saturationDifference =
+              //     (current.saturation - reference.saturation) * 100;
+              // final lightnessDifference =
+              //     (current.lightness - reference.lightness) * 100;
+
+              var saturationPercent =
+                  (current.saturation / reference.saturation) * 100;
+              final sPercentText =
+                  (saturationPercent.isInfinite || saturationPercent.isNaN)
+                      ? "-"
+                      : saturationPercent.toStringAsFixed(0);
+
+              var lightnessPercent =
+                  (current.lightness / reference.lightness) * 100;
+              final lPercentText =
+                  (lightnessPercent.isInfinite || lightnessPercent.isNaN)
+                      ? "-"
+                      : lightnessPercent.toStringAsFixed(0);
+
+              final hueDiffText = sPercentText == "-" || current.saturation == 0
+                  ? "-"
+                  : (hueDifference > 0 ? "+" : "") +
+                      hueDifference.toStringAsFixed(2);
+              // final sDiffText = saturationDifference.toStringAsFixed(0);
+              // final lDiffText = lightnessDifference.toStringAsFixed(1);
+
+              var faintStyle = TextStyle(color: Colors.grey.shade600);
+
+              return Container(
+                decoration: BoxDecoration(color: Colors.black),
+                child: SizedBox(
+                  width: 280,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Tooltip(
+                        message:
+                            "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                        child: SizedBox(
+                            width: 20, child: Text("H", style: faintStyle)),
+                      ),
+                      SizedBox(width: 70, child: Text("$hueDiffText%")),
+                      Tooltip(
+                          message:
+                              "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
+                          child: SizedBox(
+                              width: 20, child: Text("S", style: faintStyle))),
+                      SizedBox(width: 60, child: Text("$sPercentText%")),
+                      Tooltip(
+                          message:
+                              "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
+                          child: SizedBox(
+                              width: 20, child: Text("L", style: faintStyle))),
+                      SizedBox(width: 60, child: Text("$lPercentText%")),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      _rightArrow,
+      _currentColorForBottomBar(),
+      _rightArrow,
+      ValueListenableBuilder(
+        valueListenable: vectorTerminusPercent,
+        builder: (_, value, ___) {
+          if (value.isInfinite || value.isNaN || value == 0) {
+            return Text("-%");
+          }
+
+          return Text("${(100.0 / value).floor()}%");
+        },
+      ),
+      valueListeningColorBox(vectorTerminusColor),
     ];
   }
 
@@ -732,21 +912,31 @@ mixin MainScreenColorMeter {
     return valueListeningColorBox(referenceColor);
   }
 
+  Widget get _rightArrow {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Icon(Icons.arrow_right),
+    );
+  }
+
   Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
     const double boxSize = 40;
 
     return ValueListenableBuilder(
       valueListenable: listenableColor,
       builder: (context, colorInBox, child) {
-        return Material(
-          elevation: 3,
-          shape: RoundedRectangleBorder(),
-          child: Container(
-            width: boxSize,
-            height: boxSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: colorInBox,
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Material(
+            elevation: 3,
+            shape: RoundedRectangleBorder(),
+            child: Container(
+              width: boxSize,
+              height: boxSize,
+              decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: colorInBox,
+                  border: Border.all(color: Colors.white)),
             ),
           ),
         );
