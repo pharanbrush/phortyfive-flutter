@@ -420,11 +420,11 @@ class _MainScreenState extends State<MainScreen>
 
   void _handleAppControlsChanged() {
     if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-      // start color picking
-
       final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
       if (imageWidgetContext != null) {
         startColorMeter(imageWidgetContext);
+      } else {
+        setAppMode(PfsAppControlsMode.imageBrowse);
       }
     } else {
       endColorMeter();
@@ -739,7 +739,7 @@ mixin MainScreenColorMeter {
   }
 
   void startColorMeter(BuildContext context) {
-    print("startColorMeter");
+    debugPrint("startColorMeter");
     isColorMetering = true;
     // TODO: Register escape key to exit color meter mode.
 
@@ -747,13 +747,13 @@ mixin MainScreenColorMeter {
   }
 
   void endColorMeter() {
-    print("endColorMeter");
+    debugPrint("endColorMeter");
     if (isColorMetering == false) return;
     // TODO: Unregister escape key to exit color meter mode.
-    
+
     isColorMetering = false;
     loupe.endOverlay();
-    print("color meter mode ended ended");
+    debugPrint("color meter mode ended ended");
   }
 }
 
