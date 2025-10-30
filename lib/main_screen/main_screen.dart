@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
 import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/panels/corner_window_controls.dart';
 import 'package:pfs2/main_screen/panels/filter_panel.dart';
@@ -53,12 +55,11 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class AppControlsMode {}
-
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
         PlayPauseAnimatedIcon,
+        MainScreenColorMeter,
         MainScreenBuildContext,
         MainScreenModels,
         MainScreenWindow,
@@ -109,18 +110,11 @@ class _MainScreenState extends State<MainScreen>
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
   ];
 
-  final imageBrowseMode = AppControlsMode();
-  final annotationMode = AppControlsMode(); 
-  final colorPickMode = AppControlsMode();
-  late AppControlsMode currentAppControlsMode = imageBrowseMode;
-
   @override
   void initState() {
     _bindModelCallbacks();
     _loadSettings();
     super.initState();
-
-    currentAppControlsMode = imageBrowseMode;
 
     _checkAndLoadLaunchArgPath();
   }
@@ -133,7 +127,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget overlayGestureControls(BuildContext context) {
-    if (currentAppControlsMode == colorPickMode) {
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
       return SizedBox.shrink();
     }
 
@@ -152,7 +146,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,
       builder: (_, __, ___) {
-        return _imageBrowseBottomControls(
+        return _bottomControls(
           context,
           windowWidth: windowSize.width,
         );
@@ -188,7 +182,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) => _imageBrowseBottomControls(context),
+            builder: (context, __, ___) => _bottomControls(context),
           ),
           _fileDropZone(model),
           ...modalPanelWidgets,
@@ -197,9 +191,7 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return firstActionApp;
-    }
-
-    if (model.hasFilesLoaded && !model.isWelcomeDone) {
+    } else if (model.hasFilesLoaded && !model.isWelcomeDone) {
       final welcomeChooseModeApp = Stack(
         children: [
           WelcomeChooseModeSheet(model: model),
@@ -228,7 +220,7 @@ class _MainScreenState extends State<MainScreen>
         }
       }
 
-      return Shortcuts(
+      Widget wrappedWidget = Shortcuts(
         shortcuts: Phshortcuts.intentMap,
         child: Actions(
           actions: shortcutActions,
@@ -239,6 +231,10 @@ class _MainScreenState extends State<MainScreen>
           ),
         ),
       );
+
+      wrappedWidget = EyeDrop(child: wrappedWidget);
+
+      return wrappedWidget;
     }
 
     final appWindowContent = shortcutsWrapper(
@@ -298,6 +294,8 @@ class _MainScreenState extends State<MainScreen>
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
+
+    currentAppControlsMode.addListener(() => _handleAppControlsChanged());
   }
 
   void _handleDisposeCallbacks() {
@@ -420,6 +418,19 @@ class _MainScreenState extends State<MainScreen>
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
+  void _handleAppControlsChanged() {
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
+      // start color picking
+
+      final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
+      if (imageWidgetContext != null) {
+        startColorMeter(imageWidgetContext);
+      }
+    } else {
+      endColorMeter();
+    }
+  }
+
   void revealCurrentImageInExplorer() {
     final currentImageData = getCurrentImageFileData();
     file_data.revealInExplorer(currentImageData);
@@ -459,7 +470,10 @@ class _MainScreenState extends State<MainScreen>
     windowManager.focus();
   }
 
-  Widget _imageBrowseBottomControls(BuildContext context, {double? windowWidth}) {
+  Widget _bottomControls(
+    BuildContext context, {
+    double? windowWidth,
+  }) {
     bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
 
     const Widget minimizedBottomBar = Positioned(
@@ -478,8 +492,27 @@ class _MainScreenState extends State<MainScreen>
     List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
       final SizedBox spacingBox = SizedBox(width: spacing);
 
-      if (model.hasFilesLoaded) {
+      if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
         return [
+          currentColorForBottomBar(),
+          referenceColorPreviewForBottomBar(),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                setAppMode(PfsAppControlsMode.imageBrowse);
+              });
+            },
+            icon: Icon(Icons.arrow_back),
+          ),
+          const SizedBox(width: 20),
+        ];
+      } else if (model.hasFilesLoaded) {
+        return [
+          colorMeterModeButton(onPressed: () {
+            setState(() {
+              setAppMode(PfsAppControlsMode.colorMeter);
+            });
+          }),
           ResetZoomButton(imageZoomPanner: imagePhviewer),
           FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
@@ -650,8 +683,99 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 }
 
+mixin MainScreenColorMeter {
+  late final referenceColor = ValueNotifier(Colors.white);
+  late final currentColor = ValueNotifier(Colors.white);
+
+  late final loupe = ColorLoupe(
+    onColorHover: onColorHover,
+    onColorClicked: onColorSelected,
+  );
+
+  bool isColorMetering = false;
+
+  void onColorSelected(Color newColor) {
+    referenceColor.value = newColor;
+  }
+
+  void onColorHover(Color value) {
+    currentColor.value = value;
+  }
+
+  Widget colorMeterModeButton({void Function()? onPressed}) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(Icons.colorize),
+      tooltip: "Color meter",
+    );
+  }
+
+  Widget currentColorForBottomBar() {
+    return valueListeningColorBox(currentColor);
+  }
+
+  Widget referenceColorPreviewForBottomBar() {
+    return valueListeningColorBox(referenceColor);
+  }
+
+  Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
+    return ValueListenableBuilder(
+      valueListenable: listenableColor,
+      builder: (context, colorInBox, child) {
+        return Material(
+          elevation: 3,
+          shape: RoundedRectangleBorder(),
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: colorInBox,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void startColorMeter(BuildContext context) {
+    print("startColorMeter");
+    isColorMetering = true;
+    // TODO: Register escape key to exit color meter mode.
+
+    loupe.showOverlay(context);
+  }
+
+  void endColorMeter() {
+    print("endColorMeter");
+    if (isColorMetering == false) return;
+    // TODO: Unregister escape key to exit color meter mode.
+    
+    isColorMetering = false;
+    loupe.endOverlay();
+    print("color meter mode ended ended");
+  }
+}
+
+enum PfsAppControlsMode {
+  imageBrowse,
+  colorMeter,
+  annotation,
+  firstAction,
+  welcomeChoice
+}
+
 mixin MainScreenModels on State<MainScreen> {
-  late ImagePhviewer imagePhviewer = ImagePhviewer();
+  final currentAppControlsMode =
+      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+
+  void setAppMode(PfsAppControlsMode newMode) {
+    currentAppControlsMode.value = newMode;
+  }
+
+  late ImagePhviewer imagePhviewer = ImagePhviewer(
+    appControlsMode: currentAppControlsMode,
+  );
 
   PfsAppModel get model => widget.model;
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
 import 'package:pfs2/core/file_data.dart' show FileData;
+import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -20,10 +21,12 @@ import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
-class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
-  ImagePhviewer();
+class ImagePhviewer with ImageZoomPanner, ImageFilters {
+  ImagePhviewer({required this.appControlsMode});
 
   static final imageWidgetKey = GlobalKey();
+
+  final ValueListenable<PfsAppControlsMode> appControlsMode;
 
   @override
   Size getImageSize() {
@@ -38,16 +41,12 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
       offsetListenable: offsetListenable,
       blurLevelListenable: blurLevelListenable,
       usingGrayscaleListenable: usingGrayscaleListenable,
-      isAnnotatingListenable: isAnnotatingListenable,
       zoomLevelListenable: zoomLevelListenable,
       getCurrentZoomScale: () => currentZoomScale,
       revealInExplorerHandler: file_data.revealInExplorer,
+      currentAppControlsMode: appControlsMode,
     );
   }
-}
-
-mixin ImageAnnotator {
-  final isAnnotatingListenable = ValueNotifier<bool>(false);
 }
 
 mixin ImageFilters {
@@ -105,12 +104,12 @@ mixin ImageZoomPanner {
     8.0,
   ];
   static const _defaultZoomLevel = 3;
-  
+
   double zoomAccumulator = 0;
-  void incrementZoomAccumulator (double dragIncrement) {
+  void incrementZoomAccumulator(double dragIncrement) {
     final zoomSensitivity = 0.04;
     zoomAccumulator += dragIncrement * zoomSensitivity;
-    
+
     if (zoomAccumulator > 1) {
       zoomAccumulator -= 1;
       incrementZoomLevel(1);
@@ -119,11 +118,10 @@ mixin ImageZoomPanner {
       incrementZoomLevel(-1);
     }
   }
-  
+
   void resetZoomAccumulator() {
     zoomAccumulator = 0;
   }
-  
 
   final flipHorizontalListenable = ValueNotifier<bool>(false);
 
@@ -373,10 +371,10 @@ class ImageViewerStackWidget extends StatelessWidget {
     required this.usingGrayscaleListenable,
     required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
-    required this.isAnnotatingListenable,
     required this.offsetListenable,
     required this.flipHorizontalListenable,
     required this.panDurationListenable,
+    required this.currentAppControlsMode,
   });
 
   final ValueNotifier<Duration> panDurationListenable;
@@ -384,9 +382,9 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ValueListenable<Offset> offsetListenable;
   final ValueNotifier<int> zoomLevelListenable;
   final ValueNotifier<double> blurLevelListenable;
-  final ValueNotifier<bool> isAnnotatingListenable;
   final ValueNotifier<bool> flipHorizontalListenable;
   final ValueNotifier<bool> usingGrayscaleListenable;
+  final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
   final double Function() getCurrentZoomScale;
   final Function(FileData fileData) revealInExplorerHandler;
 
@@ -406,18 +404,27 @@ class ImageViewerStackWidget extends StatelessWidget {
         imageFile,
       );
 
-      final possiblyAnnotatedImageWidget = ValueListenableBuilder(
-        valueListenable: isAnnotatingListenable,
-        builder: (BuildContext context, bool useAnnotation, Widget? child) {
-          if (useAnnotation) {
-            final annotatedImageWidget = AnnotationOverlay(
-              image: imageWidget,
-              annotationType: AnnotationType.line,
-              child: imageWidget,
-            );
-            return annotatedImageWidget;
-          } else {
-            return imageWidget;
+      final possiblyOverlayedWidget = ValueListenableBuilder(
+        valueListenable: currentAppControlsMode,
+        builder: (
+          BuildContext context,
+          PfsAppControlsMode mode,
+          Widget? child,
+        ) {
+          switch (mode) {
+            case PfsAppControlsMode.annotation:
+              final annotatedImageWidget = AnnotationOverlay(
+                image: imageWidget,
+                annotationType: AnnotationType.line,
+                child: imageWidget,
+              );
+              return annotatedImageWidget;
+
+            // case PfsAppControlsMode.eyedrop:
+            //   return EyeDrop(child: imageWidget);
+
+            default:
+              return imageWidget;
           }
         },
       );
@@ -466,7 +473,7 @@ class ImageViewerStackWidget extends StatelessWidget {
                                   duration: Phanimations.zoomTransitionDuration,
                                   curve: Phanimations.zoomTransitionCurve,
                                   scale: getCurrentZoomScale(),
-                                  child: possiblyAnnotatedImageWidget,
+                                  child: possiblyOverlayedWidget,
                                 );
                               },
                             ),
@@ -621,22 +628,22 @@ class ImagePhviewerPanListener extends StatelessWidget {
     return GestureDetector(
       onPanUpdate: (details) {
         final pointerDelta = details.delta;
-    
+
         if (Phshortcuts.isDragZoomModifierPressed()) {
           imagePhviewer.incrementZoomAccumulator(pointerDelta.dx);
           imagePhviewer.incrementZoomAccumulator(-pointerDelta.dy);
           return;
         }
-    
+
         if (!imagePhviewer.isZoomedIn) return;
-    
+
         imagePhviewer.panImage(pointerDelta);
       },
       onPanEnd: (details) {
         imagePhviewer.resetZoomAccumulator();
-        
+
         if (!imagePhviewer.isZoomedIn) return;
-    
+
         imagePhviewer.panRelease();
       },
       child: child,
