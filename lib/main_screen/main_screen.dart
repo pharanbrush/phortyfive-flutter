@@ -232,7 +232,7 @@ class _MainScreenState extends State<MainScreen>
         ),
       );
 
-      wrappedWidget = EyeDrop(child: wrappedWidget);
+      //wrappedWidget = EyeDrop(child: wrappedWidget);
 
       return wrappedWidget;
     }
@@ -240,7 +240,10 @@ class _MainScreenState extends State<MainScreen>
     final appWindowContent = shortcutsWrapper(
       Stack(
         children: [
-          imagePhviewer.widget(windowState.isBottomBarMinimized),
+          EyeDrop(
+            key: eyeDropKey,
+            child: imagePhviewer.widget(windowState.isBottomBarMinimized),
+          ),
           _fileDropZone(model),
           overlayGestureControls(context),
           const CountdownSheet(),
@@ -300,6 +303,10 @@ class _MainScreenState extends State<MainScreen>
     onColorMeterSecondaryTap = () {
       setState(() {
         setAppMode(PfsAppControlsMode.imageBrowse);
+        Phtoasts.showWidget(
+          currentContext,
+          child: Text("Color meter closed."),
+        );
       });
     };
   }
@@ -507,9 +514,7 @@ class _MainScreenState extends State<MainScreen>
           ...colorMeterBottomBarItems(),
           IconButton(
             onPressed: () {
-              setState(() {
-                setAppMode(PfsAppControlsMode.imageBrowse);
-              });
+              setAppMode(PfsAppControlsMode.imageBrowse);
             },
             icon: Icon(Icons.arrow_back),
           ),
@@ -518,9 +523,7 @@ class _MainScreenState extends State<MainScreen>
       } else if (model.hasFilesLoaded) {
         return [
           colorMeterModeButton(onPressed: () {
-            setState(() {
-              setAppMode(PfsAppControlsMode.colorMeter);
-            });
+            setAppMode(PfsAppControlsMode.colorMeter);
           }),
           ResetZoomButton(imageZoomPanner: imagePhviewer),
           FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
@@ -579,6 +582,11 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return normalBottomBar;
+  }
+
+  @override
+  void onAppModeChange() {
+    setState(() {});
   }
 }
 
@@ -698,6 +706,8 @@ mixin MainScreenColorMeter {
   late final vectorTerminusColor = ValueNotifier(Colors.white);
   late final vectorTerminusPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
+
+  final eyeDropKey = GlobalKey();
 
   late final loupe = ColorLoupe(
     onColorHover: onColorHover,
@@ -920,7 +930,7 @@ mixin MainScreenColorMeter {
   }
 
   Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
-    const double boxSize = 40;
+    const double boxSize = 30;
 
     return ValueListenableBuilder(
       valueListenable: listenableColor,
@@ -949,7 +959,7 @@ mixin MainScreenColorMeter {
     isColorMetering = true;
     // TODO: Register escape key to exit color meter mode.
 
-    loupe.showOverlay(context);
+    loupe.startOverlay(context, eyeDropKey);
   }
 
   void endColorMeter() {
@@ -977,7 +987,10 @@ mixin MainScreenModels on State<MainScreen> {
 
   void setAppMode(PfsAppControlsMode newMode) {
     currentAppControlsMode.value = newMode;
+    onAppModeChange();
   }
+
+  void onAppModeChange();
 
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     appControlsMode: currentAppControlsMode,

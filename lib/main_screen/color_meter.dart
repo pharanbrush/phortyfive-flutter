@@ -42,14 +42,17 @@ class ColorLoupe {
 
   Color color = Colors.white;
 
-  void showOverlay(BuildContext context) {
+  void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
-      EyeDrop.of(context).startEyeDropper(
-        context,
-        _handleOnColorClicked,
-        _handleOnColorHover,
-        _handleSecondaryTap,
-      );
+      var currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
+      if (currentEyeDrop != null) {
+        currentEyeDrop.startEyeDropper(
+          context,
+          _handleOnColorClicked,
+          _handleOnColorHover,
+          _handleSecondaryTap,
+        );
+      }
     } catch (err) {
       debugPrint('ERROR !!! showOverlay $err');
     }
