@@ -958,7 +958,7 @@ mixin MainScreenColorMeter {
       SizedBox(width: 10),
       _rightArrow,
       SizedBox(
-        width: 35,
+        width: 42,
         child: ValueListenableBuilder(
           valueListenable: vectorTerminusPercent,
           builder: (_, value, ___) {
@@ -966,7 +966,10 @@ mixin MainScreenColorMeter {
               return Text("-%");
             }
 
-            return Text("${(100.0 / value).floor()}%");
+            return Text(
+              "${(100.0 / value).floor()}%",
+              textAlign: TextAlign.right,
+            );
           },
         ),
       ),
