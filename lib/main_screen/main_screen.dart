@@ -704,6 +704,8 @@ mixin MainScreenColorMeter {
   late final referenceColor = ValueNotifier(Colors.white);
   late final currentColor = ValueNotifier(Colors.white);
   late final vectorTerminusColor = ValueNotifier(Colors.white);
+  late final multiplyColor = ValueNotifier(Colors.white);
+  bool isMultipliableColor = false;
   late final vectorTerminusPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
 
@@ -724,6 +726,7 @@ mixin MainScreenColorMeter {
   void onColorHover(Color value) {
     currentColor.value = value;
     _updateTerminalColor();
+    _updateMultiplyColor();
   }
 
   static double calculateSafeStretchFactor8bit(
@@ -750,6 +753,48 @@ mixin MainScreenColorMeter {
     }
 
     return minOfThree(rDistanceFactor, gDistanceFactor, bDistanceFactor);
+  }
+
+  void _updateMultiplyColor() {
+    final reference = referenceColor.value;
+    final current = currentColor.value;
+
+    final rr = reference.red;
+    final rg = reference.green;
+    final rb = reference.blue;
+
+    final cr = current.red;
+    final cg = current.green;
+    final cb = current.blue;
+
+    // Divide current color with reference color. Assumes reference color is lighter.
+    final mr = cr / rr;
+    final mg = cg / rg;
+    final mb = cb / rb;
+
+    if (mr > 1 || mr < 0) {
+      isMultipliableColor = false;
+    } else if (mg > 1 || mg < 0) {
+      isMultipliableColor = false;
+    } else if (mb > 1 || mb < 0) {
+      isMultipliableColor = false;
+    } else {
+      isMultipliableColor = true;
+    }
+
+    if (isMultipliableColor == false) {
+      multiplyColor.value = Colors.transparent;
+      return;
+    }
+
+    final outputColor = Color.fromARGB(
+      255,
+      (mr * 255).floor(),
+      (mg * 255).floor(),
+      (mb * 255).floor(),
+    );
+
+    multiplyColor.value = outputColor;
   }
 
   void _updateTerminalColor() {
@@ -810,8 +855,23 @@ mixin MainScreenColorMeter {
   }
 
   Iterable<Widget> colorMeterBottomBarItems() {
+    var faintStyle = TextStyle(color: Colors.grey.shade600);
+
     return [
       _referenceColorPreviewForBottomBar(),
+      ValueListenableBuilder(
+        valueListenable: multiplyColor,
+        builder: (___, __, _) {
+          return SizedBox(
+            width: 10,
+            child: Text(
+              isMultipliableColor ? "×" : " ",
+              style: faintStyle,
+            ),
+          );
+        },
+      ),
+      valueListeningColorBox(multiplyColor),
       _rightArrow,
       ValueListenableBuilder(
         valueListenable: currentColor,
@@ -861,8 +921,6 @@ mixin MainScreenColorMeter {
               // final sDiffText = saturationDifference.toStringAsFixed(0);
               // final lDiffText = lightnessDifference.toStringAsFixed(1);
 
-              var faintStyle = TextStyle(color: Colors.grey.shade600);
-
               return Container(
                 decoration: BoxDecoration(color: Colors.black),
                 child: SizedBox(
@@ -899,16 +957,20 @@ mixin MainScreenColorMeter {
       ),
       _rightArrow,
       _currentColorForBottomBar(),
+      SizedBox(width: 10),
       _rightArrow,
-      ValueListenableBuilder(
-        valueListenable: vectorTerminusPercent,
-        builder: (_, value, ___) {
-          if (value.isInfinite || value.isNaN || value == 0) {
-            return Text("-%");
-          }
+      SizedBox(
+        width: 35,
+        child: ValueListenableBuilder(
+          valueListenable: vectorTerminusPercent,
+          builder: (_, value, ___) {
+            if (value.isInfinite || value.isNaN || value == 0) {
+              return Text("-%");
+            }
 
-          return Text("${(100.0 / value).floor()}%");
-        },
+            return Text("${(100.0 / value).floor()}%");
+          },
+        ),
       ),
       valueListeningColorBox(vectorTerminusColor),
     ];
