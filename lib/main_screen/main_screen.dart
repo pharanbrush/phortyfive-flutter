@@ -953,10 +953,17 @@ mixin MainScreenColorMeter {
           );
         },
       ),
-      _rightArrow,
+      SizedBox(
+        width: 20,
+        child: Text(
+          "=",
+          textAlign: TextAlign.right,
+          style: faintStyle,
+        ),
+      ),
       _currentColorForBottomBar(),
       SizedBox(width: 10),
-      _rightArrow,
+      _barIcon(Icons.skip_next),
       SizedBox(
         width: 42,
         child: ValueListenableBuilder(
@@ -986,9 +993,13 @@ mixin MainScreenColorMeter {
   }
 
   Widget get _rightArrow {
+    return _barIcon(Icons.arrow_right);
+  }
+
+  Widget _barIcon(IconData iconData) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Icon(Icons.arrow_right),
+      child: Icon(iconData),
     );
   }
 
