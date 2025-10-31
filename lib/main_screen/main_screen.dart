@@ -740,6 +740,12 @@ mixin MainScreenModels on State<MainScreen> {
       ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
 
   void setAppMode(PfsAppControlsMode newMode) {
+    final oldValue = currentAppControlsMode.value;
+
+    if (oldValue == PfsAppControlsMode.imageBrowse) {
+      model.tryPauseTimer();
+    }
+
     currentAppControlsMode.value = newMode;
     onAppModeChange();
   }

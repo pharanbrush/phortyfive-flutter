@@ -33,6 +33,13 @@ class PfsAppModel extends Model
     return fileList.get(circulator.currentIndex);
   }
 
+  void tryPauseTimer () {
+    if (timerModel.isRunning) {
+      tryCancelCountdown();
+      timerModel.playPauseToggleTimer();
+    }
+  }
+
   void tryTogglePlayPauseTimer() {
     if (!allowTimerPlayPause) return;
 
