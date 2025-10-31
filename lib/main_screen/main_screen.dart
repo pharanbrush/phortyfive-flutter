@@ -253,6 +253,7 @@ class _MainScreenState extends State<MainScreen>
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
+          _bottomBarUnderlay(),
           bottomControlBar(context),
           WindowDockingControls(
             isBottomBarMinimized: windowState.isBottomBarMinimized,
@@ -264,6 +265,31 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return appWindowContent;
+  }
+
+  Widget _bottomBarUnderlay() {
+    const double barHeight = 60;
+    const barColor = Color.fromARGB(220, 0, 0, 0);
+    const boxDecoration = BoxDecoration(color: barColor);
+
+    return ValueListenableBuilder(
+      valueListenable: currentAppControlsMode,
+      builder: (context, value, child) {
+        if (currentAppControlsMode.value == PfsAppControlsMode.imageBrowse) {
+          return SizedBox.shrink();
+        }
+
+        return Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SizedBox(
+            height: barHeight,
+            child: Container(decoration: boxDecoration),
+          ),
+        );
+      },
+    );
   }
 
   void _loadSettings() async {
