@@ -47,8 +47,8 @@ class PfsTheme {
 
   //
   static const windowsTenTooltipTheme = TooltipThemeData(
+    constraints: BoxConstraints(minHeight: 16),
     verticalOffset: 26,
-    height: 16,
     padding: EdgeInsets.only(
       top: 0,
       left: 5,
@@ -189,7 +189,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 10,
           surfaceTintColor: Colors.transparent,
           color: panelBackground,
@@ -356,7 +356,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -583,7 +583,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -776,7 +776,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: Border(
@@ -924,7 +924,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(

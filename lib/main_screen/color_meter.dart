@@ -456,14 +456,14 @@ extension Utils on Color {
   Color withHue(double value) => hsl.withHue(value).toColor();
 
   /// ff001232
-  String get hexARGB => value.toRadixString(16).padLeft(8, '0');
+  String get hexARGB => toARGB32().toRadixString(16).padLeft(8, '0');
 
   /// 001232ac
   String get hexRGB =>
-      value.toRadixString(16).padLeft(8, '0').replaceRange(0, 2, '');
+      toARGB32().toRadixString(16).padLeft(8, '0').replaceRange(0, 2, '');
 
   Color withSaturation(double value) =>
-      HSLColor.fromAHSL(opacity, hue, value, lightness).toColor();
+      HSLColor.fromAHSL(a, hue, value, lightness).toColor();
 
   Color withLightness(double value) => hsl.withLightness(value).toColor();
 
@@ -492,7 +492,7 @@ List<Color> getHueGradientColors({double? saturation, int steps = 36}) =>
         .map<Color>((v) {
           final hsl = HSLColor.fromAHSL(1, v * (360 / steps), 0.67, 0.50);
           final rgb = hsl.toColor();
-          return rgb.withOpacity(1);
+          return rgb.withValues(alpha: 1);
         })
         .map((c) => saturation != null ? c.withSaturation(saturation) : c)
         .toList();

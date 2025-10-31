@@ -538,7 +538,7 @@ class _MainScreenState extends State<MainScreen>
       if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
         return [
           ...colorMeterBottomBarItems(),
-          IconButton(
+          IconButton.filled(
             onPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
             icon: Icon(Icons.close),
           ),
@@ -753,12 +753,12 @@ mixin MainScreenColorMeter {
     _updateMultiplyColor();
   }
 
-  static double calculateSafeStretchFactor8bit(
-      int r, int g, int b, int vr, int vg, int vb) {
+  static double calculateSafeStretchFactor(
+      double r, double g, double b, double vr, double vg, double vb) {
     // Distance to colorspace edge (candidate factors for stretching the vector)
-    final dr = vr > 0 ? 255 - r : -r;
-    final dg = vg > 0 ? 255 - g : -g;
-    final db = vb > 0 ? 255 - b : -b;
+    final dr = vr > 0 ? 1.0 - r : -r;
+    final dg = vg > 0 ? 1.0 - g : -g;
+    final db = vb > 0 ? 1.0 - b : -b;
 
     final double rDistanceFactor = vr == 0 ? double.infinity : dr / vr;
     final double gDistanceFactor = vg == 0 ? double.infinity : dg / vg;
@@ -783,13 +783,13 @@ mixin MainScreenColorMeter {
     final reference = referenceColor.value;
     final current = currentColor.value;
 
-    final rr = reference.red;
-    final rg = reference.green;
-    final rb = reference.blue;
+    final rr = reference.r;
+    final rg = reference.g;
+    final rb = reference.b;
 
-    final cr = current.red;
-    final cg = current.green;
-    final cb = current.blue;
+    final cr = current.r;
+    final cg = current.g;
+    final cb = current.b;
 
     // Divide current color with reference color. Assumes reference color is lighter.
     final mr = cr / rr;
@@ -811,11 +811,11 @@ mixin MainScreenColorMeter {
       return;
     }
 
-    final outputColor = Color.fromARGB(
-      255,
-      (mr * 255).floor(),
-      (mg * 255).floor(),
-      (mb * 255).floor(),
+    final outputColor = Color.from(
+      alpha: 1,
+      red: mr,
+      green: mg,
+      blue: mb,
     );
 
     multiplyColor.value = outputColor;
@@ -825,13 +825,13 @@ mixin MainScreenColorMeter {
     final reference = referenceColor.value;
     final current = currentColor.value;
 
-    final rr = reference.red;
-    final rg = reference.green;
-    final rb = reference.blue;
+    final rr = reference.r;
+    final rg = reference.g;
+    final rb = reference.b;
 
-    final cr = current.red;
-    final cg = current.green;
-    final cb = current.blue;
+    final cr = current.r;
+    final cg = current.g;
+    final cb = current.b;
 
     // Color difference vector. An arrow pointing towards where the color is moving.
     final vr = cr - rr;
@@ -839,32 +839,30 @@ mixin MainScreenColorMeter {
     final vb = cb - rb;
 
     final vectorScaleToEdge =
-        calculateSafeStretchFactor8bit(rr, rg, rb, vr, vg, vb);
+        calculateSafeStretchFactor(rr, rg, rb, vr, vg, vb);
 
     // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
-    final svr = (vr * vectorScaleToEdge).floor();
-    final svg = (vg * vectorScaleToEdge).floor();
-    final svb = (vb * vectorScaleToEdge).floor();
+    final svr = vr * vectorScaleToEdge;
+    final svg = vg * vectorScaleToEdge;
+    final svb = vb * vectorScaleToEdge;
 
-    // debugPrint("rr:$rr rg:$rg rb:$rb");
-    // debugPrint("cr:$cr cg:$cg cb:$cb");
-    // debugPrint("vr:$vr vg:$vg vb:$vb");
-    // debugPrint("dr:$dr dg:$dg db:$db");
-    // debugPrint(
-    //     "drf:$rDistanceFactor dgf:$gDistanceFactor dbf:$bDistanceFactor");
-    // debugPrint("svr:$svr svg:$svg svb:$svb  (stretch: $stretch)");
+    // TODO: Fix terminus color sometimes fully saturating and being incorrect
 
     try {
       final tr = rr + svr;
       final tg = rg + svg;
       final tb = rb + svb;
-      //debugPrint("tr:$tr tg:$tg tb:$tb ");
 
-      var outputColor = Color.fromARGB(255, tr, tg, tb);
+      //var outputColor = Color.fromARGB(255, tr, tg, tb);
+      final outputColor = Color.from(
+        alpha: 1.0,
+        red: tr,
+        green: tg,
+        blue: tb,
+      );
+
       vectorTerminusColor.value = outputColor;
       vectorTerminusPercent.value = vectorScaleToEdge;
-
-      //debugPrint(outputColor.toString());
     } catch (err) {
       debugPrint("color error? $err");
     }
@@ -942,8 +940,6 @@ mixin MainScreenColorMeter {
                   ? "-"
                   : (hueDifference > 0 ? "+" : "") +
                       hueDifference.toStringAsFixed(2);
-              // final sDiffText = saturationDifference.toStringAsFixed(0);
-              // final lDiffText = lightnessDifference.toStringAsFixed(1);
 
               return SizedBox(
                 width: 280,
@@ -1066,7 +1062,6 @@ mixin MainScreenColorMeter {
 
     isColorMetering = false;
     loupe.endOverlay();
-    debugPrint("color meter mode ended ended");
   }
 }
 

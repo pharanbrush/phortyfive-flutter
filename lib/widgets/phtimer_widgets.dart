@@ -158,7 +158,7 @@ class PlayPauseTimerButton extends StatelessWidget {
           backgroundColor:
               WidgetStateProperty.resolveWith((Set<WidgetState> states) {
             if (states.contains(WidgetState.hovered)) {
-              return buttonColor.withOpacity(1);
+              return buttonColor.withValues(alpha: 1.0);
             }
             return buttonColor;
           }),
