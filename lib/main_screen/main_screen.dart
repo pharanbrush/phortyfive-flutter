@@ -945,34 +945,31 @@ mixin MainScreenColorMeter {
               // final sDiffText = saturationDifference.toStringAsFixed(0);
               // final lDiffText = lightnessDifference.toStringAsFixed(1);
 
-              return Container(
-                decoration: BoxDecoration(color: Colors.black),
-                child: SizedBox(
-                  width: 280,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Tooltip(
+              return SizedBox(
+                width: 280,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Tooltip(
+                      message:
+                          "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                      child: SizedBox(
+                          width: 20, child: Text("H", style: faintStyle)),
+                    ),
+                    SizedBox(width: 70, child: Text("$hueDiffText%")),
+                    Tooltip(
                         message:
-                            "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                            "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
                         child: SizedBox(
-                            width: 20, child: Text("H", style: faintStyle)),
-                      ),
-                      SizedBox(width: 70, child: Text("$hueDiffText%")),
-                      Tooltip(
-                          message:
-                              "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
-                          child: SizedBox(
-                              width: 20, child: Text("S", style: faintStyle))),
-                      SizedBox(width: 60, child: Text("$sPercentText%")),
-                      Tooltip(
-                          message:
-                              "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
-                          child: SizedBox(
-                              width: 20, child: Text("L", style: faintStyle))),
-                      SizedBox(width: 60, child: Text("$lPercentText%")),
-                    ],
-                  ),
+                            width: 20, child: Text("S", style: faintStyle))),
+                    SizedBox(width: 60, child: Text("$sPercentText%")),
+                    Tooltip(
+                        message:
+                            "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
+                        child: SizedBox(
+                            width: 20, child: Text("L", style: faintStyle))),
+                    SizedBox(width: 60, child: Text("$lPercentText%")),
+                  ],
                 ),
               );
             },
