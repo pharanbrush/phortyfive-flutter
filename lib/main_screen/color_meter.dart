@@ -22,23 +22,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import 'dart:math';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image/image.dart' as img;
+import 'package:pfs2/ui/phanimations.dart';
 
 mixin MainScreenColorMeter {
   late final referenceColor = ValueNotifier(Colors.white);
   late final currentColor = ValueNotifier(Colors.white);
   late final vectorTerminusColor = ValueNotifier(Colors.white);
   late final multiplyColor = ValueNotifier(Colors.white);
+
+  late final lastPickKey = ValueNotifier("defaultKey");
   bool isMultipliableColor = false;
   late final vectorTerminusPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
 
+  final keyRng = Random();
   final eyeDropKey = GlobalKey();
 
   late final loupe = ColorLoupe(
@@ -51,6 +57,7 @@ mixin MainScreenColorMeter {
 
   void onColorSelected(Color newColor) {
     referenceColor.value = newColor;
+    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
   }
 
   void onColorHover(Color value) {
@@ -314,7 +321,16 @@ mixin MainScreenColorMeter {
   }
 
   Widget _referenceColorPreviewForBottomBar() {
-    return valueListeningColorBox(referenceColor);
+    return ValueListenableBuilder(
+      valueListenable: lastPickKey,
+      builder: (_, __, ___) {
+        return Animate(
+          key: Key(lastPickKey.value),
+          effects: const [Phanimations.itemPulseEffect],
+          child: valueListeningColorBox(referenceColor),
+        );
+      },
+    );
   }
 
   Widget get _rightArrow {
@@ -329,27 +345,31 @@ mixin MainScreenColorMeter {
   }
 
   Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
-    const double boxSize = 30;
-
     return ValueListenableBuilder(
       valueListenable: listenableColor,
-      builder: (context, colorInBox, child) {
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Material(
-            elevation: 3,
-            shape: RoundedRectangleBorder(),
-            child: Container(
-              width: boxSize,
-              height: boxSize,
-              decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: colorInBox,
-                  border: Border.all(color: Colors.white)),
-            ),
-          ),
-        );
+      builder: (_, colorValue, __) {
+        return _colorBox(colorValue);
       },
+    );
+  }
+
+  Widget _colorBox(Color color) {
+    const double boxSize = 30;
+
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Material(
+        elevation: 3,
+        shape: RoundedRectangleBorder(),
+        child: Container(
+          width: boxSize,
+          height: boxSize,
+          decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: color,
+              border: Border.all(color: Colors.white)),
+        ),
+      ),
     );
   }
 

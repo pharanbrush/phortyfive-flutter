@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutQuint;
-  
+
   static const userPanDuration = Duration(milliseconds: 30);
 
   static const toastCurve = Curves.easeOutExpo;
@@ -13,6 +13,13 @@ class Phanimations {
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
   static const slowDuration = Duration(milliseconds: 300);
+
+  static const itemPulseEffect = ScaleEffect(
+    duration: slowDuration,
+    curve: Curves.easeOutCubic,
+    begin: Offset(1.3, 1.3),
+    end: Offset(1, 1),
+  );
 
   static const bottomBarSlideUpEffect = SlideEffect(
     duration: fastDuration,
