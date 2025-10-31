@@ -22,12 +22,12 @@ class PfsAppModel extends Model
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  bool get allowTimerPlayPause => hasFilesLoaded && isWelcomeDone && !isAnnotating;
-  bool get allowCirculatorControl => hasFilesLoaded && isWelcomeDone && !isAnnotating;
-  bool get isAnnotating => isAnnotatingMode.value;
+  bool get allowTimerPlayPause => hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+  bool get allowCirculatorControl => hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+  // bool get isAnnotating => isAnnotatingMode.value;
 
   @override
-  bool _canStartCountdown() => timerModel.isRunning && !isAnnotating;
+  bool _canStartCountdown() => timerModel.isRunning; // && !isAnnotating;
 
   FileData getCurrentImageFileData() {
     return fileList.get(circulator.currentIndex);
@@ -148,11 +148,11 @@ mixin PfsWelcomer {
 }
 
 mixin PfsAnnotator {
-  final isAnnotatingMode = ValueNotifier(false);
+  // final isAnnotatingMode = ValueNotifier(false);
 
-  void toggleAnnotationMode() {
-    isAnnotatingMode.value = !isAnnotatingMode.value;
-  }
+  // void toggleAnnotationMode() {
+  //   isAnnotatingMode.value = !isAnnotatingMode.value;
+  // }
 }
 
 mixin PfsCirculator {

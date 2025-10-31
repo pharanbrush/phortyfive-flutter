@@ -231,8 +231,6 @@ class _MainScreenState extends State<MainScreen>
         ),
       );
 
-      //wrappedWidget = EyeDrop(child: wrappedWidget);
-
       return wrappedWidget;
     }
 
