@@ -34,8 +34,8 @@ import 'package:image/image.dart' as img;
 import 'package:pfs2/ui/phanimations.dart';
 
 mixin MainScreenColorMeter {
-  late final referenceColor = ValueNotifier(Colors.white);
-  late final currentColor = ValueNotifier(Colors.white);
+  late final startColor = ValueNotifier(Colors.white);
+  late final endColor = ValueNotifier(Colors.white);
   late final terminalAlphaBlendColor = ValueNotifier(Colors.white);
   late final multiplyColor = ValueNotifier(Colors.white);
 
@@ -56,12 +56,12 @@ mixin MainScreenColorMeter {
   bool isColorMetering = false;
 
   void onColorSelected(Color newColor) {
-    referenceColor.value = newColor;
+    startColor.value = newColor;
     lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
   }
 
   void onColorHover(Color value) {
-    currentColor.value = value;
+    endColor.value = value;
     _updateTerminalColor();
     _updateMultiplyColor();
   }
@@ -93,21 +93,21 @@ mixin MainScreenColorMeter {
   }
 
   void _updateMultiplyColor() {
-    final reference = referenceColor.value;
-    final current = currentColor.value;
+    final start = startColor.value;
+    final end = endColor.value;
 
-    final rr = reference.r;
-    final rg = reference.g;
-    final rb = reference.b;
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
 
-    final cr = current.r;
-    final cg = current.g;
-    final cb = current.b;
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
 
     // Divide current color with reference color. Assumes reference color is lighter.
-    final mr = cr / rr;
-    final mg = cg / rg;
-    final mb = cb / rb;
+    final mr = r2 / r1;
+    final mg = g2 / g1;
+    final mb = b2 / b1;
 
     if (mr > 1 || mr < 0 || mr.isNaN) {
       isMultipliableColor = false;
@@ -135,24 +135,24 @@ mixin MainScreenColorMeter {
   }
 
   void _updateTerminalColor() {
-    final reference = referenceColor.value;
-    final current = currentColor.value;
+    final start = startColor.value;
+    final end = endColor.value;
 
-    final rr = reference.r;
-    final rg = reference.g;
-    final rb = reference.b;
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
 
-    final cr = current.r;
-    final cg = current.g;
-    final cb = current.b;
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
 
     // Color difference vector. An arrow pointing towards where the color is moving.
-    final vr = cr - rr;
-    final vg = cg - rg;
-    final vb = cb - rb;
+    final vr = r2 - r1;
+    final vg = g2 - g1;
+    final vb = b2 - b1;
 
     final vectorScaleToEdge =
-        calculateSafeStretchFactor(rr, rg, rb, vr, vg, vb);
+        calculateSafeStretchFactor(r1, g1, b1, vr, vg, vb);
 
     // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
     final svr = vr * vectorScaleToEdge;
@@ -162,17 +162,11 @@ mixin MainScreenColorMeter {
     // TODO: Fix terminus color sometimes fully saturating and being incorrect
 
     try {
-      final tr = rr + svr;
-      final tg = rg + svg;
-      final tb = rb + svb;
+      final tr = r1 + svr;
+      final tg = g1 + svg;
+      final tb = b1 + svb;
 
-      //var outputColor = Color.fromARGB(255, tr, tg, tb);
-      final outputColor = Color.from(
-        alpha: 1.0,
-        red: tr,
-        green: tg,
-        blue: tb,
-      );
+      final outputColor = Color.from(alpha: 1.0, red: tr, green: tg, blue: tb);
 
       terminalAlphaBlendColor.value = outputColor;
       alphaBlendColorPercent.value = vectorScaleToEdge;
@@ -194,13 +188,13 @@ mixin MainScreenColorMeter {
 
     return [
       ValueListenableBuilder(
-        valueListenable: currentColor,
+        valueListenable: endColor,
         builder: (_, __, ___) {
           return ValueListenableBuilder(
-            valueListenable: referenceColor,
+            valueListenable: startColor,
             builder: (_, __, ___) {
-              final reference = referenceColor.value.hsl;
-              final current = currentColor.value.hsl;
+              final reference = startColor.value.hsl;
+              final current = endColor.value.hsl;
 
               var hueDifference = current.hue - reference.hue;
               if (hueDifference < -180) {
@@ -214,11 +208,6 @@ mixin MainScreenColorMeter {
               //   return deg / 180.0 * pi;
               // }
               //hueDifference = deg2rad(hueDifference);
-
-              // final saturationDifference =
-              //     (current.saturation - reference.saturation) * 100;
-              // final lightnessDifference =
-              //     (current.lightness - reference.lightness) * 100;
 
               var saturationPercent =
                   (current.saturation / reference.saturation) * 100;
@@ -299,7 +288,7 @@ mixin MainScreenColorMeter {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _referenceColorPreviewForBottomBar(),
+                      _startColorBoxWidget(),
                       Text("start", style: smallText),
                     ],
                   ),
@@ -438,7 +427,7 @@ mixin MainScreenColorMeter {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _currentColorForBottomBar(),
+                    _endColorBoxWidget(),
                     Container(
                       //color: Colors.red,
                       child: Text("end", style: smallText),
@@ -456,18 +445,18 @@ mixin MainScreenColorMeter {
 
   static const double bigColorBoxSize = 40;
 
-  Widget _currentColorForBottomBar() {
-    return valueListeningColorBox(currentColor, size: bigColorBoxSize);
+  Widget _endColorBoxWidget() {
+    return valueListeningColorBox(endColor, size: bigColorBoxSize);
   }
 
-  Widget _referenceColorPreviewForBottomBar() {
+  Widget _startColorBoxWidget() {
     return ValueListenableBuilder(
       valueListenable: lastPickKey,
       builder: (_, __, ___) {
         return Animate(
           key: Key(lastPickKey.value),
           effects: const [Phanimations.itemPulseEffect],
-          child: valueListeningColorBox(referenceColor, size: bigColorBoxSize),
+          child: valueListeningColorBox(startColor, size: bigColorBoxSize),
         );
       },
     );
