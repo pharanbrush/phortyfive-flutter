@@ -103,7 +103,7 @@ final captureKey = GlobalKey();
 class EyeDropperModel {
   /// based on PointerEvent.kind
   bool isTouchInterface = false;
-  OverlayEntry? eyeOverlayEntry;
+  OverlayEntry? loupeOverlayEntry;
 
   img.Image? snapshot;
   Offset? cursorPosition;
@@ -167,10 +167,10 @@ class EyeDrop extends InheritedWidget {
   }
 
   static void endEyeDrop() {
-    if (data.eyeOverlayEntry != null) {
+    if (data.loupeOverlayEntry != null) {
       try {
-        data.eyeOverlayEntry!.remove();
-        data.eyeOverlayEntry = null;
+        data.loupeOverlayEntry!.remove();
+        data.loupeOverlayEntry = null;
         data.onColorSelected = null;
         data.onColorChanged = null;
       } catch (err) {
@@ -180,7 +180,9 @@ class EyeDrop extends InheritedWidget {
   }
 
   static void _onHover(Offset offset, bool isTouchInterface) {
-    if (data.eyeOverlayEntry != null) data.eyeOverlayEntry!.markNeedsBuild();
+    if (data.loupeOverlayEntry != null) {
+      data.loupeOverlayEntry!.markNeedsBuild();
+    }
 
     data.cursorPosition = offset;
 
@@ -210,17 +212,17 @@ class EyeDrop extends InheritedWidget {
     data.onColorChanged = onColorChanged;
     data.onSecondaryTap = onSecondaryTap;
 
-    data.eyeOverlayEntry = OverlayEntry(
-      builder: (_) => EyeDropOverlay(
-        isTouchInterface: data.isTouchInterface,
-        colors: data.hoverColors,
-        cursorPosition: data.cursorPosition,
-      ),
-    );
+    // data.loupeOverlayEntry = OverlayEntry(
+    //   builder: (_) => LoupeOverlay(
+    //     isTouchInterface: data.isTouchInterface,
+    //     colors: data.hoverColors,
+    //     cursorPosition: data.cursorPosition,
+    //   ),
+    // );
 
-    if (context.mounted) {
-      Overlay.of(context).insert(data.eyeOverlayEntry!);
-    }
+    // if (context.mounted) {
+    //   Overlay.of(context).insert(data.loupeOverlayEntry!);
+    // }
   }
 
   Future<void> _capturePickableImage() async {
@@ -263,13 +265,13 @@ class EyeDrop extends InheritedWidget {
 const _cellSize = 10;
 const _gridSize = 90.0;
 
-class EyeDropOverlay extends StatelessWidget {
+class LoupeOverlay extends StatelessWidget {
   final Offset? cursorPosition;
   final bool isTouchInterface;
 
   final List<Color> colors;
 
-  const EyeDropOverlay({
+  const LoupeOverlay({
     required this.colors,
     this.cursorPosition,
     this.isTouchInterface = false,
