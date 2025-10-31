@@ -271,7 +271,7 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _bottomBarUnderlay(BuildContext context) {
     const double underlayOpacity = 0.95;
-    const double barHeight = 90;
+    const double barHeight = 100;
 
     final theme = Theme.of(context);
     final backgroundColor =

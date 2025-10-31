@@ -33,15 +33,30 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image/image.dart' as img;
 import 'package:pfs2/ui/phanimations.dart';
 
+enum ColorDifference {
+  allLighterOrEqual,
+  allDarkerOrEqual,
+  same,
+  mixed,
+  invalid,
+}
+
 mixin MainScreenColorMeter {
   late final startColor = ValueNotifier(Colors.white);
   late final endColor = ValueNotifier(Colors.white);
+
+  late final startEndColorDifference = ValueNotifier(ColorDifference.mixed);
+
   late final terminalAlphaBlendColor = ValueNotifier(Colors.white);
+  late final alphaBlendColorPercent = ValueNotifier(0.0);
+
   late final multiplyColor = ValueNotifier(Colors.white);
+  late final dodgeColor = ValueNotifier(Colors.black);
+  late final linearBurnColor = ValueNotifier(Colors.white);
+  late final addColor = ValueNotifier(Colors.black);
+  late final screenColor = ValueNotifier(Colors.black);
 
   late final lastPickKey = ValueNotifier("defaultKey");
-  bool isMultipliableColor = false;
-  late final alphaBlendColorPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
 
   final keyRng = Random();
@@ -62,8 +77,42 @@ mixin MainScreenColorMeter {
 
   void onColorHover(Color value) {
     endColor.value = value;
+
+    _updateColorDifference();
     _updateTerminalColor();
-    _updateMultiplyColor();
+    _updateBlendModeColors();
+  }
+
+  void _updateColorDifference() {
+    final start = startColor.value;
+    final end = endColor.value;
+
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
+
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
+
+    if (r1.isNaN || r2.isNaN || g1.isNaN || g2.isNaN || b1.isNaN || b2.isNaN) {
+      startEndColorDifference.value = ColorDifference.invalid;
+    } else if (r1.isInfinite ||
+        r2.isInfinite ||
+        g1.isInfinite ||
+        g2.isInfinite ||
+        b1.isInfinite ||
+        b2.isInfinite) {
+      startEndColorDifference.value = ColorDifference.invalid;
+    } else if (r2 == r1 && g2 == g1 && b2 == b1) {
+      startEndColorDifference.value = ColorDifference.same;
+    } else if (r2 >= r1 && g2 >= g1 && b2 >= b1) {
+      startEndColorDifference.value = ColorDifference.allLighterOrEqual;
+    } else if (r2 <= r1 && g2 <= g1 && b2 <= b1) {
+      startEndColorDifference.value = ColorDifference.allDarkerOrEqual;
+    } else {
+      startEndColorDifference.value = ColorDifference.mixed;
+    }
   }
 
   static double calculateSafeStretchFactor(
@@ -92,7 +141,7 @@ mixin MainScreenColorMeter {
     return minOfThree(rDistanceFactor, gDistanceFactor, bDistanceFactor);
   }
 
-  void _updateMultiplyColor() {
+  void _updateBlendModeColors() {
     final start = startColor.value;
     final end = endColor.value;
 
@@ -104,34 +153,52 @@ mixin MainScreenColorMeter {
     final g2 = end.g;
     final b2 = end.b;
 
-    // Divide current color with reference color. Assumes reference color is lighter.
-    final mr = r2 / r1;
-    final mg = g2 / g1;
-    final mb = b2 / b1;
+    switch (startEndColorDifference.value) {
+      case ColorDifference.same:
+      case ColorDifference.allDarkerOrEqual:
+        // Divide end color with start color. Assumes start color is lighter.
+        final double mr = r1 == 0 ? 0 : r2 / r1;
+        final double mg = g1 == 0 ? 0 : g2 / g1;
+        final double mb = b1 == 0 ? 0 : b2 / b1;
+        final outputMultiplyColor =
+            Color.from(alpha: 1, red: mr, green: mg, blue: mb);
 
-    if (mr > 1 || mr < 0 || mr.isNaN) {
-      isMultipliableColor = false;
-    } else if (mg > 1 || mg < 0 || mg.isNaN) {
-      isMultipliableColor = false;
-    } else if (mb > 1 || mb < 0 || mb.isNaN) {
-      isMultipliableColor = false;
-    } else {
-      isMultipliableColor = true;
+        multiplyColor.value = outputMultiplyColor;
+
+        final double subr = r1 - r2;
+        final double subg = g1 - g2;
+        final double subb = b1 - b2;
+        final outputLinearBurnColor = Color.from(
+            alpha: 1, red: 1 - subr, green: 1 - subg, blue: 1 - subb);
+
+        linearBurnColor.value = outputLinearBurnColor;
+
+      case ColorDifference.allLighterOrEqual:
+        final double ar = r2 - r1;
+        final double ag = g2 - g1;
+        final double ab = b2 - b1;
+        final outputAddColor =
+            Color.from(alpha: 1, red: ar, green: ag, blue: ab);
+        addColor.value = outputAddColor;
+
+        final double sr = 1 - (1 - r2) / (1 - r1);
+        final double sg = 1 - (1 - g2) / (1 - g1);
+        final double sb = 1 - (1 - b2) / (1 - b1);
+        final outputScreenColor =
+            Color.from(alpha: 1, red: sr, green: sg, blue: sb);
+        screenColor.value = outputScreenColor;
+
+        final double cdr = 1 - (r1 / r2);
+        final double cdg = 1 - (g1 / g2);
+        final double cdb = 1 - (b1 / b2);
+        final outputDodgeColor =
+            Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
+        dodgeColor.value = outputDodgeColor;
+
+      default:
+        multiplyColor.value = Colors.transparent;
+        return;
     }
-
-    if (isMultipliableColor == false) {
-      multiplyColor.value = Colors.transparent;
-      return;
-    }
-
-    final outputColor = Color.from(
-      alpha: 1,
-      red: mr,
-      green: mg,
-      blue: mb,
-    );
-
-    multiplyColor.value = outputColor;
   }
 
   void _updateTerminalColor() {
@@ -269,10 +336,10 @@ mixin MainScreenColorMeter {
     ];
   }
 
-  Widget colorMeterBottomBar({void Function()? onCloseButtonPressed}) {
-    const double smallTextSize = 10;
-    const smallText = TextStyle(fontSize: smallTextSize);
+  static const double smallTextSize = 10;
+  static const smallText = TextStyle(fontSize: smallTextSize);
 
+  Widget colorMeterBottomBar({void Function()? onCloseButtonPressed}) {
     return Positioned(
       bottom: 0,
       right: 0,
@@ -366,47 +433,39 @@ mixin MainScreenColorMeter {
                       //
                       Row(
                         children: [
-                          Text(
-                            "normal",
-                            style: smallText,
-                          ),
                           SizedBox(
-                            width: 40,
-                            child: ValueListenableBuilder(
-                              valueListenable: alphaBlendColorPercent,
-                              builder: (_, value, ___) {
-                                if (value.isInfinite ||
-                                    value.isNaN ||
-                                    value == 0) {
-                                  return Text("-%");
-                                }
+                            width: 100,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "normal ",
+                                  style: smallText,
+                                ),
+                                SizedBox(
+                                  width: 35,
+                                  child: ValueListenableBuilder(
+                                    valueListenable: alphaBlendColorPercent,
+                                    builder: (_, value, ___) {
+                                      if (value.isInfinite ||
+                                          value.isNaN ||
+                                          value == 0) {
+                                        return Text(" - ");
+                                      }
 
-                                return Text(
-                                  "${(100.0 / value).floor()}%",
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(fontSize: 12),
-                                );
-                              },
+                                      return Text(
+                                        "${(100.0 / value).floor()}%",
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(fontSize: 12),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                valueListeningColorBox(terminalAlphaBlendColor),
+                              ],
                             ),
                           ),
-                          valueListeningColorBox(terminalAlphaBlendColor),
                           SizedBox(width: 25),
-                          ValueListenableBuilder(
-                            valueListenable: multiplyColor,
-                            builder: (___, __, _) {
-                              return Text(
-                                "multiply",
-                                style: TextStyle(
-                                  fontSize: smallTextSize,
-                                  decoration: isMultipliableColor
-                                      ? null
-                                      : TextDecoration.lineThrough,
-                                ),
-                                //style: faintStyle,
-                              );
-                            },
-                          ),
-                          valueListeningColorBox(multiplyColor),
+                          SizedBox(width: 220, child: _blendModeBoxes()),
                           const SizedBox(width: 40),
                         ],
                       )
@@ -443,7 +502,53 @@ mixin MainScreenColorMeter {
     );
   }
 
+  Widget _blendModeBoxes() {
+    const double boxSpacing = 12;
+
+    return ValueListenableBuilder(
+      valueListenable: startEndColorDifference,
+      builder: (_, difference, __) {
+        if (difference == ColorDifference.allDarkerOrEqual) {
+          return Row(
+            spacing: boxSpacing,
+            children: [
+              _labeledColorBox(
+                  label: "multiply", colorListenable: multiplyColor),
+              _labeledColorBox(
+                  label: "linear burn", colorListenable: linearBurnColor),
+            ],
+          );
+        } else if (difference == ColorDifference.allLighterOrEqual) {
+          return Row(
+            spacing: boxSpacing,
+            children: [
+              _labeledColorBox(label: "screen", colorListenable: screenColor),
+              _labeledColorBox(
+                  label: "color dodge", colorListenable: dodgeColor),
+              _labeledColorBox(label: "add", colorListenable: addColor),
+            ],
+          );
+        }
+
+        return SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _labeledColorBox({
+    required String label,
+    required ValueListenable<Color> colorListenable,
+  }) {
+    return Row(
+      children: [
+        Text(label, style: smallText),
+        valueListeningColorBox(colorListenable),
+      ],
+    );
+  }
+
   static const double bigColorBoxSize = 40;
+  static const double colorBoxSize = 18;
 
   Widget _endColorBoxWidget() {
     return valueListeningColorBox(endColor, size: bigColorBoxSize);
@@ -472,8 +577,6 @@ mixin MainScreenColorMeter {
       child: Icon(iconData),
     );
   }
-
-  static const double colorBoxSize = 22;
 
   Widget valueListeningColorBox(
     ValueListenable<Color> listenableColor, {
