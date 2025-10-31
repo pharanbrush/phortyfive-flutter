@@ -796,11 +796,11 @@ mixin MainScreenColorMeter {
     final mg = cg / rg;
     final mb = cb / rb;
 
-    if (mr > 1 || mr < 0) {
+    if (mr > 1 || mr < 0 || mr.isNaN) {
       isMultipliableColor = false;
-    } else if (mg > 1 || mg < 0) {
+    } else if (mg > 1 || mg < 0 || mg.isNaN) {
       isMultipliableColor = false;
-    } else if (mb > 1 || mb < 0) {
+    } else if (mb > 1 || mb < 0 || mb.isNaN) {
       isMultipliableColor = false;
     } else {
       isMultipliableColor = true;
