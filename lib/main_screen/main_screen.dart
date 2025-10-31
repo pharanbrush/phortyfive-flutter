@@ -268,8 +268,7 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _bottomBarUnderlay(BuildContext context) {
     final theme = Theme.of(context);
-    final backgroundColor =
-        theme.colorScheme.surface.withValues(alpha: 0.9);
+    final backgroundColor = theme.colorScheme.surface.withValues(alpha: 0.9);
 
     const double barHeight = 90;
 
