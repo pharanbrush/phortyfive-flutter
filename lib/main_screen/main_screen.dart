@@ -125,6 +125,11 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
+  @override
+  void onAppModeChange() {
+    setState(() {});
+  }
+
   Widget overlayGestureControls(BuildContext context) {
     if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
       return SizedBox.shrink();
@@ -607,11 +612,6 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return normalBottomBar;
-  }
-
-  @override
-  void onAppModeChange() {
-    setState(() {});
   }
 }
 
