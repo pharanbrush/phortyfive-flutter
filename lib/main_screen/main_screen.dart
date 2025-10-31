@@ -252,7 +252,7 @@ class _MainScreenState extends State<MainScreen>
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
-          _bottomBarUnderlay(),
+          _bottomBarUnderlay(context),
           bottomControlBar(context),
           WindowDockingControls(
             isBottomBarMinimized: windowState.isBottomBarMinimized,
@@ -266,10 +266,15 @@ class _MainScreenState extends State<MainScreen>
     return appWindowContent;
   }
 
-  Widget _bottomBarUnderlay() {
-    const double barHeight = 60;
-    const barColor = Color.fromARGB(220, 0, 0, 0);
-    const boxDecoration = BoxDecoration(color: barColor);
+  Widget _bottomBarUnderlay(BuildContext context) {
+    final theme = Theme.of(context);
+    final backgroundColor =
+        theme.colorScheme.surface.withValues(alpha: 0.9);
+
+    const double barHeight = 90;
+
+    final barColor = backgroundColor; // Color.fromARGB(220, 0, 0, 0);
+    final boxDecoration = BoxDecoration(color: barColor);
 
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
