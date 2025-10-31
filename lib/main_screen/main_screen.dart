@@ -270,10 +270,12 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget _bottomBarUnderlay(BuildContext context) {
-    final theme = Theme.of(context);
-    final backgroundColor = theme.colorScheme.surface.withValues(alpha: 0.9);
-
+    const double underlayOpacity = 0.95;
     const double barHeight = 90;
+
+    final theme = Theme.of(context);
+    final backgroundColor =
+        theme.colorScheme.surface.withValues(alpha: underlayOpacity);
 
     final barColor = backgroundColor; // Color.fromARGB(220, 0, 0, 0);
     final boxDecoration = BoxDecoration(color: barColor);
@@ -541,16 +543,7 @@ class _MainScreenState extends State<MainScreen>
     List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
       final SizedBox spacingBox = SizedBox(width: spacing);
 
-      if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-        return [
-          ...colorMeterBottomBarItems(),
-          IconButton.filled(
-            onPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
-            icon: Icon(Icons.close),
-          ),
-          const SizedBox(width: 20),
-        ];
-      } else if (model.hasFilesLoaded) {
+      if (model.hasFilesLoaded) {
         return [
           colorMeterModeButton(onPressed: () {
             setAppMode(PfsAppControlsMode.colorMeter);
@@ -583,35 +576,44 @@ class _MainScreenState extends State<MainScreen>
 
     const double narrowSpacing = 4;
     const double wideSpacing = 12;
+    const double minimizeButtonRightSpace = 10;
 
-    final normalBottomBar = Positioned(
-      bottom: 0,
-      right: 10,
-      child: PfsAppModel.scope(
-        (_, __, model) {
-          return TweenAnimationBuilder<double>(
-            duration: Phanimations.defaultDuration,
-            tween: Tween<double>(
-              begin: narrowSpacing,
-              end: isNarrowWindow ? narrowSpacing : wideSpacing,
-            ),
-            builder: (_, spacing, __) {
-              return Row(
-                children: bottomBarItems(
-                  model,
-                  spacing: spacing,
-                ).animate(
-                  interval: const Duration(milliseconds: 25),
-                  effects: [Phanimations.bottomBarSlideUpEffect],
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
+      return colorMeterBottomBar(
+        onCloseButtonPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
+      );
+    }
 
-    return normalBottomBar;
+    Widget normalBottomBar() {
+      return Positioned(
+        bottom: 0,
+        right: minimizeButtonRightSpace,
+        child: PfsAppModel.scope(
+          (_, __, model) {
+            return TweenAnimationBuilder<double>(
+              duration: Phanimations.defaultDuration,
+              tween: Tween<double>(
+                begin: narrowSpacing,
+                end: isNarrowWindow ? narrowSpacing : wideSpacing,
+              ),
+              builder: (_, spacing, __) {
+                return Row(
+                  children: bottomBarItems(
+                    model,
+                    spacing: spacing,
+                  ).animate(
+                    interval: const Duration(milliseconds: 25),
+                    effects: const [Phanimations.bottomBarSlideUpEffect],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    return normalBottomBar();
   }
 }
 

@@ -36,12 +36,12 @@ import 'package:pfs2/ui/phanimations.dart';
 mixin MainScreenColorMeter {
   late final referenceColor = ValueNotifier(Colors.white);
   late final currentColor = ValueNotifier(Colors.white);
-  late final vectorTerminusColor = ValueNotifier(Colors.white);
+  late final terminalAlphaBlendColor = ValueNotifier(Colors.white);
   late final multiplyColor = ValueNotifier(Colors.white);
 
   late final lastPickKey = ValueNotifier("defaultKey");
   bool isMultipliableColor = false;
-  late final vectorTerminusPercent = ValueNotifier(0.0);
+  late final alphaBlendColorPercent = ValueNotifier(0.0);
   void Function()? onColorMeterSecondaryTap;
 
   final keyRng = Random();
@@ -174,8 +174,8 @@ mixin MainScreenColorMeter {
         blue: tb,
       );
 
-      vectorTerminusColor.value = outputColor;
-      vectorTerminusPercent.value = vectorScaleToEdge;
+      terminalAlphaBlendColor.value = outputColor;
+      alphaBlendColorPercent.value = vectorScaleToEdge;
     } catch (err) {
       debugPrint("color error? $err");
     }
@@ -189,25 +189,10 @@ mixin MainScreenColorMeter {
     );
   }
 
-  Iterable<Widget> colorMeterBottomBarItems() {
-    var faintStyle = TextStyle(color: Colors.grey.shade600);
+  Iterable<Widget> colorMeterHSLItems() {
+    var numberLabel = TextStyle(color: Colors.grey.shade600, fontSize: 12);
 
     return [
-      _referenceColorPreviewForBottomBar(),
-      ValueListenableBuilder(
-        valueListenable: multiplyColor,
-        builder: (___, __, _) {
-          return SizedBox(
-            width: 10,
-            child: Text(
-              isMultipliableColor ? "×" : " ",
-              style: faintStyle,
-            ),
-          );
-        },
-      ),
-      valueListeningColorBox(multiplyColor),
-      _rightArrow,
       ValueListenableBuilder(
         valueListenable: currentColor,
         builder: (_, __, ___) {
@@ -252,72 +237,227 @@ mixin MainScreenColorMeter {
               final hueDiffText = sPercentText == "-" || current.saturation == 0
                   ? "-"
                   : (hueDifference > 0 ? "+" : "") +
-                      hueDifference.toStringAsFixed(2);
+                      hueDifference.toStringAsFixed(1);
 
-              return SizedBox(
-                width: 280,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Tooltip(
-                      message:
-                          "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                      child: SizedBox(
-                          width: 20, child: Text("H", style: faintStyle)),
+              return Container(
+                // decoration: BoxDecoration(
+                //   borderRadius: BorderRadius.all(Radius.circular(3)),
+                //   color: Colors.black.withValues(alpha: 0.25),
+                // ),
+                child: SizedBox(
+                  width: 340,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Tooltip(
+                          message:
+                              "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                          child: Text("hue  ", style: numberLabel),
+                        ),
+                        SizedBox(width: 65, child: Text("$hueDiffText%")),
+                        Tooltip(
+                            message:
+                                "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
+                            child: Text("sat × ", style: numberLabel)),
+                        SizedBox(width: 58, child: Text("$sPercentText%")),
+                        Tooltip(
+                            message:
+                                "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
+                            child: Text("lightness × ", style: numberLabel)),
+                        SizedBox(width: 45, child: Text("$lPercentText%")),
+                      ],
                     ),
-                    SizedBox(width: 70, child: Text("$hueDiffText%")),
-                    Tooltip(
-                        message:
-                            "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
-                        child: SizedBox(
-                            width: 20, child: Text("S", style: faintStyle))),
-                    SizedBox(width: 60, child: Text("$sPercentText%")),
-                    Tooltip(
-                        message:
-                            "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
-                        child: SizedBox(
-                            width: 20, child: Text("L", style: faintStyle))),
-                    SizedBox(width: 60, child: Text("$lPercentText%")),
-                  ],
+                  ),
                 ),
               );
             },
           );
         },
       ),
-      SizedBox(
-        width: 20,
-        child: Text(
-          "=",
-          textAlign: TextAlign.right,
-          style: faintStyle,
-        ),
-      ),
-      _currentColorForBottomBar(),
-      SizedBox(width: 10),
-      _barIcon(Icons.skip_next),
-      SizedBox(
-        width: 42,
-        child: ValueListenableBuilder(
-          valueListenable: vectorTerminusPercent,
-          builder: (_, value, ___) {
-            if (value.isInfinite || value.isNaN || value == 0) {
-              return Text("-%");
-            }
-
-            return Text(
-              "${(100.0 / value).floor()}%",
-              textAlign: TextAlign.right,
-            );
-          },
-        ),
-      ),
-      valueListeningColorBox(vectorTerminusColor),
+      //SizedBox(width: 10),
     ];
   }
 
+  Widget colorMeterBottomBar({void Function()? onCloseButtonPressed}) {
+    const double smallTextSize = 10;
+    const smallText = TextStyle(fontSize: smallTextSize);
+
+    return Positioned(
+      bottom: 0,
+      right: 0,
+      child: SizedBox(
+        height: 100,
+        child: Row(
+          children: [
+            // Leftmost block
+            Container(
+              //color: Colors.red,
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _referenceColorPreviewForBottomBar(),
+                      Text("start", style: smallText),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsetsGeometry.only(bottom: 15),
+                    child: _rightArrow,
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+            ),
+            // Main middle block
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                //
+                // Title bar
+                //
+                Container(
+                  //color: Colors.red.withValues(alpha: 0.5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 10,
+                    children: [
+                      Text(
+                        "COLOR CHANGE METER",
+                        style: TextStyle(
+                          color: Colors.grey.withValues(alpha: 0.5),
+                          fontSize: 12,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: SizedBox(
+                          width: 25,
+                          height: 25,
+                          child: IconButton.filled(
+                            padding: EdgeInsets.all(2.0),
+                            onPressed: onCloseButtonPressed,
+                            icon: Icon(Icons.close, size: 14),
+                            hoverColor: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  //color: Colors.red,
+                  child: Column(
+                    spacing: 4,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      //
+                      // Top row
+                      //
+                      Row(
+                        children: [
+                          ...colorMeterHSLItems(),
+                          const SizedBox(width: 40),
+                        ],
+                      ),
+
+                      //
+                      // Divider
+                      //
+                      Container(
+                          width: 280,
+                          height: 1,
+                          color: Colors.white.withValues(alpha: 0.15)),
+
+                      //
+                      // Bottom row
+                      //
+                      Row(
+                        children: [
+                          Text(
+                            "normal",
+                            style: smallText,
+                          ),
+                          SizedBox(
+                            width: 40,
+                            child: ValueListenableBuilder(
+                              valueListenable: alphaBlendColorPercent,
+                              builder: (_, value, ___) {
+                                if (value.isInfinite ||
+                                    value.isNaN ||
+                                    value == 0) {
+                                  return Text("-%");
+                                }
+
+                                return Text(
+                                  "${(100.0 / value).floor()}%",
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(fontSize: 12),
+                                );
+                              },
+                            ),
+                          ),
+                          valueListeningColorBox(terminalAlphaBlendColor),
+                          SizedBox(width: 25),
+                          ValueListenableBuilder(
+                            valueListenable: multiplyColor,
+                            builder: (___, __, _) {
+                              return Text(
+                                "multiply",
+                                style: TextStyle(
+                                  fontSize: smallTextSize,
+                                  decoration: isMultipliableColor
+                                      ? null
+                                      : TextDecoration.lineThrough,
+                                ),
+                                //style: faintStyle,
+                              );
+                            },
+                          ),
+                          valueListeningColorBox(multiplyColor),
+                          const SizedBox(width: 40),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            //
+            // Rightmost block
+            //
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsetsGeometry.only(bottom: 15),
+                  child: _rightArrow,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _currentColorForBottomBar(),
+                    Container(
+                      //color: Colors.red,
+                      child: Text("end", style: smallText),
+                    )
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(width: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static const double bigColorBoxSize = 40;
+
   Widget _currentColorForBottomBar() {
-    return valueListeningColorBox(currentColor);
+    return valueListeningColorBox(currentColor, size: bigColorBoxSize);
   }
 
   Widget _referenceColorPreviewForBottomBar() {
@@ -327,7 +467,7 @@ mixin MainScreenColorMeter {
         return Animate(
           key: Key(lastPickKey.value),
           effects: const [Phanimations.itemPulseEffect],
-          child: valueListeningColorBox(referenceColor),
+          child: valueListeningColorBox(referenceColor, size: bigColorBoxSize),
         );
       },
     );
@@ -344,26 +484,35 @@ mixin MainScreenColorMeter {
     );
   }
 
-  Widget valueListeningColorBox(ValueListenable<Color> listenableColor) {
+  static const double colorBoxSize = 22;
+
+  Widget valueListeningColorBox(
+    ValueListenable<Color> listenableColor, {
+    double size = colorBoxSize,
+  }) {
     return ValueListenableBuilder(
       valueListenable: listenableColor,
       builder: (_, colorValue, __) {
-        return _colorBox(colorValue);
+        return _colorBox(
+          colorValue,
+          size: size,
+        );
       },
     );
   }
 
-  Widget _colorBox(Color color) {
-    const double boxSize = 30;
-
+  Widget _colorBox(
+    Color color, {
+    double size = colorBoxSize,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
         elevation: 3,
         shape: RoundedRectangleBorder(),
         child: Container(
-          width: boxSize,
-          height: boxSize,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: color,
