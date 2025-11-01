@@ -336,23 +336,45 @@ mixin MainScreenColorMeter {
                 //   color: Colors.black.withValues(alpha: 0.25),
                 // ),
                 child: SizedBox(
-                  width: 340,
+                  width: 360,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        //
+                        hslIconIndicator(
+                          value: hueDifference,
+                          cutoff: 0,
+                          increase: Icons.redo,
+                          decrease: Icons.undo,
+                          extraRightPadding: 3,
+                        ),
                         Tooltip(
                           message:
                               "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
                           child: Text("hue  ", style: numberLabel),
                         ),
                         SizedBox(width: 65, child: Text("$hueDiffText%")),
+                        //
+                        hslIconIndicator(
+                          value: saturationPercent,
+                          cutoff: 100,
+                          decrease: Icons.arrow_back,
+                          increase: Icons.arrow_forward,
+                        ),
                         Tooltip(
                             message:
                                 "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
                             child: Text("sat × ", style: numberLabel)),
                         SizedBox(width: 58, child: Text("$sPercentText%")),
+
+                        hslIconIndicator(
+                          value: lightnessPercent,
+                          cutoff: 100,
+                          decrease: Icons.arrow_downward,
+                          increase: Icons.arrow_upward,
+                        ),
                         Tooltip(
                             message:
                                 "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
@@ -369,6 +391,25 @@ mixin MainScreenColorMeter {
       ),
       //SizedBox(width: 10),
     ];
+  }
+
+  Widget hslIconIndicator({
+    required double value,
+    required double cutoff,
+    required IconData decrease,
+    required IconData increase,
+    double extraRightPadding = 0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(top: 3, right: 1 + extraRightPadding),
+      child: value == cutoff
+          ? SizedBox(width: 14)
+          : Icon(
+              value > cutoff ? increase : decrease,
+              size: 14,
+              color: Color.from(alpha: 0.45, red: 0.5, green: 0.5, blue: 0.5),
+            ),
+    );
   }
 
   static const double smallTextSize = 10.5;
