@@ -295,10 +295,10 @@ mixin MainScreenColorMeter {
           return ValueListenableBuilder(
             valueListenable: startColor,
             builder: (_, __, ___) {
-              final reference = startColor.value.hsl;
-              final current = endColor.value.hsl;
+              final start = startColor.value.hsl;
+              final end = endColor.value.hsl;
 
-              var hueDifference = current.hue - reference.hue;
+              var hueDifference = end.hue - start.hue;
               if (hueDifference < -180) {
                 hueDifference += 180;
               } else if (hueDifference > 180) {
@@ -311,21 +311,29 @@ mixin MainScreenColorMeter {
               // }
               //hueDifference = deg2rad(hueDifference);
 
-              var saturationPercent =
-                  (current.saturation / reference.saturation) * 100;
-              final sPercentText =
-                  (saturationPercent.isInfinite || saturationPercent.isNaN)
-                      ? "-"
-                      : saturationPercent.toStringAsFixed(0);
+              final ss = start.saturation;
+              final es = end.saturation;
 
-              var lightnessPercent =
-                  (current.lightness / reference.lightness) * 100;
+              final saturationPercent = (es / ss);
+              final saturationDifference = (es - ss) * 100;
+
+              final sDifferenceText =
+                  "${saturationDifference > 0 ? "+" : ""}${saturationDifference.toStringAsFixed(0)}";
+              // final sPercentText =
+              //     (saturationPercent.isInfinite || saturationPercent.isNaN)
+              //         ? "-"
+              //         : saturationPercent.toStringAsFixed(0);
+
+              final isSaturationInvalid =
+                  (saturationPercent.isInfinite || saturationPercent.isNaN);
+
+              var lightnessPercent = (end.lightness / start.lightness) * 100;
               final lPercentText =
                   (lightnessPercent.isInfinite || lightnessPercent.isNaN)
                       ? "-"
                       : lightnessPercent.toStringAsFixed(0);
 
-              final hueDiffText = sPercentText == "-" || current.saturation == 0
+              final hueDiffText = isSaturationInvalid || end.saturation == 0
                   ? "-"
                   : (hueDifference > 0 ? "+" : "") +
                       hueDifference.toStringAsFixed(1);
@@ -355,7 +363,8 @@ mixin MainScreenColorMeter {
                               "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
                           child: Text("hue  ", style: numberLabel),
                         ),
-                        SizedBox(width: 65, child: Text("$hueDiffText%")),
+                        SizedBox(
+                            width: 65, child: Text("$hueDiffText%".padLeft(5))),
                         //
                         hslIconIndicator(
                           value: saturationPercent,
@@ -365,9 +374,9 @@ mixin MainScreenColorMeter {
                         ),
                         Tooltip(
                             message:
-                                "Relative saturation percent.\nThe amount of saturation color B has in proportion to color A",
-                            child: Text("sat × ", style: numberLabel)),
-                        SizedBox(width: 58, child: Text("$sPercentText%")),
+                                "Delta saturation.\nThe difference in saturation between color A and color B.",
+                            child: Text("sat ", style: numberLabel)),
+                        SizedBox(width: 58, child: Text("$sDifferenceText%")),
 
                         hslIconIndicator(
                           value: lightnessPercent,
