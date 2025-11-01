@@ -251,8 +251,6 @@ mixin MainScreenColorMeter {
   }
 
   Iterable<Widget> colorMeterHSLItems() {
-    var numberLabel = TextStyle(color: Colors.grey.shade600, fontSize: 12);
-
     return [
       ValueListenableBuilder(
         valueListenable: endColor,
@@ -336,8 +334,25 @@ mixin MainScreenColorMeter {
     ];
   }
 
-  static const double smallTextSize = 10;
+  static const double smallTextSize = 10.5;
+  static const double numberLabelSize = 13;
+  static const double grayTone = 0.64;
+  static const Color textGray = Color.from(
+    alpha: 1,
+    red: grayTone,
+    green: grayTone,
+    blue: grayTone,
+  );
+
   static const smallText = TextStyle(fontSize: smallTextSize);
+  static const blendModeText = TextStyle(
+    fontSize: smallTextSize,
+    color: textGray,
+  );
+  static const numberLabel = TextStyle(
+    fontSize: numberLabelSize,
+    color: textGray,
+  );
 
   Widget colorMeterBottomBar({void Function()? onCloseButtonPressed}) {
     return Positioned(
@@ -356,7 +371,7 @@ mixin MainScreenColorMeter {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _startColorBoxWidget(),
-                      Text("start", style: smallText),
+                      Text("start", style: blendModeText),
                     ],
                   ),
                   Padding(
@@ -405,7 +420,7 @@ mixin MainScreenColorMeter {
                   ),
                 ),
                 Container(
-                  //color: Colors.red,
+                  // color: Colors.lightBlueAccent,
                   child: Column(
                     spacing: 4,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -413,11 +428,13 @@ mixin MainScreenColorMeter {
                       //
                       // Top row
                       //
-                      Row(
-                        children: [
-                          ...colorMeterHSLItems(),
-                          const SizedBox(width: 40),
-                        ],
+                      Container(
+                        // color: Colors.green,
+                        child: Row(
+                          children: [
+                            ...colorMeterHSLItems(),
+                          ],
+                        ),
                       ),
 
                       //
@@ -433,40 +450,9 @@ mixin MainScreenColorMeter {
                       //
                       Row(
                         children: [
-                          SizedBox(
-                            width: 100,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "normal ",
-                                  style: smallText,
-                                ),
-                                SizedBox(
-                                  width: 35,
-                                  child: ValueListenableBuilder(
-                                    valueListenable: alphaBlendColorPercent,
-                                    builder: (_, value, ___) {
-                                      if (value.isInfinite ||
-                                          value.isNaN ||
-                                          value == 0) {
-                                        return Text(" - ");
-                                      }
-
-                                      return Text(
-                                        "${(100.0 / value).floor()}%",
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(fontSize: 12),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                valueListeningColorBox(terminalAlphaBlendColor),
-                              ],
-                            ),
-                          ),
+                          SizedBox(width: 100, child: _normalColorBox()),
                           SizedBox(width: 25),
                           SizedBox(width: 220, child: _blendModeBoxes()),
-                          const SizedBox(width: 40),
                         ],
                       )
                     ],
@@ -489,7 +475,7 @@ mixin MainScreenColorMeter {
                     _endColorBoxWidget(),
                     Container(
                       //color: Colors.red,
-                      child: Text("end", style: smallText),
+                      child: Text("end", style: blendModeText),
                     )
                   ],
                 ),
@@ -499,6 +485,32 @@ mixin MainScreenColorMeter {
           ],
         ),
       ),
+    );
+  }
+
+  Row _normalColorBox() {
+    return Row(
+      children: [
+        Text("normal ", style: blendModeText),
+        SizedBox(
+          width: 35,
+          child: ValueListenableBuilder(
+            valueListenable: alphaBlendColorPercent,
+            builder: (_, value, ___) {
+              if (value.isInfinite || value.isNaN || value == 0) {
+                return Text(" - ");
+              }
+
+              return Text(
+                "${(100.0 / value).floor()}%",
+                textAlign: TextAlign.right,
+                style: TextStyle(fontSize: 12),
+              );
+            },
+          ),
+        ),
+        valueListeningColorBox(terminalAlphaBlendColor),
+      ],
     );
   }
 
@@ -512,9 +524,9 @@ mixin MainScreenColorMeter {
           return Row(
             spacing: boxSpacing,
             children: [
-              _labeledColorBox(
+              _labeledListeningColorBox(
                   label: "multiply", colorListenable: multiplyColor),
-              _labeledColorBox(
+              _labeledListeningColorBox(
                   label: "linear burn", colorListenable: linearBurnColor),
             ],
           );
@@ -522,28 +534,59 @@ mixin MainScreenColorMeter {
           return Row(
             spacing: boxSpacing,
             children: [
-              _labeledColorBox(label: "screen", colorListenable: screenColor),
-              _labeledColorBox(
+              _labeledListeningColorBox(
+                  label: "screen", colorListenable: screenColor),
+              _labeledListeningColorBox(
                   label: "color dodge", colorListenable: dodgeColor),
-              _labeledColorBox(label: "add", colorListenable: addColor),
+              _labeledListeningColorBox(
+                  label: "add", colorListenable: addColor),
             ],
           );
         }
 
-        return SizedBox.shrink();
+        return Row(
+          spacing: boxSpacing,
+          children: [
+            _disabledLabeledColorBox(),
+            _disabledLabeledColorBox(),
+          ],
+        );
       },
     );
   }
 
+  Widget _disabledLabeledColorBox() {
+    return _labeledColorBox(
+      label: "             ",
+      boxWidget: _colorBox(
+        Colors.transparent,
+        borderColor: Colors.grey.withValues(alpha: 0.3),
+      ),
+    );
+  }
+
   Widget _labeledColorBox({
-    required String label,
-    required ValueListenable<Color> colorListenable,
+    String label = "",
+    required Widget boxWidget,
   }) {
     return Row(
       children: [
-        Text(label, style: smallText),
-        valueListeningColorBox(colorListenable),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.5, right: 2),
+          child: Text(label, style: blendModeText),
+        ),
+        boxWidget,
       ],
+    );
+  }
+
+  Widget _labeledListeningColorBox({
+    required String label,
+    required ValueListenable<Color> colorListenable,
+  }) {
+    return _labeledColorBox(
+      label: label,
+      boxWidget: valueListeningColorBox(colorListenable),
     );
   }
 
@@ -568,7 +611,7 @@ mixin MainScreenColorMeter {
   }
 
   Widget get _rightArrow {
-    return _barIcon(Icons.arrow_right);
+    return _barIcon(Icons.arrow_right_alt);
   }
 
   Widget _barIcon(IconData iconData) {
@@ -596,11 +639,12 @@ mixin MainScreenColorMeter {
   Widget _colorBox(
     Color color, {
     double size = colorBoxSize,
+    Color borderColor = Colors.white,
   }) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
-        elevation: 3,
+        elevation: 1,
         shape: RoundedRectangleBorder(),
         child: Container(
           width: size,
@@ -608,7 +652,7 @@ mixin MainScreenColorMeter {
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: color,
-              border: Border.all(color: Colors.white)),
+              border: Border.all(color: borderColor)),
         ),
       ),
     );
