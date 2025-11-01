@@ -22,8 +22,10 @@ class PfsAppModel extends Model
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  bool get allowTimerPlayPause => hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
-  bool get allowCirculatorControl => hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+  bool get allowTimerPlayPause =>
+      hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+  bool get allowCirculatorControl =>
+      hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
   // bool get isAnnotating => isAnnotatingMode.value;
 
   @override
@@ -33,7 +35,7 @@ class PfsAppModel extends Model
     return fileList.get(circulator.currentIndex);
   }
 
-  void tryPauseTimer () {
+  void tryPauseTimer() {
     if (timerModel.isRunning) {
       tryCancelCountdown();
       timerModel.playPauseToggleTimer();
@@ -101,6 +103,10 @@ class PfsAppModel extends Model
 
       onImageChange?.call();
       notifyListeners();
+    } else {
+      if (loadedCount == 1) {
+        isWelcomeDone = true;
+      }
     }
   }
 
@@ -114,7 +120,7 @@ class PfsAppModel extends Model
 
     onImageChange?.call();
     notifyListeners();
-  }  
+  }
 
   void reinitializeTimer() {
     timerModel.tryInitialize();

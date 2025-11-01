@@ -195,7 +195,7 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return firstActionApp;
-    } else if (model.hasFilesLoaded && !model.isWelcomeDone) {
+    } else if (!model.isWelcomeDone && model.hasFilesLoaded) {
       final welcomeChooseModeApp = Stack(
         children: [
           WelcomeChooseModeSheet(model: model),
