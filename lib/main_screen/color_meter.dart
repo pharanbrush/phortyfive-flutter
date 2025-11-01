@@ -53,6 +53,9 @@ mixin MainScreenColorMeter {
   late final multiplyColor = ValueNotifier(Colors.white);
   late final dodgeColor = ValueNotifier(Colors.black);
   late final linearBurnColor = ValueNotifier(Colors.white);
+
+  late final canColorDodge = ValueNotifier(false);
+
   late final addColor = ValueNotifier(Colors.black);
   late final screenColor = ValueNotifier(Colors.black);
 
@@ -188,9 +191,40 @@ mixin MainScreenColorMeter {
             Color.from(alpha: 1, red: sr, green: sg, blue: sb);
         screenColor.value = outputScreenColor;
 
-        final double cdr = 1 - (r1 / r2);
-        final double cdg = 1 - (g1 / g2);
-        final double cdb = 1 - (b1 / b2);
+        const double tooSmallToDodge = 4.0 / 255.0;
+
+        double safeDodgeDivide(double startValue, double endValue) {
+          if (startValue == 0) {
+            // 1. Color is the same so don't dodge.
+            if (endValue == 0) {
+              return 1;
+            }
+
+            // 2. Color can't be dodged so pretend it has a small value.
+            return tooSmallToDodge / endValue;
+          } else {
+            // 3. Normal dodge
+            return startValue / endValue;
+          }
+        }
+
+        final double dr = safeDodgeDivide(r1, r2);
+        final double dg = safeDodgeDivide(g1, g2);
+        final double db = safeDodgeDivide(b1, b2);
+
+        final cannotDoDodgeOperation = (
+            // Color dodge becomes wildly inaccurate if the start color has very low values.
+            (r1 < tooSmallToDodge && r2 != r1) ||
+                (g1 < tooSmallToDodge && g2 != g1) ||
+                (b1 < tooSmallToDodge && b2 != b1) ||
+                // Color dodge doesn't work if the division results in a giant number
+                (dr > 1 || dg > 1 || db > 1));
+
+        canColorDodge.value = !cannotDoDodgeOperation;
+
+        final double cdr = 1 - dr;
+        final double cdg = 1 - dg;
+        final double cdb = 1 - db;
         final outputDodgeColor =
             Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
         dodgeColor.value = outputDodgeColor;
@@ -225,8 +259,6 @@ mixin MainScreenColorMeter {
     final svr = vr * vectorScaleToEdge;
     final svg = vg * vectorScaleToEdge;
     final svb = vb * vectorScaleToEdge;
-
-    // TODO: Fix terminus color sometimes fully saturating and being incorrect
 
     try {
       final tr = r1 + svr;
@@ -536,8 +568,7 @@ mixin MainScreenColorMeter {
             children: [
               _labeledListeningColorBox(
                   label: "screen", colorListenable: screenColor),
-              _labeledListeningColorBox(
-                  label: "color dodge", colorListenable: dodgeColor),
+              _colorDodgeBox(),
               _labeledListeningColorBox(
                   label: "add", colorListenable: addColor),
             ],
@@ -555,6 +586,19 @@ mixin MainScreenColorMeter {
     );
   }
 
+  Widget _colorDodgeBox() {
+    return ValueListenableBuilder(
+      valueListenable: canColorDodge,
+      builder: (_, __, ___) {
+        return _labeledColorBox(
+          label: "color dodge",
+          strikethrough: !canColorDodge.value,
+          boxWidget: valueListeningColorBox(dodgeColor),
+        );
+      },
+    );
+  }
+
   Widget _disabledLabeledColorBox() {
     return _labeledColorBox(
       label: "             ",
@@ -567,13 +611,19 @@ mixin MainScreenColorMeter {
 
   Widget _labeledColorBox({
     String label = "",
+    bool strikethrough = false,
     required Widget boxWidget,
   }) {
     return Row(
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 0.5, right: 2),
-          child: Text(label, style: blendModeText),
+          child: Text(
+            label,
+            style: strikethrough
+                ? blendModeText.copyWith(decoration: TextDecoration.lineThrough)
+                : blendModeText,
+          ),
         ),
         boxWidget,
       ],
