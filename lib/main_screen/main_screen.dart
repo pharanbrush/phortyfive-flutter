@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/file_data.dart' as file_data;
 import 'package:pfs2/core/file_data.dart';
 import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/panels/corner_window_controls.dart';
