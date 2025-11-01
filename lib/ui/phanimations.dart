@@ -15,9 +15,9 @@ class Phanimations {
   static const slowDuration = Duration(milliseconds: 300);
 
   static const itemPulseEffect = ScaleEffect(
-    duration: slowDuration,
+    duration: Duration(milliseconds: 500),
     curve: Curves.easeOutCubic,
-    begin: Offset(1.3, 1.3),
+    begin: Offset(1.4, 1.4),
     end: Offset(1, 1),
   );
 
