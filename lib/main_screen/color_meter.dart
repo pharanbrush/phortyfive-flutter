@@ -53,6 +53,10 @@ mixin MainScreenColorMeter {
   late final multiplyColor = ValueNotifier(Colors.white);
   late final dodgeColor = ValueNotifier(Colors.black);
   late final linearBurnColor = ValueNotifier(Colors.white);
+  // late final overlayColor = ValueNotifier(
+  //   Color.from(alpha: 1, red: 0.5, green: 0.5, blue: 0.5),
+  // );
+  // late final canColorOverlay = ValueNotifier(false);
 
   late final canColorDodge = ValueNotifier(false);
 
@@ -228,6 +232,33 @@ mixin MainScreenColorMeter {
         final outputDodgeColor =
             Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
         dodgeColor.value = outputDodgeColor;
+      // case ColorDifference.mixed:
+      // double inverseOverlayChannel(double start, double end) {
+      //   if (start > 0.5) {
+      //     return end * start * 0.5;
+      //   }
+
+      //   return 1.0 - ((1.0 - end) / (2.0 * (1.0 - start)));
+      // }
+
+      // final ovr = inverseOverlayChannel(r1, r2);
+      // final ovg = inverseOverlayChannel(g1, g2);
+      // final ovb = inverseOverlayChannel(b1, b2);
+
+      // final cannotOverlay = (ovr > 1 || ovr < 0) ||
+      //     (ovg > 1 || ovg < 0) ||
+      //     (ovb > 1 || ovb < 0);
+
+      // canColorOverlay.value = !cannotOverlay;
+
+      // if (!cannotOverlay) {
+      //   overlayColor.value = Color.from(
+      //     alpha: 1,
+      //     red: ovr,
+      //     green: ovg,
+      //     blue: ovb,
+      //   );
+      // }
 
       default:
         multiplyColor.value = Colors.transparent;
