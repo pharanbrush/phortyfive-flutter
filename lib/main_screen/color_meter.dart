@@ -588,10 +588,13 @@ mixin MainScreenColorMeter {
                 return Text(" - ");
               }
 
-              return Text(
-                "${(100.0 / value).floor()}%",
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 12),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 1),
+                child: Text(
+                  "${(100.0 / value).floor()}%",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(fontSize: 12),
+                ),
               );
             },
           ),
