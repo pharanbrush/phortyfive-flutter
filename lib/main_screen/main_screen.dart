@@ -278,7 +278,7 @@ class _MainScreenState extends State<MainScreen>
     final backgroundColor =
         theme.colorScheme.surface.withValues(alpha: underlayOpacity);
 
-    final barColor = backgroundColor; // Color.fromARGB(220, 0, 0, 0);
+    final barColor = backgroundColor;
     final boxDecoration = BoxDecoration(color: barColor);
 
     return ValueListenableBuilder(
