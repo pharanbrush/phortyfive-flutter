@@ -121,6 +121,10 @@ class _MainScreenState extends State<MainScreen>
     (PasteIntent, (_) => tryPaste()),
   ];
 
+  final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
+  late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
+      [(PasteIntent, (_) => tryPaste())];
+
   @override
   void initState() {
     _bindModelCallbacks();
@@ -147,8 +151,7 @@ class _MainScreenState extends State<MainScreen>
     for (var panel in modalPanels) {
       if (panel.isOpen) return;
     }
-    
-    //TODO: allow paste on the first screen.
+
     debugPrint("Paste from clipboard");
     image_from_clipboard.getImageDataFromClipboard(
       (imageBytes) {
@@ -222,21 +225,36 @@ class _MainScreenState extends State<MainScreen>
         ],
       );
 
-      return firstActionApp;
+      if (firstScreenShortcutActions.isEmpty) {
+        for (var (intentType, callback) in firstScreenShortcutIntentActions) {
+          firstScreenShortcutActions[intentType] =
+              CallbackAction(onInvoke: callback);
+        }
+      }
+
+      final wrappedFirstActionApp = Shortcuts(
+        shortcuts: Phshortcuts.intentMap,
+        child: Actions(
+          actions: firstScreenShortcutActions,
+          child: Focus(
+            focusNode: mainWindowFocus,
+            autofocus: true,
+            child: firstActionApp,
+          ),
+        ),
+      );
+
+      return wrappedFirstActionApp;
     } else if (!model.isWelcomeDone && model.hasFilesLoaded) {
       final welcomeChooseModeApp = Stack(
         children: [
           WelcomeChooseModeSheet(model: model),
-          // CornerWindowControls(
-          //   windowState: windowState,
-          //   imagePhviewer: imagePhviewer,
-          //   helpMenu: helpMenu,
-          //   settingsMenu: settingsMenu,
-          // ),
-          // ValueListenableBuilder(
-          //   valueListenable: windowState.isBottomBarMinimized,
-          //   builder: (context, __, ___) => _bottomBar(context),
-          // ),
+          CornerWindowControls(
+            windowState: windowState,
+            imagePhviewer: imagePhviewer,
+            helpMenu: helpMenu,
+            settingsMenu: settingsMenu,
+          ),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
