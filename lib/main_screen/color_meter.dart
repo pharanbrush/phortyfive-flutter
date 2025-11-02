@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +28,15 @@ mixin MainScreenColorMeter {
   late final multiplyColor = ValueNotifier(Colors.white);
   late final dodgeColor = ValueNotifier(Colors.black);
   late final linearBurnColor = ValueNotifier(Colors.white);
+  late final multiplyWithAlphaColor = ValueNotifier(Colors.white);
+  late final multiplyMinimumAlpha = ValueNotifier(0.0);
   // late final overlayColor = ValueNotifier(
   //   Color.from(alpha: 1, red: 0.5, green: 0.5, blue: 0.5),
   // );
   // late final canColorOverlay = ValueNotifier(false);
 
   late final canColorDodge = ValueNotifier(false);
+  late final canMultiplyWithAlpha = ValueNotifier(false);
 
   late final addColor = ValueNotifier(Colors.black);
   late final screenColor = ValueNotifier(Colors.black);
@@ -41,7 +44,7 @@ mixin MainScreenColorMeter {
   late final lastPickKey = ValueNotifier("defaultKey");
   void Function()? onColorMeterSecondaryTap;
 
-  final keyRng = Random();
+  final keyRng = math.Random();
   final eyeDropKey = GlobalKey();
 
   late final loupe = ColorLoupe(
@@ -146,6 +149,62 @@ mixin MainScreenColorMeter {
             Color.from(alpha: 1, red: mr, green: mg, blue: mb);
 
         multiplyColor.value = outputMultiplyColor;
+
+        double findAlphaWithMultiply(
+            double start, double end, double multiply) {
+          if (start == end) return 0;
+          if (start <= 0) return double.negativeInfinity;
+          if (multiply == 1) return double.infinity;
+
+          // Find the alpha required to reach this.
+          return (end - start) / (start * (multiply - 1.0));
+        }
+
+        final azmr = findAlphaWithMultiply(r1, r2, 0);
+        final azmg = findAlphaWithMultiply(g1, g2, 0);
+        final azmb = findAlphaWithMultiply(b1, b2, 0);
+        double maxIfAlphaValid(double previous, double candidate) {
+          if (candidate.isFinite && candidate > 0 && candidate < 1) {
+            return math.max(previous, candidate);
+          } else {
+            return previous;
+          }
+        }
+
+        double minimumValidAlpha = 0;
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmr);
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmg);
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmb);
+
+        double inverseMultiplyWithAlpha(
+          double start,
+          double end,
+          double alpha,
+        ) {
+          if (start == 0) return 0;
+          if (alpha == 0) return start;
+
+          return (end - ((1 - alpha) * start)) / (alpha * start);
+        }
+
+        //const opacity = 0.5;
+        if (minimumValidAlpha < 1) {
+          final opacity = minimumValidAlpha;
+          final double mhr = inverseMultiplyWithAlpha(r1, r2, opacity);
+          final double mhg = inverseMultiplyWithAlpha(g1, g2, opacity);
+          final double mhb = inverseMultiplyWithAlpha(b1, b2, opacity);
+
+          canMultiplyWithAlpha.value = true;
+          multiplyMinimumAlpha.value = opacity;
+          multiplyWithAlphaColor.value = Color.from(
+            alpha: 1,
+            red: mhr,
+            green: mhg,
+            blue: mhb,
+          );
+        } else {
+          canMultiplyWithAlpha.value = false;
+        }
 
         final double subr = r1 - r2;
         final double subg = g1 - g2;
@@ -619,10 +678,24 @@ mixin MainScreenColorMeter {
       builder: (_, difference, __) {
         if (difference == ColorDifference.allDarkerOrEqual) {
           return Row(
-            spacing: boxSpacing,
             children: [
               _labeledListeningColorBox(
                   label: "multiply", colorListenable: multiplyColor),
+              SizedBox(width: 1),
+              ValueListenableBuilder(
+                  valueListenable: multiplyMinimumAlpha,
+                  builder: (_, __, ___) {
+                    final multiplyPercentText =
+                        (multiplyMinimumAlpha.value * 100).toStringAsFixed(0);
+
+                    return _conditionalLabeledListeningColorBox(
+                      label: "$multiplyPercentText%",
+                      textSpace: 0,
+                      colorListenable: multiplyWithAlphaColor,
+                      conditionListenable: canMultiplyWithAlpha,
+                    );
+                  }),
+              SizedBox(width: boxSpacing),
               _labeledListeningColorBox(
                   label: "linear burn", colorListenable: linearBurnColor),
             ],
@@ -677,12 +750,13 @@ mixin MainScreenColorMeter {
   Widget _labeledColorBox({
     String label = "",
     bool strikethrough = false,
+    double? textSpace,
     required Widget boxWidget,
   }) {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 0.5, right: 2),
+          padding: EdgeInsets.only(bottom: 0.5, right: textSpace ?? 2),
           child: Text(
             label,
             style: strikethrough
@@ -696,12 +770,36 @@ mixin MainScreenColorMeter {
   }
 
   Widget _labeledListeningColorBox({
+    double? textSpace,
     required String label,
     required ValueListenable<Color> colorListenable,
   }) {
     return _labeledColorBox(
       label: label,
+      textSpace: textSpace,
       boxWidget: valueListeningColorBox(colorListenable),
+    );
+  }
+
+  Widget _conditionalLabeledListeningColorBox({
+    double? textSpace,
+    required String label,
+    required ValueListenable<Color> colorListenable,
+    required ValueListenable<bool> conditionListenable,
+  }) {
+    return ValueListenableBuilder(
+      valueListenable: conditionListenable,
+      builder: (_, isConditionTrue, __) {
+        if (isConditionTrue) {
+          return _labeledListeningColorBox(
+            label: label,
+            textSpace: textSpace,
+            colorListenable: colorListenable,
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
     );
   }
 
