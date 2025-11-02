@@ -65,6 +65,7 @@ class EyeDropperModel {
   List<Color> hoverColors = [];
   Color selectedColor = Colors.black;
 
+  OverlayState? overlayOfContext;
   ValueChanged<Color>? onColorSelected;
   ValueChanged<Color>? onColorChanged;
   void Function()? onSecondaryTap;
@@ -72,67 +73,65 @@ class EyeDropperModel {
   EyeDropperModel();
 }
 
-class EyeDrop extends InheritedWidget {
-  //TODO: This needs to rebuild when the window resizes.
+class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
+  EyeDrop({required this.child, super.key});
 
   static EyeDropperModel data = EyeDropperModel();
+  final Widget child;
 
-  EyeDrop({required Widget child, super.key})
-      : super(
-          child: RepaintBoundary(
-            key: captureKey,
-            child: Listener(
-              onPointerMove: (details) => _onHover(
-                details.position,
-                details.kind == PointerDeviceKind.touch,
-              ),
-              onPointerHover: (details) => _onHover(
-                details.position,
-                details.kind == PointerDeviceKind.touch,
-              ),
-              onPointerDown: (PointerDownEvent details) {
-                if (details.buttons == 2) {
-                  data.onSecondaryTap!();
-                }
-              },
-              onPointerUp: (PointerUpEvent details) {
-                _onPrimaryTapUp(details.position);
-              },
-              child: child,
-            ),
-          ),
-        );
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
 
-  static EyeDrop of(BuildContext context) {
-    final eyeDrop = context.dependOnInheritedWidgetOfExactType<EyeDrop>();
-    if (eyeDrop == null) {
-      throw Exception(
-          'No EyeDrop found. You must wrap your application within an EyeDrop widget.');
-    }
-    return eyeDrop;
+    const safeDuration = Duration(milliseconds: 100);
+    Future.delayed(
+      safeDuration,
+      () => updateCapturedRegion(),
+    );
   }
 
-  static void _onPrimaryTapUp(Offset position) {
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      key: captureKey,
+      child: MouseRegion(
+        onEnter: (event) {
+          setLoupeActive(true);
+        },
+        onExit: (event) {
+          setLoupeActive(false);
+        },
+        child: Listener(
+          onPointerMove: (details) => _onHover(
+            details.position,
+            details.kind == PointerDeviceKind.touch,
+          ),
+          onPointerHover: (details) => _onHover(
+            details.position,
+            details.kind == PointerDeviceKind.touch,
+          ),
+          onPointerDown: (PointerDownEvent details) {
+            if (details.buttons == 2) {
+              data.onSecondaryTap!();
+            }
+          },
+          onPointerUp: (PointerUpEvent details) {
+            _onPrimaryTapUp(details.position);
+          },
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void _onPrimaryTapUp(Offset position) {
     _onHover(position, data.isTouchInterface);
     if (data.onColorSelected != null) {
       data.onColorSelected!(data.hoverColors.center);
     }
   }
 
-  static void endEyeDrop() {
-    if (data.loupeOverlayEntry != null) {
-      try {
-        data.loupeOverlayEntry!.remove();
-        data.loupeOverlayEntry = null;
-        data.onColorSelected = null;
-        data.onColorChanged = null;
-      } catch (err) {
-        debugPrint('ERROR !!! _onPointerUp $err');
-      }
-    }
-  }
-
-  static void _onHover(Offset offset, bool isTouchInterface) {
+  void _onHover(Offset offset, bool isTouchInterface) {
     if (data.loupeOverlayEntry != null) {
       data.loupeOverlayEntry!.markNeedsBuild();
     }
@@ -157,7 +156,7 @@ class EyeDrop extends InheritedWidget {
     ValueChanged<Color>? onColorChanged,
     void Function()? onSecondaryTap,
   ) async {
-    await _capturePickableImage();
+    await updateCapturedRegion();
 
     if (data.snapshot == null) return;
 
@@ -165,31 +164,55 @@ class EyeDrop extends InheritedWidget {
     data.onColorChanged = onColorChanged;
     data.onSecondaryTap = onSecondaryTap;
 
-    // data.loupeOverlayEntry = OverlayEntry(
-    //   builder: (_) => LoupeOverlay(
-    //     isTouchInterface: data.isTouchInterface,
-    //     colors: data.hoverColors,
-    //     cursorPosition: data.cursorPosition,
-    //   ),
-    // );
+    WidgetsBinding.instance.addObserver(this);
 
-    // if (context.mounted) {
-    //   Overlay.of(context).insert(data.loupeOverlayEntry!);
-    // }
+    if (context.mounted) {
+      data.overlayOfContext = Overlay.of(context);
+    }
   }
 
-  Future<void> _capturePickableImage() async {
+  void stopEyeDropper() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    data.onColorSelected = null;
+    data.onColorChanged = null;
+    setLoupeActive(false);
+  }
+
+  void setLoupeActive(bool enabled) {
+    if (enabled) {
+      if (data.loupeOverlayEntry != null) return;
+      if (data.overlayOfContext == null) return;
+
+      data.loupeOverlayEntry = OverlayEntry(
+        builder: (_) => LoupeOverlay(
+          isTouchInterface: data.isTouchInterface,
+          colors: data.hoverColors,
+          cursorPosition: data.cursorPosition,
+        ),
+      );
+
+      data.overlayOfContext?.insert(data.loupeOverlayEntry!);
+    } else {
+      if (data.loupeOverlayEntry == null) return;
+
+      try {
+        final loupeOverlayEntry = data.loupeOverlayEntry;
+        data.loupeOverlayEntry = null;
+        loupeOverlayEntry!.remove();
+      } catch (err) {
+        debugPrint('ERROR !!! _onPointerUp $err');
+      }
+    }
+  }
+
+  Future<void> updateCapturedRegion() async {
     final renderer =
         captureKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
 
     if (renderer == null) return;
 
     data.snapshot = await repaintBoundaryToImage(renderer);
-  }
-
-  @override
-  bool updateShouldNotify(EyeDrop oldWidget) {
-    return true;
   }
 }
 

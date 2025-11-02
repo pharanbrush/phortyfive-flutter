@@ -885,7 +885,7 @@ mixin MainScreenColorMeter {
     // TODO: Unregister escape key to exit color meter mode.
 
     isColorMetering = false;
-    loupe.endOverlay();
+    loupe.endOverlay(eyeDropKey);
   }
 }
 
@@ -918,8 +918,11 @@ class ColorLoupe {
     }
   }
 
-  void endOverlay() {
-    EyeDrop.endEyeDrop();
+  void endOverlay(GlobalKey eyeDropKey) {
+    var currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
+    if (currentEyeDrop != null) {
+      currentEyeDrop.stopEyeDropper();
+    }
   }
 
   void _handleSecondaryTap() {
