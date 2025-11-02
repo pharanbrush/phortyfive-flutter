@@ -33,6 +33,8 @@ class Phshortcuts {
   static const copyFile =
       SingleActivator(LogicalKeyboardKey.keyC, control: true);
 
+  static const paste = SingleActivator(LogicalKeyboardKey.keyV, control: true);
+
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
   static const zoomOutNumpad =
@@ -67,7 +69,7 @@ class Phshortcuts {
     final isSpacePressed =
         keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
     final isShiftPressed = keyboard.isShiftPressed;
-    
+
     return isSpacePressed && isShiftPressed;
   }
 
@@ -108,6 +110,7 @@ class Phshortcuts {
     Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
     Phshortcuts.clearAnnotations: AnnotationClearIntent(),
     Phshortcuts.cycleAnnotationColors: AnnotationCycleColorsIntent(),
+    Phshortcuts.paste: PasteIntent(),
   };
 }
 
@@ -201,4 +204,8 @@ class FlipHorizontalIntent extends Intent {
 
 class CopyFileIntent extends Intent {
   const CopyFileIntent();
+}
+
+class PasteIntent extends Intent {
+  const PasteIntent();
 }

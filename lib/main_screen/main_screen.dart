@@ -108,6 +108,7 @@ class _MainScreenState extends State<MainScreen>
     (FlipHorizontalIntent, (_) => imagePhviewer.flipHorizontal()),
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
+    (PasteIntent, (_) => tryPaste()),
   ];
 
   @override
@@ -129,6 +130,15 @@ class _MainScreenState extends State<MainScreen>
   @override
   void onAppModeChange() {
     setState(() {});
+  }
+
+  void tryPaste() {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+    for (var panel in modalPanels) {
+      if (panel.isOpen) return;
+    }
+
+    debugPrint("Paste");
   }
 
   Widget overlayGestureControls(BuildContext context) {
