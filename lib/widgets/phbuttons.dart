@@ -174,7 +174,7 @@ class ImageSetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
-      final fileCount = model.fileList.getCount();
+      final fileCount = model.imageList.getCount();
       final lastFolder = model.lastFolder;
       final String tooltip =
           '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'

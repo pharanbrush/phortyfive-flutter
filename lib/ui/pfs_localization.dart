@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+extension CapitalizeExtension on String {
+  String withFirstLetterCapitalized() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  }
+}
+
 class PfsLocalization {
   static const bool isDesktop = true;
   static const String version = '0.9.20251023a';

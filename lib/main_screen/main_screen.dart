@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_data.dart' as file_data;
-import 'package:pfs2/core/file_data.dart';
-import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/core/image_memory_data.dart';
+import 'package:pfs2/core/image_data.dart' as image_data;
+import 'package:pfs2/core/image_data.dart';
+import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
@@ -21,6 +22,8 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/image_from_clipboard.dart'
+    as image_from_clipboard;
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -82,10 +85,17 @@ class _MainScreenState extends State<MainScreen>
   bool get isTimerRunning => model.timerModel.isRunning;
 
   @override
-  FileData getCurrentImageFileData() => model.getCurrentImageFileData();
+  ImageData getCurrentImageFileData() => model.getCurrentImageData();
 
   @override
-  String getCurrentImagePath() => getCurrentImageFileData().filePath;
+  String getCurrentImagePath() {
+    final currentImageData = getCurrentImageFileData();
+    if (currentImageData is ImageFileData) {
+      return currentImageData.filePath;
+    }
+
+    return "";
+  }
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -132,13 +142,20 @@ class _MainScreenState extends State<MainScreen>
     setState(() {});
   }
 
-  void tryPaste() {
+  void tryPaste() async {
     if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
     for (var panel in modalPanels) {
       if (panel.isOpen) return;
     }
-
-    debugPrint("Paste");
+    
+    //TODO: allow paste on the first screen.
+    debugPrint("Paste from clipboard");
+    image_from_clipboard.getImageDataFromClipboard(
+      (imageBytes) {
+        final imageDataFromPaste = ImageMemoryData(bytes: imageBytes);
+        model.loadImage(imageDataFromPaste);
+      },
+    );
   }
 
   Widget overlayGestureControls(BuildContext context) {
@@ -327,8 +344,8 @@ class _MainScreenState extends State<MainScreen>
 
   void _bindModelCallbacks() {
     final model = this.model;
-    model.onFilesChanged ??= () => _handleStateChange();
-    model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
+    model.onImagesChanged ??= () => _handleStateChange();
+    model.onImagesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => _playClickSound();
     model.onImageDurationElapse ??= () => _playClickSound();
@@ -373,14 +390,21 @@ class _MainScreenState extends State<MainScreen>
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
     if (filesSkipped == 0) {
-      Phtoasts.showWidget(
-        currentContext,
-        child: PfsLocalization.textWithMultiBold(
-          text1: '',
-          boldText1: '$filesLoaded $imageNoun',
-          text2: ' loaded.',
-        ),
-      );
+      if (filesLoaded == 1) {
+        Phtoasts.showWidget(
+          currentContext,
+          child: Text("${imageNoun.withFirstLetterCapitalized()} loaded."),
+        );
+      } else {
+        Phtoasts.showWidget(
+          currentContext,
+          child: PfsLocalization.textWithMultiBold(
+            text1: '',
+            boldText1: '$filesLoaded $imageNoun',
+            text2: ' loaded.',
+          ),
+        );
+      }
     } else {
       final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
@@ -491,7 +515,9 @@ class _MainScreenState extends State<MainScreen>
 
   void revealCurrentImageInExplorer() {
     final currentImageData = getCurrentImageFileData();
-    file_data.revealInExplorer(currentImageData);
+    if (currentImageData is ImageFileData) {
+      image_data.revealImageFileDataInExplorer(currentImageData);
+    }
   }
 
   Widget _fileDropZone(PfsAppModel model) {
@@ -510,7 +536,7 @@ class _MainScreenState extends State<MainScreen>
           List<String> filePaths = [];
           for (var file in details.files) {
             var filePath = file.path;
-            if (FileList.fileIsImage(filePath)) {
+            if (ImageList.fileIsImage(filePath)) {
               filePaths.add(filePath);
             } else if (pathIsDirectory(filePath)) {
               filePaths.add(filePath);
@@ -518,7 +544,7 @@ class _MainScreenState extends State<MainScreen>
           }
           if (filePaths.isEmpty) return;
 
-          model.loadImages(filePaths, recursive: true);
+          model.loadImageFiles(filePaths, recursive: true);
 
           if (model.hasFilesLoaded) {
             _onFileDropped();
@@ -771,7 +797,7 @@ mixin MainScreenModels on State<MainScreen> {
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {
-  FileData getCurrentImageFileData();
+  ImageData getCurrentImageFileData();
 
   void _setClipboardText({
     required String text,
@@ -790,24 +816,27 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
 
   void copyCurrentImageToClipboard() async {
     final currentImageData = getCurrentImageFileData();
-    final filePath = currentImageData.filePath;
-    try {
-      final imageData = await getImageDataFromFile(filePath);
-      await copyImageFileToClipboardAsPngAndFileUri(
-        image: imageData,
-        filePath: currentImageData.filePath,
-        suggestedName: currentImageData.fileName,
-      );
-      showToast(
-        message: "Image copied to clipboard",
-        icon: Icons.copy,
-        alignment: Alignment.center,
-      );
-    } catch (e) {
-      showToast(
-        message: "Image copy failed",
-        icon: Icons.error,
-      );
+
+    if (currentImageData is ImageFileData) {
+      final filePath = currentImageData.filePath;
+      try {
+        final imageData = await getImageDataFromFile(filePath);
+        await copyImageFileToClipboardAsPngAndFileUri(
+          image: imageData,
+          filePath: currentImageData.filePath,
+          suggestedName: currentImageData.fileName,
+        );
+        showToast(
+          message: "Image copied to clipboard",
+          icon: Icons.copy,
+          alignment: Alignment.center,
+        );
+      } catch (e) {
+        showToast(
+          message: "Image copy failed",
+          icon: Icons.error,
+        );
+      }
     }
   }
 

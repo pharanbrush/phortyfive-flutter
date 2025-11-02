@@ -6,8 +6,9 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_data.dart' as file_data;
-import 'package:pfs2/core/file_data.dart' show FileData;
+import 'package:pfs2/core/image_memory_data.dart';
+import 'package:pfs2/core/image_data.dart' as image_data;
+import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
@@ -43,7 +44,7 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
       usingGrayscaleListenable: usingGrayscaleListenable,
       zoomLevelListenable: zoomLevelListenable,
       getCurrentZoomScale: () => currentZoomScale,
-      revealInExplorerHandler: file_data.revealInExplorer,
+      revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
       currentAppControlsMode: appControlsMode,
     );
   }
@@ -306,37 +307,54 @@ class ImageRightClick extends StatelessWidget {
   Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
       void handleCopyFilePath() {
-        clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageFileData().filePath,
-          toastMessage: 'File path copied to clipboard.',
-        );
+        final currentImageData = model.getCurrentImageData();
+        if (currentImageData is ImageFileData) {
+          clipboardCopyHandler?.call(
+            newClipboardText: currentImageData.filePath,
+            toastMessage: 'File path copied to clipboard.',
+          );
+        }
+
+        //TODO: error when path doesn't exist
       }
 
       void handleCopyFilename() {
-        clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageFileData().fileName,
-          toastMessage: 'Filename copied to clipboard.',
-        );
+        final currentImageData = model.getCurrentImageData();
+        if (currentImageData is ImageFileData) {
+          clipboardCopyHandler?.call(
+            newClipboardText: currentImageData.fileName,
+            toastMessage: 'Filename copied to clipboard.',
+          );
+        }
+
+        //TODO: error when path doesn't exist
       }
+
+      final imageData = model.getCurrentImageData();
+      bool isFile = imageData is ImageFileData;
 
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,
         onClick: (menuItem) => copyImageFileHandler(),
+        disabled: !isFile,
       );
 
       final copyFilename = MenuItem(
         label: PfsLocalization.copyFileName,
         onClick: (menuItem) => handleCopyFilename(),
+        disabled: !isFile,
       );
 
       final copyFilePathItem = MenuItem(
         label: PfsLocalization.copyFilePath,
         onClick: (menuItem) => handleCopyFilePath(),
+        disabled: !isFile,
       );
 
       final revealInExplorerItem = MenuItem(
         label: PfsLocalization.revealInExplorer,
         onClick: (menuItem) => revealInExplorerHandler(),
+        disabled: !isFile,
       );
 
       final contextMenu = Menu(
@@ -353,6 +371,7 @@ class ImageRightClick extends StatelessWidget {
         popUpContextualMenu(contextMenu);
       }
 
+      //TODO: Verify that right-click items are unclickable when they're invalid operations.
       return GestureDetector(
         onTertiaryTapDown: (details) => resetZoomLevelHandler(),
         onSecondaryTapDown: (details) => openContextMenu(),
@@ -386,24 +405,31 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ValueNotifier<bool> usingGrayscaleListenable;
   final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
   final double Function() getCurrentZoomScale;
-  final Function(FileData fileData) revealInExplorerHandler;
+  final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
   Widget build(BuildContext context) {
     final content = PfsAppModel.scope((_, __, model) {
-      const defaultImage = '';
+      Image getImageWidget(ImageData imageData) {
+        if (imageData is image_data.ImageFileData) {
+          final imageFile = File(imageData.filePath);
+          return Image.file(
+            filterQuality: FilterQuality.medium,
+            key: ImagePhviewer.imageWidgetKey,
+            imageFile,
+          );
+        } else if (imageData is ImageMemoryData) {
+          final byteData = imageData.bytes;
+          if (byteData != null) {
+            return Image.memory(byteData);
+          }
+        }
 
-      final FileData imageFileData = model.hasFilesLoaded
-          ? model.getCurrentImageFileData()
-          : file_data.fileDataFromPath(defaultImage);
+        return Image.file(File(""));
+      }
 
-      final File imageFile = File(imageFileData.filePath);
-      final imageWidget = Image.file(
-        filterQuality: FilterQuality.medium,
-        key: ImagePhviewer.imageWidgetKey,
-        imageFile,
-      );
-
+      final currentImageData = model.getCurrentImageData();
+      final imageWidget = getImageWidget(currentImageData);
       final possiblyOverlayedWidget = ValueListenableBuilder(
         valueListenable: currentAppControlsMode,
         builder: (
@@ -429,16 +455,26 @@ class ImageViewerStackWidget extends StatelessWidget {
         },
       );
 
-      final imageFilenameLayer = Align(
-        heightFactor: 2,
-        alignment: Alignment.topCenter,
-        child: ImageClickableLabel(
-          label: imageFileData.fileName,
-          tooltip:
-              "${PfsLocalization.revealInExplorer} : ${imageFileData.parentFolderName}",
-          onTap: () => revealInExplorerHandler(imageFileData),
-        ),
-      );
+      Widget imageFilenameLayer(ImageData imageData) {
+        //final imageFileData = model.getCurrentImageData();
+
+        if (imageData is ImageFileData) {
+          return Align(
+            heightFactor: 2,
+            alignment: Alignment.topCenter,
+            child: ImageClickableLabel(
+              label: imageData.fileName,
+              tooltip:
+                  "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
+              onTap: () => revealInExplorerHandler(imageData),
+            ),
+          );
+        }
+
+        //TODO: add label at the top to say it's raw image data.
+        return SizedBox.shrink();
+      }
+      // final imageFilenameLayer =
 
       final isNextImageTransition = model.lastIncrement > 0;
       final currentImageIndexString = model.currentImageIndex.toString();
@@ -500,7 +536,7 @@ class ImageViewerStackWidget extends StatelessWidget {
             builder: (_, value, ___) =>
                 value ? grayscaleBackdropFilter : const SizedBox.expand(),
           ),
-          imageFilenameLayer,
+          imageFilenameLayer(currentImageData),
         ],
       );
     });
