@@ -12,7 +12,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model
     with
-        PfsImageFileManager,
+        PfsImageListManager,
         PfsModelTimer,
         PfsCountdownCounter,
         PfsWelcomer,
@@ -23,9 +23,9 @@ class PfsAppModel extends Model
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
   bool get allowTimerPlayPause =>
-      hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
   bool get allowCirculatorControl =>
-      hasFilesLoaded && isWelcomeDone; //&& !isAnnotating;
+      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
   // bool get isAnnotating => isAnnotatingMode.value;
 
   @override
@@ -55,7 +55,7 @@ class PfsAppModel extends Model
     if (!allowCirculatorControl) return;
 
     tryCancelCountdown();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
     onImageChange?.call();
     _previousImage();
   }
@@ -64,7 +64,7 @@ class PfsAppModel extends Model
     if (!allowCirculatorControl) return;
 
     tryCancelCountdown();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
     onImageChange?.call();
     _nextImage();
   }
@@ -116,6 +116,7 @@ class PfsAppModel extends Model
     reinitializeTimer();
     if (isUserChoseToStartTimer) {
       tryStartCountdown();
+      timerModel.setActive(true);
     } else {
       timerModel.setActive(false);
     }
@@ -127,7 +128,7 @@ class PfsAppModel extends Model
   void reinitializeTimer() {
     timerModel.tryInitialize();
     timerModel.onElapse ??= () => _handleTimerElapsed();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
   }
 
   @override
@@ -144,7 +145,7 @@ class PfsAppModel extends Model
   @override
   void _onCountdownElapsedInternal() {
     timerModel.deregisterPauser(this);
-    timerModel.restartTimer();
+    timerModel.resetTimer();
   }
 }
 
@@ -244,12 +245,13 @@ mixin PfsCountdownCounter on Model {
   }
 }
 
-mixin PfsImageFileManager {
+mixin PfsImageListManager {
   final ImageList imageList = ImageList();
 
   String lastFolder = '';
   bool isPickerOpen = false;
-  bool get hasFilesLoaded => imageList.isPopulated();
+  bool get hasImagesLoaded => imageList.isPopulated();
+  bool get hasMoreThanOneImage => imageList.getCount() > 1;
 
   void Function(int loadedCount, int skippedCount)? onImagesLoadedSuccess;
   void Function()? onFilePickerStateChange;

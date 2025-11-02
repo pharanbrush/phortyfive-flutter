@@ -4,8 +4,6 @@ import 'package:pfs2/core/phtimer.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PhtimerModel extends Model {
-  static const bool startTimerOnInitialize = true;
-
   static ScopedModelDescendant<PhtimerModel> scope(
           ScopedModelDescendantBuilder<PhtimerModel> builder) =>
       ScopedModelDescendant<PhtimerModel>(builder: builder);
@@ -35,14 +33,14 @@ class PhtimerModel extends Model {
 
   void setDurationSeconds(int seconds) {
     if (seconds < 1) return;
-    
+
     timer.setDuration(Duration(seconds: seconds));
     onDurationChangeSuccess?.call();
-    restartTimer();
+    resetTimer();
   }
 
-  void restartTimer() {
-    timer.restart();
+  void resetTimer() {
+    timer.reset();
     onReset?.call();
     notifyListeners();
   }
@@ -59,13 +57,7 @@ class PhtimerModel extends Model {
 
   void tryInitialize() {
     ticker = Timer.periodic(Phtimer.tickInterval, _handleTick);
-
-    if (timer.onElapse == null) {
-      timer.onElapse = () => handleElapsed();
-      if (startTimerOnInitialize) {
-        timer.setActive(true);
-      }
-    }
+    timer.onElapse ??= () => handleElapsed();
   }
 
   void handleElapsed() {

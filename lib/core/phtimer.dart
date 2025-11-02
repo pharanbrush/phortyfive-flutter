@@ -33,8 +33,10 @@ class Phtimer {
     _duration = newDuration;
     _elapsedThisRound = false;
   }
-
-  void restart() {
+  
+  /// Restores time left according to duration.
+  /// Removes the "elapsed" state.
+  void reset() {
     _clearLastTime();
     _timeLeft = _duration;
     _elapsedThisRound = false;

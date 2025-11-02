@@ -102,7 +102,7 @@ class _MainScreenState extends State<MainScreen>
     (PreviousImageIntent, (_) => model.previousImageNewTimer()),
     (NextImageIntent, (_) => model.nextImageNewTimer()),
     (PlayPauseIntent, (_) => model.tryTogglePlayPauseTimer()),
-    (RestartTimerIntent, (_) => model.timerModel.restartTimer()),
+    (RestartTimerIntent, (_) => model.timerModel.resetTimer()),
     (OpenFilesIntent, (_) => model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => model.openFilePickerForFolder()),
     (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
@@ -205,7 +205,7 @@ class _MainScreenState extends State<MainScreen>
       },
     );
 
-    if (!model.hasFilesLoaded) {
+    if (!model.hasImagesLoaded) {
       final firstActionApp = Stack(
         children: [
           const FirstActionSheet(),
@@ -245,7 +245,7 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return wrappedFirstActionApp;
-    } else if (!model.isWelcomeDone && model.hasFilesLoaded) {
+    } else if (!model.isWelcomeDone && model.hasImagesLoaded) {
       final welcomeChooseModeApp = Stack(
         children: [
           WelcomeChooseModeSheet(model: model),
@@ -564,7 +564,7 @@ class _MainScreenState extends State<MainScreen>
 
           model.loadImageFiles(filePaths, recursive: true);
 
-          if (model.hasFilesLoaded) {
+          if (model.hasImagesLoaded) {
             _onFileDropped();
           }
         },
@@ -598,7 +598,7 @@ class _MainScreenState extends State<MainScreen>
     List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
       final SizedBox spacingBox = SizedBox(width: spacing);
 
-      if (model.hasFilesLoaded) {
+      if (model.hasImagesLoaded) {
         return [
           colorMeterModeButton(onPressed: () {
             setAppMode(PfsAppControlsMode.colorMeter);

@@ -18,7 +18,7 @@ class TimerControls extends StatelessWidget {
     // PARTS
     final restartTimerButton = PhtimerModel.scope(
       (_, __, timerModel) => TimerControlButton(
-        onPressed: () => timerModel.restartTimer(),
+        onPressed: () => timerModel.resetTimer(),
         icon: Icons.refresh,
         tooltip: PfsLocalization.buttonTooltip(
           commandName: 'Restart timer',
