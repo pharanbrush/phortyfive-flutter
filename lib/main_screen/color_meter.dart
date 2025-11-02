@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 enum ColorDifference {
   allLighterOrEqual,
@@ -423,7 +424,7 @@ mixin MainScreenColorMeter {
 
   static const double smallTextSize = 10.5;
   static const double numberLabelSize = 13;
-  static const double grayTone = 0.64;
+  static const double grayTone = 0.62;
   static const Color textGray = Color.from(
     alpha: 1,
     red: grayTone,
@@ -446,129 +447,135 @@ mixin MainScreenColorMeter {
       bottom: 0,
       right: 0,
       child: SizedBox(
-        height: 100,
-        child: Row(
+        height: 105,
+        child: Stack(
           children: [
-            // Leftmost block
-            Container(
-              //color: Colors.red,
-              child: Row(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _startColorBoxWidget(),
-                      Text("start", style: blendModeText),
-                    ],
-                  ),
-                  Padding(
-                    padding: EdgeInsetsGeometry.only(bottom: 15),
-                    child: _rightArrow,
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
-            ),
-            // Main middle block
             Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: 4,
               children: [
                 //
                 // Title bar
                 //
                 Container(
-                  //color: Colors.red.withValues(alpha: 0.5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 10,
-                    children: [
-                      Text(
-                        "COLOR CHANGE METER",
-                        style: TextStyle(
-                          color: Colors.grey.withValues(alpha: 0.5),
-                          fontSize: 12,
-                        ),
+                  // color: Colors.red.withValues(alpha: 0.5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text(
+                      "COLOR CHANGE METER",
+                      style: TextStyle(
+                        letterSpacing: 1.5,
+                        color: Colors.grey.withValues(alpha: 0.8),
+                        fontSize: 12,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: SizedBox(
-                          width: 25,
-                          height: 25,
-                          child: IconButton.filled(
-                            padding: EdgeInsets.all(2.0),
-                            onPressed: onCloseButtonPressed,
-                            icon: Icon(Icons.close, size: 14),
-                            hoverColor: Colors.red,
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    // Leftmost block
+                    Container(
+                      //color: Colors.green,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _startColorBoxWidget(),
+                              Text("start", style: blendModeText),
+                            ],
+                          ),
+                          Padding(
+                            padding: EdgeInsetsGeometry.only(bottom: 15),
+                            child: _rightArrow,
+                          ),
+                          SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                    // Main middle block
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          // color: Colors.lightBlueAccent,
+                          child: Column(
+                            spacing: 4,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              //
+                              // Top row
+                              //
+                              Container(
+                                // color: Colors.green,
+                                child: Row(
+                                  children: [
+                                    ...colorMeterHSLItems(),
+                                  ],
+                                ),
+                              ),
+
+                              //
+                              // Divider
+                              //
+                              Container(
+                                  width: 280,
+                                  height: 1,
+                                  color: Colors.white.withValues(alpha: 0.15)),
+
+                              //
+                              // Bottom row
+                              //
+                              Row(
+                                children: [
+                                  SizedBox(
+                                      width: 100, child: _normalColorBox()),
+                                  SizedBox(width: 25),
+                                  SizedBox(
+                                      width: 220, child: _blendModeBoxes()),
+                                ],
+                              )
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  // color: Colors.lightBlueAccent,
-                  child: Column(
-                    spacing: 4,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      //
-                      // Top row
-                      //
-                      Container(
-                        // color: Colors.green,
-                        child: Row(
-                          children: [
-                            ...colorMeterHSLItems(),
-                          ],
-                        ),
-                      ),
-
-                      //
-                      // Divider
-                      //
-                      Container(
-                          width: 280,
-                          height: 1,
-                          color: Colors.white.withValues(alpha: 0.15)),
-
-                      //
-                      // Bottom row
-                      //
-                      Row(
-                        children: [
-                          SizedBox(width: 100, child: _normalColorBox()),
-                          SizedBox(width: 25),
-                          SizedBox(width: 220, child: _blendModeBoxes()),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            //
-            // Rightmost block
-            //
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsetsGeometry.only(bottom: 15),
-                  child: _rightArrow,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _endColorBoxWidget(),
+                      ],
+                    ),
+                    //
+                    // Rightmost block
+                    //
                     Container(
-                      //color: Colors.red,
-                      child: Text("end", style: blendModeText),
-                    )
+                      //color: Colors.lightBlueAccent,
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsGeometry.only(bottom: 15),
+                            child: _rightArrow,
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _endColorBoxWidget(),
+                              Container(
+                                //color: Colors.red,
+                                child: Text("end", style: blendModeText),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 20),
                   ],
                 ),
               ],
             ),
-            SizedBox(width: 20),
+            Positioned(
+              top: 0,
+              right: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: PanelCloseButton(onPressed: onCloseButtonPressed),
+              ),
+            ),
           ],
         ),
       ),

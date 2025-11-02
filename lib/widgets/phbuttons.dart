@@ -101,6 +101,30 @@ class Phbuttons {
   }
 }
 
+class PanelCloseButton extends StatelessWidget {
+  const PanelCloseButton({
+    super.key,
+    required this.onPressed,
+  });
+
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 25,
+      height: 25,
+      child: IconButton.filled(
+        tooltip: "Close panel",
+        padding: EdgeInsets.all(2.0),
+        onPressed: onPressed,
+        icon: Icon(Icons.close, size: 14),
+        //hoverColor: Colors.red,
+      ),
+    );
+  }
+}
+
 void _popupImagesMenu(PfsAppModel model) {
   popUpContextualMenu(
     _getOpenImagesMenu(model),
