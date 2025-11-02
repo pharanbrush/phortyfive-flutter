@@ -421,7 +421,11 @@ class ImageViewerStackWidget extends StatelessWidget {
         } else if (imageData is ImageMemoryData) {
           final byteData = imageData.bytes;
           if (byteData != null) {
-            return Image.memory(byteData);
+            return Image.memory(
+              filterQuality: FilterQuality.medium,
+              key: ImagePhviewer.imageWidgetKey,
+              byteData,
+            );
           }
         }
 
