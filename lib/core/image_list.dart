@@ -50,10 +50,10 @@ class ImageList {
     items.clear();
     appendImages(images);
   }
-  
+
   Future loadImage(ImageData? image) async {
     if (image == null) return;
-    
+
     items.clear();
     items.add(image);
   }
@@ -62,7 +62,7 @@ class ImageList {
     int imagesAppendedCount = 0;
     for (var image in images) {
       if (image is ImageFileData) {
-        //TODO: check validity?
+        if (image.filePath.isEmpty) continue;
         items.add(image);
         imagesAppendedCount++;
       } else if (image is ImageMemoryData) {
