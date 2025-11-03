@@ -22,8 +22,6 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/phlutter/image_from_clipboard.dart'
-    as image_from_clipboard;
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -33,7 +31,7 @@ import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/utils/image_data.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
-import 'package:pfs2/phlutter/utils/phclipboard.dart';
+import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/preferences.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
@@ -153,7 +151,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     debugPrint("Paste from clipboard");
-    image_from_clipboard.getImageDataFromClipboard(
+    phclipboard.getImageBytesFromClipboard(
       (imageBytes) {
         final imageDataFromPaste = ImageMemoryData(bytes: imageBytes);
         model.loadImage(imageDataFromPaste);
@@ -839,7 +837,7 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
       final filePath = currentImageData.filePath;
       try {
         final imageData = await getImageDataFromFile(filePath);
-        await copyImageFileToClipboardAsPngAndFileUri(
+        await phclipboard.copyImageFileToClipboardAsPngAndFileUri(
           image: imageData,
           filePath: currentImageData.filePath,
           suggestedName: currentImageData.fileName,

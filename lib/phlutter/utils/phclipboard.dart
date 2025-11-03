@@ -14,7 +14,7 @@ Future copyImageFileToClipboardAsPngAndFileUri({
 
   final imageData = byteData.buffer.asUint8List();
   final fileUri = Uri.file(filePath);
-  
+
   final item = DataWriterItem(suggestedName: suggestedName);
   item.add(Formats.png(imageData));
   item.add(Formats.fileUri(fileUri));
@@ -26,4 +26,22 @@ Future<String?> getStringFromClipboard() async {
   if (clipboardData == null) return null;
 
   return clipboardData.text;
+}
+
+void getImageBytesFromClipboard(
+  void Function(Uint8List? imageBytes) onClipboardImageRead,
+) async {
+  final clipboard = SystemClipboard.instance;
+  if (clipboard == null) {
+    return;
+  }
+
+  final reader = await clipboard.read();
+
+  if (reader.canProvide(Formats.png)) {
+    reader.getFile(Formats.png, (file) async {
+      Uint8List? data = await file.readAll();
+      onClipboardImageRead.call(data);
+    });
+  }
 }
