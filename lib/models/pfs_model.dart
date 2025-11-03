@@ -115,8 +115,8 @@ class PfsAppModel extends Model
   void tryStartSession() {
     reinitializeTimer();
     if (isUserChoseToStartTimer) {
-      tryStartCountdown();
       timerModel.setActive(true);
+      tryStartCountdown();
     } else {
       timerModel.setActive(false);
     }
@@ -200,6 +200,7 @@ mixin PfsCountdownCounter on Model {
     _onCountdownActiveStateChanged();
   }
 
+  /// Countdown doesn't start if timer is not enabled.
   void tryStartCountdown() {
     if (_isCountdownEnabled && _canStartCountdown()) {
       _countdownRoutine();
