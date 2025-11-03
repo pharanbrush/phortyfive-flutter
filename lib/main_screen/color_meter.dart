@@ -37,6 +37,8 @@ mixin MainScreenColorMeter {
   late final addColor = ValueNotifier(Colors.black);
   late final screenColor = ValueNotifier(Colors.black);
 
+  late final isBlendModeBoxesEnabled = ValueNotifier(false);
+
   late final lastPickKey = ValueNotifier("defaultKey");
   void Function()? onColorMeterSecondaryTap;
 
@@ -585,7 +587,33 @@ mixin MainScreenColorMeter {
                                       width: 100, child: _normalColorBox()),
                                   SizedBox(width: 25),
                                   SizedBox(
-                                      width: 220, child: _blendModeBoxes()),
+                                    width: 220,
+                                    child: ValueListenableBuilder(
+                                      valueListenable: isBlendModeBoxesEnabled,
+                                      builder: (_, isBlendModesVisible, ___) {
+                                        if (!isBlendModesVisible) {
+                                          return SizedBox(
+                                            height: 22,
+                                            child: TextButton(
+                                              onPressed: () {
+                                                isBlendModeBoxesEnabled.value =
+                                                    true;
+                                              },
+                                              child: Text("Blend modes"),
+                                            ),
+                                          );
+                                        }
+
+                                        return GestureDetector(
+                                          onTap: () {
+                                            isBlendModeBoxesEnabled.value =
+                                                false;
+                                          },
+                                          child: _blendModeBoxes(),
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 ],
                               )
                             ],
