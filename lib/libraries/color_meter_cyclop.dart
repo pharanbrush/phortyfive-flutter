@@ -56,6 +56,8 @@ final captureKey = GlobalKey();
 class EyeDropperModel {
   /// based on PointerEvent.kind
   bool isTouchInterface = false;
+  bool isEnabled = false;
+
   OverlayEntry? loupeOverlayEntry;
 
   img.Image? snapshot;
@@ -76,7 +78,7 @@ class EyeDropperModel {
 class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   EyeDrop({required this.child, super.key});
 
-  static EyeDropperModel data = EyeDropperModel();
+  static EyeDropperModel model = EyeDropperModel();
   final Widget child;
 
   @override
@@ -112,7 +114,7 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
           ),
           onPointerDown: (PointerDownEvent details) {
             if (details.buttons == 2) {
-              data.onSecondaryTap!();
+              model.onSecondaryTap!();
             }
           },
           onPointerUp: (PointerUpEvent details) {
@@ -125,28 +127,28 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   }
 
   void _onPrimaryTapUp(Offset position) {
-    _onHover(position, data.isTouchInterface);
-    if (data.onColorSelected != null) {
-      data.onColorSelected!(data.hoverColors.center);
+    _onHover(position, model.isTouchInterface);
+    if (model.onColorSelected != null) {
+      model.onColorSelected!(model.hoverColors.center);
     }
   }
 
   void _onHover(Offset offset, bool isTouchInterface) {
-    if (data.loupeOverlayEntry != null) {
-      data.loupeOverlayEntry!.markNeedsBuild();
+    if (model.loupeOverlayEntry != null) {
+      model.loupeOverlayEntry!.markNeedsBuild();
     }
 
-    data.cursorPosition = offset;
+    model.cursorPosition = offset;
 
-    data.isTouchInterface = isTouchInterface;
+    model.isTouchInterface = isTouchInterface;
 
-    if (data.snapshot != null) {
-      data.hoverColor = getPixelColor(data.snapshot!, offset);
-      data.hoverColors = getPixelColors(data.snapshot!, offset);
+    if (model.snapshot != null) {
+      model.hoverColor = getPixelColor(model.snapshot!, offset);
+      model.hoverColors = getPixelColors(model.snapshot!, offset);
     }
 
-    if (data.onColorChanged != null) {
-      data.onColorChanged!(data.hoverColors.center);
+    if (model.onColorChanged != null) {
+      model.onColorChanged!(model.hoverColors.center);
     }
   }
 
@@ -158,47 +160,52 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   ) async {
     await updateCapturedRegion();
 
-    if (data.snapshot == null) return;
+    model.isEnabled = true;
+    if (model.snapshot == null) return;
 
-    data.onColorSelected = onColorSelected;
-    data.onColorChanged = onColorChanged;
-    data.onSecondaryTap = onSecondaryTap;
+    model.onColorSelected = onColorSelected;
+    model.onColorChanged = onColorChanged;
+    model.onSecondaryTap = onSecondaryTap;
 
     WidgetsBinding.instance.addObserver(this);
 
     if (context.mounted) {
-      data.overlayOfContext = Overlay.of(context);
+      model.overlayOfContext = Overlay.of(context);
     }
   }
 
   void stopEyeDropper() {
+    model.isEnabled = false;
     WidgetsBinding.instance.removeObserver(this);
 
-    data.onColorSelected = null;
-    data.onColorChanged = null;
+    model.onColorSelected = null;
+    model.onColorChanged = null;
     setLoupeActive(false);
   }
 
   void setLoupeActive(bool enabled) {
     if (enabled) {
-      if (data.loupeOverlayEntry != null) return;
-      if (data.overlayOfContext == null) return;
+      if (!model.isEnabled) return;
+      if (model.loupeOverlayEntry != null) return;
+      if (model.overlayOfContext == null) return;
 
-      data.loupeOverlayEntry = OverlayEntry(
+      model.loupeOverlayEntry = OverlayEntry(
         builder: (_) => LoupeOverlay(
-          isTouchInterface: data.isTouchInterface,
-          colors: data.hoverColors,
-          cursorPosition: data.cursorPosition,
+          isTouchInterface: model.isTouchInterface,
+          colors: model.hoverColors,
+          cursorPosition: model.cursorPosition,
         ),
       );
 
-      data.overlayOfContext?.insert(data.loupeOverlayEntry!);
+      model.overlayOfContext?.insert(model.loupeOverlayEntry!);
     } else {
-      if (data.loupeOverlayEntry == null) return;
+      if (model.loupeOverlayEntry == null) {
+        return;
+      }
 
       try {
-        final loupeOverlayEntry = data.loupeOverlayEntry;
-        data.loupeOverlayEntry = null;
+        final loupeOverlayEntry = model.loupeOverlayEntry;
+        model.loupeOverlayEntry = null;
         loupeOverlayEntry!.remove();
       } catch (err) {
         debugPrint('ERROR !!! _onPointerUp $err');
@@ -212,7 +219,7 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 
     if (renderer == null) return;
 
-    data.snapshot = await repaintBoundaryToImage(renderer);
+    model.snapshot = await repaintBoundaryToImage(renderer);
   }
 }
 
@@ -533,7 +540,6 @@ Future<img.Image?> repaintBoundaryToImage(
     );
   } catch (err, stackTrace) {
     debugPrint('repaintBoundaryToImage... $err $stackTrace');
-
     rethrow;
   }
 }

@@ -30,10 +30,6 @@ mixin MainScreenColorMeter {
   late final linearBurnColor = ValueNotifier(Colors.white);
   late final multiplyWithAlphaColor = ValueNotifier(Colors.white);
   late final multiplyMinimumAlpha = ValueNotifier(0.0);
-  // late final overlayColor = ValueNotifier(
-  //   Color.from(alpha: 1, red: 0.5, green: 0.5, blue: 0.5),
-  // );
-  // late final canColorOverlay = ValueNotifier(false);
 
   late final canColorDodge = ValueNotifier(false);
   late final canMultiplyWithAlpha = ValueNotifier(false);
@@ -50,7 +46,10 @@ mixin MainScreenColorMeter {
   late final loupe = ColorLoupe(
     onColorHover: onColorHover,
     onColorClicked: onColorSelected,
-    onSecondaryTap: onColorMeterSecondaryTap,
+    onSecondaryTap: () {
+      endColorMeter();
+      onColorMeterSecondaryTap?.call();
+    },
   );
 
   bool isColorMetering = false;
@@ -325,18 +324,14 @@ mixin MainScreenColorMeter {
     final svg = vg * vectorScaleToEdge;
     final svb = vb * vectorScaleToEdge;
 
-    try {
-      final tr = r1 + svr;
-      final tg = g1 + svg;
-      final tb = b1 + svb;
+    final tr = r1 + svr;
+    final tg = g1 + svg;
+    final tb = b1 + svb;
 
-      final outputColor = Color.from(alpha: 1.0, red: tr, green: tg, blue: tb);
+    final outputColor = Color.from(alpha: 1.0, red: tr, green: tg, blue: tb);
 
-      terminalAlphaBlendColor.value = outputColor;
-      alphaBlendColorPercent.value = vectorScaleToEdge;
-    } catch (err) {
-      debugPrint("color error? $err");
-    }
+    terminalAlphaBlendColor.value = outputColor;
+    alphaBlendColorPercent.value = vectorScaleToEdge;
   }
 
   Widget colorMeterModeButton({void Function()? onPressed}) {
@@ -632,7 +627,12 @@ mixin MainScreenColorMeter {
               right: 4,
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: PanelCloseButton(onPressed: onCloseButtonPressed),
+                child: PanelCloseButton(
+                  onPressed: () {
+                    endColorMeter();
+                    onCloseButtonPressed?.call();
+                  },
+                ),
               ),
             ),
           ],
@@ -872,7 +872,6 @@ mixin MainScreenColorMeter {
   }
 
   void startColorMeter(BuildContext context) {
-    // debugPrint("startColorMeter");
     isColorMetering = true;
     // TODO: Register escape key to exit color meter mode.
 
@@ -880,7 +879,6 @@ mixin MainScreenColorMeter {
   }
 
   void endColorMeter() {
-    // debugPrint("endColorMeter");
     if (isColorMetering == false) return;
     // TODO: Unregister escape key to exit color meter mode.
 
@@ -922,6 +920,8 @@ class ColorLoupe {
     var currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
     if (currentEyeDrop != null) {
       currentEyeDrop.stopEyeDropper();
+    } else {
+      debugPrint("eyedrop was null. Unable to end");
     }
   }
 
