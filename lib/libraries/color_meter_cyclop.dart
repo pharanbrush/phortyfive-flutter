@@ -113,8 +113,9 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
             details.kind == PointerDeviceKind.touch,
           ),
           onPointerDown: (PointerDownEvent details) {
+            if (!model.isEnabled) return;
             if (details.buttons == 2) {
-              model.onSecondaryTap!();
+              model.onSecondaryTap?.call();
             }
           },
           onPointerUp: (PointerUpEvent details) {
@@ -127,6 +128,8 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   }
 
   void _onPrimaryTapUp(Offset position) {
+    if (!model.isEnabled) return;
+    
     _onHover(position, model.isTouchInterface);
     if (model.onColorSelected != null) {
       model.onColorSelected!(model.hoverColors.center);
@@ -134,6 +137,8 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   }
 
   void _onHover(Offset offset, bool isTouchInterface) {
+    if (!model.isEnabled) return;
+    
     if (model.loupeOverlayEntry != null) {
       model.loupeOverlayEntry!.markNeedsBuild();
     }
