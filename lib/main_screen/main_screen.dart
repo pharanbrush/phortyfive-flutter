@@ -866,6 +866,21 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
           icon: Icons.error,
         );
       }
+    } else if (currentImageData is ImageMemoryData) {
+      try {
+        await phclipboard.copyImageBytesToClipboardAsPng(
+            imageBytes: currentImageData.bytes!);
+        showToast(
+          message: "Image copied to clipboard",
+          icon: Icons.copy,
+          alignment: Alignment.center,
+        );
+      } catch (e) {
+        showToast(
+          message: "Image copy failed",
+          icon: Icons.error,
+        );
+      }
     }
   }
 

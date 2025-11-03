@@ -6,18 +6,31 @@ import 'package:super_clipboard/super_clipboard.dart'
 
 Future copyImageFileToClipboardAsPngAndFileUri({
   required Image image,
-  required String filePath,
+  required String? filePath,
   String suggestedName = "Image",
 }) async {
   final byteData = await image.toByteData(format: ImageByteFormat.png);
   if (byteData == null) return;
 
   final imageData = byteData.buffer.asUint8List();
-  final fileUri = Uri.file(filePath);
 
   final item = DataWriterItem(suggestedName: suggestedName);
   item.add(Formats.png(imageData));
-  item.add(Formats.fileUri(fileUri));
+
+  if (filePath != null) {
+    final fileUri = Uri.file(filePath);
+    item.add(Formats.fileUri(fileUri));
+  }
+
+  await SystemClipboard.instance?.write([item]);
+}
+
+Future copyImageBytesToClipboardAsPng({
+  required Uint8List imageBytes,
+  String suggestedName = "Image",
+}) async {
+  final item = DataWriterItem(suggestedName: suggestedName);
+  item.add(Formats.png(imageBytes));
   await SystemClipboard.instance?.write([item]);
 }
 

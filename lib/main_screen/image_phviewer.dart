@@ -314,8 +314,6 @@ class ImageRightClick extends StatelessWidget {
             toastMessage: 'File path copied to clipboard.',
           );
         }
-
-        //TODO: error when path doesn't exist
       }
 
       void handleCopyFilename() {
@@ -326,8 +324,6 @@ class ImageRightClick extends StatelessWidget {
             toastMessage: 'Filename copied to clipboard.',
           );
         }
-
-        //TODO: error when path doesn't exist
       }
 
       final imageData = model.getCurrentImageData();
@@ -336,7 +332,7 @@ class ImageRightClick extends StatelessWidget {
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,
         onClick: (menuItem) => copyImageFileHandler(),
-        disabled: !isFile,
+        disabled: imageData is image_data.InvalidImageData,
       );
 
       final copyFilename = MenuItem(
@@ -460,8 +456,6 @@ class ImageViewerStackWidget extends StatelessWidget {
       );
 
       Widget imageFilenameLayer(ImageData imageData) {
-        //final imageFileData = model.getCurrentImageData();
-
         if (imageData is ImageFileData) {
           return Align(
             heightFactor: 2,
@@ -478,7 +472,6 @@ class ImageViewerStackWidget extends StatelessWidget {
         //TODO: add label at the top to say it's raw image data.
         return SizedBox.shrink();
       }
-      // final imageFilenameLayer =
 
       final isNextImageTransition = model.lastIncrement > 0;
       final currentImageIndexString = model.currentImageIndex.toString();
