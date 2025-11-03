@@ -33,6 +33,7 @@ import 'package:pfs2/phlutter/utils/image_data.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
@@ -650,13 +651,25 @@ class _MainScreenState extends State<MainScreen>
                 end: isNarrowWindow ? narrowSpacing : wideSpacing,
               ),
               builder: (_, spacing, __) {
-                return Row(
-                  children: bottomBarItems(
-                    model,
-                    spacing: spacing,
-                  ).animate(
-                    interval: const Duration(milliseconds: 25),
-                    effects: const [Phanimations.bottomBarSlideUpEffect],
+                final theme = Theme.of(context);
+                final containerBorderRadius =
+                    theme.extension<PfsAppTheme>()?.borderRadius ??
+                        BorderRadius.circular(25);
+
+                return HoverContainer(
+                  hoverBackgroundColor: theme.scaffoldBackgroundColor,
+                  borderRadius: containerBorderRadius,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Row(
+                      children: bottomBarItems(
+                        model,
+                        spacing: spacing,
+                      ).animate(
+                        interval: const Duration(milliseconds: 25),
+                        effects: const [Phanimations.bottomBarSlideUpEffect],
+                      ),
+                    ),
                   ),
                 );
               },
