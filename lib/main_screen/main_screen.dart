@@ -1052,6 +1052,9 @@ class ImageBrowseGestureControls extends StatelessWidget {
     );
 
     return PfsAppModel.scope((_, __, model) {
+      final double beforeButtonWidth = 100;
+      final double afterButtonWidth = 140;
+
       Widget nextPreviousGestureButton(
           {required double width,
           required Function()? onPressed,
@@ -1070,10 +1073,12 @@ class ImageBrowseGestureControls extends StatelessWidget {
 
       Widget middleGestureButton() {
         Widget playPauseButton() {
-          return OverlayButton(
-            onPressed: () => model.tryTogglePlayPauseTimer(),
-            child: playPauseIcon,
-          );
+          return model.allowTimerPlayPause
+              ? OverlayButton(
+                  onPressed: () => model.tryTogglePlayPauseTimer(),
+                  child: playPauseIcon,
+                )
+              : TextButton(onPressed: null, child: Text(""));
         }
 
         return ImagePhviewerZoomOnScrollListener(
@@ -1106,20 +1111,24 @@ class ImageBrowseGestureControls extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              nextPreviousGestureButton(
-                width: 100,
-                onPressed: () => model.previousImageNewTimer(),
-                child: PfsTheme.beforeGestureIcon,
-              ),
+              model.allowCirculatorControl
+                  ? nextPreviousGestureButton(
+                      width: beforeButtonWidth,
+                      onPressed: () => model.nextImageNewTimer(),
+                      child: PfsTheme.beforeGestureIcon,
+                    )
+                  : SizedBox(width: beforeButtonWidth),
               Expanded(
                 flex: 4,
                 child: middleGestureButton(),
               ),
-              nextPreviousGestureButton(
-                width: 140,
-                onPressed: () => model.nextImageNewTimer(),
-                child: PfsTheme.nextGestureIcon,
-              ),
+              model.allowCirculatorControl
+                  ? nextPreviousGestureButton(
+                      width: afterButtonWidth,
+                      onPressed: () => model.nextImageNewTimer(),
+                      child: PfsTheme.nextGestureIcon,
+                    )
+                  : SizedBox(width: afterButtonWidth),
             ],
           ),
         ),
