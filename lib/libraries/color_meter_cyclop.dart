@@ -70,6 +70,9 @@ class EyeDropperModel {
   OverlayState? overlayOfContext;
   ValueChanged<Color>? onColorSelected;
   ValueChanged<Color>? onColorChanged;
+  ValueChanged<Offset>? onColorPositionSelected;
+  ValueChanged<Offset>? onColorPositionHover;
+  void Function()? onWindowChanged;
   void Function()? onSecondaryTap;
 
   EyeDropperModel();
@@ -85,9 +88,11 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   void didChangeMetrics() {
     super.didChangeMetrics();
 
-    const safeDuration = Duration(milliseconds: 100);
+    model.onWindowChanged?.call();
+
+    const safeUpdateDelayDuration = Duration(milliseconds: 100);
     Future.delayed(
-      safeDuration,
+      safeUpdateDelayDuration,
       () => updateCapturedRegion(),
     );
   }
@@ -97,12 +102,12 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
     return RepaintBoundary(
       key: captureKey,
       child: MouseRegion(
-        onEnter: (event) {
-          setLoupeActive(true);
-        },
-        onExit: (event) {
-          setLoupeActive(false);
-        },
+        // onEnter: (event) {
+        //   setLoupeActive(true);
+        // },
+        // onExit: (event) {
+        //   setLoupeActive(false);
+        // },
         child: Listener(
           onPointerMove: (details) => _onHover(
             details.position,
@@ -129,16 +134,18 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 
   void _onPrimaryTapUp(Offset position) {
     if (!model.isEnabled) return;
-    
+
     _onHover(position, model.isTouchInterface);
-    if (model.onColorSelected != null) {
-      model.onColorSelected!(model.hoverColors.center);
-    }
+    final onColorSelected = model.onColorSelected;
+    onColorSelected?.call(model.hoverColors.center);
+
+    final updatePosition = model.onColorPositionSelected;
+    updatePosition?.call(position);
   }
 
   void _onHover(Offset offset, bool isTouchInterface) {
     if (!model.isEnabled) return;
-    
+
     if (model.loupeOverlayEntry != null) {
       model.loupeOverlayEntry!.markNeedsBuild();
     }
@@ -152,25 +159,33 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
       model.hoverColors = getPixelColors(model.snapshot!, offset);
     }
 
-    if (model.onColorChanged != null) {
-      model.onColorChanged!(model.hoverColors.center);
-    }
+    final onColorChanged = model.onColorChanged;
+    onColorChanged?.call(model.hoverColors.center);
+
+    final onColorPositionHover = model.onColorPositionHover;
+    onColorPositionHover?.call(offset);
   }
 
   void startEyeDropper(
-    BuildContext context,
-    ValueChanged<Color> onColorSelected,
+    BuildContext context, {
+    required ValueChanged<Color> onColorSelected,
     ValueChanged<Color>? onColorChanged,
+    ValueChanged<Offset>? onColorPositionSelected,
+    ValueChanged<Offset>? onColorPositionHover,
+    void Function()? onWindowChanged,
     void Function()? onSecondaryTap,
-  ) async {
+  }) async {
     await updateCapturedRegion();
 
     model.isEnabled = true;
     if (model.snapshot == null) return;
 
+    model.onWindowChanged = onWindowChanged;
     model.onColorSelected = onColorSelected;
     model.onColorChanged = onColorChanged;
     model.onSecondaryTap = onSecondaryTap;
+    model.onColorPositionSelected = onColorPositionSelected;
+    model.onColorPositionHover = onColorPositionHover;
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -185,6 +200,11 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 
     model.onColorSelected = null;
     model.onColorChanged = null;
+    model.onSecondaryTap = null;
+    model.onColorPositionSelected = null;
+    model.onColorPositionHover = null;
+    model.onWindowChanged = null;
+
     setLoupeActive(false);
   }
 

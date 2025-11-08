@@ -7,6 +7,7 @@ import 'package:pfs2/libraries/color_meter_cyclop.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:vector_math/vector_math.dart' hide Colors;
 
 enum ColorDifference {
   allLighterOrEqual,
@@ -19,6 +20,11 @@ enum ColorDifference {
 mixin MainScreenColorMeter {
   late final startColor = ValueNotifier(Colors.white);
   late final endColor = ValueNotifier(Colors.white);
+
+  late final startColorPosition = ValueNotifier(Offset(0, 0));
+  late final endColorPosition = ValueNotifier(Offset(0, 0));
+  late final isStartColorPicked = ValueNotifier(false);
+  late final isEndColorPicked = ValueNotifier(false);
 
   late final startEndColorDifference = ValueNotifier(ColorDifference.mixed);
 
@@ -42,12 +48,20 @@ mixin MainScreenColorMeter {
   late final lastPickKey = ValueNotifier("defaultKey");
   void Function()? onColorMeterSecondaryTap;
 
+  OverlayEntry? startColorOverlayEntry;
+  OverlayEntry? endColorOverlayEntry;
+  OverlayEntry? startEndArrowOverlayEntry;
+  late final startEndArrowColor = ValueNotifier(Colors.red);
+
   final keyRng = math.Random();
   final eyeDropKey = GlobalKey();
 
   late final loupe = ColorLoupe(
     onColorHover: onColorHover,
     onColorClicked: onColorSelected,
+    onColorPositionClicked: onColorPositionClicked,
+    onColorPositionHover: onColorPositionHover,
+    onWindowChanged: _onWindowChanged,
     onSecondaryTap: () {
       endColorMeter();
       onColorMeterSecondaryTap?.call();
@@ -59,6 +73,66 @@ mixin MainScreenColorMeter {
   void onColorSelected(Color newColor) {
     startColor.value = newColor;
     lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
+  }
+
+  void onColorPositionHover(Offset offset) {
+    endColorPosition.value = offset;
+
+    endColorOverlayEntry?.markNeedsBuild();
+  }
+
+  void onColorPositionClicked(Offset offset) {
+    //TODO: swap current with start.
+    startColorPosition.value = offset;
+
+    if (startColorOverlayEntry == null) {
+      final possibleContext = eyeDropKey.currentContext;
+      if (possibleContext != null) {
+        startColorOverlayEntry = OverlayEntry(
+          builder: (context) {
+            return SampledColorOverlay(
+              position: startColorPosition,
+              color: startColor,
+            );
+          },
+        );
+
+        if (endColorOverlayEntry == null) {
+          final possibleContext = eyeDropKey.currentContext;
+          if (possibleContext != null) {
+            endColorOverlayEntry = OverlayEntry(
+              builder: (context) {
+                return SampledColorOverlay(
+                  position: endColorPosition,
+                  color: endColor,
+                );
+              },
+            );
+
+            startEndArrowOverlayEntry = OverlayEntry(
+              builder: (context) {
+                return StartEndArrowOverlay(
+                  startPosition: startColorPosition,
+                  endPosition: endColorPosition,
+                  color: startEndArrowColor,
+                );
+              },
+            );
+
+            final overlayOfContext = Overlay.of(possibleContext);
+            if (overlayOfContext.mounted) {
+              overlayOfContext.insert(endColorOverlayEntry!);
+              overlayOfContext.insert(startEndArrowOverlayEntry!);
+            }
+          }
+        }
+
+        final overlayOfContext = Overlay.of(possibleContext);
+        if (overlayOfContext.mounted) {
+          overlayOfContext.insert(startColorOverlayEntry!);
+        }
+      }
+    }
   }
 
   void onColorHover(Color value) {
@@ -910,20 +984,48 @@ mixin MainScreenColorMeter {
     if (isColorMetering == false) return;
     // TODO: Unregister escape key to exit color meter mode.
 
-    isColorMetering = false;
+    _resetState();
+
+    _removePickedColorOverlays();
+
     loupe.endOverlay(eyeDropKey);
+  }
+
+  void _removePickedColorOverlays() {
+    startColorOverlayEntry?.remove();
+    startColorOverlayEntry = null;
+    endColorOverlayEntry?.remove();
+    endColorOverlayEntry = null;
+    startEndArrowOverlayEntry?.remove();
+    startEndArrowOverlayEntry = null;
+  }
+
+  void _resetState() {
+    isColorMetering = false;
+    isStartColorPicked.value = false;
+    isEndColorPicked.value = false;
+  }
+
+  void _onWindowChanged() {
+    _removePickedColorOverlays();
   }
 }
 
 class ColorLoupe {
   final ValueChanged<Color> onColorClicked;
+  final ValueChanged<Offset> onColorPositionClicked;
+  final ValueChanged<Offset> onColorPositionHover;
   final ValueChanged<Color> onColorHover;
   final void Function()? onSecondaryTap;
+  final void Function()? onWindowChanged;
 
   ColorLoupe({
     required this.onColorClicked,
     required this.onColorHover,
+    required this.onColorPositionClicked,
+    required this.onColorPositionHover,
     this.onSecondaryTap,
+    this.onWindowChanged,
   });
 
   Color color = Colors.white;
@@ -934,9 +1036,12 @@ class ColorLoupe {
       if (currentEyeDrop != null) {
         currentEyeDrop.startEyeDropper(
           context,
-          _handleOnColorClicked,
-          _handleOnColorHover,
-          _handleSecondaryTap,
+          onColorSelected: _handleOnColorClicked,
+          onColorChanged: _handleOnColorHover,
+          onColorPositionSelected: _handleOnColorPositionClicked,
+          onColorPositionHover: _handleOnColorPositionHover,
+          onSecondaryTap: _handleSecondaryTap,
+          onWindowChanged: _handleOnWindowChanged,
         );
       }
     } catch (err) {
@@ -953,6 +1058,14 @@ class ColorLoupe {
     }
   }
 
+  void _handleOnColorPositionClicked(Offset offset) {
+    onColorPositionClicked(offset);
+  }
+
+  void _handleOnColorPositionHover(Offset offset) {
+    onColorPositionHover(offset);
+  }
+
   void _handleSecondaryTap() {
     onSecondaryTap?.call();
   }
@@ -964,5 +1077,213 @@ class ColorLoupe {
   void _handleOnColorClicked(Color value) {
     color = value;
     onColorClicked(value);
+  }
+
+  void _handleOnWindowChanged() {
+    onWindowChanged?.call();
+  }
+}
+
+class SampledColorOverlay extends StatelessWidget {
+  const SampledColorOverlay({
+    super.key,
+    required this.position,
+    required this.color,
+    this.radius = 7,
+  });
+
+  final ValueListenable<Offset> position;
+  final ValueListenable<Color> color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: color,
+      builder: (_, __, ___) {
+        return ValueListenableBuilder(
+          valueListenable: position,
+          builder: (_, __, ___) {
+            return Positioned(
+              left: position.value.dx,
+              top: position.value.dy,
+              child: CustomPaint(
+                foregroundPainter: SampledColorPainter(
+                  color: color.value,
+                  radius: radius,
+                ),
+                size: Size(radius * 2, radius * 2),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class SampledColorPainter extends CustomPainter {
+  SampledColorPainter({
+    super.repaint,
+    required this.color,
+    this.radius = 7,
+  });
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final blackStroke = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    final fill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset.zero, radius, fill);
+    canvas.drawCircle(Offset.zero, radius, blackStroke);
+  }
+
+  @override
+  bool shouldRepaint(SampledColorPainter oldPainter) {
+    return oldPainter.color != color;
+  }
+}
+
+class StartEndArrowOverlay extends StatelessWidget {
+  final ValueListenable<Offset> startPosition;
+  final ValueListenable<Offset> endPosition;
+  final ValueListenable<Color> color;
+
+  const StartEndArrowOverlay({
+    super.key,
+    required this.startPosition,
+    required this.endPosition,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    //const double canvasPadding = 15;
+    final start = startPosition.value;
+    final end = endPosition.value;
+
+    final minX = math.min(start.dx, end.dx);
+    final minY = math.min(start.dy, end.dy);
+    final min = Offset(minX, minY);
+
+    final width = (start.dx - end.dx).abs();
+    final height = (start.dy - end.dy).abs();
+
+    return ValueListenableBuilder(
+      valueListenable: startPosition,
+      builder: (_, __, ___) {
+        return ValueListenableBuilder(
+          valueListenable: endPosition,
+          builder: (_, __, ___) {
+            return Positioned(
+              left: minX,
+              top: minY,
+              child: CustomPaint(
+                foregroundPainter: StartEndArrowPainter(
+                  color: color.value,
+                  startPosition: startPosition.value - min,
+                  endPosition: endPosition.value - min,
+                ),
+                size: Size(width, height),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class StartEndArrowPainter extends CustomPainter {
+  final Color color;
+  final Offset startPosition;
+  final Offset endPosition;
+  static const double radius = 20;
+  static const double minimumDistance = 30;
+  static const double arrowHeadSize = 15;
+
+  StartEndArrowPainter({
+    super.repaint,
+    required this.color,
+    required this.startPosition,
+    required this.endPosition,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final arrowStroke = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final arrowFill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final vo = (endPosition - startPosition);
+    final vector = Vector2(vo.dx, vo.dy);
+    final direction = vector.normalized();
+
+    final length = vector.length;
+    if (length < minimumDistance) return;
+
+    final start = Vector2(startPosition.dx, startPosition.dy);
+    final end = Vector2(endPosition.dx, endPosition.dy);
+
+    final radiusOffset = direction.scaled(radius * 0.5);
+
+    final drawnStart = start + radiusOffset;
+    final drawnEnd = end - radiusOffset;
+
+    final lineTipShorten = direction * arrowHeadSize * 0.5;
+    final lineTip = drawnEnd - lineTipShorten;
+
+    // Draw arrow shaft
+    canvas.drawLine(
+      Offset(drawnStart.x, drawnStart.y),
+      Offset(lineTip.x, lineTip.y),
+      arrowStroke,
+    );
+
+    const triangleAngle = math.pi / 6;
+    final lineAngle = math.atan2(vector.y, vector.x);
+
+    final a2 = drawnEnd -
+        Vector2(
+          arrowHeadSize * math.cos(lineAngle - triangleAngle),
+          arrowHeadSize * math.sin(lineAngle - triangleAngle),
+        );
+
+    final a3 = drawnEnd -
+        Vector2(
+          arrowHeadSize * math.cos(lineAngle + triangleAngle),
+          arrowHeadSize * math.sin(lineAngle + triangleAngle),
+        );
+
+    final arrowHead = Path()
+      ..moveTo(drawnEnd.x, drawnEnd.y)
+      ..lineTo(a2.x, a2.y)
+      ..lineTo(a3.x, a3.y)
+      ..close();
+
+    // Draw filled arrowhead
+    canvas.drawPath(arrowHead, arrowFill);
+  }
+
+  @override
+  bool shouldRepaint(StartEndArrowPainter oldPainter) {
+    return oldPainter.color != color ||
+        oldPainter.startPosition != startPosition ||
+        oldPainter.endPosition != endPosition;
   }
 }
