@@ -171,6 +171,7 @@ class _MainScreenState extends State<MainScreen>
       revealInExplorerHandler: revealCurrentImageInExplorer,
       clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
       clipboardCopyTextHandler: _clipboardCopyTextHandler,
+      colorChangeModeHandler: _colorChangeModeHandler,
     );
   }
 
@@ -300,7 +301,6 @@ class _MainScreenState extends State<MainScreen>
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
-          _bottomBarUnderlay(context),
           bottomControlBar(context),
           currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
               ? WindowDockingControls(
@@ -314,37 +314,6 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return appWindowContent;
-  }
-
-  Widget _bottomBarUnderlay(BuildContext context) {
-    const double underlayOpacity = 0.98;
-    const double barHeight = 110;
-
-    final theme = Theme.of(context);
-    final backgroundColor =
-        theme.colorScheme.surface.withValues(alpha: underlayOpacity);
-
-    final barColor = backgroundColor;
-    final boxDecoration = BoxDecoration(color: barColor);
-
-    return ValueListenableBuilder(
-      valueListenable: currentAppControlsMode,
-      builder: (context, value, child) {
-        if (currentAppControlsMode.value == PfsAppControlsMode.imageBrowse) {
-          return SizedBox.shrink();
-        }
-
-        return Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: SizedBox(
-            height: barHeight,
-            child: Container(decoration: boxDecoration),
-          ),
-        );
-      },
-    );
   }
 
   void _loadSettings() async {
@@ -636,8 +605,9 @@ class _MainScreenState extends State<MainScreen>
 
     if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
       return colorMeterBottomBar(
+        context,
         onCloseButtonPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
-      );
+      ).animate(effects: [Phanimations.slideUpEffect]);
     }
 
     Widget normalBottomBar() {
@@ -682,6 +652,12 @@ class _MainScreenState extends State<MainScreen>
     }
 
     return normalBottomBar();
+  }
+
+  void _colorChangeModeHandler() {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+
+    setAppMode(PfsAppControlsMode.colorMeter);
   }
 }
 
@@ -1052,6 +1028,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
     required this.revealInExplorerHandler,
     required this.clipboardCopyTextHandler,
     required this.clipboardCopyImageFileHandler,
+    required this.colorChangeModeHandler,
   });
 
   final Animation<double> playPauseIconProgress;
@@ -1059,6 +1036,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
   final VoidCallback revealInExplorerHandler;
   final ClipboardCopyTextHandler clipboardCopyTextHandler;
   final VoidCallback clipboardCopyImageFileHandler;
+  final VoidCallback colorChangeModeHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -1105,6 +1083,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
             clipboardCopyHandler: clipboardCopyTextHandler,
             copyImageFileHandler: clipboardCopyImageFileHandler,
+            colorChangeModeHandler: colorChangeModeHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {

@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
@@ -83,7 +84,7 @@ mixin MainScreenColorMeter {
     return IconButton(
       onPressed: onPressed,
       icon: Icon(Icons.colorize),
-      tooltip: "Color meter",
+      tooltip: "Open color change meter",
     );
   }
 
@@ -271,295 +272,301 @@ mixin MainScreenColorMeter {
     color: textGray,
   );
 
-  Widget colorMeterBottomBar({void Function()? onCloseButtonPressed}) {
-    return Positioned(
-      bottom: 0,
-      right: 0,
-      child: SizedBox(
-        height: 110,
-        child: Stack(
+  Widget colorMeterBottomBar(
+    BuildContext context, {
+    void Function()? onCloseButtonPressed,
+  }) {
+    final theme = Theme.of(context);
+    final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
+    
+    const double barHeight = 120;
+
+    final mainStack = Stack(
+      children: [
+        Column(
+          spacing: 4,
           children: [
-            Column(
-              spacing: 4,
-              children: [
-                //
-                // Title bar
-                //
-                Container(
-                  // color: Colors.red.withValues(alpha: 0.5),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Text(
-                      "COLOR CHANGE METER",
-                      style: TextStyle(
-                        letterSpacing: 1.5,
-                        color: Colors.grey.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    // Leftmost block
-                    Container(
-                      //color: Colors.green,
-                      child: Row(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _startColorBoxWidget(),
-                              Text("start", style: blendModeText),
-                            ],
-                          ),
-                          ValueListenableBuilder(
-                              valueListenable: isStartColorPicked,
-                              builder: (context, value, child) {
-                                if (value == false) {
-                                  return SizedBox(width: 28, height: 39);
-                                }
-
-                                return Padding(
-                                  padding: EdgeInsetsGeometry.only(bottom: 15),
-                                  child: _rightArrow,
-                                ).animate(
-                                  effects: [
-                                    Phanimations.slideRightEffect,
-                                    Phanimations.fadeInEffect
-                                  ],
-                                );
-                              }),
-                          SizedBox(width: 10),
-                        ],
-                      ),
-                    ),
-                    //
-                    // Main middle block
-                    //
-                    ValueListenableBuilder(
-                        valueListenable: isStartColorPicked,
-                        builder: (context, value, _) {
-                          if (isStartColorPicked.value == false) {
-                            return SizedBox(
-                              width: 360,
-                              height: 78,
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 10,
-                                          right: 10,
-                                          top: 0,
-                                          bottom: 15),
-                                      child: Icon(Icons.colorize),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: 3,
-                                      children: [
-                                        Text(
-                                          "Click on the image to pick the starting color.",
-                                        ),
-                                        Text(
-                                          "Right-click to exit color change meter.",
-                                          style: smallGrayText,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Container(
-                                // color: Colors.lightBlueAccent,
-                                child: Column(
-                                  spacing: 4,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    //
-                                    // Top row
-                                    //
-                                    Container(
-                                      // color: Colors.green,
-                                      child: Row(
-                                        children: [
-                                          ...colorMeterHSLItems(),
-                                        ],
-                                      ),
-                                    ),
-
-                                    //
-                                    // Divider
-                                    //
-                                    Container(
-                                        width: 280,
-                                        height: 1,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.15)),
-
-                                    //
-                                    // Bottom row
-                                    //
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                            width: 100,
-                                            child: _normalColorBox()),
-                                        SizedBox(width: 25),
-                                        SizedBox(
-                                          width: 225,
-                                          child: ValueListenableBuilder(
-                                            valueListenable:
-                                                isBlendModeBoxesEnabled,
-                                            builder: (context,
-                                                isBlendModesVisible, ___) {
-                                              if (!isBlendModesVisible) {
-                                                return SizedBox(
-                                                  height: 33,
-                                                  child: TextButton(
-                                                    onPressed: () {
-                                                      isBlendModeBoxesEnabled
-                                                          .value = true;
-                                                    },
-                                                    child: Row(
-                                                      children: const [
-                                                        Spacer(),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 2),
-                                                          child: Icon(
-                                                            Icons.visibility,
-                                                            size: 15,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 6,
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  bottom: 1),
-                                                          child: Text(
-                                                              "Blend modes"),
-                                                        ),
-                                                        Spacer(),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-
-                                              return SizedBox(
-                                                //width: 245,
-                                                height: 33,
-                                                child: TextButton(
-                                                  onPressed: () {
-                                                    isBlendModeBoxesEnabled
-                                                        .value = false;
-                                                  },
-                                                  style: ButtonStyle(
-                                                    padding:
-                                                        WidgetStatePropertyAll(
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                        vertical: 0,
-                                                        horizontal: 2,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  child: _blendModeBoxes(),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ].animate(
-                                    effects: [
-                                      Phanimations.slideRightWideEffect,
-                                      Phanimations.fadeInEffect
-                                    ],
-                                    delay: Duration(milliseconds: 50),
-                                    interval: Duration(milliseconds: 60),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 3,
-                              )
-                            ],
-                          );
-                        }),
-                    //
-                    // Rightmost block
-                    //
-                    Container(
-                      width: 80,
-                      //color: Colors.lightBlueAccent,
-                      child: ValueListenableBuilder(
-                          valueListenable: isStartColorPicked,
-                          builder: (context, value, child) {
-                            if (value == false) {
-                              return SizedBox.shrink();
-                            }
-
-                            return Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsGeometry.only(bottom: 15),
-                                  child: _rightArrow,
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _endColorBoxWidget(),
-                                    Container(
-                                      //color: Colors.red,
-                                      child: Text("end", style: blendModeText),
-                                    )
-                                  ],
-                                ),
-                              ].animate(
-                                effects: [
-                                  Phanimations.slideRightEffect,
-                                  Phanimations.fadeInEffect
-                                ],
-                                delay: Duration(milliseconds: 220),
-                                interval: Duration(milliseconds: 80),
-                              ),
-                            );
-                          }),
-                    ),
-                    SizedBox(width: 20),
-                  ],
-                ),
-              ],
-            ),
-            Positioned(
-              top: 0,
-              right: 4,
+            //
+            // Title bar
+            //
+            Container(
+              // color: Colors.red.withValues(alpha: 0.5),
               child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: PanelCloseButton(
-                  onPressed: () {
-                    endColorMeter();
-                    onCloseButtonPressed?.call();
-                  },
+                padding: const EdgeInsets.all(5.0),
+                child: Text(
+                  "COLOR CHANGE METER",
+                  style: TextStyle(
+                    letterSpacing: 1.5,
+                    color: Colors.grey.withValues(alpha: 0.8),
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
+            Row(
+              children: [
+                // Leftmost block
+                Container(
+                  //color: Colors.green,
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _startColorBoxWidget(),
+                          Text("start", style: blendModeText),
+                        ],
+                      ),
+                      ValueListenableBuilder(
+                          valueListenable: isStartColorPicked,
+                          builder: (context, value, child) {
+                            if (value == false) {
+                              return SizedBox(width: 28, height: 39);
+                            }
+
+                            return Padding(
+                              padding: EdgeInsetsGeometry.only(bottom: 15),
+                              child: _rightArrow,
+                            ).animate(
+                              effects: [
+                                Phanimations.slideRightEffect,
+                                Phanimations.fadeInEffect
+                              ],
+                            );
+                          }),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+                //
+                // Main middle block
+                //
+                ValueListenableBuilder(
+                    valueListenable: isStartColorPicked,
+                    builder: (context, value, _) {
+                      if (isStartColorPicked.value == false) {
+                        return SizedBox(
+                          width: 360,
+                          height: 78,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 0, bottom: 15),
+                                  child: Icon(Icons.colorize),
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 3,
+                                  children: [
+                                    Text(
+                                      "Click on the image to pick the starting color.",
+                                    ),
+                                    Text(
+                                      "Right-click to exit color change meter.",
+                                      style: smallGrayText,
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            // color: Colors.lightBlueAccent,
+                            child: Column(
+                              spacing: 4,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                //
+                                // Top row
+                                //
+                                Container(
+                                  // color: Colors.green,
+                                  child: Row(
+                                    children: [
+                                      ...colorMeterHSLItems(),
+                                    ],
+                                  ),
+                                ),
+
+                                //
+                                // Divider
+                                //
+                                Container(
+                                    width: 280,
+                                    height: 1,
+                                    color:
+                                        Colors.white.withValues(alpha: 0.15)),
+
+                                //
+                                // Bottom row
+                                //
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                        width: 100, child: _normalColorBox()),
+                                    SizedBox(width: 25),
+                                    SizedBox(
+                                      width: 225,
+                                      child: ValueListenableBuilder(
+                                        valueListenable:
+                                            isBlendModeBoxesEnabled,
+                                        builder: (context, isBlendModesVisible,
+                                            ___) {
+                                          if (!isBlendModesVisible) {
+                                            return SizedBox(
+                                              height: 33,
+                                              child: TextButton(
+                                                onPressed: () {
+                                                  isBlendModeBoxesEnabled
+                                                      .value = true;
+                                                },
+                                                child: Row(
+                                                  children: const [
+                                                    Spacer(),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 2),
+                                                      child: Icon(
+                                                        Icons.visibility,
+                                                        size: 15,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 6,
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          bottom: 1),
+                                                      child:
+                                                          Text("Blend modes"),
+                                                    ),
+                                                    Spacer(),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+
+                                          return SizedBox(
+                                            //width: 245,
+                                            height: 33,
+                                            child: TextButton(
+                                              onPressed: () {
+                                                isBlendModeBoxesEnabled.value =
+                                                    false;
+                                              },
+                                              style: ButtonStyle(
+                                                padding: WidgetStatePropertyAll(
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 0,
+                                                    horizontal: 2,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: _blendModeBoxes(),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ].animate(
+                                effects: [
+                                  Phanimations.slideRightWideEffect,
+                                  Phanimations.fadeInEffect
+                                ],
+                                delay: Duration(milliseconds: 50),
+                                interval: Duration(milliseconds: 60),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 3,
+                          )
+                        ],
+                      );
+                    }),
+                //
+                // Rightmost block
+                //
+                Container(
+                  width: 80,
+                  //color: Colors.lightBlueAccent,
+                  child: ValueListenableBuilder(
+                      valueListenable: isStartColorPicked,
+                      builder: (context, value, child) {
+                        if (value == false) {
+                          return SizedBox.shrink();
+                        }
+
+                        return Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsetsGeometry.only(bottom: 15),
+                              child: _rightArrow,
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _endColorBoxWidget(),
+                                Container(
+                                  //color: Colors.red,
+                                  child: Text("end", style: blendModeText),
+                                )
+                              ],
+                            ),
+                          ].animate(
+                            effects: [
+                              Phanimations.slideRightEffect,
+                              Phanimations.fadeInEffect
+                            ],
+                            delay: Duration(milliseconds: 220),
+                            interval: Duration(milliseconds: 80),
+                          ),
+                        );
+                      }),
+                ),
+                SizedBox(width: 20),
+              ],
+            ),
           ],
+        ),
+        //
+        // Close button layer
+        Positioned(
+          top: 0,
+          right: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: PanelCloseButton(
+              onPressed: () {
+                endColorMeter();
+                onCloseButtonPressed?.call();
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    return Positioned(
+      bottom: -8,
+      right: 5,
+      child: panelMaterial(
+        child: Container(
+          padding: EdgeInsets.only(left: 30),
+          height: barHeight,
+          child: mainStack,
         ),
       ),
     );

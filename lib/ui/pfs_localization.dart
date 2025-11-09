@@ -21,6 +21,8 @@ class PfsLocalization {
   static const String timerPlaying = 'Timer running';
   static const String timerPaused = 'Timer paused';
 
+  static const String openColorChangeMeter = 'Open color change meter';
+
   static const String timer = 'Timer';
 
   static String timerSwitched(bool enabled) =>
