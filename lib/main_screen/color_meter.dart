@@ -70,22 +70,6 @@ mixin MainScreenColorMeter {
 
   bool isColorMetering = false;
 
-  void onColorSelected(Color newColor) {
-    startColor.value = newColor;
-    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
-  }
-
-  void onColorPositionHover(Offset offset) {
-    endColorPosition.value = offset;
-    endColorOverlayEntry?.markNeedsBuild();
-  }
-
-  void onColorPositionClicked(Offset offset) {
-    startColorPosition.value = offset;
-
-    _initStartEndIndicators();
-  }
-
   void _initStartEndIndicators() {
     if (startColorOverlayEntry == null) {
       final possibleContext = eyeDropKey.currentContext;
@@ -135,6 +119,22 @@ mixin MainScreenColorMeter {
         }
       }
     }
+  }
+
+  void onColorSelected(Color newColor) {
+    startColor.value = newColor;
+    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
+  }
+
+  void onColorPositionHover(Offset offset) {
+    endColorPosition.value = offset;
+    endColorOverlayEntry?.markNeedsBuild();
+  }
+
+  void onColorPositionClicked(Offset offset) {
+    startColorPosition.value = offset;
+
+    _initStartEndIndicators();
   }
 
   void onColorHover(Color value) {
