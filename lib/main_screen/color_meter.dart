@@ -76,7 +76,7 @@ mixin MainScreenColorMeter {
       if (possibleContext != null) {
         startColorOverlayEntry = OverlayEntry(
           builder: (context) {
-            return SampledColorOverlay(
+            return ColorSampleLocationOverlay(
               position: startColorPosition,
               color: startColor,
             );
@@ -88,7 +88,7 @@ mixin MainScreenColorMeter {
           if (possibleContext != null) {
             endColorOverlayEntry = OverlayEntry(
               builder: (context) {
-                return SampledColorOverlay(
+                return ColorSampleLocationOverlay(
                   position: endColorPosition,
                   color: endColor,
                 );
@@ -1060,8 +1060,8 @@ class ColorLoupe {
   }
 }
 
-class SampledColorOverlay extends StatelessWidget {
-  const SampledColorOverlay({
+class ColorSampleLocationOverlay extends StatelessWidget {
+  const ColorSampleLocationOverlay({
     super.key,
     required this.position,
     required this.color,
@@ -1084,7 +1084,7 @@ class SampledColorOverlay extends StatelessWidget {
               left: position.value.dx,
               top: position.value.dy,
               child: CustomPaint(
-                foregroundPainter: SampledColorPainter(
+                foregroundPainter: ColorSampleLocationMarkerPainter(
                   color: color.value,
                   radius: radius,
                 ),
@@ -1098,8 +1098,8 @@ class SampledColorOverlay extends StatelessWidget {
   }
 }
 
-class SampledColorPainter extends CustomPainter {
-  SampledColorPainter({
+class ColorSampleLocationMarkerPainter extends CustomPainter {
+  ColorSampleLocationMarkerPainter({
     super.repaint,
     required this.color,
     this.radius = 7,
@@ -1108,23 +1108,32 @@ class SampledColorPainter extends CustomPainter {
   final Color color;
   final double radius;
 
+  static const double strokeWidth = 1;
+
+  final darkStroke = Paint()
+    ..color = Colors.black
+    ..strokeWidth = strokeWidth
+    ..style = PaintingStyle.stroke;
+
+  final lightStroke = Paint()
+    ..color = Colors.white
+    ..strokeWidth = strokeWidth
+    ..style = PaintingStyle.stroke;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final blackStroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+    final isDark = color.lightness < 0.5;
 
     final fill = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset.zero, radius, fill);
-    canvas.drawCircle(Offset.zero, radius, blackStroke);
+    canvas.drawCircle(Offset.zero, radius, isDark ? lightStroke : darkStroke);
   }
 
   @override
-  bool shouldRepaint(SampledColorPainter oldPainter) {
+  bool shouldRepaint(ColorSampleLocationMarkerPainter oldPainter) {
     return oldPainter.color != color;
   }
 }
