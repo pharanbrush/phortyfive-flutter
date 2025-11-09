@@ -1431,7 +1431,7 @@ class StartEndArrowPainter extends CustomPainter {
   final Offset startPosition;
   final Offset endPosition;
   static const double radius = 20;
-  static const double minimumDistance = 30;
+  static const double minimumDistance = 15;
   static const double arrowHeadSize = 15;
 
   StartEndArrowPainter({
@@ -1478,19 +1478,23 @@ class StartEndArrowPainter extends CustomPainter {
       arrowStroke,
     );
 
+    final drawnLength = length - (radius * 0.9);
+    final headSize = arrowHeadSize > drawnLength ? drawnLength + 2 : arrowHeadSize;
+    if (headSize < 2) return;
+
     const triangleAngle = math.pi / 6;
     final lineAngle = math.atan2(vector.y, vector.x);
 
     final a2 = drawnEnd -
         Vector2(
-          arrowHeadSize * math.cos(lineAngle - triangleAngle),
-          arrowHeadSize * math.sin(lineAngle - triangleAngle),
+          headSize * math.cos(lineAngle - triangleAngle),
+          headSize * math.sin(lineAngle - triangleAngle),
         );
 
     final a3 = drawnEnd -
         Vector2(
-          arrowHeadSize * math.cos(lineAngle + triangleAngle),
-          arrowHeadSize * math.sin(lineAngle + triangleAngle),
+          headSize * math.cos(lineAngle + triangleAngle),
+          headSize * math.sin(lineAngle + triangleAngle),
         );
 
     final arrowHead = Path()
