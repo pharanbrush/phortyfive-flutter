@@ -77,12 +77,10 @@ mixin MainScreenColorMeter {
 
   void onColorPositionHover(Offset offset) {
     endColorPosition.value = offset;
-
     endColorOverlayEntry?.markNeedsBuild();
   }
 
   void onColorPositionClicked(Offset offset) {
-    //TODO: swap current with start.
     startColorPosition.value = offset;
 
     if (startColorOverlayEntry == null) {
@@ -262,7 +260,6 @@ mixin MainScreenColorMeter {
           return (end - ((1 - alpha) * start)) / (alpha * start);
         }
 
-        //const opacity = 0.5;
         if (minimumValidAlpha < 1) {
           final opacity = minimumValidAlpha;
           final double mhr = inverseMultiplyWithAlpha(r1, r2, opacity);
@@ -341,33 +338,6 @@ mixin MainScreenColorMeter {
         final outputDodgeColor =
             Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
         dodgeColor.value = outputDodgeColor;
-      // case ColorDifference.mixed:
-      // double inverseOverlayChannel(double start, double end) {
-      //   if (start > 0.5) {
-      //     return end * start * 0.5;
-      //   }
-
-      //   return 1.0 - ((1.0 - end) / (2.0 * (1.0 - start)));
-      // }
-
-      // final ovr = inverseOverlayChannel(r1, r2);
-      // final ovg = inverseOverlayChannel(g1, g2);
-      // final ovb = inverseOverlayChannel(b1, b2);
-
-      // final cannotOverlay = (ovr > 1 || ovr < 0) ||
-      //     (ovg > 1 || ovg < 0) ||
-      //     (ovb > 1 || ovb < 0);
-
-      // canColorOverlay.value = !cannotOverlay;
-
-      // if (!cannotOverlay) {
-      //   overlayColor.value = Color.from(
-      //     alpha: 1,
-      //     red: ovr,
-      //     green: ovg,
-      //     blue: ovb,
-      //   );
-      // }
 
       default:
         multiplyColor.value = Colors.transparent;
@@ -437,11 +407,6 @@ mixin MainScreenColorMeter {
               }
               hueDifference *= 100.0 / 180.0;
 
-              // double deg2rad(double deg) {
-              //   return deg / 180.0 * pi;
-              // }
-              //hueDifference = deg2rad(hueDifference);
-
               final ss = start.saturation;
               final es = end.saturation;
 
@@ -450,10 +415,6 @@ mixin MainScreenColorMeter {
 
               final sDifferenceText =
                   "${saturationDifference > 0 ? "+" : ""}${saturationDifference.toStringAsFixed(0)}";
-              // final sPercentText =
-              //     (saturationPercent.isInfinite || saturationPercent.isNaN)
-              //         ? "-"
-              //         : saturationPercent.toStringAsFixed(0);
 
               final isSaturationInvalid =
                   (saturationPercent.isInfinite || saturationPercent.isNaN);
