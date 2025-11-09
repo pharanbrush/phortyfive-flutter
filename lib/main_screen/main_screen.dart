@@ -302,9 +302,11 @@ class _MainScreenState extends State<MainScreen>
           ),
           _bottomBarUnderlay(context),
           bottomControlBar(context),
-          WindowDockingControls(
-            isBottomBarMinimized: windowState.isBottomBarMinimized,
-          ),
+          currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
+              ? WindowDockingControls(
+                  isBottomBarMinimized: windowState.isBottomBarMinimized,
+                )
+              : SizedBox.shrink(),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
