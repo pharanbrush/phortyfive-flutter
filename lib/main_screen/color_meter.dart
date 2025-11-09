@@ -9,52 +9,25 @@ import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
-enum ColorDifference {
-  allLighterOrEqual,
-  allDarkerOrEqual,
-  same,
-  mixed,
-  invalid,
-}
-
 mixin MainScreenColorMeter {
   late final startColor = ValueNotifier(Colors.white);
   late final endColor = ValueNotifier(Colors.white);
+  final calculatedColors = CalculatedColors();
 
   late final startColorPosition = ValueNotifier(Offset(0, 0));
   late final endColorPosition = ValueNotifier(Offset(0, 0));
   late final isStartColorPicked = ValueNotifier(false);
   late final isEndColorPicked = ValueNotifier(false);
 
-  late final startEndColorDifference = ValueNotifier(ColorDifference.mixed);
-
-  late final terminalAlphaBlendColor = ValueNotifier(Colors.white);
-  late final alphaBlendColorPercent = ValueNotifier(0.0);
-
-  late final multiplyColor = ValueNotifier(Colors.white);
-  late final dodgeColor = ValueNotifier(Colors.black);
-  late final linearBurnColor = ValueNotifier(Colors.white);
-  late final multiplyWithAlphaColor = ValueNotifier(Colors.white);
-  late final multiplyMinimumAlpha = ValueNotifier(0.0);
-
-  late final canColorDodge = ValueNotifier(false);
-  late final canMultiplyWithAlpha = ValueNotifier(false);
-
-  late final addColor = ValueNotifier(Colors.black);
-  late final screenColor = ValueNotifier(Colors.black);
-
   late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
-  late final lastPickKey = ValueNotifier("defaultKey");
   void Function()? onColorMeterSecondaryTap;
 
-  OverlayEntry? startColorOverlayEntry;
-  OverlayEntry? endColorOverlayEntry;
-  OverlayEntry? startEndArrowOverlayEntry;
-  late final startEndArrowColor = ValueNotifier(Colors.red);
-
   final keyRng = math.Random();
+  late final lastPickKey = ValueNotifier("defaultKey");
   final eyeDropKey = GlobalKey();
+  final _overlays = ColorMeterOverlays();
+  bool isColorMetering = false;
 
   late final loupe = ColorLoupe(
     onColorHover: onColorHover,
@@ -68,320 +41,35 @@ mixin MainScreenColorMeter {
     },
   );
 
-  bool isColorMetering = false;
-
   void _initStartEndIndicators() {
-    if (startColorOverlayEntry == null) {
-      final possibleContext = eyeDropKey.currentContext;
-      if (possibleContext != null) {
-        startColorOverlayEntry = OverlayEntry(
-          builder: (context) {
-            return ColorSampleLocationOverlay(
-              position: startColorPosition,
-              color: startColor,
-            );
-          },
-        );
-
-        if (endColorOverlayEntry == null) {
-          final possibleContext = eyeDropKey.currentContext;
-          if (possibleContext != null) {
-            endColorOverlayEntry = OverlayEntry(
-              builder: (context) {
-                return ColorSampleLocationOverlay(
-                  position: endColorPosition,
-                  color: endColor,
-                );
-              },
-            );
-
-            startEndArrowOverlayEntry = OverlayEntry(
-              builder: (context) {
-                return StartEndArrowOverlay(
-                  startPosition: startColorPosition,
-                  endPosition: endColorPosition,
-                  color: startEndArrowColor,
-                );
-              },
-            );
-
-            final overlayOfContext = Overlay.of(possibleContext);
-            if (overlayOfContext.mounted) {
-              overlayOfContext.insert(endColorOverlayEntry!);
-              overlayOfContext.insert(startEndArrowOverlayEntry!);
-            }
-          }
-        }
-
-        final overlayOfContext = Overlay.of(possibleContext);
-        if (overlayOfContext.mounted) {
-          overlayOfContext.insert(startColorOverlayEntry!);
-        }
-      }
-    }
+    _overlays.tryInitialize(
+      eyeDropKey.currentContext,
+      startPosition: startColorPosition,
+      endPosition: endColorPosition,
+      startColor: startColor,
+      endColor: endColor,
+    );
   }
 
   void onColorSelected(Color newColor) {
     startColor.value = newColor;
-    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
-  }
+    isStartColorPicked.value = true;
 
-  void onColorPositionHover(Offset offset) {
-    endColorPosition.value = offset;
-    endColorOverlayEntry?.markNeedsBuild();
+    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
   }
 
   void onColorPositionClicked(Offset offset) {
     startColorPosition.value = offset;
-
     _initStartEndIndicators();
   }
 
   void onColorHover(Color value) {
     endColor.value = value;
-
-    _updateColorDifference();
-    _updateTerminalColor();
-    _updateBlendModeColors();
+    calculatedColors.updateColors(startColor.value, endColor.value);
   }
 
-  void _updateColorDifference() {
-    final start = startColor.value;
-    final end = endColor.value;
-
-    final r1 = start.r;
-    final g1 = start.g;
-    final b1 = start.b;
-
-    final r2 = end.r;
-    final g2 = end.g;
-    final b2 = end.b;
-
-    if (r1.isNaN || r2.isNaN || g1.isNaN || g2.isNaN || b1.isNaN || b2.isNaN) {
-      startEndColorDifference.value = ColorDifference.invalid;
-    } else if (r1.isInfinite ||
-        r2.isInfinite ||
-        g1.isInfinite ||
-        g2.isInfinite ||
-        b1.isInfinite ||
-        b2.isInfinite) {
-      startEndColorDifference.value = ColorDifference.invalid;
-    } else if (r2 == r1 && g2 == g1 && b2 == b1) {
-      startEndColorDifference.value = ColorDifference.same;
-    } else if (r2 >= r1 && g2 >= g1 && b2 >= b1) {
-      startEndColorDifference.value = ColorDifference.allLighterOrEqual;
-    } else if (r2 <= r1 && g2 <= g1 && b2 <= b1) {
-      startEndColorDifference.value = ColorDifference.allDarkerOrEqual;
-    } else {
-      startEndColorDifference.value = ColorDifference.mixed;
-    }
-  }
-
-  static double calculateSafeStretchFactor(
-      double r, double g, double b, double vr, double vg, double vb) {
-    // Distance to colorspace edge (candidate factors for stretching the vector)
-    final dr = vr > 0 ? 1.0 - r : -r;
-    final dg = vg > 0 ? 1.0 - g : -g;
-    final db = vb > 0 ? 1.0 - b : -b;
-
-    final double rDistanceFactor = vr == 0 ? double.infinity : dr / vr;
-    final double gDistanceFactor = vg == 0 ? double.infinity : dg / vg;
-    final double bDistanceFactor = vb == 0 ? double.infinity : db / vb;
-
-    double minOfThree(double a, double b, double c) {
-      if (a <= b && a <= c && a.isFinite) {
-        return a;
-      } else if (b <= a && b <= c && b.isFinite) {
-        return b;
-      } else if (c <= a && c <= b && c.isFinite) {
-        return c;
-      } else {
-        return 0;
-      }
-    }
-
-    return minOfThree(rDistanceFactor, gDistanceFactor, bDistanceFactor);
-  }
-
-  void _updateBlendModeColors() {
-    final start = startColor.value;
-    final end = endColor.value;
-
-    final r1 = start.r;
-    final g1 = start.g;
-    final b1 = start.b;
-
-    final r2 = end.r;
-    final g2 = end.g;
-    final b2 = end.b;
-
-    switch (startEndColorDifference.value) {
-      case ColorDifference.same:
-      case ColorDifference.allDarkerOrEqual:
-        // Divide end color with start color. Assumes start color is lighter.
-        final double mr = r1 == 0 ? 0 : r2 / r1;
-        final double mg = g1 == 0 ? 0 : g2 / g1;
-        final double mb = b1 == 0 ? 0 : b2 / b1;
-        final outputMultiplyColor =
-            Color.from(alpha: 1, red: mr, green: mg, blue: mb);
-
-        multiplyColor.value = outputMultiplyColor;
-
-        double findAlphaWithMultiply(
-            double start, double end, double multiply) {
-          if (start == end) return 0;
-          if (start <= 0) return double.negativeInfinity;
-          if (multiply == 1) return double.infinity;
-
-          // Find the alpha required to reach this.
-          return (end - start) / (start * (multiply - 1.0));
-        }
-
-        final azmr = findAlphaWithMultiply(r1, r2, 0);
-        final azmg = findAlphaWithMultiply(g1, g2, 0);
-        final azmb = findAlphaWithMultiply(b1, b2, 0);
-        double maxIfAlphaValid(double previous, double candidate) {
-          if (candidate.isFinite && candidate > 0 && candidate < 1) {
-            return math.max(previous, candidate);
-          } else {
-            return previous;
-          }
-        }
-
-        double minimumValidAlpha = 0;
-        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmr);
-        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmg);
-        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmb);
-
-        double inverseMultiplyWithAlpha(
-          double start,
-          double end,
-          double alpha,
-        ) {
-          if (start == 0) return 0;
-          if (alpha == 0) return start;
-
-          return (end - ((1 - alpha) * start)) / (alpha * start);
-        }
-
-        if (minimumValidAlpha < 1) {
-          final opacity = minimumValidAlpha;
-          final double mhr = inverseMultiplyWithAlpha(r1, r2, opacity);
-          final double mhg = inverseMultiplyWithAlpha(g1, g2, opacity);
-          final double mhb = inverseMultiplyWithAlpha(b1, b2, opacity);
-
-          canMultiplyWithAlpha.value = true;
-          multiplyMinimumAlpha.value = opacity;
-          multiplyWithAlphaColor.value = Color.from(
-            alpha: 1,
-            red: mhr,
-            green: mhg,
-            blue: mhb,
-          );
-        } else {
-          canMultiplyWithAlpha.value = false;
-        }
-
-        final double subr = r1 - r2;
-        final double subg = g1 - g2;
-        final double subb = b1 - b2;
-        final outputLinearBurnColor = Color.from(
-            alpha: 1, red: 1 - subr, green: 1 - subg, blue: 1 - subb);
-
-        linearBurnColor.value = outputLinearBurnColor;
-
-      case ColorDifference.allLighterOrEqual:
-        final double ar = r2 - r1;
-        final double ag = g2 - g1;
-        final double ab = b2 - b1;
-        final outputAddColor =
-            Color.from(alpha: 1, red: ar, green: ag, blue: ab);
-        addColor.value = outputAddColor;
-
-        final double sr = 1 - (1 - r2) / (1 - r1);
-        final double sg = 1 - (1 - g2) / (1 - g1);
-        final double sb = 1 - (1 - b2) / (1 - b1);
-        final outputScreenColor =
-            Color.from(alpha: 1, red: sr, green: sg, blue: sb);
-        screenColor.value = outputScreenColor;
-
-        const double tooSmallToDodge = 4.0 / 255.0;
-
-        double safeDodgeDivide(double startValue, double endValue) {
-          if (startValue == 0) {
-            // 1. Color is the same so don't dodge.
-            if (endValue == 0) {
-              return 1;
-            }
-
-            // 2. Color can't be dodged so pretend it has a small value.
-            return tooSmallToDodge / endValue;
-          } else {
-            // 3. Normal dodge
-            return startValue / endValue;
-          }
-        }
-
-        final double dr = safeDodgeDivide(r1, r2);
-        final double dg = safeDodgeDivide(g1, g2);
-        final double db = safeDodgeDivide(b1, b2);
-
-        final cannotDoDodgeOperation = (
-            // Color dodge becomes wildly inaccurate if the start color has very low values.
-            (r1 < tooSmallToDodge && r2 != r1) ||
-                (g1 < tooSmallToDodge && g2 != g1) ||
-                (b1 < tooSmallToDodge && b2 != b1) ||
-                // Color dodge doesn't work if the division results in a giant number
-                (dr > 1 || dg > 1 || db > 1));
-
-        canColorDodge.value = !cannotDoDodgeOperation;
-
-        final double cdr = 1 - dr;
-        final double cdg = 1 - dg;
-        final double cdb = 1 - db;
-        final outputDodgeColor =
-            Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
-        dodgeColor.value = outputDodgeColor;
-
-      default:
-        multiplyColor.value = Colors.transparent;
-        return;
-    }
-  }
-
-  void _updateTerminalColor() {
-    final start = startColor.value;
-    final end = endColor.value;
-
-    final r1 = start.r;
-    final g1 = start.g;
-    final b1 = start.b;
-
-    final r2 = end.r;
-    final g2 = end.g;
-    final b2 = end.b;
-
-    // Color difference vector. An arrow pointing towards where the color is moving.
-    final vr = r2 - r1;
-    final vg = g2 - g1;
-    final vb = b2 - b1;
-
-    final vectorScaleToEdge =
-        calculateSafeStretchFactor(r1, g1, b1, vr, vg, vb);
-
-    // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
-    final svr = vr * vectorScaleToEdge;
-    final svg = vg * vectorScaleToEdge;
-    final svb = vb * vectorScaleToEdge;
-
-    final tr = r1 + svr;
-    final tg = g1 + svg;
-    final tb = b1 + svb;
-
-    final outputColor = Color.from(alpha: 1.0, red: tr, green: tg, blue: tb);
-
-    terminalAlphaBlendColor.value = outputColor;
-    alphaBlendColorPercent.value = vectorScaleToEdge;
+  void onColorPositionHover(Offset offset) {
+    endColorPosition.value = offset;
   }
 
   Widget colorMeterModeButton({void Function()? onPressed}) {
@@ -447,7 +135,7 @@ mixin MainScreenColorMeter {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         //
-                        HslIconIndicator(
+                        HslChangeIcon(
                           value: hueDifference,
                           cutoff: 0,
                           increase: Icons.redo,
@@ -462,7 +150,7 @@ mixin MainScreenColorMeter {
                         SizedBox(
                             width: 65, child: Text("$hueDiffText%".padLeft(5))),
                         //
-                        HslIconIndicator(
+                        HslChangeIcon(
                           value: saturationPercent,
                           cutoff: 100,
                           decrease: Icons.arrow_back,
@@ -474,7 +162,7 @@ mixin MainScreenColorMeter {
                             child: Text("sat ", style: numberLabel)),
                         SizedBox(width: 58, child: Text("$sDifferenceText%")),
 
-                        HslIconIndicator(
+                        HslChangeIcon(
                           value: lightnessPercent,
                           cutoff: 100,
                           decrease: Icons.arrow_downward,
@@ -498,6 +186,7 @@ mixin MainScreenColorMeter {
     ];
   }
 
+  // TODO: Use theme styles
   static const double smallTextSize = 10.5;
   static const double numberLabelSize = 13;
   static const double grayTone = 0.62;
@@ -696,7 +385,7 @@ mixin MainScreenColorMeter {
         SizedBox(
           width: 35,
           child: ValueListenableBuilder(
-            valueListenable: alphaBlendColorPercent,
+            valueListenable: calculatedColors.alphaBlendColorPercent,
             builder: (_, value, ___) {
               if (value.isInfinite || value.isNaN || value == 0) {
                 return Text(" - ");
@@ -713,7 +402,7 @@ mixin MainScreenColorMeter {
             },
           ),
         ),
-        valueListeningColorBox(terminalAlphaBlendColor),
+        valueListeningColorBox(calculatedColors.terminalAlphaBlendColor),
       ],
     );
   }
@@ -722,30 +411,34 @@ mixin MainScreenColorMeter {
     const double boxSpacing = 12;
 
     return ValueListenableBuilder(
-      valueListenable: startEndColorDifference,
+      valueListenable: calculatedColors.startEndColorDifference,
       builder: (_, difference, __) {
         if (difference == ColorDifference.allDarkerOrEqual) {
           return Row(
             children: [
               _labeledListeningColorBox(
-                  label: "multiply", colorListenable: multiplyColor),
+                  label: "multiply",
+                  colorListenable: calculatedColors.multiplyColor),
               SizedBox(width: 1),
               ValueListenableBuilder(
-                  valueListenable: multiplyMinimumAlpha,
+                  valueListenable: calculatedColors.multiplyMinimumAlpha,
                   builder: (_, __, ___) {
                     final multiplyPercentText =
-                        (multiplyMinimumAlpha.value * 100).toStringAsFixed(0);
+                        (calculatedColors.multiplyMinimumAlpha.value * 100)
+                            .toStringAsFixed(0);
 
                     return _conditionalLabeledListeningColorBox(
                       label: "$multiplyPercentText%",
                       textSpace: 0,
-                      colorListenable: multiplyWithAlphaColor,
-                      conditionListenable: canMultiplyWithAlpha,
+                      colorListenable: calculatedColors.multiplyWithAlphaColor,
+                      conditionListenable:
+                          calculatedColors.canMultiplyWithAlpha,
                     );
                   }),
               SizedBox(width: boxSpacing),
               _labeledListeningColorBox(
-                  label: "linear burn", colorListenable: linearBurnColor),
+                  label: "linear burn",
+                  colorListenable: calculatedColors.linearBurnColor),
             ],
           );
         } else if (difference == ColorDifference.allLighterOrEqual) {
@@ -753,10 +446,11 @@ mixin MainScreenColorMeter {
             spacing: boxSpacing,
             children: [
               _labeledListeningColorBox(
-                  label: "screen", colorListenable: screenColor),
+                  label: "screen",
+                  colorListenable: calculatedColors.screenColor),
               _colorDodgeBox(),
               _labeledListeningColorBox(
-                  label: "add", colorListenable: addColor),
+                  label: "add", colorListenable: calculatedColors.addColor),
             ],
           );
         }
@@ -774,12 +468,12 @@ mixin MainScreenColorMeter {
 
   Widget _colorDodgeBox() {
     return ValueListenableBuilder(
-      valueListenable: canColorDodge,
+      valueListenable: calculatedColors.canColorDodge,
       builder: (_, __, ___) {
         return _labeledColorBox(
           label: "color dodge",
-          strikethrough: !canColorDodge.value,
-          boxWidget: valueListeningColorBox(dodgeColor),
+          strikethrough: !calculatedColors.canColorDodge.value,
+          boxWidget: valueListeningColorBox(calculatedColors.dodgeColor),
         );
       },
     );
@@ -932,33 +626,26 @@ mixin MainScreenColorMeter {
 
     _resetState();
 
-    _removePickedColorOverlays();
+    _overlays.removeOverlays();
 
     loupe.endOverlay(eyeDropKey);
-  }
-
-  void _removePickedColorOverlays() {
-    startColorOverlayEntry?.remove();
-    startColorOverlayEntry = null;
-    endColorOverlayEntry?.remove();
-    endColorOverlayEntry = null;
-    startEndArrowOverlayEntry?.remove();
-    startEndArrowOverlayEntry = null;
   }
 
   void _resetState() {
     isColorMetering = false;
     isStartColorPicked.value = false;
     isEndColorPicked.value = false;
+    startColor.value = Colors.transparent;
+    endColor.value = Colors.transparent;
   }
 
   void _onWindowChanged() {
-    _removePickedColorOverlays();
+    _overlays.removeOverlays();
   }
 }
 
-class HslIconIndicator extends StatelessWidget {
-  const HslIconIndicator(
+class HslChangeIcon extends StatelessWidget {
+  const HslChangeIcon(
       {super.key,
       required this.value,
       required this.cutoff,
@@ -1004,20 +691,18 @@ class ColorLoupe {
     this.onWindowChanged,
   });
 
-  Color color = Colors.white;
-
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
       final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
       if (eyeDropper != null) {
         eyeDropper.startEyeDropper(
           context,
-          onColorSelected: _handleOnColorClicked,
-          onColorChanged: _handleOnColorHover,
-          onColorPositionSelected: _handleOnColorPositionClicked,
-          onColorPositionHover: _handleOnColorPositionHover,
-          onSecondaryTap: _handleSecondaryTap,
-          onWindowChanged: _handleOnWindowChanged,
+          onColorSelected: onColorClicked,
+          onColorChanged: onColorHover,
+          onColorPositionSelected: onColorPositionClicked,
+          onColorPositionHover: onColorPositionHover,
+          onSecondaryTap: onSecondaryTap,
+          onWindowChanged: onWindowChanged,
         );
       }
     } catch (err) {
@@ -1033,30 +718,335 @@ class ColorLoupe {
       debugPrint("eyedrop was null. Unable to end");
     }
   }
+}
 
-  void _handleOnColorPositionClicked(Offset offset) {
-    onColorPositionClicked(offset);
+enum ColorDifference {
+  allLighterOrEqual,
+  allDarkerOrEqual,
+  same,
+  mixed,
+  invalid,
+}
+
+class CalculatedColors {
+  late final startEndColorDifference = ValueNotifier(ColorDifference.mixed);
+
+  late final multiplyColor = ValueNotifier(Colors.white);
+  late final dodgeColor = ValueNotifier(Colors.black);
+  late final linearBurnColor = ValueNotifier(Colors.white);
+  late final multiplyWithAlphaColor = ValueNotifier(Colors.white);
+  late final multiplyMinimumAlpha = ValueNotifier(0.0);
+
+  late final canColorDodge = ValueNotifier(false);
+  late final canMultiplyWithAlpha = ValueNotifier(false);
+
+  late final addColor = ValueNotifier(Colors.black);
+  late final screenColor = ValueNotifier(Colors.black);
+
+  late final terminalAlphaBlendColor = ValueNotifier(Colors.white);
+  late final alphaBlendColorPercent = ValueNotifier(0.0);
+
+  void updateColors(Color start, Color end) {
+    _updateColorDifference(start, end);
+    _updateTerminalColor(start, end);
+    _updateBlendModeColors(start, end);
   }
 
-  void _handleOnColorPositionHover(Offset offset) {
-    onColorPositionHover(offset);
+  void _updateColorDifference(Color start, Color end) {
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
+
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
+
+    if (r1.isNaN || r2.isNaN || g1.isNaN || g2.isNaN || b1.isNaN || b2.isNaN) {
+      startEndColorDifference.value = ColorDifference.invalid;
+    } else if (r1.isInfinite ||
+        r2.isInfinite ||
+        g1.isInfinite ||
+        g2.isInfinite ||
+        b1.isInfinite ||
+        b2.isInfinite) {
+      startEndColorDifference.value = ColorDifference.invalid;
+    } else if (r2 == r1 && g2 == g1 && b2 == b1) {
+      startEndColorDifference.value = ColorDifference.same;
+    } else if (r2 >= r1 && g2 >= g1 && b2 >= b1) {
+      startEndColorDifference.value = ColorDifference.allLighterOrEqual;
+    } else if (r2 <= r1 && g2 <= g1 && b2 <= b1) {
+      startEndColorDifference.value = ColorDifference.allDarkerOrEqual;
+    } else {
+      startEndColorDifference.value = ColorDifference.mixed;
+    }
   }
 
-  void _handleSecondaryTap() {
-    onSecondaryTap?.call();
+  void _updateBlendModeColors(Color start, Color end) {
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
+
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
+
+    switch (startEndColorDifference.value) {
+      case ColorDifference.same:
+      case ColorDifference.allDarkerOrEqual:
+        // Divide end color with start color. Assumes start color is lighter.
+        final double mr = r1 == 0 ? 0 : r2 / r1;
+        final double mg = g1 == 0 ? 0 : g2 / g1;
+        final double mb = b1 == 0 ? 0 : b2 / b1;
+        final outputMultiplyColor =
+            Color.from(alpha: 1, red: mr, green: mg, blue: mb);
+
+        multiplyColor.value = outputMultiplyColor;
+
+        double findAlphaWithMultiply(
+            double start, double end, double multiply) {
+          if (start == end) return 0;
+          if (start <= 0) return double.negativeInfinity;
+          if (multiply == 1) return double.infinity;
+
+          // Find the alpha required to reach this.
+          return (end - start) / (start * (multiply - 1.0));
+        }
+
+        final azmr = findAlphaWithMultiply(r1, r2, 0);
+        final azmg = findAlphaWithMultiply(g1, g2, 0);
+        final azmb = findAlphaWithMultiply(b1, b2, 0);
+        double maxIfAlphaValid(double previous, double candidate) {
+          if (candidate.isFinite && candidate > 0 && candidate < 1) {
+            return math.max(previous, candidate);
+          } else {
+            return previous;
+          }
+        }
+
+        double minimumValidAlpha = 0;
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmr);
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmg);
+        minimumValidAlpha = maxIfAlphaValid(minimumValidAlpha, azmb);
+
+        double inverseMultiplyWithAlpha(
+          double start,
+          double end,
+          double alpha,
+        ) {
+          if (start == 0) return 0;
+          if (alpha == 0) return start;
+
+          return (end - ((1 - alpha) * start)) / (alpha * start);
+        }
+
+        if (minimumValidAlpha < 1) {
+          final opacity = minimumValidAlpha;
+          final double mhr = inverseMultiplyWithAlpha(r1, r2, opacity);
+          final double mhg = inverseMultiplyWithAlpha(g1, g2, opacity);
+          final double mhb = inverseMultiplyWithAlpha(b1, b2, opacity);
+
+          canMultiplyWithAlpha.value = true;
+          multiplyMinimumAlpha.value = opacity;
+          multiplyWithAlphaColor.value = Color.from(
+            alpha: 1,
+            red: mhr,
+            green: mhg,
+            blue: mhb,
+          );
+        } else {
+          canMultiplyWithAlpha.value = false;
+        }
+
+        final double subr = r1 - r2;
+        final double subg = g1 - g2;
+        final double subb = b1 - b2;
+        final outputLinearBurnColor = Color.from(
+            alpha: 1, red: 1 - subr, green: 1 - subg, blue: 1 - subb);
+
+        linearBurnColor.value = outputLinearBurnColor;
+
+      case ColorDifference.allLighterOrEqual:
+        final double ar = r2 - r1;
+        final double ag = g2 - g1;
+        final double ab = b2 - b1;
+        final outputAddColor =
+            Color.from(alpha: 1, red: ar, green: ag, blue: ab);
+        addColor.value = outputAddColor;
+
+        final double sr = 1 - (1 - r2) / (1 - r1);
+        final double sg = 1 - (1 - g2) / (1 - g1);
+        final double sb = 1 - (1 - b2) / (1 - b1);
+        final outputScreenColor =
+            Color.from(alpha: 1, red: sr, green: sg, blue: sb);
+        screenColor.value = outputScreenColor;
+
+        const double tooSmallToDodge = 4.0 / 255.0;
+
+        double safeDodgeDivide(double startValue, double endValue) {
+          if (startValue == 0) {
+            // 1. Color is the same so don't dodge.
+            if (endValue == 0) {
+              return 1;
+            }
+
+            // 2. Color can't be dodged so pretend it has a small value.
+            return tooSmallToDodge / endValue;
+          } else {
+            // 3. Normal dodge
+            return startValue / endValue;
+          }
+        }
+
+        final double dr = safeDodgeDivide(r1, r2);
+        final double dg = safeDodgeDivide(g1, g2);
+        final double db = safeDodgeDivide(b1, b2);
+
+        final cannotDoDodgeOperation = (
+            // Color dodge becomes wildly inaccurate if the start color has very low values.
+            (r1 < tooSmallToDodge && r2 != r1) ||
+                (g1 < tooSmallToDodge && g2 != g1) ||
+                (b1 < tooSmallToDodge && b2 != b1) ||
+                // Color dodge doesn't work if the division results in a giant number
+                (dr > 1 || dg > 1 || db > 1));
+
+        canColorDodge.value = !cannotDoDodgeOperation;
+
+        final double cdr = 1 - dr;
+        final double cdg = 1 - dg;
+        final double cdb = 1 - db;
+        final outputDodgeColor =
+            Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
+        dodgeColor.value = outputDodgeColor;
+
+      default:
+        multiplyColor.value = Colors.transparent;
+        return;
+    }
   }
 
-  void _handleOnColorHover(Color value) {
-    onColorHover(value);
+  void _updateTerminalColor(Color start, Color end) {
+    final r1 = start.r;
+    final g1 = start.g;
+    final b1 = start.b;
+
+    final r2 = end.r;
+    final g2 = end.g;
+    final b2 = end.b;
+
+    // Color difference vector. An arrow pointing towards where the color is moving.
+    final vr = r2 - r1;
+    final vg = g2 - g1;
+    final vb = b2 - b1;
+
+    final vectorScaleToEdge =
+        calculateSafeStretchFactor(r1, g1, b1, vr, vg, vb);
+
+    // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
+    final svr = vr * vectorScaleToEdge;
+    final svg = vg * vectorScaleToEdge;
+    final svb = vb * vectorScaleToEdge;
+
+    final tr = r1 + svr;
+    final tg = g1 + svg;
+    final tb = b1 + svb;
+
+    final outputColor = Color.from(alpha: 1.0, red: tr, green: tg, blue: tb);
+
+    terminalAlphaBlendColor.value = outputColor;
+    alphaBlendColorPercent.value = vectorScaleToEdge;
   }
 
-  void _handleOnColorClicked(Color value) {
-    color = value;
-    onColorClicked(value);
+  static double calculateSafeStretchFactor(
+      double r, double g, double b, double vr, double vg, double vb) {
+    // Distance to colorspace edge (candidate factors for stretching the vector)
+    final dr = vr > 0 ? 1.0 - r : -r;
+    final dg = vg > 0 ? 1.0 - g : -g;
+    final db = vb > 0 ? 1.0 - b : -b;
+
+    final double rDistanceFactor = vr == 0 ? double.infinity : dr / vr;
+    final double gDistanceFactor = vg == 0 ? double.infinity : dg / vg;
+    final double bDistanceFactor = vb == 0 ? double.infinity : db / vb;
+
+    double minOfThree(double a, double b, double c) {
+      if (a <= b && a <= c && a.isFinite) {
+        return a;
+      } else if (b <= a && b <= c && b.isFinite) {
+        return b;
+      } else if (c <= a && c <= b && c.isFinite) {
+        return c;
+      } else {
+        return 0;
+      }
+    }
+
+    return minOfThree(rDistanceFactor, gDistanceFactor, bDistanceFactor);
+  }
+}
+
+class ColorMeterOverlays {
+  OverlayEntry? startColorLocation;
+  OverlayEntry? endColorLocation;
+  OverlayEntry? arrow;
+  late final startEndArrowColor = ValueNotifier(Colors.red);
+
+  void tryInitialize(
+    BuildContext? context, {
+    required ValueListenable<Offset> startPosition,
+    required ValueListenable<Offset> endPosition,
+    required ValueListenable<Color> startColor,
+    required ValueListenable<Color> endColor,
+  }) {
+    if (context == null) return;
+    if (context.mounted == false) return;
+
+    final overlayOfContext = Overlay.of(context);
+    if (overlayOfContext.mounted == false) return;
+
+    if (startColorLocation == null) {
+      startColorLocation = OverlayEntry(
+        builder: (context) {
+          return ColorSampleLocationOverlay(
+            position: startPosition,
+            color: startColor,
+          );
+        },
+      );
+
+      if (endColorLocation == null) {
+        endColorLocation = OverlayEntry(
+          builder: (context) {
+            return ColorSampleLocationOverlay(
+              position: endPosition,
+              color: endColor,
+            );
+          },
+        );
+
+        arrow = OverlayEntry(
+          builder: (context) {
+            return StartEndArrowOverlay(
+              startPosition: startPosition,
+              endPosition: endPosition,
+              color: startEndArrowColor,
+            );
+          },
+        );
+
+        overlayOfContext.insert(endColorLocation!);
+        overlayOfContext.insert(arrow!);
+      }
+
+      overlayOfContext.insert(startColorLocation!);
+    }
   }
 
-  void _handleOnWindowChanged() {
-    onWindowChanged?.call();
+  void removeOverlays() {
+    startColorLocation?.remove();
+    startColorLocation = null;
+    endColorLocation?.remove();
+    endColorLocation = null;
+    arrow?.remove();
+    arrow = null;
   }
 }
 
