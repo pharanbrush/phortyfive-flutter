@@ -849,7 +849,7 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
     if (currentImageData is ImageFileData) {
       final filePath = currentImageData.filePath;
       try {
-        final imageData = await getImageDataFromFile(filePath);
+        final imageData = await getUiImageFromFile(filePath);
         await phclipboard.copyImageFileToClipboardAsPngAndFileUri(
           image: imageData,
           filePath: currentImageData.filePath,
