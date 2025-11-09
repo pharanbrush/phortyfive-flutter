@@ -482,7 +482,7 @@ mixin MainScreenColorMeter {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         //
-                        hslIconIndicator(
+                        HslIconIndicator(
                           value: hueDifference,
                           cutoff: 0,
                           increase: Icons.redo,
@@ -497,7 +497,7 @@ mixin MainScreenColorMeter {
                         SizedBox(
                             width: 65, child: Text("$hueDiffText%".padLeft(5))),
                         //
-                        hslIconIndicator(
+                        HslIconIndicator(
                           value: saturationPercent,
                           cutoff: 100,
                           decrease: Icons.arrow_back,
@@ -509,7 +509,7 @@ mixin MainScreenColorMeter {
                             child: Text("sat ", style: numberLabel)),
                         SizedBox(width: 58, child: Text("$sDifferenceText%")),
 
-                        hslIconIndicator(
+                        HslIconIndicator(
                           value: lightnessPercent,
                           cutoff: 100,
                           decrease: Icons.arrow_downward,
@@ -531,25 +531,6 @@ mixin MainScreenColorMeter {
       ),
       //SizedBox(width: 10),
     ];
-  }
-
-  Widget hslIconIndicator({
-    required double value,
-    required double cutoff,
-    required IconData decrease,
-    required IconData increase,
-    double extraRightPadding = 0,
-  }) {
-    return Padding(
-      padding: EdgeInsets.only(top: 3, right: 1 + extraRightPadding),
-      child: value == cutoff
-          ? SizedBox(width: 14)
-          : Icon(
-              value > cutoff ? increase : decrease,
-              size: 14,
-              color: Color.from(alpha: 0.45, red: 0.5, green: 0.5, blue: 0.5),
-            ),
-    );
   }
 
   static const double smallTextSize = 10.5;
@@ -1008,6 +989,36 @@ mixin MainScreenColorMeter {
 
   void _onWindowChanged() {
     _removePickedColorOverlays();
+  }
+}
+
+class HslIconIndicator extends StatelessWidget {
+  const HslIconIndicator(
+      {super.key,
+      required this.value,
+      required this.cutoff,
+      required this.decrease,
+      required this.increase,
+      this.extraRightPadding = 0});
+
+  final double value;
+  final double cutoff;
+  final IconData decrease;
+  final IconData increase;
+  final double extraRightPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 3, right: 1 + extraRightPadding),
+      child: value == cutoff
+          ? SizedBox(width: 14)
+          : Icon(
+              value > cutoff ? increase : decrease,
+              size: 14,
+              color: Color.from(alpha: 0.45, red: 0.5, green: 0.5, blue: 0.5),
+            ),
+    );
   }
 }
 
