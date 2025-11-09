@@ -47,6 +47,7 @@
 import 'dart:ui' as ui;
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as img;
@@ -60,6 +61,7 @@ class EyeDropperModel {
 
   img.Image? snapshot;
   Offset? cursorPosition;
+  int lastButtonDown = -1;
 
   Color hoverColor = Colors.black;
   List<Color> hoverColors = [];
@@ -68,6 +70,8 @@ class EyeDropperModel {
   ValueChanged<Color>? onColorChanged;
   ValueChanged<Offset>? onColorPositionSelected;
   ValueChanged<Offset>? onColorPositionHover;
+  void Function()? onPointerExit;
+  void Function()? onPointerEnter;
   void Function()? onWindowChanged;
   void Function()? onSecondaryTap;
 }
@@ -145,25 +149,39 @@ class EyeDropperLayer extends StatelessWidget with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: captureKey,
-      child: Listener(
-        onPointerMove: (details) => _onHover(
-          details.position,
-          details.kind == PointerDeviceKind.touch,
-        ),
-        onPointerHover: (details) => _onHover(
-          details.position,
-          details.kind == PointerDeviceKind.touch,
-        ),
-        onPointerDown: (PointerDownEvent details) {
-          if (!model.isEnabled) return;
-          if (details.buttons == 2) {
-            model.onSecondaryTap?.call();
-          }
+      child: MouseRegion(
+        onExit: (event) {
+          model.onPointerExit?.call();
         },
-        onPointerUp: (PointerUpEvent details) {
-          _onPrimaryTapUp(details.position);
+        onEnter: (event) {
+          model.onPointerEnter?.call();
         },
-        child: child,
+        child: Listener(
+          onPointerMove: (details) => _onHover(
+            details.position,
+            details.kind == PointerDeviceKind.touch,
+          ),
+          onPointerHover: (details) => _onHover(
+            details.position,
+            details.kind == PointerDeviceKind.touch,
+          ),
+          onPointerDown: (PointerDownEvent details) {
+            if (!model.isEnabled) return;
+
+            model.lastButtonDown = details.buttons;
+            if (details.buttons == kSecondaryButton) {
+              model.onSecondaryTap?.call();
+            }
+          },
+          onPointerUp: (PointerUpEvent details) {
+            if (model.lastButtonDown == kPrimaryButton) {
+              _onPrimaryTapUp(details.position);
+            }
+
+            model.lastButtonDown = -1;
+          },
+          child: child,
+        ),
       ),
     );
   }
@@ -214,6 +232,8 @@ class EyeDropperLayer extends StatelessWidget with WidgetsBindingObserver {
     ValueChanged<Offset>? onColorPositionSelected,
     ValueChanged<Offset>? onColorPositionHover,
     void Function()? onWindowChanged,
+    void Function()? onPointerExit,
+    void Function()? onPointerEnter,
     void Function()? onSecondaryTap,
   }) async {
     loupeModel.setContext(context);
@@ -222,6 +242,9 @@ class EyeDropperLayer extends StatelessWidget with WidgetsBindingObserver {
 
     model.isEnabled = true;
     if (model.snapshot == null) return;
+
+    model.onPointerExit = onPointerExit;
+    model.onPointerEnter = onPointerEnter;
 
     model.onWindowChanged = onWindowChanged;
     model.onColorSelected = onColorSelected;

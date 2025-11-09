@@ -21,7 +21,7 @@ mixin MainScreenColorMeter {
 
   late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
-  void Function()? onColorMeterSecondaryTap;
+  void Function()? onColorMeterExit;
 
   final keyRng = math.Random();
   late final lastPickKey = ValueNotifier("defaultKey");
@@ -35,10 +35,9 @@ mixin MainScreenColorMeter {
     onColorPositionClicked: onColorPositionClicked,
     onColorPositionHover: onColorPositionHover,
     onWindowChanged: _onWindowChanged,
-    onSecondaryTap: () {
-      endColorMeter();
-      onColorMeterSecondaryTap?.call();
-    },
+    onPointerEnter: onPointerEnter,
+    onPointerExit: onPointerExit,
+    onSecondaryTap: () => handleEscape(),
   );
 
   void _initStartEndIndicators() {
@@ -48,7 +47,16 @@ mixin MainScreenColorMeter {
       endPosition: endColorPosition,
       startColor: startColor,
       endColor: endColor,
+      isStartColorSelected: isStartColorPicked,
     );
+  }
+
+  void onPointerExit() {
+    _overlays.setPointerOverlayActive(false, eyeDropKey.currentContext);
+  }
+
+  void onPointerEnter() {
+    _overlays.setPointerOverlayActive(true, eyeDropKey.currentContext);
   }
 
   void onColorSelected(Color newColor) {
@@ -60,7 +68,6 @@ mixin MainScreenColorMeter {
 
   void onColorPositionClicked(Offset offset) {
     startColorPosition.value = offset;
-    _initStartEndIndicators();
   }
 
   void onColorHover(Color value) {
@@ -87,7 +94,7 @@ mixin MainScreenColorMeter {
         builder: (_, __, ___) {
           return ValueListenableBuilder(
             valueListenable: startColor,
-            builder: (_, __, ___) {
+            builder: (context, __, ___) {
               final start = startColor.value.hsl;
               final end = endColor.value.hsl;
 
@@ -122,6 +129,18 @@ mixin MainScreenColorMeter {
                   : (hueDifference > 0 ? "+" : "") +
                       hueDifference.toStringAsFixed(1);
 
+              final theme = Theme.of(context);
+              final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
+              final lightnessPercentTextStyle = TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: baseSize * 1.4,
+              );
+
+              final percentTextStyle =
+                  theme.textTheme.labelMedium?.copyWith(color: textGray);
+
+              final percentLabel = Text("%", style: percentTextStyle);
+
               return Container(
                 // decoration: BoxDecoration(
                 //   borderRadius: BorderRadius.all(Radius.circular(3)),
@@ -148,7 +167,13 @@ mixin MainScreenColorMeter {
                           child: Text("hue  ", style: numberLabel),
                         ),
                         SizedBox(
-                            width: 65, child: Text("$hueDiffText%".padLeft(5))),
+                            width: 65,
+                            child: Row(
+                              children: [
+                                Text(hueDiffText.padLeft(5)),
+                                percentLabel
+                              ],
+                            )),
                         //
                         HslChangeIcon(
                           value: saturationPercent,
@@ -160,7 +185,14 @@ mixin MainScreenColorMeter {
                             message:
                                 "Delta saturation.\nThe difference in saturation between color A and color B.",
                             child: Text("sat ", style: numberLabel)),
-                        SizedBox(width: 58, child: Text("$sDifferenceText%")),
+                        SizedBox(
+                            width: 58,
+                            child: Row(
+                              children: [
+                                Text(sDifferenceText),
+                                percentLabel,
+                              ],
+                            )),
 
                         HslChangeIcon(
                           value: lightnessPercent,
@@ -172,7 +204,27 @@ mixin MainScreenColorMeter {
                             message:
                                 "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
                             child: Text("lightness × ", style: numberLabel)),
-                        SizedBox(width: 45, child: Text("$lPercentText%")),
+                        Container(
+                          //decoration: BoxDecoration(color: Colors.red),
+                          child: SizedBox(
+                            width: 64,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    right: 1.55,
+                                    bottom: 1,
+                                  ),
+                                  child: Text(
+                                    lPercentText,
+                                    style: lightnessPercentTextStyle,
+                                  ),
+                                ),
+                                percentLabel,
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -198,6 +250,10 @@ mixin MainScreenColorMeter {
   );
 
   static const smallText = TextStyle(fontSize: smallTextSize);
+  static const smallGrayText = TextStyle(
+    fontSize: smallTextSize,
+    color: textGray,
+  );
   static const blendModeText = TextStyle(
     fontSize: smallTextSize,
     color: textGray,
@@ -212,7 +268,7 @@ mixin MainScreenColorMeter {
       bottom: 0,
       right: 0,
       child: SizedBox(
-        height: 105,
+        height: 110,
         child: Stack(
           children: [
             Column(
@@ -257,102 +313,185 @@ mixin MainScreenColorMeter {
                         ],
                       ),
                     ),
+                    //
                     // Main middle block
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          // color: Colors.lightBlueAccent,
-                          child: Column(
-                            spacing: 4,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              //
-                              // Top row
-                              //
-                              Container(
-                                // color: Colors.green,
-                                child: Row(
-                                  children: [
-                                    ...colorMeterHSLItems(),
+                    //
+                    ValueListenableBuilder(
+                        valueListenable: isStartColorPicked,
+                        builder: (context, value, _) {
+                          if (isStartColorPicked.value == false) {
+                            return SizedBox(
+                              width: 360,
+                              height: 67,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 3,
+                                  children: const [
+                                    Text(
+                                      "Click on the image to pick the starting color.",
+                                    ),
+                                    Text(
+                                      "Right-click to exit color change meter.",
+                                      style: smallGrayText,
+                                    )
                                   ],
                                 ),
                               ),
+                            );
+                          }
 
-                              //
-                              // Divider
-                              //
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
                               Container(
-                                  width: 280,
-                                  height: 1,
-                                  color: Colors.white.withValues(alpha: 0.15)),
-
-                              //
-                              // Bottom row
-                              //
-                              Row(
-                                children: [
-                                  SizedBox(
-                                      width: 100, child: _normalColorBox()),
-                                  SizedBox(width: 25),
-                                  SizedBox(
-                                    width: 220,
-                                    child: ValueListenableBuilder(
-                                      valueListenable: isBlendModeBoxesEnabled,
-                                      builder: (_, isBlendModesVisible, ___) {
-                                        if (!isBlendModesVisible) {
-                                          return SizedBox(
-                                            height: 22,
-                                            child: TextButton(
-                                              onPressed: () {
-                                                isBlendModeBoxesEnabled.value =
-                                                    true;
-                                              },
-                                              child: Text("Blend modes"),
-                                            ),
-                                          );
-                                        }
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            isBlendModeBoxesEnabled.value =
-                                                false;
-                                          },
-                                          child: _blendModeBoxes(),
-                                        );
-                                      },
+                                // color: Colors.lightBlueAccent,
+                                child: Column(
+                                  spacing: 4,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    //
+                                    // Top row
+                                    //
+                                    Container(
+                                      // color: Colors.green,
+                                      child: Row(
+                                        children: [
+                                          ...colorMeterHSLItems(),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+
+                                    //
+                                    // Divider
+                                    //
+                                    Container(
+                                        width: 280,
+                                        height: 1,
+                                        color: Colors.white
+                                            .withValues(alpha: 0.15)),
+
+                                    //
+                                    // Bottom row
+                                    //
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            width: 100,
+                                            child: _normalColorBox()),
+                                        SizedBox(width: 25),
+                                        SizedBox(
+                                          width: 225,
+                                          child: ValueListenableBuilder(
+                                            valueListenable:
+                                                isBlendModeBoxesEnabled,
+                                            builder: (context,
+                                                isBlendModesVisible, ___) {
+                                              if (!isBlendModesVisible) {
+                                                return SizedBox(
+                                                  height: 33,
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      isBlendModeBoxesEnabled
+                                                          .value = true;
+                                                    },
+                                                    child: Row(
+                                                      children: const [
+                                                        Spacer(),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  top: 1),
+                                                          child: Icon(
+                                                            Icons
+                                                                .visibility_off,
+                                                            size: 15,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 6,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  bottom: 1),
+                                                          child: Text(
+                                                              "Blend modes"),
+                                                        ),
+                                                        Spacer(),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+
+                                              return SizedBox(
+                                                //width: 245,
+                                                height: 33,
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    isBlendModeBoxesEnabled
+                                                        .value = false;
+                                                  },
+                                                  style: ButtonStyle(
+                                                    padding:
+                                                        WidgetStatePropertyAll(
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                        vertical: 0,
+                                                        horizontal: 2,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: _blendModeBoxes(),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
                               )
                             ],
-                          ),
-                        ),
-                      ],
-                    ),
+                          );
+                        }),
                     //
                     // Rightmost block
                     //
                     Container(
+                      width: 80,
                       //color: Colors.lightBlueAccent,
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsetsGeometry.only(bottom: 15),
-                            child: _rightArrow,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _endColorBoxWidget(),
-                              Container(
-                                //color: Colors.red,
-                                child: Text("end", style: blendModeText),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
+                      child: ValueListenableBuilder(
+                          valueListenable: isStartColorPicked,
+                          builder: (context, value, child) {
+                            if (value == false) {
+                              return SizedBox.shrink();
+                            }
+
+                            return Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsetsGeometry.only(bottom: 15),
+                                  child: _rightArrow,
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _endColorBoxWidget(),
+                                    Container(
+                                      //color: Colors.red,
+                                      child: Text("end", style: blendModeText),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            );
+                          }),
                     ),
                     SizedBox(width: 20),
                   ],
@@ -392,7 +531,7 @@ mixin MainScreenColorMeter {
               }
 
               return Padding(
-                padding: const EdgeInsets.only(bottom: 1),
+                padding: const EdgeInsets.only(bottom: 1.3),
                 child: Text(
                   "${(100.0 / value).floor()}%",
                   textAlign: TextAlign.right,
@@ -549,20 +688,40 @@ mixin MainScreenColorMeter {
   static const double colorBoxSize = 18;
 
   Widget _endColorBoxWidget() {
-    return valueListeningColorBox(endColor, size: bigColorBoxSize);
+    return valueListeningColorBox(
+      endColor,
+      size: bigColorBoxSize,
+      shape: BoxShape.circle,
+    );
   }
 
   Widget _startColorBoxWidget() {
     return ValueListenableBuilder(
-      valueListenable: lastPickKey,
-      builder: (_, __, ___) {
-        return Animate(
-          key: Key(lastPickKey.value),
-          effects: const [Phanimations.itemPulseEffect],
-          child: valueListeningColorBox(startColor, size: bigColorBoxSize),
-        );
-      },
-    );
+        valueListenable: isStartColorPicked,
+        builder: (context, _, __) {
+          if (isStartColorPicked.value == false) {
+            return valueListeningColorBox(
+              endColor,
+              size: bigColorBoxSize,
+              shape: BoxShape.circle,
+            );
+          }
+
+          return ValueListenableBuilder(
+            valueListenable: lastPickKey,
+            builder: (_, __, ___) {
+              return Animate(
+                key: Key(lastPickKey.value),
+                effects: const [Phanimations.itemPulseEffect],
+                child: valueListeningColorBox(
+                  startColor,
+                  size: bigColorBoxSize,
+                  shape: BoxShape.circle,
+                ),
+              );
+            },
+          );
+        });
   }
 
   Widget get _rightArrow {
@@ -579,6 +738,7 @@ mixin MainScreenColorMeter {
   Widget valueListeningColorBox(
     ValueListenable<Color> listenableColor, {
     double size = colorBoxSize,
+    BoxShape shape = BoxShape.rectangle,
   }) {
     return ValueListenableBuilder(
       valueListenable: listenableColor,
@@ -586,6 +746,7 @@ mixin MainScreenColorMeter {
         return _colorBox(
           colorValue,
           size: size,
+          shape: shape,
         );
       },
     );
@@ -595,17 +756,20 @@ mixin MainScreenColorMeter {
     Color color, {
     double size = colorBoxSize,
     Color borderColor = Colors.white,
+    BoxShape shape = BoxShape.rectangle,
   }) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
         elevation: 1,
-        shape: RoundedRectangleBorder(),
+        shape: shape == BoxShape.circle
+            ? CircleBorder()
+            : RoundedRectangleBorder(),
         child: Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
+              shape: shape,
               color: color,
               border: Border.all(color: borderColor)),
         ),
@@ -613,10 +777,25 @@ mixin MainScreenColorMeter {
     );
   }
 
+  void handleEscape() {
+    if (isStartColorPicked.value == true) {
+      _resetState();
+      _overlays.removeOverlays();
+
+      isColorMetering = true;
+      _initStartEndIndicators();
+      return;
+    }
+
+    endColorMeter();
+    onColorMeterExit?.call();
+  }
+
   void startColorMeter(BuildContext context) {
     isColorMetering = true;
     // TODO: Register escape key to exit color meter mode.
 
+    _initStartEndIndicators();
     loupe.startOverlay(context, eyeDropKey);
   }
 
@@ -625,7 +804,6 @@ mixin MainScreenColorMeter {
     // TODO: Unregister escape key to exit color meter mode.
 
     _resetState();
-
     _overlays.removeOverlays();
 
     loupe.endOverlay(eyeDropKey);
@@ -681,6 +859,8 @@ class ColorLoupe {
   final ValueChanged<Color> onColorHover;
   final void Function()? onSecondaryTap;
   final void Function()? onWindowChanged;
+  final void Function()? onPointerEnter;
+  final void Function()? onPointerExit;
 
   ColorLoupe({
     required this.onColorClicked,
@@ -689,6 +869,8 @@ class ColorLoupe {
     required this.onColorPositionHover,
     this.onSecondaryTap,
     this.onWindowChanged,
+    this.onPointerEnter,
+    this.onPointerExit,
   });
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
@@ -703,6 +885,8 @@ class ColorLoupe {
           onColorPositionHover: onColorPositionHover,
           onSecondaryTap: onSecondaryTap,
           onWindowChanged: onWindowChanged,
+          onPointerEnter: onPointerEnter,
+          onPointerExit: onPointerExit,
         );
       }
     } catch (err) {
@@ -995,6 +1179,7 @@ class ColorMeterOverlays {
     required ValueListenable<Offset> endPosition,
     required ValueListenable<Color> startColor,
     required ValueListenable<Color> endColor,
+    required ValueListenable<bool> isStartColorSelected,
   }) {
     if (context == null) return;
     if (context.mounted == false) return;
@@ -1008,6 +1193,7 @@ class ColorMeterOverlays {
           return ColorSampleLocationOverlay(
             position: startPosition,
             color: startColor,
+            isVisible: isStartColorSelected,
           );
         },
       );
@@ -1028,6 +1214,7 @@ class ColorMeterOverlays {
               startPosition: startPosition,
               endPosition: endPosition,
               color: startEndArrowColor,
+              isVisible: isStartColorSelected,
             );
           },
         );
@@ -1040,13 +1227,50 @@ class ColorMeterOverlays {
     }
   }
 
+  void setPointerOverlayActive(bool active, BuildContext? context) {
+    if (context == null) return;
+    if (context.mounted == false) return;
+
+    if (active) {
+      final overlayOfContext = Overlay.of(context);
+      if (overlayOfContext.mounted == false) return;
+
+      if (endColorLocation != null && endColorLocation!.mounted == false) {
+        overlayOfContext.insert(endColorLocation!);
+      }
+
+      if (arrow != null && arrow!.mounted == false) {
+        overlayOfContext.insert(arrow!);
+      }
+    } else {
+      if (endColorLocation != null && endColorLocation!.mounted) {
+        endColorLocation!.remove();
+      }
+
+      if (arrow != null && arrow!.mounted) {
+        arrow!.remove();
+      }
+    }
+  }
+
   void removeOverlays() {
     startColorLocation?.remove();
     startColorLocation = null;
-    endColorLocation?.remove();
-    endColorLocation = null;
-    arrow?.remove();
-    arrow = null;
+
+    if (endColorLocation != null) {
+      if (endColorLocation!.mounted) {
+        endColorLocation?.remove();
+      }
+      endColorLocation = null;
+    }
+
+    if (arrow != null) {
+      if (arrow!.mounted) {
+        arrow?.remove();
+      }
+
+      arrow = null;
+    }
   }
 }
 
@@ -1055,16 +1279,18 @@ class ColorSampleLocationOverlay extends StatelessWidget {
     super.key,
     required this.position,
     required this.color,
+    this.isVisible,
     this.radius = 7,
   });
 
   final ValueListenable<Offset> position;
   final ValueListenable<Color> color;
+  final ValueListenable<bool>? isVisible;
   final double radius;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
+    final widget = ValueListenableBuilder(
       valueListenable: color,
       builder: (_, __, ___) {
         return ValueListenableBuilder(
@@ -1085,6 +1311,17 @@ class ColorSampleLocationOverlay extends StatelessWidget {
         );
       },
     );
+
+    if (isVisible != null) {
+      return ValueListenableBuilder(
+        valueListenable: isVisible!,
+        builder: (context, value, child) {
+          return value ? widget : SizedBox.shrink();
+        },
+      );
+    }
+
+    return widget;
   }
 }
 
@@ -1132,12 +1369,14 @@ class StartEndArrowOverlay extends StatelessWidget {
   final ValueListenable<Offset> startPosition;
   final ValueListenable<Offset> endPosition;
   final ValueListenable<Color> color;
+  final ValueListenable<bool>? isVisible;
 
   const StartEndArrowOverlay({
     super.key,
     required this.startPosition,
     required this.endPosition,
     required this.color,
+    this.isVisible,
   });
 
   @override
@@ -1153,7 +1392,7 @@ class StartEndArrowOverlay extends StatelessWidget {
     final width = (start.dx - end.dx).abs();
     final height = (start.dy - end.dy).abs();
 
-    return ValueListenableBuilder(
+    final widget = ValueListenableBuilder(
       valueListenable: startPosition,
       builder: (_, __, ___) {
         return ValueListenableBuilder(
@@ -1175,6 +1414,15 @@ class StartEndArrowOverlay extends StatelessWidget {
         );
       },
     );
+
+    if (isVisible != null) {
+      return ValueListenableBuilder(
+        valueListenable: isVisible!,
+        builder: (context, value, child) => value ? widget : SizedBox.shrink(),
+      );
+    }
+
+    return widget;
   }
 }
 

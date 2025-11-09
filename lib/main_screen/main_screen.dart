@@ -316,7 +316,7 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _bottomBarUnderlay(BuildContext context) {
     const double underlayOpacity = 0.95;
-    const double barHeight = 105;
+    const double barHeight = 110;
 
     final theme = Theme.of(context);
     final backgroundColor =
@@ -379,7 +379,7 @@ class _MainScreenState extends State<MainScreen>
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
-    onColorMeterSecondaryTap = () {
+    onColorMeterExit = () {
       setState(() {
         setAppMode(PfsAppControlsMode.imageBrowse);
         Phtoasts.showWidget(
