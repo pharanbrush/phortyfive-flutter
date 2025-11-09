@@ -1,4 +1,4 @@
-// Some code based on Cyclop by RX Labz
+// Heavily modified code from Cyclop by RX Labz
 
 // MIT License
 
@@ -58,30 +58,74 @@ class EyeDropperModel {
   bool isTouchInterface = false;
   bool isEnabled = false;
 
-  OverlayEntry? loupeOverlayEntry;
-
   img.Image? snapshot;
   Offset? cursorPosition;
 
   Color hoverColor = Colors.black;
   List<Color> hoverColors = [];
-  Color selectedColor = Colors.black;
 
-  OverlayState? overlayOfContext;
   ValueChanged<Color>? onColorSelected;
   ValueChanged<Color>? onColorChanged;
   ValueChanged<Offset>? onColorPositionSelected;
   ValueChanged<Offset>? onColorPositionHover;
   void Function()? onWindowChanged;
   void Function()? onSecondaryTap;
-
-  EyeDropperModel();
 }
 
-class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
-  EyeDrop({required this.child, super.key});
+class LoupeModel {
+  OverlayEntry? overlayEntry;
+  OverlayState? overlayOfContext;
+
+  void setContext(BuildContext context) {
+    if (context.mounted == false) return;
+    overlayOfContext = Overlay.of(context);
+  }
+
+  void update() {
+    if (overlayEntry == null) return;
+    overlayEntry!.markNeedsBuild();
+  }
+
+  void setActive(
+    bool active, {
+    required bool isTouchInterface,
+    required Offset? cursorPosition,
+    required List<Color> hoverColors,
+  }) {
+    switch (active) {
+      case true:
+        if (overlayEntry != null) return;
+        if (overlayOfContext == null) return;
+
+        overlayEntry = OverlayEntry(
+          builder: (_) => LoupeView(
+            isTouchInterface: isTouchInterface,
+            colors: hoverColors,
+            cursorPosition: cursorPosition,
+          ),
+        );
+
+        overlayOfContext?.insert(overlayEntry!);
+      case false:
+        if (overlayEntry == null) return;
+
+        try {
+          final loupeOverlayEntry = overlayEntry;
+          overlayEntry = null;
+          loupeOverlayEntry!.remove();
+        } catch (err) {
+          debugPrint('ERROR !!! setActive $err');
+        }
+    }
+  }
+}
+
+/// Originally EyeDrop
+class EyeDropperLayer extends StatelessWidget with WidgetsBindingObserver {
+  EyeDropperLayer({required this.child, super.key});
 
   static EyeDropperModel model = EyeDropperModel();
+  static LoupeModel loupeModel = LoupeModel();
   final Widget child;
 
   @override
@@ -101,33 +145,25 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: captureKey,
-      child: MouseRegion(
-        // onEnter: (event) {
-        //   setLoupeActive(true);
-        // },
-        // onExit: (event) {
-        //   setLoupeActive(false);
-        // },
-        child: Listener(
-          onPointerMove: (details) => _onHover(
-            details.position,
-            details.kind == PointerDeviceKind.touch,
-          ),
-          onPointerHover: (details) => _onHover(
-            details.position,
-            details.kind == PointerDeviceKind.touch,
-          ),
-          onPointerDown: (PointerDownEvent details) {
-            if (!model.isEnabled) return;
-            if (details.buttons == 2) {
-              model.onSecondaryTap?.call();
-            }
-          },
-          onPointerUp: (PointerUpEvent details) {
-            _onPrimaryTapUp(details.position);
-          },
-          child: child,
+      child: Listener(
+        onPointerMove: (details) => _onHover(
+          details.position,
+          details.kind == PointerDeviceKind.touch,
         ),
+        onPointerHover: (details) => _onHover(
+          details.position,
+          details.kind == PointerDeviceKind.touch,
+        ),
+        onPointerDown: (PointerDownEvent details) {
+          if (!model.isEnabled) return;
+          if (details.buttons == 2) {
+            model.onSecondaryTap?.call();
+          }
+        },
+        onPointerUp: (PointerUpEvent details) {
+          _onPrimaryTapUp(details.position);
+        },
+        child: child,
       ),
     );
   }
@@ -137,7 +173,8 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 
     _onHover(position, model.isTouchInterface);
     final onColorSelected = model.onColorSelected;
-    onColorSelected?.call(model.hoverColors.center);
+    //onColorSelected?.call(model.hoverColors.center);
+    onColorSelected?.call(model.hoverColor);
 
     final updatePosition = model.onColorPositionSelected;
     updatePosition?.call(position);
@@ -146,9 +183,7 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
   void _onHover(Offset offset, bool isTouchInterface) {
     if (!model.isEnabled) return;
 
-    if (model.loupeOverlayEntry != null) {
-      model.loupeOverlayEntry!.markNeedsBuild();
-    }
+    loupeModel.update();
 
     model.cursorPosition = offset;
 
@@ -156,14 +191,20 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 
     if (model.snapshot != null) {
       model.hoverColor = getPixelColor(model.snapshot!, offset);
-      model.hoverColors = getPixelColors(model.snapshot!, offset);
+      _updateHoverColors(offset);
     }
 
     final onColorChanged = model.onColorChanged;
-    onColorChanged?.call(model.hoverColors.center);
+    onColorChanged?.call(model.hoverColor);
 
     final onColorPositionHover = model.onColorPositionHover;
     onColorPositionHover?.call(offset);
+  }
+
+  void _updateHoverColors(Offset offset) {
+    if (model.snapshot == null) return;
+
+    model.hoverColors = getPixelColors(model.snapshot!, offset);
   }
 
   void startEyeDropper(
@@ -175,6 +216,8 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
     void Function()? onWindowChanged,
     void Function()? onSecondaryTap,
   }) async {
+    loupeModel.setContext(context);
+
     await updateCapturedRegion();
 
     model.isEnabled = true;
@@ -188,10 +231,6 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
     model.onColorPositionHover = onColorPositionHover;
 
     WidgetsBinding.instance.addObserver(this);
-
-    if (context.mounted) {
-      model.overlayOfContext = Overlay.of(context);
-    }
   }
 
   void stopEyeDropper() {
@@ -208,34 +247,15 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
     setLoupeActive(false);
   }
 
-  void setLoupeActive(bool enabled) {
-    if (enabled) {
-      if (!model.isEnabled) return;
-      if (model.loupeOverlayEntry != null) return;
-      if (model.overlayOfContext == null) return;
+  void setLoupeActive(bool active) {
+    if (!model.isEnabled) return;
 
-      model.loupeOverlayEntry = OverlayEntry(
-        builder: (_) => LoupeOverlay(
-          isTouchInterface: model.isTouchInterface,
-          colors: model.hoverColors,
-          cursorPosition: model.cursorPosition,
-        ),
-      );
-
-      model.overlayOfContext?.insert(model.loupeOverlayEntry!);
-    } else {
-      if (model.loupeOverlayEntry == null) {
-        return;
-      }
-
-      try {
-        final loupeOverlayEntry = model.loupeOverlayEntry;
-        model.loupeOverlayEntry = null;
-        loupeOverlayEntry!.remove();
-      } catch (err) {
-        debugPrint('ERROR !!! _onPointerUp $err');
-      }
-    }
+    loupeModel.setActive(
+      active,
+      isTouchInterface: model.isTouchInterface,
+      cursorPosition: model.cursorPosition,
+      hoverColors: model.hoverColors,
+    );
   }
 
   Future<void> updateCapturedRegion() async {
@@ -273,13 +293,13 @@ class EyeDrop extends StatelessWidget with WidgetsBindingObserver {
 const _cellSize = 10;
 const _gridSize = 90.0;
 
-class LoupeOverlay extends StatelessWidget {
+class LoupeView extends StatelessWidget {
   final Offset? cursorPosition;
   final bool isTouchInterface;
 
   final List<Color> colors;
 
-  const LoupeOverlay({
+  const LoupeView({
     required this.colors,
     this.cursorPosition,
     this.isTouchInterface = false,

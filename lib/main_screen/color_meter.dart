@@ -1008,9 +1008,9 @@ class ColorLoupe {
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
-      final currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
-      if (currentEyeDrop != null) {
-        currentEyeDrop.startEyeDropper(
+      final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
+      if (eyeDropper != null) {
+        eyeDropper.startEyeDropper(
           context,
           onColorSelected: _handleOnColorClicked,
           onColorChanged: _handleOnColorHover,
@@ -1026,9 +1026,9 @@ class ColorLoupe {
   }
 
   void endOverlay(GlobalKey eyeDropKey) {
-    final currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
-    if (currentEyeDrop != null) {
-      currentEyeDrop.stopEyeDropper();
+    final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
+    if (eyeDropper != null) {
+      eyeDropper.stopEyeDropper();
     } else {
       debugPrint("eyedrop was null. Unable to end");
     }

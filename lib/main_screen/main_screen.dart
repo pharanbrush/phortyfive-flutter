@@ -287,7 +287,7 @@ class _MainScreenState extends State<MainScreen>
     final appWindowContent = shortcutsWrapper(
       Stack(
         children: [
-          EyeDrop(
+          EyeDropperLayer(
             key: eyeDropKey,
             child: imagePhviewer.widget(windowState.isBottomBarMinimized),
           ),
