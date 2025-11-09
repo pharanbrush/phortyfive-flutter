@@ -83,6 +83,10 @@ mixin MainScreenColorMeter {
   void onColorPositionClicked(Offset offset) {
     startColorPosition.value = offset;
 
+    _initStartEndIndicators();
+  }
+
+  void _initStartEndIndicators() {
     if (startColorOverlayEntry == null) {
       final possibleContext = eyeDropKey.currentContext;
       if (possibleContext != null) {
