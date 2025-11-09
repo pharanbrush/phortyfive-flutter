@@ -29,7 +29,7 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/utils/image_data.dart';
+import 'package:pfs2/phlutter/utils/image_from_file.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/preferences.dart';
