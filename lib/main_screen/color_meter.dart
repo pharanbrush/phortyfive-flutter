@@ -153,7 +153,7 @@ mixin MainScreenColorMeter {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        //
+                        // Hue
                         HslChangeIcon(
                           value: hueDifference,
                           cutoff: 0,
@@ -174,7 +174,7 @@ mixin MainScreenColorMeter {
                                 percentLabel
                               ],
                             )),
-                        //
+                        // Saturation
                         HslChangeIcon(
                           value: saturationPercent,
                           cutoff: 100,
@@ -194,6 +194,7 @@ mixin MainScreenColorMeter {
                               ],
                             )),
 
+                        // Lightness
                         HslChangeIcon(
                           value: lightnessPercent,
                           cutoff: 100,
@@ -202,7 +203,7 @@ mixin MainScreenColorMeter {
                         ),
                         Tooltip(
                             message:
-                                "Relative lightness percent.\nThe amount of lightness color B in proportion to color A",
+                                "Relative lightness percent.\nThe amount of lightness color B has in proportion to color A",
                             child: Text("lightness × ", style: numberLabel)),
                         Container(
                           //decoration: BoxDecoration(color: Colors.red),
@@ -225,7 +226,14 @@ mixin MainScreenColorMeter {
                             ),
                           ),
                         ),
-                      ],
+                      ].animate(
+                        effects: [
+                          Phanimations.slideRightEffect,
+                          Phanimations.fadeInEffect
+                        ],
+                        delay: Duration(milliseconds: 30),
+                        interval: Duration(milliseconds: 20),
+                      ),
                     ),
                   ),
                 ),
@@ -305,10 +313,23 @@ mixin MainScreenColorMeter {
                               Text("start", style: blendModeText),
                             ],
                           ),
-                          Padding(
-                            padding: EdgeInsetsGeometry.only(bottom: 15),
-                            child: _rightArrow,
-                          ),
+                          ValueListenableBuilder(
+                              valueListenable: isStartColorPicked,
+                              builder: (context, value, child) {
+                                if (value == false) {
+                                  return SizedBox(width: 28, height: 39);
+                                }
+
+                                return Padding(
+                                  padding: EdgeInsetsGeometry.only(bottom: 15),
+                                  child: _rightArrow,
+                                ).animate(
+                                  effects: [
+                                    Phanimations.slideRightEffect,
+                                    Phanimations.fadeInEffect
+                                  ],
+                                );
+                              }),
                           SizedBox(width: 10),
                         ],
                       ),
@@ -322,19 +343,33 @@ mixin MainScreenColorMeter {
                           if (isStartColorPicked.value == false) {
                             return SizedBox(
                               width: 360,
-                              height: 67,
+                              height: 78,
                               child: Center(
-                                child: Column(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 3,
                                   children: const [
-                                    Text(
-                                      "Click on the image to pick the starting color.",
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 0,
+                                          bottom: 15),
+                                      child: Icon(Icons.colorize),
                                     ),
-                                    Text(
-                                      "Right-click to exit color change meter.",
-                                      style: smallGrayText,
-                                    )
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 3,
+                                      children: [
+                                        Text(
+                                          "Click on the image to pick the starting color.",
+                                        ),
+                                        Text(
+                                          "Right-click to exit color change meter.",
+                                          style: smallGrayText,
+                                        )
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -401,10 +436,9 @@ mixin MainScreenColorMeter {
                                                         Padding(
                                                           padding:
                                                               EdgeInsets.only(
-                                                                  top: 1),
+                                                                  top: 2),
                                                           child: Icon(
-                                                            Icons
-                                                                .visibility_off,
+                                                            Icons.visibility,
                                                             size: 15,
                                                           ),
                                                         ),
@@ -451,7 +485,14 @@ mixin MainScreenColorMeter {
                                         ),
                                       ],
                                     )
-                                  ],
+                                  ].animate(
+                                    effects: [
+                                      Phanimations.slideRightWideEffect,
+                                      Phanimations.fadeInEffect
+                                    ],
+                                    delay: Duration(milliseconds: 50),
+                                    interval: Duration(milliseconds: 60),
+                                  ),
                                 ),
                               ),
                               SizedBox(
@@ -489,7 +530,14 @@ mixin MainScreenColorMeter {
                                     )
                                   ],
                                 ),
-                              ],
+                              ].animate(
+                                effects: [
+                                  Phanimations.slideRightEffect,
+                                  Phanimations.fadeInEffect
+                                ],
+                                delay: Duration(milliseconds: 220),
+                                interval: Duration(milliseconds: 80),
+                              ),
                             );
                           }),
                     ),
@@ -743,10 +791,14 @@ mixin MainScreenColorMeter {
     return ValueListenableBuilder(
       valueListenable: listenableColor,
       builder: (_, colorValue, __) {
+        final isClipped =
+            colorValue == Colors.white || colorValue == Colors.black;
+
         return _colorBox(
           colorValue,
           size: size,
           shape: shape,
+          borderWidth: isClipped ? 4 : 1,
         );
       },
     );
@@ -757,6 +809,7 @@ mixin MainScreenColorMeter {
     double size = colorBoxSize,
     Color borderColor = Colors.white,
     BoxShape shape = BoxShape.rectangle,
+    double borderWidth = 1,
   }) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
@@ -771,7 +824,10 @@ mixin MainScreenColorMeter {
           decoration: BoxDecoration(
               shape: shape,
               color: color,
-              border: Border.all(color: borderColor)),
+              border: Border.all(
+                color: borderColor,
+                width: borderWidth,
+              )),
         ),
       ),
     );
@@ -1337,26 +1393,38 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
 
   static const double strokeWidth = 1;
 
-  final darkStroke = Paint()
+  static final darkStroke = Paint()
     ..color = Colors.black
     ..strokeWidth = strokeWidth
     ..style = PaintingStyle.stroke;
 
-  final lightStroke = Paint()
+  static final lightStroke = Paint()
     ..color = Colors.white
+    ..strokeWidth = strokeWidth
+    ..style = PaintingStyle.stroke;
+
+  static final redStroke = Paint()
+    ..color = Colors.red
     ..strokeWidth = strokeWidth
     ..style = PaintingStyle.stroke;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final isClipped = color == Colors.white || color == Colors.black;
     final isDark = color.lightness < 0.5;
 
     final fill = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
+    final stroke = isClipped
+        ? redStroke
+        : isDark
+            ? lightStroke
+            : darkStroke;
+
     canvas.drawCircle(Offset.zero, radius, fill);
-    canvas.drawCircle(Offset.zero, radius, isDark ? lightStroke : darkStroke);
+    canvas.drawCircle(Offset.zero, radius, stroke);
   }
 
   @override
@@ -1479,7 +1547,8 @@ class StartEndArrowPainter extends CustomPainter {
     );
 
     final drawnLength = length - (radius * 0.9);
-    final headSize = arrowHeadSize > drawnLength ? drawnLength + 2 : arrowHeadSize;
+    final headSize =
+        arrowHeadSize > drawnLength ? drawnLength + 2 : arrowHeadSize;
     if (headSize < 2) return;
 
     const triangleAngle = math.pi / 6;

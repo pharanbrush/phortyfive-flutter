@@ -49,6 +49,20 @@ class Phanimations {
     curve: Curves.easeOutQuart,
   );
 
+  static const slideRightWideEffect = SlideEffect(
+    duration: defaultDuration,
+    begin: Offset(-0.05, 0),
+    end: Offset.zero,
+    curve: Curves.easeOutQuart,
+  );
+  
+    static const slideRightEffect = SlideEffect(
+    duration: defaultDuration,
+    begin: Offset(-0.15, 0),
+    end: Offset.zero,
+    curve: Curves.easeOutQuart,
+  );
+
   static const fadeInEffect = FadeEffect(
     duration: fastDuration,
     begin: 0,
