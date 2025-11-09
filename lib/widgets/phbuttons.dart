@@ -89,7 +89,7 @@ class Phbuttons {
   }) {
     double remap(double iMin, double iMax, double oMin, double oMax, double v) {
       double inverseLerp(double a, double b, double v) => (v - a) / (b - a);
-      double t = inverseLerp(iMin, iMax, v);
+      final double t = inverseLerp(iMin, iMax, v);
       return lerpDouble(oMin, oMax, t) ?? oMin;
     }
 

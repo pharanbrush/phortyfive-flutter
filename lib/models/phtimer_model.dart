@@ -25,7 +25,7 @@ class PhtimerModel extends Model {
   void Function()? onDurationChangeSuccess;
 
   void trySetDurationSecondsInput(String secondsString) {
-    int? seconds = int.tryParse(secondsString);
+    final int? seconds = int.tryParse(secondsString);
     if (seconds != null) {
       setDurationSeconds(seconds);
     }

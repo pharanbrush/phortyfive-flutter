@@ -147,7 +147,7 @@ class _MainScreenState extends State<MainScreen>
 
   void tryPaste() async {
     if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
-    for (var panel in modalPanels) {
+    for (final panel in modalPanels) {
       if (panel.isOpen) return;
     }
 
@@ -225,7 +225,7 @@ class _MainScreenState extends State<MainScreen>
       );
 
       if (firstScreenShortcutActions.isEmpty) {
-        for (var (intentType, callback) in firstScreenShortcutIntentActions) {
+        for (final (intentType, callback) in firstScreenShortcutIntentActions) {
           firstScreenShortcutActions[intentType] =
               CallbackAction(onInvoke: callback);
         }
@@ -264,12 +264,12 @@ class _MainScreenState extends State<MainScreen>
 
     Widget shortcutsWrapper(Widget childWidget) {
       if (shortcutActions.isEmpty) {
-        for (var (intentType, callback) in shortcutIntentActions) {
+        for (final (intentType, callback) in shortcutIntentActions) {
           shortcutActions[intentType] = CallbackAction(onInvoke: callback);
         }
       }
 
-      Widget wrappedWidget = Shortcuts(
+      final Widget wrappedWidget = Shortcuts(
         shortcuts: Phshortcuts.intentMap,
         child: Actions(
           actions: shortcutActions,
@@ -464,8 +464,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleTimerPlayPause() {
-    showTimerToast() {
-      bool isRunning = model.timerModel.isRunning;
+    void showTimerToast() {
+      final isRunning = model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
@@ -481,8 +481,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleAlwaysOnTopChanged() {
-    showAlwaysOnTopToast() {
-      bool wasEnabled = windowState.isAlwaysOnTop.value;
+    void showAlwaysOnTopToast() {
+      final bool wasEnabled = windowState.isAlwaysOnTop.value;
       final message = PfsLocalization.alwaysOnTopSwitched(wasEnabled);
 
       final icon = wasEnabled
@@ -501,8 +501,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleSoundChanged() {
-    showSoundToggleToast() {
-      bool wasEnabled = windowState.isSoundsEnabled.value;
+    void showSoundToggleToast() {
+      final bool wasEnabled = windowState.isSoundsEnabled.value;
       final message = PfsLocalization.soundsSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
@@ -550,9 +550,9 @@ class _MainScreenState extends State<MainScreen>
       child: ImageDropTarget(
         dragImagesHandler: (details) {
           if (details.files.isEmpty) return;
-          List<String> filePaths = [];
-          for (var file in details.files) {
-            var filePath = file.path;
+          final List<String> filePaths = [];
+          for (final file in details.files) {
+            final filePath = file.path;
             if (ImageList.fileIsImage(filePath)) {
               filePaths.add(filePath);
             } else if (pathIsDirectory(filePath)) {
@@ -579,7 +579,7 @@ class _MainScreenState extends State<MainScreen>
     BuildContext context, {
     double? windowWidth,
   }) {
-    bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
+    final bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
 
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
@@ -785,10 +785,10 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 
   void _updateAlwaysOnTop() {
-    bool isPickingFiles = model.isPickerOpen;
-    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
+    final bool isPickingFiles = model.isPickerOpen;
+    final bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
 
-    bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
+    final bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
     windowManager.setAlwaysOnTop(currentAlwaysOnTop);
   }
 }
@@ -951,7 +951,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ];
 
   Iterable<Widget> get modalPanelWidgets sync* {
-    for (var panel in modalPanels) {
+    for (final panel in modalPanels) {
       yield panel.widget();
     }
   }
@@ -994,7 +994,7 @@ class FiltersButton extends StatelessWidget {
           size: filterIconSize,
         );
 
-        String tooltip = imagePhviewer.isFilterActive
+        final String tooltip = imagePhviewer.isFilterActive
             ? 'Filters (${imagePhviewer.activeFilterCount})'
             : 'Filters';
 
@@ -1060,15 +1060,15 @@ class ImageBrowseGestureControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AnimatedIcon playPauseIcon = AnimatedIcon(
+    final AnimatedIcon playPauseIcon = AnimatedIcon(
       icon: AnimatedIcons.play_pause,
       size: 80,
       progress: playPauseIconProgress,
     );
 
     return PfsAppModel.scope((_, __, model) {
-      final double beforeButtonWidth = 100;
-      final double afterButtonWidth = 140;
+      const double beforeButtonWidth = 100;
+      const double afterButtonWidth = 140;
 
       Widget nextPreviousGestureButton(
           {required double width,

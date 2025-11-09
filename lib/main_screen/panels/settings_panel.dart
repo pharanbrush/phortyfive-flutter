@@ -116,7 +116,7 @@ class SettingsPanel extends StatelessWidget {
     final themeMenuItems = <DropdownMenuItem<String>>[];
 
     if (themeMenuItems.isEmpty) {
-      for (var key in PfsTheme.themeMap.keys) {
+      for (final key in PfsTheme.themeMap.keys) {
         themeMenuItems.add(DropdownMenuItem(
           value: key,
           child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst ?? ''),
@@ -133,7 +133,7 @@ class SettingsPanel extends StatelessWidget {
     const double top = Phbuttons.windowTitleBarHeight + 25;
     const double side = 30;
 
-    var material =
+    final material =
         Theme.of(context).extension<PfsAppTheme>()?.boxPanelMaterialBuilder ??
             PfsAppTheme.defaultBoxPanelMaterial;
 

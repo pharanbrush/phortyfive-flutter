@@ -52,7 +52,7 @@ class PfsLocalization {
   }
 
   static String tooltipShortcut(SingleActivator shortcut) {
-    var keyString = shortcut.trigger.keyLabel;
+    final keyString = shortcut.trigger.keyLabel;
     return '${shortcut.control ? 'Ctrl+' : ''}${shortcut.shift ? 'Shift+' : ''}$keyString';
   }
 

@@ -33,12 +33,12 @@ class FirstActionSheet extends StatelessWidget {
 
     const double firstActionIconSize = 100;
 
-    Icon firstActionIcon = Icon(
+    final firstActionIcon = Icon(
       Icons.image,
       size: firstActionIconSize,
       color: titleStyle?.color ?? downArrowColor,
     );
-    
+
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     return SizedBox(

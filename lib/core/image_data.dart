@@ -41,7 +41,7 @@ void revealPathInExplorer(String? filePath) async {
     final windowsFilePath = filePath.replaceAll('/', '\\');
     await Process.start('explorer', ['/select,', windowsFilePath]);
   } else {
-    Uri fileFolder = Uri.file(File(filePath).parent.path);
+    final fileFolder = Uri.file(File(filePath).parent.path);
     await launchUrl(fileFolder);
   }
 }

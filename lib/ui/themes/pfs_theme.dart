@@ -131,7 +131,7 @@ class PfsTheme {
 
       const Color filledbuttonContentColor = Color.fromARGB(223, 241, 237, 241);
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -281,7 +281,7 @@ class PfsTheme {
       const Color filledbuttonContentColor = appBackground;
       const double panelElevation = 20;
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -493,7 +493,7 @@ class PfsTheme {
       const double panelElevation = 10;
       const panelOutline = BorderSide(width: 1.0, color: Color(0xFF282A2E));
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -706,7 +706,7 @@ class PfsTheme {
       const Color filledbuttonContentColor = buttonContentColor;
       const double cspPanelElevation = 20;
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -888,7 +888,7 @@ class PfsTheme {
       const Color cardOutlineColor = Color(0xFFEEEEEE);
       const Color outline = Color.fromARGB(82, 94, 76, 53);
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(

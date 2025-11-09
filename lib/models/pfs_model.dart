@@ -293,7 +293,7 @@ mixin PfsImageListManager {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    var folder = await getDirectoryPath();
+    final folder = await getDirectoryPath();
     _setStateFilePickerOpen(false);
 
     if (folder == null || folder.isEmpty) return;

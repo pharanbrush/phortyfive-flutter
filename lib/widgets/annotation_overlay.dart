@@ -219,7 +219,7 @@ class AnnotationPainter extends CustomPainter {
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    for (var annotation in annotations) {
+    for (final annotation in annotations) {
       if (annotation.isNotEmpty) {
         if (annotationType == AnnotationType.line) {
           for (var i = 0; i < annotation.length - 1; i++) {

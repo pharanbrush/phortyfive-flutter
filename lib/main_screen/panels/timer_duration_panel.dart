@@ -211,7 +211,7 @@ class TimerPresetButton extends StatelessWidget {
       final selectedColor = WidgetStatePropertyAll(
         Theme.of(context).colorScheme.primary,
       );
-      var selectedButtonStyle = presetButtonStyle.copyWith(
+      final selectedButtonStyle = presetButtonStyle.copyWith(
         backgroundColor: selectedColor,
       );
 

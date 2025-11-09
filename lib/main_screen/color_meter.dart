@@ -423,7 +423,7 @@ mixin MainScreenColorMeter {
               final isSaturationInvalid =
                   (saturationPercent.isInfinite || saturationPercent.isNaN);
 
-              var lightnessPercent = (end.lightness / start.lightness) * 100;
+              final lightnessPercent = (end.lightness / start.lightness) * 100;
               final lPercentText =
                   (lightnessPercent.isInfinite || lightnessPercent.isNaN)
                       ? "-"
@@ -1008,7 +1008,7 @@ class ColorLoupe {
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
-      var currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
+      final currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
       if (currentEyeDrop != null) {
         currentEyeDrop.startEyeDropper(
           context,
@@ -1026,7 +1026,7 @@ class ColorLoupe {
   }
 
   void endOverlay(GlobalKey eyeDropKey) {
-    var currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
+    final currentEyeDrop = eyeDropKey.currentWidget as EyeDrop?;
     if (currentEyeDrop != null) {
       currentEyeDrop.stopEyeDropper();
     } else {

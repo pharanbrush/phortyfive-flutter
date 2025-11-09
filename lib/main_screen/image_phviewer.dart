@@ -108,7 +108,7 @@ mixin ImageZoomPanner {
 
   double zoomAccumulator = 0;
   void incrementZoomAccumulator(double dragIncrement) {
-    final zoomSensitivity = 0.04;
+    const zoomSensitivity = 0.04;
     zoomAccumulator += dragIncrement * zoomSensitivity;
 
     if (zoomAccumulator > 1) {
@@ -183,7 +183,7 @@ mixin ImageZoomPanner {
 
   void _scalePanOffset(double previousZoomScale, double newZoomScale) {
     final scaleDifference = newZoomScale / previousZoomScale;
-    var newOffsetValue = offsetListenable.value * scaleDifference;
+    final newOffsetValue = offsetListenable.value * scaleDifference;
     _setPanOffsetClamped(newOffsetValue);
   }
 
@@ -193,7 +193,7 @@ mixin ImageZoomPanner {
       delta = delta.scale(-1, 1);
     }
 
-    var newOffsetValue = offsetListenable.value + delta;
+    final newOffsetValue = offsetListenable.value + delta;
     panDurationListenable.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
   }
@@ -211,8 +211,8 @@ mixin ImageZoomPanner {
 
       final xMax = scaledSize.width * 0.5;
       final yMax = scaledSize.height * 0.5;
-      var dx = clampDouble(offset.dx, -xMax, xMax);
-      var dy = clampDouble(offset.dy, -yMax, yMax);
+      final dx = clampDouble(offset.dx, -xMax, xMax);
+      final dy = clampDouble(offset.dy, -yMax, yMax);
 
       return Offset(dx, dy);
     }
@@ -255,7 +255,7 @@ class ImageClickableLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
+    final buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
     final buttonMaterialColors = hoverColors(
       idle: buttonHoverBackground.withAlpha(0x00),
       hover: buttonHoverBackground,
@@ -327,7 +327,7 @@ class ImageRightClick extends StatelessWidget {
       }
 
       final imageData = model.getCurrentImageData();
-      bool isFile = imageData is ImageFileData;
+      final isFile = imageData is ImageFileData;
 
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,

@@ -35,7 +35,7 @@ class ImageList {
 
   Future<int> appendFiles(List<String?> filePaths) async {
     int filesAppendedCount = 0;
-    for (var filePath in filePaths) {
+    for (final filePath in filePaths) {
       if (filePath == null) continue;
       if (!fileIsImage(filePath)) continue;
 
@@ -60,7 +60,7 @@ class ImageList {
 
   Future<int> appendImages(List<ImageData?> images) async {
     int imagesAppendedCount = 0;
-    for (var image in images) {
+    for (final image in images) {
       if (image is ImageFileData) {
         if (image.filePath.isEmpty) continue;
         items.add(image);

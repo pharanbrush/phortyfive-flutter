@@ -97,7 +97,7 @@ class TimerBar extends StatelessWidget {
       child: PhtimerModel.scope(
         (_, __, timerModel) {
           final barValueFromModel = (1.0 - timerModel.progressPercent);
-          Color barColor = timerModel.isRunning
+          final Color barColor = timerModel.isRunning
               ? (barValueFromModel < TimerBar.almostZeroThreshold
                   ? timerTheme.almostZeroColor
                   : timerTheme.runningColor)
@@ -146,8 +146,8 @@ class PlayPauseTimerButton extends StatelessWidget {
           progress: iconProgress,
         );
 
-        bool allowTimerControl = model.allowTimerPlayPause;
-        Color buttonColor = allowTimerControl
+        final bool allowTimerControl = model.allowTimerPlayPause;
+        final Color buttonColor = allowTimerControl
             ? (timerModel.isRunning
                 ? timerTheme.runningButton
                 : timerTheme.pausedButton)

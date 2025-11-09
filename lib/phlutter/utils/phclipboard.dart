@@ -35,7 +35,7 @@ Future copyImageBytesToClipboardAsPng({
 }
 
 Future<String?> getStringFromClipboard() async {
-  var clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+  final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
   if (clipboardData == null) return null;
 
   return clipboardData.text;
@@ -53,7 +53,7 @@ void getImageBytesFromClipboard(
 
   if (reader.canProvide(Formats.png)) {
     reader.getFile(Formats.png, (file) async {
-      Uint8List? data = await file.readAll();
+      final Uint8List data = await file.readAll();
       onClipboardImageRead.call(data);
     });
   }
