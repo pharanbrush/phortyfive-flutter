@@ -61,11 +61,11 @@ class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
         PlayPauseAnimatedIcon,
-        MainScreenColorMeter,
         MainScreenBuildContext,
         MainScreenModels,
         MainScreenWindow,
         MainScreenPanels,
+        MainScreenColorMeter,
         MainScreenSound,
         MainScreenToaster,
         MainScreenScore,
@@ -151,7 +151,6 @@ class _MainScreenState extends State<MainScreen>
       if (panel.isOpen) return;
     }
 
-    debugPrint("Paste from clipboard");
     phclipboard.getImageBytesFromClipboard(
       (imageBytes) {
         final imageDataFromPaste = ImageMemoryData(bytes: imageBytes);
@@ -307,6 +306,7 @@ class _MainScreenState extends State<MainScreen>
                   isBottomBarMinimized: windowState.isBottomBarMinimized,
                 )
               : SizedBox.shrink(),
+          colorMeterPanel.widget(),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
@@ -365,7 +365,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _tryReturnHome() {
-    _closeAllPanels();
+    closeAllPanels();
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
@@ -486,12 +486,15 @@ class _MainScreenState extends State<MainScreen>
     if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
       final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
       if (imageWidgetContext != null) {
-        startColorMeter(imageWidgetContext);
+        colorMeterPanel.open();
       } else {
+        debugPrint(
+            "image widget not found. canceled opening color meter panel");
         setAppMode(PfsAppControlsMode.imageBrowse);
       }
     } else {
-      endColorMeter();
+      colorMeterPanel.close();
+      colorMeterModel.endColorMeter();
     }
   }
 
@@ -598,10 +601,7 @@ class _MainScreenState extends State<MainScreen>
     const double minimizeButtonRightSpace = 10;
 
     if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-      return colorMeterBottomBar(
-        context,
-        onCloseButtonPressed: () => setAppMode(PfsAppControlsMode.imageBrowse),
-      ).animate(effects: [Phanimations.slideUpEffect]);
+      return SizedBox.shrink();
     }
 
     Widget normalBottomBar() {
@@ -865,14 +865,14 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<String> getThemeNotifier();
 
   late final ModalPanel filtersMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: filtersMenu),
+    onBeforeOpen: () => closeAllPanels(except: filtersMenu),
     isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalPanel helpMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: helpMenu),
+    onBeforeOpen: () => closeAllPanels(except: helpMenu),
     builder: () {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
@@ -882,7 +882,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel settingsMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
+    onBeforeOpen: () => closeAllPanels(except: settingsMenu),
     builder: () {
       return SettingsPanel(
         appModel: model,
@@ -895,7 +895,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel timerDurationMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
+    onBeforeOpen: () => closeAllPanels(except: timerDurationMenu),
     onOpened: () {
       timerDurationEditor.setActive(
           timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
@@ -910,7 +910,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel aboutMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: aboutMenu),
+    onBeforeOpen: () => closeAllPanels(except: aboutMenu),
     builder: () => const AboutSheet(),
   );
 
@@ -928,7 +928,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
     }
   }
 
-  void _closeAllPanels({ModalPanel? except}) {
+  void closeAllPanels({ModalPanel? except}) {
     void tryDismiss(ModalPanel toDismiss) {
       if (except != null || toDismiss != except) {
         toDismiss.close();

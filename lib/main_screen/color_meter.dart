@@ -4,13 +4,126 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
+import 'package:pfs2/main_screen/main_screen.dart';
+import 'package:pfs2/main_screen/panels/modal_panel.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
-mixin MainScreenColorMeter {
+mixin MainScreenColorMeter on MainScreenPanels {
+  void Function()? onColorMeterExit;
+  final eyeDropKey = GlobalKey();
+  late final colorMeterModel = ColorMeterModel(
+    eyeDropKey: eyeDropKey,
+  );
+
+  Widget colorMeterModeButton({void Function()? onPressed}) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(Icons.colorize),
+      tooltip: "Open color change meter",
+    );
+  }
+
+  late final ModalPanel colorMeterPanel = ModalPanel(
+    onBeforeOpen: () => closeAllPanels(except: colorMeterPanel),
+    onClosed: () {
+      colorMeterModel.endColorMeter();
+      onColorMeterExit?.call();
+    },
+    useUnderlay: false,
+    transitionBuilder: Phanimations.bottomMenuTransition,
+    builder: () {
+      return ColorMeterBottomBar(
+        eyeDropKey: eyeDropKey,
+        model: colorMeterModel,
+      );
+    },
+  );
+}
+
+class ColorMeterModel {
+  ColorMeterModel({required this.eyeDropKey});
+
+  final GlobalKey eyeDropKey;
+
+  ValueChanged<Color> onColorClicked = (_) {
+    debugPrint("onColorClicked was not bound");
+  };
+  ValueChanged<Offset>? onColorPositionClicked;
+  ValueChanged<Offset>? onColorPositionHover;
+  ValueChanged<Color>? onColorHover;
+  void Function()? onSecondaryTap;
+  void Function()? onWindowChanged;
+  void Function()? onPointerEnter;
+  void Function()? onPointerExit;
+  bool isColorMetering = false;
+
+  void Function()? onStartColorMeter;
+  void Function()? onEndColorMeter;
+
+  void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
+    try {
+      final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
+      if (eyeDropper != null) {
+        eyeDropper.startEyeDropper(
+          context,
+          onColorSelected: onColorClicked,
+          onColorChanged: onColorHover,
+          onColorPositionSelected: onColorPositionClicked,
+          onColorPositionHover: onColorPositionHover,
+          onSecondaryTap: onSecondaryTap,
+          onWindowChanged: onWindowChanged,
+          onPointerEnter: onPointerEnter,
+          onPointerExit: onPointerExit,
+        );
+      } else {
+        debugPrint("eyeDropper not found");
+      }
+    } catch (err) {
+      debugPrint('ERROR !!! showOverlay $err');
+    }
+  }
+
+  void endOverlay(GlobalKey eyeDropKey) {
+    final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
+    if (eyeDropper != null) {
+      eyeDropper.stopEyeDropper();
+    } else {
+      debugPrint("eyedrop was null. Unable to end");
+    }
+  }
+
+  void startColorMeter(BuildContext context) {
+    if (isColorMetering) return;
+    isColorMetering = true;
+    startOverlay(context, eyeDropKey);
+  }
+
+  void endColorMeter() {
+    if (isColorMetering == false) return;
+    isColorMetering = false;
+    endOverlay(eyeDropKey);
+  }
+}
+
+class ColorMeterBottomBar extends StatefulWidget {
+  const ColorMeterBottomBar({
+    super.key,
+    required this.eyeDropKey,
+    required this.model,
+  });
+
+  final GlobalKey eyeDropKey;
+  final ColorMeterModel model;
+
+  @override
+  State<ColorMeterBottomBar> createState() => _ColorMeterBottomBarState();
+}
+
+class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   late final startColor = ValueNotifier(Colors.white);
   late final endColor = ValueNotifier(Colors.white);
   final calculatedColors = CalculatedColors();
@@ -22,28 +135,14 @@ mixin MainScreenColorMeter {
 
   late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
-  void Function()? onColorMeterExit;
-
   final keyRng = math.Random();
   late final lastPickKey = ValueNotifier("defaultKey");
-  final eyeDropKey = GlobalKey();
-  final _overlays = ColorMeterOverlays();
-  bool isColorMetering = false;
 
-  late final loupe = ColorLoupe(
-    onColorHover: onColorHover,
-    onColorClicked: onColorSelected,
-    onColorPositionClicked: onColorPositionClicked,
-    onColorPositionHover: onColorPositionHover,
-    onWindowChanged: _onWindowChanged,
-    onPointerEnter: onPointerEnter,
-    onPointerExit: onPointerExit,
-    onSecondaryTap: () => handleEscape(),
-  );
+  final _overlays = ColorMeterOverlays();
 
   void _initStartEndIndicators() {
     _overlays.tryInitialize(
-      eyeDropKey.currentContext,
+      widget.eyeDropKey.currentContext,
       startPosition: startColorPosition,
       endPosition: endColorPosition,
       startColor: startColor,
@@ -52,12 +151,38 @@ mixin MainScreenColorMeter {
     );
   }
 
+  @override
+  void initState() {
+    final model = widget.model;
+    model.onColorHover = onColorHover;
+    model.onColorClicked = onColorSelected;
+    model.onColorPositionClicked = onColorPositionClicked;
+    model.onColorPositionHover = onColorPositionHover;
+    model.onWindowChanged = _onWindowChanged;
+    model.onPointerEnter = onPointerEnter;
+    model.onPointerExit = onPointerExit;
+    model.onSecondaryTap = () => handleEscape();
+
+    model.onStartColorMeter = () {
+      _initStartEndIndicators();
+    };
+
+    model.onEndColorMeter = () {
+      _resetState();
+      _overlays.removeOverlays();
+    };
+
+    model.startColorMeter(context);
+
+    super.initState();
+  }
+
   void onPointerExit() {
-    _overlays.setPointerOverlayActive(false, eyeDropKey.currentContext);
+    _overlays.setPointerOverlayActive(false, widget.eyeDropKey.currentContext);
   }
 
   void onPointerEnter() {
-    _overlays.setPointerOverlayActive(true, eyeDropKey.currentContext);
+    _overlays.setPointerOverlayActive(true, widget.eyeDropKey.currentContext);
   }
 
   void onColorSelected(Color newColor) {
@@ -78,14 +203,6 @@ mixin MainScreenColorMeter {
 
   void onColorPositionHover(Offset offset) {
     endColorPosition.value = offset;
-  }
-
-  Widget colorMeterModeButton({void Function()? onPressed}) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(Icons.colorize),
-      tooltip: "Open color change meter",
-    );
   }
 
   Iterable<Widget> colorMeterHSLItems() {
@@ -258,7 +375,6 @@ mixin MainScreenColorMeter {
     blue: grayTone,
   );
 
-  static const smallText = TextStyle(fontSize: smallTextSize);
   static const smallGrayText = TextStyle(
     fontSize: smallTextSize,
     color: textGray,
@@ -272,10 +388,8 @@ mixin MainScreenColorMeter {
     color: textGray,
   );
 
-  Widget colorMeterBottomBar(
-    BuildContext context, {
-    void Function()? onCloseButtonPressed,
-  }) {
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
@@ -550,8 +664,8 @@ mixin MainScreenColorMeter {
             padding: const EdgeInsets.all(2.0),
             child: PanelCloseButton(
               onPressed: () {
-                endColorMeter();
-                onCloseButtonPressed?.call();
+                widget.model.endColorMeter();
+                ModalDismissContext.of(context)?.onDismiss?.call();
               },
             ),
           ),
@@ -559,16 +673,20 @@ mixin MainScreenColorMeter {
       ],
     );
 
-    return Positioned(
-      bottom: -8,
-      right: 5,
-      child: panelMaterial(
-        child: Container(
-          padding: EdgeInsets.only(left: 30),
-          height: barHeight,
-          child: mainStack,
+    return Stack(
+      children: [
+        Positioned(
+          bottom: -8,
+          right: 5,
+          child: panelMaterial(
+            child: Container(
+              padding: EdgeInsets.only(left: 30),
+              height: barHeight,
+              child: mainStack,
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -845,35 +963,15 @@ mixin MainScreenColorMeter {
       _resetState();
       _overlays.removeOverlays();
 
-      isColorMetering = true;
       _initStartEndIndicators();
       return;
     }
 
-    endColorMeter();
-    onColorMeterExit?.call();
-  }
-
-  void startColorMeter(BuildContext context) {
-    isColorMetering = true;
-    // TODO: Register escape key to exit color meter mode.
-
-    _initStartEndIndicators();
-    loupe.startOverlay(context, eyeDropKey);
-  }
-
-  void endColorMeter() {
-    if (isColorMetering == false) return;
-    // TODO: Unregister escape key to exit color meter mode.
-
-    _resetState();
-    _overlays.removeOverlays();
-
-    loupe.endOverlay(eyeDropKey);
+    widget.model.endColorMeter();
+    ModalDismissContext.of(context)?.onDismiss?.call();
   }
 
   void _resetState() {
-    isColorMetering = false;
     isStartColorPicked.value = false;
     isEndColorPicked.value = false;
     startColor.value = Colors.transparent;
@@ -912,58 +1010,6 @@ class HslChangeIcon extends StatelessWidget {
               color: Color.from(alpha: 0.45, red: 0.5, green: 0.5, blue: 0.5),
             ),
     );
-  }
-}
-
-class ColorLoupe {
-  final ValueChanged<Color> onColorClicked;
-  final ValueChanged<Offset> onColorPositionClicked;
-  final ValueChanged<Offset> onColorPositionHover;
-  final ValueChanged<Color> onColorHover;
-  final void Function()? onSecondaryTap;
-  final void Function()? onWindowChanged;
-  final void Function()? onPointerEnter;
-  final void Function()? onPointerExit;
-
-  ColorLoupe({
-    required this.onColorClicked,
-    required this.onColorHover,
-    required this.onColorPositionClicked,
-    required this.onColorPositionHover,
-    this.onSecondaryTap,
-    this.onWindowChanged,
-    this.onPointerEnter,
-    this.onPointerExit,
-  });
-
-  void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
-    try {
-      final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
-      if (eyeDropper != null) {
-        eyeDropper.startEyeDropper(
-          context,
-          onColorSelected: onColorClicked,
-          onColorChanged: onColorHover,
-          onColorPositionSelected: onColorPositionClicked,
-          onColorPositionHover: onColorPositionHover,
-          onSecondaryTap: onSecondaryTap,
-          onWindowChanged: onWindowChanged,
-          onPointerEnter: onPointerEnter,
-          onPointerExit: onPointerExit,
-        );
-      }
-    } catch (err) {
-      debugPrint('ERROR !!! showOverlay $err');
-    }
-  }
-
-  void endOverlay(GlobalKey eyeDropKey) {
-    final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
-    if (eyeDropper != null) {
-      eyeDropper.stopEyeDropper();
-    } else {
-      debugPrint("eyedrop was null. Unable to end");
-    }
   }
 }
 
