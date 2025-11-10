@@ -767,7 +767,7 @@ mixin MainScreenColorMeter {
             builder: (_, __, ___) {
               return Animate(
                 key: Key(lastPickKey.value),
-                effects: const [Phanimations.itemPulseEffect],
+                effects: const [Phanimations.startColorPulseEffect],
                 child: valueListeningColorBox(
                   startColor,
                   size: bigColorBoxSize,

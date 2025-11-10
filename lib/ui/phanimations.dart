@@ -21,6 +21,13 @@ class Phanimations {
     end: Offset(1, 1),
   );
 
+  static const startColorPulseEffect = ScaleEffect(
+    duration: Duration(milliseconds: 400),
+    curve: Curves.easeOutQuart,
+    begin: Offset(1.55, 1.55),
+    end: Offset(1, 1),
+  );
+
   static const bottomBarSlideUpEffect = SlideEffect(
     duration: fastDuration,
     curve: Curves.easeOutQuart,
