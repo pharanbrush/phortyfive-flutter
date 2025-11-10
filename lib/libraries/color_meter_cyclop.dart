@@ -58,6 +58,7 @@ class EyeDropperModel {
   /// based on PointerEvent.kind
   bool isTouchInterface = false;
   bool isEnabled = false;
+  bool ignoreTransparentClicks = true;
 
   img.Image? snapshot;
   Offset? cursorPosition;
@@ -188,10 +189,10 @@ class EyeDropperLayer extends StatelessWidget with WidgetsBindingObserver {
 
   void _onPrimaryTapUp(Offset position) {
     if (!model.isEnabled) return;
+    if (model.ignoreTransparentClicks && model.hoverColor.a <= 0) return;
 
     _onHover(position, model.isTouchInterface);
     final onColorSelected = model.onColorSelected;
-    //onColorSelected?.call(model.hoverColors.center);
     onColorSelected?.call(model.hoverColor);
 
     final updatePosition = model.onColorPositionSelected;
