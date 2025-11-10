@@ -164,7 +164,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     model.onColorClicked = onColorSelected;
     model.onColorPositionClicked = onColorPositionClicked;
     model.onColorPositionHover = onColorPositionHover;
-    model.onWindowChanged = _onWindowChanged;
+    model.onWindowChanged = onWindowChanged;
     model.onPointerEnter = onPointerEnter;
     model.onPointerExit = onPointerExit;
     model.onSecondaryTap = () => handleEscape();
@@ -982,8 +982,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     endColor.value = Colors.transparent;
   }
 
-  void _onWindowChanged() {
-    overlays.removeOverlays();
+  void onWindowChanged() {
+    isStartColorPicked.value = false;
   }
 }
 
