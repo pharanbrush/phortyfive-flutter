@@ -351,10 +351,7 @@ class _MainScreenState extends State<MainScreen>
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
     onColorMeterExit = () {
-      setState(() {
-        setAppMode(PfsAppControlsMode.imageBrowse);
-        //Phtoasts.showWidget(currentContext, child: Text("Color meter closed."));
-      });
+      setState(() => setAppMode(PfsAppControlsMode.imageBrowse));
     };
   }
 
