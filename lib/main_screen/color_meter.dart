@@ -154,7 +154,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       endColor: endColor,
       isStartColorSelected: isStartColorPicked,
     );
-    
+
     initOverlaysQueued = false;
   }
 
