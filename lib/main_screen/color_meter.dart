@@ -996,6 +996,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 
   void onWindowChanged() {
+    //WORKAROUND for the colorpick coordinates becoming misaligned when the window resizes.
     isStartColorPicked.value = false;
   }
 }
