@@ -100,12 +100,14 @@ class ColorMeterModel {
     if (isColorMetering) return;
     isColorMetering = true;
     startOverlay(context, eyeDropKey);
+    onStartColorMeter?.call();
   }
 
   void endColorMeter() {
     if (isColorMetering == false) return;
     isColorMetering = false;
     endOverlay(eyeDropKey);
+    onEndColorMeter?.call();
   }
 }
 
@@ -138,10 +140,13 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   final keyRng = math.Random();
   late final lastPickKey = ValueNotifier("defaultKey");
 
-  final _overlays = ColorMeterOverlays();
+  final overlays = ColorMeterOverlays();
 
-  void _initStartEndIndicators() {
-    _overlays.tryInitialize(
+  bool initOverlaysQueued = false;
+
+  void initColorPickPositionOverlays() {
+    debugPrint("_initColorPickPositionOverlays");
+    overlays.tryInitialize(
       widget.eyeDropKey.currentContext,
       startPosition: startColorPosition,
       endPosition: endColorPosition,
@@ -149,6 +154,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       endColor: endColor,
       isStartColorSelected: isStartColorPicked,
     );
+    
+    initOverlaysQueued = false;
   }
 
   @override
@@ -163,26 +170,22 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     model.onPointerExit = onPointerExit;
     model.onSecondaryTap = () => handleEscape();
 
-    model.onStartColorMeter = () {
-      _initStartEndIndicators();
-    };
-
     model.onEndColorMeter = () {
       _resetState();
-      _overlays.removeOverlays();
+      overlays.removeOverlays();
     };
 
     model.startColorMeter(context);
-
+    initOverlaysQueued = true;
     super.initState();
   }
 
   void onPointerExit() {
-    _overlays.setPointerOverlayActive(false, widget.eyeDropKey.currentContext);
+    overlays.setPointerOverlayActive(false, widget.eyeDropKey.currentContext);
   }
 
   void onPointerEnter() {
-    _overlays.setPointerOverlayActive(true, widget.eyeDropKey.currentContext);
+    overlays.setPointerOverlayActive(true, widget.eyeDropKey.currentContext);
   }
 
   void onColorSelected(Color newColor) {
@@ -197,6 +200,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 
   void onColorHover(Color value) {
+    if (initOverlaysQueued) initColorPickPositionOverlays();
+
     endColor.value = value;
     calculatedColors.updateColors(startColor.value, endColor.value);
   }
@@ -961,9 +966,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   void handleEscape() {
     if (isStartColorPicked.value == true) {
       _resetState();
-      _overlays.removeOverlays();
+      overlays.removeOverlays();
 
-      _initStartEndIndicators();
+      initColorPickPositionOverlays();
       return;
     }
 
@@ -979,7 +984,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 
   void _onWindowChanged() {
-    _overlays.removeOverlays();
+    overlays.removeOverlays();
   }
 }
 
