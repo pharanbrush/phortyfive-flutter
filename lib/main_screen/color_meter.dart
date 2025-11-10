@@ -923,7 +923,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           colorValue,
           size: size,
           shape: shape,
-          borderWidth: isClipped ? 4 : 1,
+          borderWidth: isClipped ? 3 : 1,
         );
       },
     );
