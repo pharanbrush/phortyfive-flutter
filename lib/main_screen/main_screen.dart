@@ -353,10 +353,7 @@ class _MainScreenState extends State<MainScreen>
     onColorMeterExit = () {
       setState(() {
         setAppMode(PfsAppControlsMode.imageBrowse);
-        Phtoasts.showWidget(
-          currentContext,
-          child: Text("Color meter closed."),
-        );
+        //Phtoasts.showWidget(currentContext, child: Text("Color meter closed."));
       });
     };
   }
