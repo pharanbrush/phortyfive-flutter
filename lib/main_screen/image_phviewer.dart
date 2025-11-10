@@ -376,7 +376,6 @@ class ImageRightClick extends StatelessWidget {
         popUpContextualMenu(contextMenu);
       }
 
-      //TODO: Verify that right-click items are unclickable when they're invalid operations.
       return GestureDetector(
         onTertiaryTapDown: (details) => resetZoomLevelHandler(),
         onSecondaryTapDown: (details) => openContextMenu(),
@@ -478,7 +477,6 @@ class ImageViewerStackWidget extends StatelessWidget {
           );
         }
 
-        //TODO: add label at the top to say it's raw image data.
         return SizedBox.shrink();
       }
 
