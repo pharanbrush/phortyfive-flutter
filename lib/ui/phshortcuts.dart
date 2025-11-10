@@ -62,7 +62,7 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.keyH, control: true);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
-  static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
+  static const escape = SingleActivator(LogicalKeyboardKey.escape);
 
   static bool isDragZoomModifierPressed() {
     final keyboard = HardwareKeyboard.instance;
@@ -93,7 +93,7 @@ class Phshortcuts {
     Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
     Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
     Phshortcuts.toggleSounds: ToggleSoundIntent(),
-    Phshortcuts.returnHome: ReturnHomeIntent(),
+    Phshortcuts.escape: EscapeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.flipHorizontal: FlipHorizontalIntent(),
@@ -114,8 +114,8 @@ class Phshortcuts {
   };
 }
 
-class ReturnHomeIntent extends Intent {
-  const ReturnHomeIntent();
+class EscapeIntent extends Intent {
+  const EscapeIntent();
 }
 
 class ToggleSoundIntent extends Intent {

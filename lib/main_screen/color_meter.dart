@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -140,6 +141,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   final keyRng = math.Random();
   late final lastPickKey = ValueNotifier("defaultKey");
 
+  static const colorMeterEscapeId = "color meter";
+
   final overlays = ColorMeterOverlays();
 
   bool initOverlaysQueued = false;
@@ -176,6 +179,15 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
     model.startColorMeter(context);
     initOverlaysQueued = true;
+
+    EscapeNavigator.of(context)?.push(
+      EscapeRoute(
+        name: colorMeterEscapeId,
+        onEscape: handleEscape,
+        willPopOnEscape: false,
+      ),
+    );
+
     super.initState();
   }
 
@@ -973,6 +985,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
     widget.model.endColorMeter();
     ModalDismissContext.of(context)?.onDismiss?.call();
+    EscapeNavigator.of(context)?.tryPop(colorMeterEscapeId);
   }
 
   void _resetState() {

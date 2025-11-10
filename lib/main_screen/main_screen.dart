@@ -22,6 +22,7 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -110,7 +111,7 @@ class _MainScreenState extends State<MainScreen>
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
-    (ReturnHomeIntent, (_) => _tryReturnHome()),
+    (EscapeIntent, (_) => _tryEscape()),
     (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
     (OpenPreferencesIntent, (_) => settingsMenu.open()),
     (ZoomInIntent, (_) => imagePhviewer.incrementZoomLevel(1)),
@@ -131,6 +132,17 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
 
     _checkAndLoadLaunchArgPath();
+
+    EscapeNavigator.of(context)?.push(
+      EscapeRoute(
+        name: "home",
+        onEscape: () {
+          setAppMode(PfsAppControlsMode.imageBrowse);
+          closeAllPanels();
+        },
+        willPopOnEscape: false,
+      ),
+    );
   }
 
   @override
@@ -364,8 +376,8 @@ class _MainScreenState extends State<MainScreen>
     _handleTimerPlayPause();
   }
 
-  void _tryReturnHome() {
-    closeAllPanels();
+  void _tryEscape() {
+    EscapeNavigator.of(context)?.tryEscape();
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
