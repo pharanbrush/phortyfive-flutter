@@ -145,7 +145,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   bool initOverlaysQueued = false;
 
   void initColorPickPositionOverlays() {
-    debugPrint("_initColorPickPositionOverlays");
     overlays.tryInitialize(
       widget.eyeDropKey.currentContext,
       startPosition: startColorPosition,
