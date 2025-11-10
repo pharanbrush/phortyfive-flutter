@@ -62,8 +62,8 @@ class Phanimations {
     end: Offset.zero,
     curve: Curves.easeOutQuart,
   );
-  
-    static const slideRightEffect = SlideEffect(
+
+  static const slideRightEffect = SlideEffect(
     duration: defaultDuration,
     begin: Offset(-0.15, 0),
     end: Offset.zero,

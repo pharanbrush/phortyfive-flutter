@@ -278,7 +278,7 @@ mixin MainScreenColorMeter {
   }) {
     final theme = Theme.of(context);
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
-    
+
     const double barHeight = 120;
 
     final mainStack = Stack(
