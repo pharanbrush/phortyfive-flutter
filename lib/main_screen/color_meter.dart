@@ -1584,9 +1584,11 @@ class ColorMeterOverlays {
       if (endColorLocation == null) {
         endColorLocation = OverlayEntry(
           builder: (context) {
-            return ColorSampleLocationOverlay(
+            return ColorComparerSampleLocationOverlay(
               position: endPosition,
               color: endColor,
+              secondColor: startColor,
+              isSecondColorEnabled: isStartColorSelected,
             );
           },
         );
@@ -1657,6 +1659,104 @@ class ColorMeterOverlays {
   }
 }
 
+class ColorComparerSampleLocationOverlay extends StatelessWidget {
+  const ColorComparerSampleLocationOverlay({
+    super.key,
+    required this.position,
+    required this.color,
+    required this.secondColor,
+    required this.isSecondColorEnabled,
+    this.isVisible,
+    this.radius = 7,
+    this.secondColorThickness = 6,
+  });
+
+  final ValueListenable<Offset> position;
+  final ValueListenable<Color> color;
+  final ValueListenable<bool>? isVisible;
+  final ValueListenable<Color> secondColor;
+  final ValueListenable<bool> isSecondColorEnabled;
+  final double radius;
+  final double secondColorThickness;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget singleColorWidget() {
+      return ValueListenableBuilder(
+        valueListenable: color,
+        builder: (_, __, ___) {
+          return ValueListenableBuilder(
+            valueListenable: position,
+            builder: (_, __, ___) {
+              return Positioned(
+                left: position.value.dx,
+                top: position.value.dy,
+                child: CustomPaint(
+                  foregroundPainter: ColorSampleLocationMarkerPainter(
+                    color: color.value,
+                    radius: radius,
+                  ),
+                  size: Size(radius * 2, radius * 2),
+                ),
+              );
+            },
+          );
+        },
+      );
+    }
+
+    Widget doubleColorWidget() {
+      final thickenedRadius = radius + secondColorThickness;
+
+      return ValueListenableBuilder(
+        valueListenable: secondColor,
+        builder: (context, value, child) {
+          return ValueListenableBuilder(
+            valueListenable: color,
+            builder: (_, __, ___) {
+              return ValueListenableBuilder(
+                valueListenable: position,
+                builder: (_, __, ___) {
+                  return Positioned(
+                    left: position.value.dx,
+                    top: position.value.dy,
+                    child: CustomPaint(
+                      foregroundPainter: ColorSampleLocationMarkerPainter(
+                        color: color.value,
+                        radius: thickenedRadius,
+                        surroundingThickness: secondColorThickness,
+                        surroundingColor: secondColor.value,
+                      ),
+                      size: Size(thickenedRadius * 2, thickenedRadius * 2),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    }
+
+    final widget = ValueListenableBuilder(
+      valueListenable: isSecondColorEnabled,
+      builder: (_, secondEnabled, __) =>
+          secondEnabled ? doubleColorWidget() : singleColorWidget(),
+    );
+
+    if (isVisible != null) {
+      return ValueListenableBuilder(
+        valueListenable: isVisible!,
+        builder: (context, value, child) {
+          return value ? widget : SizedBox.shrink();
+        },
+      );
+    }
+
+    return widget;
+  }
+}
+
 class ColorSampleLocationOverlay extends StatelessWidget {
   const ColorSampleLocationOverlay({
     super.key,
@@ -1712,10 +1812,14 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
   ColorSampleLocationMarkerPainter({
     super.repaint,
     required this.color,
+    this.surroundingColor,
     this.radius = 7,
+    this.surroundingThickness,
   });
 
   final Color color;
+  final Color? surroundingColor;
+  final double? surroundingThickness;
   final double radius;
 
   static const double strokeWidth = 1;
@@ -1738,7 +1842,8 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final isClipped = color == Colors.white || color == Colors.black;
-    final isDark = color.lightness < 0.5;
+    final outerColor = surroundingColor ?? color;
+    final isDark = outerColor.lightness < 0.5;
 
     final fill = Paint()
       ..color = color
@@ -1750,8 +1855,19 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
             ? lightStroke
             : darkStroke;
 
-    canvas.drawCircle(Offset.zero, radius, fill);
-    canvas.drawCircle(Offset.zero, radius, stroke);
+    if (surroundingColor == null) {
+      canvas.drawCircle(Offset.zero, radius, fill);
+      canvas.drawCircle(Offset.zero, radius, stroke);
+    } else {
+      final secondFill = Paint()
+        ..color = surroundingColor!
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(Offset.zero, radius, secondFill);
+      canvas.drawCircle(
+          Offset.zero, radius - (surroundingThickness ?? 5), fill);
+      canvas.drawCircle(Offset.zero, radius, stroke);
+    }
   }
 
   @override
