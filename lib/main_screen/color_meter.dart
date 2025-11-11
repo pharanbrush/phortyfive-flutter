@@ -68,6 +68,7 @@ class ColorMeterModel {
   void Function()? onPointerEnter;
   void Function()? onPointerExit;
   bool isColorMetering = false;
+  late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
   void Function()? onStartColorMeter;
   void Function()? onEndColorMeter;
@@ -145,8 +146,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   late final endColorPosition = ValueNotifier(Offset(0, 0));
   late final isStartColorPicked = ValueNotifier(false);
   late final isEndColorPicked = ValueNotifier(false);
-
-  late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
   final keyRng = math.Random();
   late final lastPickKey = ValueNotifier("defaultKey");
@@ -716,8 +715,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                     SizedBox(
                                       width: 225,
                                       child: ValueListenableBuilder(
-                                        valueListenable:
-                                            isBlendModeBoxesEnabled,
+                                        valueListenable: widget
+                                            .model.isBlendModeBoxesEnabled,
                                         builder: (context, isBlendModesVisible,
                                             ___) {
                                           if (!isBlendModesVisible) {
@@ -725,7 +724,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                               height: 33,
                                               child: TextButton(
                                                 onPressed: () {
-                                                  isBlendModeBoxesEnabled
+                                                  widget
+                                                      .model
+                                                      .isBlendModeBoxesEnabled
                                                       .value = true;
                                                 },
                                                 child: Row(
@@ -760,8 +761,10 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                             height: 33,
                                             child: TextButton(
                                               onPressed: () {
-                                                isBlendModeBoxesEnabled.value =
-                                                    false;
+                                                widget
+                                                    .model
+                                                    .isBlendModeBoxesEnabled
+                                                    .value = false;
                                               },
                                               style: ButtonStyle(
                                                 padding: WidgetStatePropertyAll(
