@@ -278,7 +278,7 @@ class PfsTheme {
       const Color outline = Color(0xFFC0C0C0);
       const Color dullBlue = Color(0xDD95A0A6);
 
-      const Color filledbuttonContentColor = appBackground;
+      final iconColor = textColor.withValues(alpha: 0.5);
       const double panelElevation = 20;
 
       final newData = ThemeData(
@@ -348,8 +348,8 @@ class PfsTheme {
             iconColor: const WidgetStatePropertyAll(Color(0xBB333333)),
           ),
         ),
-        iconTheme: const IconThemeData(
-          color: filledbuttonContentColor,
+        iconTheme: IconThemeData(
+          color: iconColor,
         ),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
