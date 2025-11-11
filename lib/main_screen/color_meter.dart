@@ -7,11 +7,18 @@ import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
+
+enum ColorComponentsMode {
+  none,
+  hsl,
+  rgb,
+}
 
 mixin MainScreenColorMeter on MainScreenPanels {
   void Function()? onColorMeterExit;
@@ -64,6 +71,9 @@ class ColorMeterModel {
 
   void Function()? onStartColorMeter;
   void Function()? onEndColorMeter;
+
+  final startEndComponentsMode =
+      ValueNotifier<ColorComponentsMode>(ColorComponentsMode.rgb);
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
@@ -410,6 +420,122 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
     const double barHeight = 120;
+    const double barLeftRightPadding = 12;
+
+    Widget colorValuesVertical(
+      Color color,
+      ColorComponentsMode componentsMode,
+      CrossAxisAlignment crossAxisAlignment,
+    ) {
+      //final smallGrayTextShort = smallGrayText.copyWith(height: 1);
+      const darkerTextStyle = TextStyle(
+        fontSize: smallTextSize,
+        color: Color.from(alpha: 0.23, red: 1, green: 1, blue: 1),
+        height: 1,
+      );
+      const valueTextStyle = TextStyle(
+        fontSize: smallTextSize,
+        color: Color.from(alpha: 0.45, red: 1, green: 1, blue: 1),
+        height: 1,
+      );
+
+      Widget colorValue(String label, String value, String unit) {
+        return Row(children: [
+          SizedBox(
+            width: 20,
+            child: Center(
+              child: Text(
+                label,
+                style: darkerTextStyle,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 1),
+            child: SizedBox(
+              width: 27,
+              child: Text(
+                value,
+                style: valueTextStyle,
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 12,
+            child: Text(
+              unit,
+              style: darkerTextStyle,
+            ),
+          ),
+        ]);
+      }
+
+      switch (componentsMode) {
+        case ColorComponentsMode.hsl:
+          final hslColor = color.hsl;
+
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Column(
+              crossAxisAlignment: crossAxisAlignment,
+              children: [
+                colorValue("H", hslColor.hue.toStringAsFixed(0), "°"),
+                colorValue(
+                    "S", (hslColor.saturation * 100).toStringAsFixed(0), "%"),
+                colorValue(
+                    "L", (hslColor.lightness * 100).toStringAsFixed(1), "%"),
+              ],
+            ),
+          );
+        case ColorComponentsMode.rgb:
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Column(
+              crossAxisAlignment: crossAxisAlignment,
+              children: [
+                colorValue("R", (color.r * 255).toStringAsFixed(0), ""),
+                colorValue("G", (color.g * 255).toStringAsFixed(0), ""),
+                colorValue("B", (color.b * 255).toStringAsFixed(0), ""),
+              ],
+            ),
+          );
+        default:
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: SizedBox(
+              width: 60,
+              child: Column(
+                crossAxisAlignment: crossAxisAlignment,
+                children: [
+                  Text("-", style: darkerTextStyle),
+                  Text("-", style: darkerTextStyle),
+                  Text("-", style: darkerTextStyle),
+                ],
+              ),
+            ),
+          );
+      }
+    }
+
+    Widget listeningValuesVertical(ValueListenable<Color> listenableColor,
+        CrossAxisAlignment crossAxisAlignment) {
+      return ValueListenableBuilder(
+        valueListenable: widget.model.startEndComponentsMode,
+        builder: (_, startEndNumbersModeValue, ___) {
+          return ValueListenableBuilder(
+            valueListenable: listenableColor,
+            builder: (_, value, ___) {
+              return colorValuesVertical(
+                value,
+                startEndNumbersModeValue,
+                crossAxisAlignment,
+              );
+            },
+          );
+        },
+      );
+    }
 
     final mainStack = Stack(
       children: [
@@ -439,12 +565,26 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                 Container(
                   //color: Colors.green,
                   child: Row(
+                    spacing: 5,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _startColorBoxWidget(),
-                          Text("start", style: blendModeText),
+                          ValueListenableBuilder(
+                              valueListenable: isStartColorPicked,
+                              builder: (_, value, ___) {
+                                return listeningValuesVertical(
+                                  value ? startColor : endColor,
+                                  CrossAxisAlignment.end,
+                                );
+                              }),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _startColorBoxWidget(),
+                              Text("start", style: blendModeText),
+                            ],
+                          ),
                         ],
                       ),
                       ValueListenableBuilder(
@@ -630,13 +770,19 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                 // Rightmost block
                 //
                 Container(
-                  width: 80,
-                  //color: Colors.lightBlueAccent,
+//                  color: Colors.lightBlueAccent,
+                  // duration: Durations.medium2,
                   child: ValueListenableBuilder(
                       valueListenable: isStartColorPicked,
                       builder: (context, value, child) {
                         if (value == false) {
-                          return SizedBox.shrink();
+                          return Row(
+                            children: [
+                              SizedBox(width: 28),
+                              SizedBox(width: 48),
+                              SizedBox(width: 72),
+                            ],
+                          );
                         }
 
                         return Row(
@@ -645,14 +791,20 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               padding: EdgeInsetsGeometry.only(bottom: 15),
                               child: _rightArrow,
                             ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _endColorBoxWidget(),
-                                Container(
-                                  //color: Colors.red,
-                                  child: Text("end", style: blendModeText),
-                                )
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _endColorBoxWidget(),
+                                    Text("end", style: blendModeText),
+                                  ],
+                                ),
+                                listeningValuesVertical(
+                                  endColor,
+                                  CrossAxisAlignment.start,
+                                ),
                               ],
                             ),
                           ].animate(
@@ -666,7 +818,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                         );
                       }),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: barLeftRightPadding),
               ],
             ),
           ],
@@ -696,7 +848,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           right: 5,
           child: panelMaterial(
             child: Container(
-              padding: EdgeInsets.only(left: 30),
+              padding: EdgeInsets.only(left: barLeftRightPadding),
               height: barHeight,
               child: mainStack,
             ),
@@ -704,6 +856,16 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
         ),
       ],
     );
+  }
+
+  void cycleStartEndColorComponentsVisibility() {
+    widget.model.startEndComponentsMode.value =
+        switch (widget.model.startEndComponentsMode.value) {
+      ColorComponentsMode.none => ColorComponentsMode.hsl,
+      ColorComponentsMode.hsl => ColorComponentsMode.rgb,
+      //ColorComponentsMode.rgb => ColorComponentsMode.none,
+      _ => ColorComponentsMode.none,
+    };
   }
 
   Row _normalColorBox() {
@@ -877,40 +1039,57 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   static const double colorBoxSize = 18;
 
   Widget _endColorBoxWidget() {
-    return valueListeningColorBox(
+    final innerWidget = valueListeningColorBox(
       endColor,
       size: bigColorBoxSize,
       shape: BoxShape.circle,
     );
+
+    return Tooltip(
+      message: PfsLocalization.clickForColorComponents,
+      child: GestureDetector(
+        onTap: () => cycleStartEndColorComponentsVisibility(),
+        child: innerWidget,
+      ),
+    );
   }
 
   Widget _startColorBoxWidget() {
-    return ValueListenableBuilder(
-        valueListenable: isStartColorPicked,
-        builder: (context, _, __) {
-          if (isStartColorPicked.value == false) {
-            return valueListeningColorBox(
-              endColor,
-              size: bigColorBoxSize,
-              shape: BoxShape.circle,
-            );
-          }
-
-          return ValueListenableBuilder(
-            valueListenable: lastPickKey,
-            builder: (_, __, ___) {
-              return Animate(
-                key: Key(lastPickKey.value),
-                effects: const [Phanimations.startColorPulseEffect],
-                child: valueListeningColorBox(
-                  startColor,
-                  size: bigColorBoxSize,
-                  shape: BoxShape.circle,
-                ),
-              );
-            },
+    final innerWidget = ValueListenableBuilder(
+      valueListenable: isStartColorPicked,
+      builder: (context, _, __) {
+        if (isStartColorPicked.value == false) {
+          return valueListeningColorBox(
+            endColor,
+            size: bigColorBoxSize,
+            shape: BoxShape.circle,
           );
-        });
+        }
+
+        return ValueListenableBuilder(
+          valueListenable: lastPickKey,
+          builder: (_, __, ___) {
+            return Animate(
+              key: Key(lastPickKey.value),
+              effects: const [Phanimations.startColorPulseEffect],
+              child: valueListeningColorBox(
+                startColor,
+                size: bigColorBoxSize,
+                shape: BoxShape.circle,
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    return Tooltip(
+      message: PfsLocalization.clickForColorComponents,
+      child: GestureDetector(
+        onTap: () => cycleStartEndColorComponentsVisibility(),
+        child: innerWidget,
+      ),
+    );
   }
 
   Widget get _rightArrow {
