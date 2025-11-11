@@ -67,7 +67,6 @@ class ColorMeterModel {
   void Function()? onWindowChanged;
   void Function()? onPointerEnter;
   void Function()? onPointerExit;
-  bool isColorMetering = false;
   late final isBlendModeBoxesEnabled = ValueNotifier(false);
 
   void Function()? onStartColorMeter;
@@ -75,6 +74,7 @@ class ColorMeterModel {
 
   final startEndComponentsMode =
       ValueNotifier<ColorComponentsMode>(ColorComponentsMode.rgb);
+  bool isColorMetering = false;
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
