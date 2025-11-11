@@ -324,11 +324,11 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               ),
                               Text("hue ", style: numberLabel),
                               SizedBox(
-                                  width: 55,
+                                  width: 52,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text(hueDiffText.padLeft(4)),
+                                      Text(hueDiffText),
                                       percentLabel
                                     ],
                                   )),
@@ -349,7 +349,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               ),
                               Text("sat ", style: numberLabel),
                               SizedBox(
-                                width: 58,
+                                width: 50,
                                 child: Row(
                                   children: [
                                     Text(sDifferenceText),
@@ -377,7 +377,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               Container(
                                 //decoration: BoxDecoration(color: Colors.red),
                                 child: SizedBox(
-                                  width: 64,
+                                  width: 52,
                                   child: Row(
                                     children: [
                                       Padding(
@@ -629,7 +629,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               ],
                             );
                           }),
-                      SizedBox(width: 10),
+                      SizedBox(width: 5),
                     ],
                   ),
                 ),
