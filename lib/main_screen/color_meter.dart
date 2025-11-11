@@ -31,7 +31,7 @@ mixin MainScreenColorMeter on MainScreenPanels {
     return IconButton(
       onPressed: onPressed,
       icon: Icon(Icons.colorize),
-      tooltip: "Open color change meter",
+      tooltip: PfsLocalization.colorChangeMeter,
     );
   }
 
@@ -232,6 +232,14 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 
   Iterable<Widget> colorMeterHSLItems() {
+    final textGray = textGrayFrom(Theme.of(context));
+    const double numberLabelSize = 13;
+
+    final numberLabel = TextStyle(
+      fontSize: numberLabelSize,
+      color: textGray,
+    );
+
     return [
       ValueListenableBuilder(
         valueListenable: endColor,
@@ -268,10 +276,15 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                       ? "-"
                       : lightnessPercent.toStringAsFixed(0);
 
+              final hueDecimalCount = (hueDifference < 1.0 &&
+                      hueDifference > 1.0 &&
+                      hueDifference != 0)
+                  ? 1
+                  : 0;
               final hueDiffText = isSaturationInvalid || end.saturation == 0
                   ? "-"
                   : (hueDifference > 0 ? "+" : "") +
-                      hueDifference.toStringAsFixed(1);
+                      hueDifference.toStringAsFixed(hueDecimalCount);
 
               final theme = Theme.of(context);
               final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
@@ -298,76 +311,92 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         // Hue
-                        HslChangeIcon(
-                          value: hueDifference,
-                          cutoff: 0,
-                          increase: Icons.redo,
-                          decrease: Icons.undo,
-                          extraRightPadding: 3,
-                        ),
                         Tooltip(
                           message:
-                              "Hue movement.\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                          child: Text("hue  ", style: numberLabel),
+                              "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                          child: Row(
+                            children: [
+                              HslChangeIcon(
+                                value: hueDifference,
+                                cutoff: 0,
+                                increase: Icons.redo,
+                                decrease: Icons.undo,
+                                extraRightPadding: 3,
+                              ),
+                              Text("hue ", style: numberLabel),
+                              SizedBox(
+                                  width: 55,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(hueDiffText.padLeft(4)),
+                                      percentLabel
+                                    ],
+                                  )),
+                            ],
+                          ),
                         ),
-                        SizedBox(
-                            width: 65,
-                            child: Row(
-                              children: [
-                                Text(hueDiffText.padLeft(5)),
-                                percentLabel
-                              ],
-                            )),
                         // Saturation
-                        HslChangeIcon(
-                          value: saturationPercent,
-                          cutoff: 100,
-                          decrease: Icons.arrow_back,
-                          increase: Icons.arrow_forward,
-                        ),
                         Tooltip(
-                            message:
-                                "Delta saturation.\nThe difference in saturation between color A and color B.",
-                            child: Text("sat ", style: numberLabel)),
-                        SizedBox(
-                            width: 58,
-                            child: Row(
-                              children: [
-                                Text(sDifferenceText),
-                                percentLabel,
-                              ],
-                            )),
+                          message:
+                              "Change in saturation\nThe difference in saturation between the start and end colors.",
+                          child: Row(
+                            children: [
+                              HslChangeIcon(
+                                value: saturationPercent,
+                                cutoff: 100,
+                                decrease: Icons.arrow_back,
+                                increase: Icons.arrow_forward,
+                              ),
+                              Text("sat ", style: numberLabel),
+                              SizedBox(
+                                width: 58,
+                                child: Row(
+                                  children: [
+                                    Text(sDifferenceText),
+                                    percentLabel,
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                         // Lightness
-                        HslChangeIcon(
-                          value: lightnessPercent,
-                          cutoff: 100,
-                          decrease: Icons.arrow_downward,
-                          increase: Icons.arrow_upward,
-                        ),
                         Tooltip(
-                            message:
-                                "Relative lightness percent.\nThe amount of lightness color B has in proportion to color A",
-                            child: Text("lightness × ", style: numberLabel)),
-                        Container(
-                          //decoration: BoxDecoration(color: Colors.red),
-                          child: SizedBox(
-                            width: 64,
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 1.55,
-                                    bottom: 1,
-                                  ),
-                                  child: Text(
-                                    lPercentText,
-                                    style: lightnessPercentTextStyle,
+                          message:
+                              "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
+                          child: Row(
+                            children: [
+                              HslChangeIcon(
+                                value: lightnessPercent,
+                                cutoff: 100,
+                                decrease: Icons.arrow_downward,
+                                increase: Icons.arrow_upward,
+                              ),
+                              Text("lightness × ", style: numberLabel),
+                              Container(
+                                //decoration: BoxDecoration(color: Colors.red),
+                                child: SizedBox(
+                                  width: 64,
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 1.55,
+                                          bottom: 1,
+                                        ),
+                                        child: Text(
+                                          lPercentText,
+                                          style: lightnessPercentTextStyle,
+                                        ),
+                                      ),
+                                      percentLabel,
+                                    ],
                                   ),
                                 ),
-                                percentLabel,
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ].animate(
@@ -376,7 +405,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                           Phanimations.fadeInEffect
                         ],
                         delay: Duration(milliseconds: 30),
-                        interval: Duration(milliseconds: 20),
+                        interval: Duration(milliseconds: 60),
                       ),
                     ),
                   ),
@@ -386,33 +415,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           );
         },
       ),
-      //SizedBox(width: 10),
     ];
   }
-
-  // TODO: Use theme styles
-  static const double smallTextSize = 10.5;
-  static const double numberLabelSize = 13;
-  static const double grayTone = 0.62;
-  static const Color textGray = Color.from(
-    alpha: 1,
-    red: grayTone,
-    green: grayTone,
-    blue: grayTone,
-  );
-
-  static const smallGrayText = TextStyle(
-    fontSize: smallTextSize,
-    color: textGray,
-  );
-  static const blendModeText = TextStyle(
-    fontSize: smallTextSize,
-    color: textGray,
-  );
-  static const numberLabel = TextStyle(
-    fontSize: numberLabelSize,
-    color: textGray,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -422,20 +426,39 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     const double barHeight = 120;
     const double barLeftRightPadding = 12;
 
+    final baseSize = theme.textTheme.bodySmall?.fontSize ?? 12;
+    final smallTextSize = baseSize * 0.875;
+
+    final colorScheme = theme.colorScheme;
+    final onSurface = colorScheme.onSurface;
+    final dividerColor = onSurface.withValues(alpha: 0.15);
+    final faintTextColor = onSurface.withValues(alpha: 0.23);
+    final labelTextColor = onSurface.withValues(alpha: labelAlpha);
+    final lowPriorityValueColor = onSurface.withValues(alpha: 0.45);
+
+    final startEndLabelStyle = TextStyle(
+      fontSize: smallTextSize,
+      color: labelTextColor,
+    );
+
+    final minorLabelStyle = TextStyle(
+      fontSize: smallTextSize,
+      color: labelTextColor,
+    );
+
     Widget colorValuesVertical(
       Color color,
       ColorComponentsMode componentsMode,
       CrossAxisAlignment crossAxisAlignment,
     ) {
-      //final smallGrayTextShort = smallGrayText.copyWith(height: 1);
-      const darkerTextStyle = TextStyle(
+      final lowPriorityLabelStyle = TextStyle(
         fontSize: smallTextSize,
-        color: Color.from(alpha: 0.23, red: 1, green: 1, blue: 1),
+        color: faintTextColor,
         height: 1,
       );
-      const valueTextStyle = TextStyle(
+      final valueTextStyle = TextStyle(
         fontSize: smallTextSize,
-        color: Color.from(alpha: 0.45, red: 1, green: 1, blue: 1),
+        color: lowPriorityValueColor,
         height: 1,
       );
 
@@ -446,7 +469,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             child: Center(
               child: Text(
                 label,
-                style: darkerTextStyle,
+                style: lowPriorityLabelStyle,
               ),
             ),
           ),
@@ -465,7 +488,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             width: 12,
             child: Text(
               unit,
-              style: darkerTextStyle,
+              style: lowPriorityLabelStyle,
             ),
           ),
         ]);
@@ -508,9 +531,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
               child: Column(
                 crossAxisAlignment: crossAxisAlignment,
                 children: [
-                  Text("-", style: darkerTextStyle),
-                  Text("-", style: darkerTextStyle),
-                  Text("-", style: darkerTextStyle),
+                  Text("-", style: lowPriorityLabelStyle),
+                  Text("-", style: lowPriorityLabelStyle),
+                  Text("-", style: lowPriorityLabelStyle),
                 ],
               ),
             ),
@@ -582,7 +605,10 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _startColorBoxWidget(),
-                              Text("start", style: blendModeText),
+                              Text(
+                                PfsLocalization.startColorLabel,
+                                style: startEndLabelStyle,
+                              ),
                             ],
                           ),
                         ],
@@ -621,7 +647,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                           child: Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 Padding(
                                   padding: EdgeInsets.only(
                                       left: 10, right: 10, top: 0, bottom: 15),
@@ -632,12 +658,15 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                   spacing: 3,
                                   children: [
                                     Text(
-                                      "Click on the image to pick the starting color.",
+                                      PfsLocalization
+                                          .clickImageToPickStartingColor,
                                     ),
                                     Text(
-                                      "Right-click to exit color change meter.",
-                                      style: smallGrayText,
-                                    )
+                                      PfsLocalization
+                                          .rightClickToExitColorMeter,
+                                      style: minorLabelStyle,
+                                    ),
+                                    SizedBox(height: baseSize * 0.7),
                                   ],
                                 ),
                               ],
@@ -671,10 +700,10 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                 // Divider
                                 //
                                 Container(
-                                    width: 280,
-                                    height: 1,
-                                    color:
-                                        Colors.white.withValues(alpha: 0.15)),
+                                  width: 280,
+                                  height: 1,
+                                  color: dividerColor,
+                                ),
 
                                 //
                                 // Bottom row
@@ -798,7 +827,10 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     _endColorBoxWidget(),
-                                    Text("end", style: blendModeText),
+                                    Text(
+                                      PfsLocalization.endColorLabel,
+                                      style: startEndLabelStyle,
+                                    ),
                                   ],
                                 ),
                                 listeningValuesVertical(
@@ -868,37 +900,69 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     };
   }
 
-  Row _normalColorBox() {
-    return Row(
-      children: [
-        Text("normal ", style: blendModeText),
-        SizedBox(
-          width: 35,
-          child: ValueListenableBuilder(
-            valueListenable: calculatedColors.alphaBlendColorPercent,
-            builder: (_, value, ___) {
-              if (value.isInfinite || value.isNaN || value == 0) {
-                return Text(" - ");
-              }
+  static const labelAlpha = 0.50;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 1.3),
-                child: Text(
-                  "${(100.0 / value).floor()}%",
-                  textAlign: TextAlign.right,
-                  style: TextStyle(fontSize: 12),
-                ),
-              );
-            },
+  TextStyle blendModeLabelStyle(ThemeData theme) {
+    final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
+
+    final colorScheme = theme.colorScheme;
+    final textColor = colorScheme.onSurface;
+    final labelTextColor = textColor.withValues(alpha: labelAlpha);
+
+    return TextStyle(fontSize: labelTextSize, color: labelTextColor);
+  }
+
+  Color textGrayFrom(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final textColor = colorScheme.onSurface;
+    final labelTextColor = textColor.withValues(alpha: labelAlpha);
+    return labelTextColor;
+  }
+
+  Color faintIconColor(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final textColor = colorScheme.onSurface;
+    return textColor.withValues(alpha: 0.4);
+  }
+
+  Widget _normalColorBox() {
+    final theme = Theme.of(context);
+    final valueTextSize = theme.textTheme.bodySmall?.fontSize ?? 12;
+
+    return Tooltip(
+      message:
+          "The color and opacity placed on top of the start color to get the end color.",
+      child: Row(
+        children: [
+          Text("${PfsLocalization.normal} ", style: blendModeLabelStyle(theme)),
+          SizedBox(
+            width: 35,
+            child: ValueListenableBuilder(
+              valueListenable: calculatedColors.alphaBlendColorPercent,
+              builder: (_, value, ___) {
+                if (value.isInfinite || value.isNaN || value == 0) {
+                  return Text(" - ");
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 1.3),
+                  child: Text(
+                    "${(100.0 / value).floor()}%",
+                    textAlign: TextAlign.right,
+                    style: TextStyle(fontSize: valueTextSize),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        valueListeningColorBox(calculatedColors.terminalAlphaBlendColor),
-      ],
+          valueListeningColorBox(calculatedColors.terminalAlphaBlendColor),
+        ],
+      ),
     );
   }
 
   Widget _blendModeBoxes() {
-    const double boxSpacing = 12;
+    const double boxSpacing = 13;
 
     return ValueListenableBuilder(
       valueListenable: calculatedColors.startEndColorDifference,
@@ -906,28 +970,33 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
         if (difference == ColorDifference.allDarkerOrEqual) {
           return Row(
             children: [
-              _labeledListeningColorBox(
-                  label: "multiply",
-                  colorListenable: calculatedColors.multiplyColor),
-              SizedBox(width: 1),
-              ValueListenableBuilder(
-                  valueListenable: calculatedColors.multiplyMinimumAlpha,
-                  builder: (_, __, ___) {
-                    final multiplyPercentText =
-                        (calculatedColors.multiplyMinimumAlpha.value * 100)
-                            .toStringAsFixed(0);
+              Row(
+                children: [
+                  _labeledListeningColorBox(
+                      label: PfsLocalization.multiply,
+                      colorListenable: calculatedColors.multiplyColor),
+                  SizedBox(width: 1),
+                  ValueListenableBuilder(
+                      valueListenable: calculatedColors.multiplyMinimumAlpha,
+                      builder: (_, __, ___) {
+                        final multiplyPercentText =
+                            (calculatedColors.multiplyMinimumAlpha.value * 100)
+                                .toStringAsFixed(0);
 
-                    return _conditionalLabeledListeningColorBox(
-                      label: "$multiplyPercentText%",
-                      textSpace: 0,
-                      colorListenable: calculatedColors.multiplyWithAlphaColor,
-                      conditionListenable:
-                          calculatedColors.canMultiplyWithAlpha,
-                    );
-                  }),
+                        return _conditionalLabeledListeningColorBox(
+                          label: "$multiplyPercentText%",
+                          textSpace: 0,
+                          colorListenable:
+                              calculatedColors.multiplyWithAlphaColor,
+                          conditionListenable:
+                              calculatedColors.canMultiplyWithAlpha,
+                        );
+                      }),
+                ],
+              ),
               SizedBox(width: boxSpacing),
               _labeledListeningColorBox(
-                  label: "linear burn",
+                  label: PfsLocalization.linearBurn,
                   colorListenable: calculatedColors.linearBurnColor),
             ],
           );
@@ -936,11 +1005,12 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             spacing: boxSpacing,
             children: [
               _labeledListeningColorBox(
-                  label: "screen",
+                  label: PfsLocalization.screen,
                   colorListenable: calculatedColors.screenColor),
               _colorDodgeBox(),
               _labeledListeningColorBox(
-                  label: "add", colorListenable: calculatedColors.addColor),
+                  label: PfsLocalization.add,
+                  colorListenable: calculatedColors.addColor),
             ],
           );
         }
@@ -961,7 +1031,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       valueListenable: calculatedColors.canColorDodge,
       builder: (_, __, ___) {
         return _labeledColorBox(
-          label: "color dodge",
+          label: PfsLocalization.colorDodge,
           strikethrough: !calculatedColors.canColorDodge.value,
           boxWidget: valueListeningColorBox(calculatedColors.dodgeColor),
         );
@@ -985,6 +1055,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     double? textSpace,
     required Widget boxWidget,
   }) {
+    final labelStyle = blendModeLabelStyle(Theme.of(context));
+
     return Row(
       children: [
         Padding(
@@ -992,8 +1064,10 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           child: Text(
             label,
             style: strikethrough
-                ? blendModeText.copyWith(decoration: TextDecoration.lineThrough)
-                : blendModeText,
+                ? labelStyle.copyWith(
+                    decoration: TextDecoration.lineThrough,
+                  )
+                : labelStyle,
           ),
         ),
         boxWidget,

@@ -22,6 +22,24 @@ class PfsLocalization {
   static const String timerPaused = 'Timer paused';
 
   static const String openColorChangeMeter = 'Open color change meter';
+  static const String colorChangeMeter = 'Color change meter';
+  static const String clickForColorComponents =
+      'Click to toggle color components.';
+
+  static const String clickImageToPickStartingColor =
+      "Click on the image to pick the starting color.";
+  static const String rightClickToExitColorMeter =
+      "Right-click to exit color change meter.";
+
+  static const String normal = "normal";
+  static const String multiply = "multiply";
+  static const String screen = "screen";
+  static const String colorDodge = "color dodge";
+  static const String add = "add";
+  static const String linearBurn = "linear burn";
+
+  static const String startColorLabel = "start";
+  static const String endColorLabel = "end";
 
   static const String timer = 'Timer';
 
