@@ -896,9 +896,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   void cycleStartEndColorComponentsVisibility() {
     widget.model.startEndComponentsMode.value =
         switch (widget.model.startEndComponentsMode.value) {
-      ColorComponentsMode.none => ColorComponentsMode.hsl,
-      ColorComponentsMode.hsl => ColorComponentsMode.rgb,
-      //ColorComponentsMode.rgb => ColorComponentsMode.none,
+      ColorComponentsMode.none => ColorComponentsMode.rgb,
+      ColorComponentsMode.rgb => ColorComponentsMode.hsl,
       _ => ColorComponentsMode.none,
     };
   }
