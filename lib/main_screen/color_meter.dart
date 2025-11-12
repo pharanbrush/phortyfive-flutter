@@ -73,7 +73,7 @@ class ColorMeterModel {
   void Function()? onEndColorMeter;
 
   final startEndComponentsMode =
-      ValueNotifier<ColorComponentsMode>(ColorComponentsMode.rgb);
+      ValueNotifier<ColorComponentsMode>(ColorComponentsMode.none);
   bool isColorMetering = false;
 
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
