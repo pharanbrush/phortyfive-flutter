@@ -327,10 +327,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                   width: 52,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(hueDiffText),
-                                      percentLabel
-                                    ],
+                                    children: [Text(hueDiffText), percentLabel],
                                   )),
                             ],
                           ),
