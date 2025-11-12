@@ -69,7 +69,7 @@ class _MainScreenState extends State<MainScreen>
         MainScreenColorMeter,
         MainScreenSound,
         MainScreenToaster,
-        MainScreenScore,
+        MainScreenImageViewedCounter,
         MainScreenClipboardFunctions {
   @override
   ValueNotifier<bool> getSoundEnabledNotifier() =>
@@ -693,7 +693,7 @@ mixin MainScreenBuildContext {
   }
 }
 
-mixin MainScreenScore {
+mixin MainScreenImageViewedCounter {
   final imagesViewedCounter = ValueNotifier<int>(0);
 
   final _viewedImages = <String>{};
