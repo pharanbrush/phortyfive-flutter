@@ -263,6 +263,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     final theme = Theme.of(context);
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
+    const double barRightPosition = 5;
+    const double barBottomEmbedPosition = -8;
     const double barHeight = 120;
     const double barLeftRightPadding = 12;
 
@@ -398,6 +400,40 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
     final mainStack = Stack(
       children: [
+        Positioned(
+          right: 8,
+          bottom: 8 - barBottomEmbedPosition,
+          child: Tooltip(
+            ignorePointer: true,
+            richMessage: TextSpan(
+              children: [
+                TextSpan(text: """
+This color change meter calculates values in """),
+                TextSpan(
+                    text: "gamma space",
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+                TextSpan(text: """.
+This reflects how painting apps show their color pickers, and how they
+blend layers using modes like "Normal", "Multiply", and "Screen".
+
+Gamma encoding is the standard way most modern systems, everyday apps,
+including browsers and painting apps, encode and use colors. This encoding
+uses numbers that are stretched to give space for a larger range of dark colors.
+
+The stretched numbers mean a color having half the lightness number
+isn't equivalent to having half the physical amount of light in real life.
+
+For more accurate and pleasing results, applications like modern games and 3D software
+take color values out of gamma space before doing color calculations.""")
+              ],
+            ),
+            child: Icon(
+              Icons.info_outlined,
+              size: 13,
+            ),
+          ),
+        ),
+
         Column(
           spacing: 4,
           children: [
@@ -684,8 +720,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     return Stack(
       children: [
         Positioned(
-          bottom: -8,
-          right: 5,
+          bottom: barBottomEmbedPosition,
+          right: barRightPosition,
           child: panelMaterial(
             child: Container(
               padding: EdgeInsets.only(left: barLeftRightPadding),
