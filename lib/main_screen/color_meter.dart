@@ -14,6 +14,8 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
+const _labelAlpha = 0.50;
+
 enum ColorComponentsMode {
   none,
   hsl,
@@ -238,22 +240,16 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     endColorPosition.value = offset;
   }
 
-  static const labelAlpha = 0.50;
-
-  TextStyle blendModeLabelStyle(ThemeData theme) {
+  static TextStyle blendModeLabelStyle(ThemeData theme) {
     final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
     final labelTextColor =
-        theme.colorScheme.onSurface.withValues(alpha: labelAlpha);
+        theme.colorScheme.onSurface.withValues(alpha: _labelAlpha);
 
     return TextStyle(fontSize: labelTextSize, color: labelTextColor);
   }
 
-  Color textGrayFrom(ThemeData theme) {
-    return theme.colorScheme.onSurface.withValues(alpha: labelAlpha);
-  }
-
-  Color faintIconColor(ThemeData theme) {
-    return theme.colorScheme.onSurface.withValues(alpha: 0.4);
+  static Color textGrayFrom(ThemeData theme) {
+    return theme.colorScheme.onSurface.withValues(alpha: _labelAlpha);
   }
 
   @override
@@ -270,7 +266,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
     final faintTextColor = onSurface.withValues(alpha: 0.23);
-    final labelTextColor = onSurface.withValues(alpha: labelAlpha);
+    final labelTextColor = onSurface.withValues(alpha: _labelAlpha);
     final lowPriorityValueColor = onSurface.withValues(alpha: 0.45);
 
     final startEndLabelStyle = TextStyle(
@@ -791,7 +787,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                           children: [
                             HslChangeIcon(
                               value: hueDifference,
-                              cutoff: 0,
+                              neutralValue: 0,
                               increase: Icons.redo,
                               decrease: Icons.undo,
                               extraRightPadding: 3,
@@ -814,7 +810,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                           children: [
                             HslChangeIcon(
                               value: saturationPercent,
-                              cutoff: 100,
+                              neutralValue: 100,
                               decrease: Icons.arrow_back,
                               increase: Icons.arrow_forward,
                             ),
@@ -840,7 +836,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                           children: [
                             HslChangeIcon(
                               value: lightnessPercent,
-                              cutoff: 100,
+                              neutralValue: 100,
                               decrease: Icons.arrow_downward,
                               increase: Icons.arrow_upward,
                             ),
@@ -914,7 +910,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
               },
             ),
           ),
-          valueListeningColorBox(calculatedColors.terminalAlphaBlendColor),
+          ColorBox.valueListening(calculatedColors.terminalAlphaBlendColor),
         ],
       ),
     );
@@ -931,7 +927,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             children: [
               Row(
                 children: [
-                  _labeledListeningColorBox(
+                  ColorBox.labeledListening(
                       label: PfsLocalization.multiply,
                       colorListenable: calculatedColors.multiplyColor),
                   SizedBox(width: 1),
@@ -942,7 +938,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                             (calculatedColors.multiplyMinimumAlpha.value * 100)
                                 .toStringAsFixed(0);
 
-                        return _conditionalLabeledListeningColorBox(
+                        return ColorBox.conditionalLabeledListening(
                           label: "$multiplyPercentText%",
                           textSpace: 0,
                           colorListenable:
@@ -954,7 +950,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                 ],
               ),
               SizedBox(width: boxSpacing),
-              _labeledListeningColorBox(
+              ColorBox.labeledListening(
                   label: PfsLocalization.linearBurn,
                   colorListenable: calculatedColors.linearBurnColor),
             ],
@@ -963,11 +959,11 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           return Row(
             spacing: boxSpacing,
             children: [
-              _labeledListeningColorBox(
+              ColorBox.labeledListening(
                   label: PfsLocalization.screen,
                   colorListenable: calculatedColors.screenColor),
               _colorDodgeBox(),
-              _labeledListeningColorBox(
+              ColorBox.labeledListening(
                   label: PfsLocalization.add,
                   colorListenable: calculatedColors.addColor),
             ],
@@ -977,8 +973,8 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
         return Row(
           spacing: boxSpacing,
           children: [
-            _disabledLabeledColorBox(),
-            _disabledLabeledColorBox(),
+            ColorBox.disabled(),
+            ColorBox.disabled(),
           ],
         );
       },
@@ -989,98 +985,19 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     return ValueListenableBuilder(
       valueListenable: calculatedColors.canColorDodge,
       builder: (_, __, ___) {
-        return _labeledColorBox(
+        return ColorBox.label(
           label: PfsLocalization.colorDodge,
           strikethrough: !calculatedColors.canColorDodge.value,
-          boxWidget: valueListeningColorBox(calculatedColors.dodgeColor),
+          child: ColorBox.valueListening(calculatedColors.dodgeColor),
         );
       },
     );
   }
-
-  Widget _disabledLabeledColorBox() {
-    return Builder(
-      builder: (context) {
-        final color =
-            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15);
-        return _labeledColorBox(
-          label: "             ",
-          boxWidget: _colorBox(
-            Colors.transparent,
-            borderColor: color,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _labeledColorBox({
-    String label = "",
-    bool strikethrough = false,
-    double? textSpace,
-    required Widget boxWidget,
-  }) {
-    final labelStyle = blendModeLabelStyle(Theme.of(context));
-
-    return Row(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(bottom: 0.5, right: textSpace ?? 2),
-          child: Text(
-            label,
-            style: strikethrough
-                ? labelStyle.copyWith(
-                    decoration: TextDecoration.lineThrough,
-                  )
-                : labelStyle,
-          ),
-        ),
-        boxWidget,
-      ],
-    );
-  }
-
-  Widget _labeledListeningColorBox({
-    double? textSpace,
-    required String label,
-    required ValueListenable<Color> colorListenable,
-  }) {
-    return _labeledColorBox(
-      label: label,
-      textSpace: textSpace,
-      boxWidget: valueListeningColorBox(colorListenable),
-    );
-  }
-
-  Widget _conditionalLabeledListeningColorBox({
-    double? textSpace,
-    required String label,
-    required ValueListenable<Color> colorListenable,
-    required ValueListenable<bool> conditionListenable,
-  }) {
-    return ValueListenableBuilder(
-      valueListenable: conditionListenable,
-      builder: (_, isConditionTrue, __) {
-        if (isConditionTrue) {
-          return _labeledListeningColorBox(
-            label: label,
-            textSpace: textSpace,
-            colorListenable: colorListenable,
-          );
-        } else {
-          return SizedBox.shrink();
-        }
-      },
-    );
-  }
-
-  static const double bigColorBoxSize = 40;
-  static const double colorBoxSize = 18;
 
   Widget _endColorBoxWidget() {
-    final innerWidget = valueListeningColorBox(
+    final innerWidget = ColorBox.valueListening(
       endColor,
-      size: bigColorBoxSize,
+      size: ColorBox.bigSize,
       shape: BoxShape.circle,
     );
 
@@ -1098,9 +1015,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       valueListenable: isStartColorPicked,
       builder: (context, _, __) {
         if (isStartColorPicked.value == false) {
-          return valueListeningColorBox(
+          return ColorBox.valueListening(
             endColor,
-            size: bigColorBoxSize,
+            size: ColorBox.bigSize,
             shape: BoxShape.circle,
           );
         }
@@ -1111,9 +1028,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             return Animate(
               key: Key(lastPickKey.value),
               effects: const [Phanimations.startColorPulseEffect],
-              child: valueListeningColorBox(
+              child: ColorBox.valueListening(
                 startColor,
-                size: bigColorBoxSize,
+                size: ColorBox.defaultSize,
                 shape: BoxShape.circle,
               ),
             );
@@ -1127,56 +1044,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       child: GestureDetector(
         onTap: () => widget.model.cycleComponentsMode(),
         child: innerWidget,
-      ),
-    );
-  }
-
-  Widget valueListeningColorBox(
-    ValueListenable<Color> listenableColor, {
-    double size = colorBoxSize,
-    BoxShape shape = BoxShape.rectangle,
-  }) {
-    return ValueListenableBuilder(
-      valueListenable: listenableColor,
-      builder: (_, colorValue, __) {
-        final isClipped =
-            colorValue == Colors.white || colorValue == Colors.black;
-
-        return _colorBox(
-          colorValue,
-          size: size,
-          shape: shape,
-          borderWidth: isClipped ? 3 : 1,
-        );
-      },
-    );
-  }
-
-  Widget _colorBox(
-    Color color, {
-    double size = colorBoxSize,
-    Color borderColor = Colors.white,
-    BoxShape shape = BoxShape.rectangle,
-    double borderWidth = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Material(
-        elevation: 1,
-        shape: shape == BoxShape.circle
-            ? CircleBorder()
-            : RoundedRectangleBorder(),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-              shape: shape,
-              color: color,
-              border: Border.all(
-                color: borderColor,
-                width: borderWidth,
-              )),
-        ),
       ),
     );
   }
@@ -1208,17 +1075,168 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 }
 
+/// [ColorBox] is a widget that box that shows a color in the color meter.
+/// The class provides several statics that creates labels and [ValueListenableBuilder]s
+class ColorBox extends StatelessWidget {
+  const ColorBox({
+    required this.color,
+    this.size = defaultSize,
+    this.borderColor = Colors.white,
+    this.shape = BoxShape.rectangle,
+    this.borderWidth = 1,
+    super.key,
+  });
+
+  static const double bigSize = 40;
+  static const double defaultSize = 18;
+
+  final Color color;
+  final double size;
+  final Color borderColor;
+  final BoxShape shape;
+  final double borderWidth;
+
+  static Widget label({
+    String label = "",
+    bool strikethrough = false,
+    double? textSpace,
+    required Widget child,
+  }) {
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
+        final labelTextColor =
+            theme.colorScheme.onSurface.withValues(alpha: _labelAlpha);
+
+        final labelStyle = TextStyle(
+          fontSize: labelTextSize,
+          color: labelTextColor,
+          decoration: strikethrough ? TextDecoration.lineThrough : null,
+        );
+
+        return Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(bottom: 0.5, right: textSpace ?? 2),
+              child: Text(label, style: labelStyle),
+            ),
+            child,
+          ],
+        );
+      },
+    );
+  }
+
+  static Widget conditionalLabeledListening({
+    double? textSpace,
+    required String label,
+    required ValueListenable<Color> colorListenable,
+    required ValueListenable<bool> conditionListenable,
+  }) {
+    return ValueListenableBuilder(
+      valueListenable: conditionListenable,
+      builder: (_, isConditionTrue, __) {
+        if (isConditionTrue) {
+          return ColorBox.labeledListening(
+            label: label,
+            textSpace: textSpace,
+            colorListenable: colorListenable,
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  static Widget valueListening(
+    ValueListenable<Color> listenableColor, {
+    double size = ColorBox.defaultSize,
+    BoxShape shape = BoxShape.rectangle,
+  }) {
+    return ValueListenableBuilder(
+      valueListenable: listenableColor,
+      builder: (_, colorValue, __) {
+        final isClipped =
+            colorValue == Colors.white || colorValue == Colors.black;
+
+        return ColorBox(
+          color: colorValue,
+          size: size,
+          shape: shape,
+          borderWidth: isClipped ? 3 : 1,
+        );
+      },
+    );
+  }
+
+  static Widget labeledListening({
+    double? textSpace,
+    required String label,
+    required ValueListenable<Color> colorListenable,
+  }) {
+    return ColorBox.label(
+      label: label,
+      textSpace: textSpace,
+      child: ColorBox.valueListening(colorListenable),
+    );
+  }
+
+  static Widget disabled() {
+    return Builder(
+      builder: (context) {
+        final color =
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15);
+        return ColorBox.label(
+          label: "             ",
+          child: ColorBox(
+            color: Colors.transparent,
+            borderColor: color,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Material(
+        elevation: 1,
+        shape: shape == BoxShape.circle
+            ? CircleBorder()
+            : RoundedRectangleBorder(),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+              shape: shape,
+              color: color,
+              border: Border.all(
+                color: borderColor,
+                width: borderWidth,
+              )),
+        ),
+      ),
+    );
+  }
+}
+
+/// This is an icon widget for showing whether a value is above or below a threshold.
 class HslChangeIcon extends StatelessWidget {
-  const HslChangeIcon(
-      {super.key,
-      required this.value,
-      required this.cutoff,
-      required this.decrease,
-      required this.increase,
-      this.extraRightPadding = 0});
+  const HslChangeIcon({
+    super.key,
+    required this.value,
+    required this.neutralValue,
+    required this.decrease,
+    required this.increase,
+    this.extraRightPadding = 0,
+  });
 
   final double value;
-  final double cutoff;
+  final double neutralValue;
   final IconData decrease;
   final IconData increase;
   final double extraRightPadding;
@@ -1227,10 +1245,10 @@ class HslChangeIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 3, right: 1 + extraRightPadding),
-      child: value == cutoff
+      child: value == neutralValue
           ? SizedBox(width: 14)
           : Icon(
-              value > cutoff ? increase : decrease,
+              value > neutralValue ? increase : decrease,
               size: 14,
               color: Color.from(alpha: 0.45, red: 0.5, green: 0.5, blue: 0.5),
             ),
