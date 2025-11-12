@@ -1025,7 +1025,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
               effects: const [Phanimations.startColorPulseEffect],
               child: ColorBox.valueListening(
                 startColor,
-                size: ColorBox.defaultSize,
+                size: ColorBox.bigSize,
                 shape: BoxShape.circle,
               ),
             );
