@@ -210,6 +210,12 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    overlays.removeOverlays();
+    super.dispose();
+  }
+
   void onPointerExit() {
     overlays.setPointerOverlayActive(false, widget.eyeDropKey.currentContext);
   }
@@ -1622,23 +1628,17 @@ class ColorMeterOverlays {
   }
 
   void removeOverlays() {
-    startColorLocation?.remove();
-    startColorLocation = null;
-
-    if (endColorLocation != null) {
-      if (endColorLocation!.mounted) {
-        endColorLocation?.remove();
-      }
-      endColorLocation = null;
-    }
-
-    if (arrow != null) {
-      if (arrow!.mounted) {
-        arrow?.remove();
+    OverlayEntry? tryRemoveAndReturnNull(OverlayEntry? entry) {
+      if (entry != null && entry.mounted) {
+        entry.remove();
       }
 
-      arrow = null;
+      return null;
     }
+
+    startColorLocation = tryRemoveAndReturnNull(startColorLocation);
+    endColorLocation = tryRemoveAndReturnNull(endColorLocation);
+    arrow = tryRemoveAndReturnNull(arrow);
   }
 }
 
