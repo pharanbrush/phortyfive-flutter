@@ -516,12 +516,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                   ...colorMeterHSLItems(),
                                 ],
                               ),
-
                               //
-                              // Divider
                               //
                               const _ColorMeterDivider(),
-
                               //
                               // Bottom row
                               //
@@ -738,14 +735,14 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
               final saturationPercent = (es / ss);
               final saturationDifference = (es - ss) * 100;
 
-              final sDifferenceText =
+              final saturationDifferenceText =
                   "${saturationDifference > 0 ? "+" : ""}${saturationDifference.toStringAsFixed(0)}";
 
               final isSaturationInvalid =
                   (saturationPercent.isInfinite || saturationPercent.isNaN);
 
               final lightnessPercent = (end.lightness / start.lightness) * 100;
-              final lPercentText =
+              final lightnessPercentText =
                   (lightnessPercent.isInfinite || lightnessPercent.isNaN)
                       ? "-"
                       : lightnessPercent.toStringAsFixed(0);
@@ -755,10 +752,11 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                       hueDifference != 0)
                   ? 1
                   : 0;
-              final hueDiffText = isSaturationInvalid || end.saturation == 0
-                  ? "-"
-                  : (hueDifference > 0 ? "+" : "") +
-                      hueDifference.toStringAsFixed(hueDecimalCount);
+              final hueDifferenceText =
+                  isSaturationInvalid || end.saturation == 0
+                      ? "-"
+                      : (hueDifference > 0 ? "+" : "") +
+                          hueDifference.toStringAsFixed(hueDecimalCount);
 
               final theme = Theme.of(context);
               final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
@@ -772,6 +770,42 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
               final percentLabel = Text("%", style: percentTextStyle);
 
+              Widget hslItem({
+                required double value,
+                required double neutralValue,
+                required IconData increaseIcon,
+                required IconData decreaseIcon,
+                required double valueSizedBoxWidth,
+                required String labelText,
+                required Widget valueWidget,
+                required Text unitTextWidget,
+                required String tooltip,
+                double changeIconRightPadding = 0,
+              }) {
+                return Tooltip(
+                  message: tooltip,
+                  child: Row(
+                    children: [
+                      HslChangeIcon(
+                        value: value,
+                        neutralValue: neutralValue,
+                        increase: increaseIcon,
+                        decrease: decreaseIcon,
+                        extraRightPadding: changeIconRightPadding,
+                      ),
+                      Text(labelText, style: numberLabel),
+                      SizedBox(
+                        width: valueSizedBoxWidth,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [valueWidget, unitTextWidget],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
               return SizedBox(
                 width: 360,
                 child: Padding(
@@ -779,88 +813,49 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Hue
-                      Tooltip(
-                        message:
+                      hslItem(
+                        labelText: "hue ",
+                        tooltip:
                             "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: hueDifference,
-                              neutralValue: 0,
-                              increase: Icons.redo,
-                              decrease: Icons.undo,
-                              extraRightPadding: 3,
-                            ),
-                            Text("hue ", style: numberLabel),
-                            SizedBox(
-                                width: 52,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [Text(hueDiffText), percentLabel],
-                                )),
-                          ],
-                        ),
+                        value: hueDifference,
+                        neutralValue: 0,
+                        increaseIcon: Icons.redo,
+                        decreaseIcon: Icons.undo,
+                        valueWidget: Text(hueDifferenceText),
+                        unitTextWidget: percentLabel,
+                        changeIconRightPadding: 3,
+                        valueSizedBoxWidth: 52,
                       ),
-                      // Saturation
-                      Tooltip(
-                        message:
+                      hslItem(
+                        labelText: "sat ",
+                        tooltip:
                             "Change in saturation\nThe difference in saturation between the start and end colors.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: saturationPercent,
-                              neutralValue: 100,
-                              decrease: Icons.arrow_back,
-                              increase: Icons.arrow_forward,
-                            ),
-                            Text("sat ", style: numberLabel),
-                            SizedBox(
-                              width: 50,
-                              child: Row(
-                                children: [
-                                  Text(sDifferenceText),
-                                  percentLabel,
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                        value: saturationPercent,
+                        neutralValue: 1,
+                        increaseIcon: Icons.arrow_forward,
+                        decreaseIcon: Icons.arrow_back,
+                        valueWidget: Text(saturationDifferenceText),
+                        unitTextWidget: percentLabel,
+                        valueSizedBoxWidth: 50,
                       ),
-
-                      // Lightness
-                      Tooltip(
-                        message:
+                      hslItem(
+                        labelText: "lightness × ",
+                        tooltip:
                             "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: lightnessPercent,
-                              neutralValue: 100,
-                              decrease: Icons.arrow_downward,
-                              increase: Icons.arrow_upward,
-                            ),
-                            Text("lightness × ", style: numberLabel),
-                            SizedBox(
-                              width: 52,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 1.55,
-                                      bottom: 1,
-                                    ),
-                                    child: Text(
-                                      lPercentText,
-                                      style: lightnessPercentTextStyle,
-                                    ),
-                                  ),
-                                  percentLabel,
-                                ],
-                              ),
-                            ),
-                          ],
+                        value: lightnessPercent,
+                        neutralValue: 100,
+                        increaseIcon: Icons.arrow_upward,
+                        decreaseIcon: Icons.arrow_downward,
+                        valueWidget: Padding(
+                          padding:
+                              const EdgeInsets.only(right: 1.55, bottom: 1),
+                          child: Text(
+                            lightnessPercentText,
+                            style: lightnessPercentTextStyle,
+                          ),
                         ),
+                        unitTextWidget: percentLabel,
+                        valueSizedBoxWidth: 52,
                       ),
                     ].animate(
                       effects: [
