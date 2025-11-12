@@ -879,14 +879,20 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<String> getThemeNotifier();
 
   late final ModalPanel filtersMenu = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: filtersMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: filtersMenu);
+      registerEscape("filters panel");
+    },
     isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalPanel helpMenu = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: helpMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: helpMenu);
+      registerEscape("help menu");
+    },
     builder: () {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
@@ -896,7 +902,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel settingsMenu = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: settingsMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: settingsMenu);
+      registerEscape("settings menu");
+    },
     builder: () {
       return SettingsPanel(
         appModel: model,
@@ -909,7 +918,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel timerDurationMenu = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: timerDurationMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: timerDurationMenu);
+      registerEscape("timer durations menu");
+    },
     onOpened: () {
       timerDurationEditor.setActive(
           timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
@@ -924,7 +936,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel aboutMenu = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: aboutMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: aboutMenu);
+      registerEscape("about menu");
+    },
     builder: () => const AboutSheet(),
   );
 
@@ -940,6 +955,19 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
     for (final panel in modalPanels) {
       yield panel.widget();
     }
+  }
+
+  void registerEscape(String panelName) {
+    final escapeNavigator = EscapeNavigator.of(context);
+    escapeNavigator?.push(
+      EscapeRoute(
+        name: panelName,
+        onEscape: () {
+          closeAllPanels();
+        },
+        willPopOnEscape: true,
+      ),
+    );
   }
 
   void closeAllPanels({ModalPanel? except}) {
