@@ -306,29 +306,20 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
           SizedBox(
             width: 20,
             child: Center(
-              child: Text(
-                label,
-                style: lowPriorityLabelStyle,
-              ),
+              child: Text(label, style: lowPriorityLabelStyle),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 1),
             child: SizedBox(
               width: 27,
-              child: Text(
-                value,
-                style: valueTextStyle,
-                textAlign: TextAlign.right,
-              ),
+              child: Text(value,
+                  style: valueTextStyle, textAlign: TextAlign.right),
             ),
           ),
           SizedBox(
             width: 12,
-            child: Text(
-              unit,
-              style: lowPriorityLabelStyle,
-            ),
+            child: Text(unit, style: lowPriorityLabelStyle),
           ),
         ]);
       }
@@ -513,7 +504,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                               //
                               Row(
                                 children: [
-                                  ...colorMeterHSLItems(),
+                                  ...hslChangeMeterWidgets(),
                                 ],
                               ),
                               //
@@ -571,7 +562,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                                         }
 
                                         return SizedBox(
-                                          //width: 245,
                                           height: 33,
                                           child: TextButton(
                                             onPressed: () {
@@ -702,7 +692,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     );
   }
 
-  Iterable<Widget> colorMeterHSLItems() {
+  Iterable<Widget> hslChangeMeterWidgets() {
     final textGray = textGrayFrom(Theme.of(context));
     const double numberLabelSize = 13;
 
