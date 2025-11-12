@@ -297,112 +297,103 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
               final percentLabel = Text("%", style: percentTextStyle);
 
-              return Container(
-                // decoration: BoxDecoration(
-                //   borderRadius: BorderRadius.all(Radius.circular(3)),
-                //   color: Colors.black.withValues(alpha: 0.25),
-                // ),
-                child: SizedBox(
-                  width: 360,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Hue
-                        Tooltip(
-                          message:
-                              "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                          child: Row(
-                            children: [
-                              HslChangeIcon(
-                                value: hueDifference,
-                                cutoff: 0,
-                                increase: Icons.redo,
-                                decrease: Icons.undo,
-                                extraRightPadding: 3,
-                              ),
-                              Text("hue ", style: numberLabel),
-                              SizedBox(
-                                  width: 52,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [Text(hueDiffText), percentLabel],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        // Saturation
-                        Tooltip(
-                          message:
-                              "Change in saturation\nThe difference in saturation between the start and end colors.",
-                          child: Row(
-                            children: [
-                              HslChangeIcon(
-                                value: saturationPercent,
-                                cutoff: 100,
-                                decrease: Icons.arrow_back,
-                                increase: Icons.arrow_forward,
-                              ),
-                              Text("sat ", style: numberLabel),
-                              SizedBox(
-                                width: 50,
+              return SizedBox(
+                width: 360,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Hue
+                      Tooltip(
+                        message:
+                            "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: hueDifference,
+                              cutoff: 0,
+                              increase: Icons.redo,
+                              decrease: Icons.undo,
+                              extraRightPadding: 3,
+                            ),
+                            Text("hue ", style: numberLabel),
+                            SizedBox(
+                                width: 52,
                                 child: Row(
-                                  children: [
-                                    Text(sDifferenceText),
-                                    percentLabel,
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [Text(hueDiffText), percentLabel],
+                                )),
+                          ],
                         ),
-
-                        // Lightness
-                        Tooltip(
-                          message:
-                              "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
-                          child: Row(
-                            children: [
-                              HslChangeIcon(
-                                value: lightnessPercent,
-                                cutoff: 100,
-                                decrease: Icons.arrow_downward,
-                                increase: Icons.arrow_upward,
-                              ),
-                              Text("lightness × ", style: numberLabel),
-                              Container(
-                                //decoration: BoxDecoration(color: Colors.red),
-                                child: SizedBox(
-                                  width: 52,
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 1.55,
-                                          bottom: 1,
-                                        ),
-                                        child: Text(
-                                          lPercentText,
-                                          style: lightnessPercentTextStyle,
-                                        ),
-                                      ),
-                                      percentLabel,
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ].animate(
-                        effects: [
-                          Phanimations.slideRightEffect,
-                          Phanimations.fadeInEffect
-                        ],
-                        delay: Duration(milliseconds: 30),
-                        interval: Duration(milliseconds: 60),
                       ),
+                      // Saturation
+                      Tooltip(
+                        message:
+                            "Change in saturation\nThe difference in saturation between the start and end colors.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: saturationPercent,
+                              cutoff: 100,
+                              decrease: Icons.arrow_back,
+                              increase: Icons.arrow_forward,
+                            ),
+                            Text("sat ", style: numberLabel),
+                            SizedBox(
+                              width: 50,
+                              child: Row(
+                                children: [
+                                  Text(sDifferenceText),
+                                  percentLabel,
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Lightness
+                      Tooltip(
+                        message:
+                            "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: lightnessPercent,
+                              cutoff: 100,
+                              decrease: Icons.arrow_downward,
+                              increase: Icons.arrow_upward,
+                            ),
+                            Text("lightness × ", style: numberLabel),
+                            SizedBox(
+                              width: 52,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 1.55,
+                                      bottom: 1,
+                                    ),
+                                    child: Text(
+                                      lPercentText,
+                                      style: lightnessPercentTextStyle,
+                                    ),
+                                  ),
+                                  percentLabel,
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ].animate(
+                      effects: [
+                        Phanimations.slideRightEffect,
+                        Phanimations.fadeInEffect
+                      ],
+                      delay: Duration(milliseconds: 30),
+                      interval: Duration(milliseconds: 60),
                     ),
                   ),
                 ),
@@ -427,7 +418,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
-    final dividerColor = onSurface.withValues(alpha: 0.15);
     final faintTextColor = onSurface.withValues(alpha: 0.23);
     final labelTextColor = onSurface.withValues(alpha: labelAlpha);
     final lowPriorityValueColor = onSurface.withValues(alpha: 0.45);
@@ -440,6 +430,12 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     final minorLabelStyle = TextStyle(
       fontSize: smallTextSize,
       color: labelTextColor,
+    );
+
+    final panelTitleStyle = TextStyle(
+      letterSpacing: 1.5,
+      color: onSurface.withValues(alpha: 0.4),
+      fontSize: 12,
     );
 
     Widget colorValuesVertical(
@@ -564,71 +560,58 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             //
             // Title bar
             //
-            Container(
-              // color: Colors.red.withValues(alpha: 0.5),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Text(
-                  "COLOR CHANGE METER",
-                  style: TextStyle(
-                    letterSpacing: 1.5,
-                    color: Colors.grey.withValues(alpha: 0.8),
-                    fontSize: 12,
-                  ),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text("COLOR CHANGE METER", style: panelTitleStyle),
             ),
             Row(
               children: [
                 // Leftmost block
-                Container(
-                  //color: Colors.green,
-                  child: Row(
-                    spacing: 5,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ValueListenableBuilder(
-                              valueListenable: isStartColorPicked,
-                              builder: (_, value, ___) {
-                                return listeningValuesVertical(
-                                  value ? startColor : endColor,
-                                  CrossAxisAlignment.end,
-                                );
-                              }),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _startColorBoxWidget(),
-                              Text(
-                                PfsLocalization.startColorLabel,
-                                style: startEndLabelStyle,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      ValueListenableBuilder(
-                          valueListenable: isStartColorPicked,
-                          builder: (context, value, child) {
-                            if (value == false) {
-                              return SizedBox(width: 28, height: 39);
-                            }
+                Row(
+                  spacing: 5,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ValueListenableBuilder(
+                            valueListenable: isStartColorPicked,
+                            builder: (_, value, ___) {
+                              return listeningValuesVertical(
+                                value ? startColor : endColor,
+                                CrossAxisAlignment.end,
+                              );
+                            }),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _startColorBoxWidget(),
+                            Text(
+                              PfsLocalization.startColorLabel,
+                              style: startEndLabelStyle,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    ValueListenableBuilder(
+                        valueListenable: isStartColorPicked,
+                        builder: (context, value, child) {
+                          if (value == false) {
+                            return SizedBox(width: 28, height: 39);
+                          }
 
-                            return Padding(
-                              padding: EdgeInsetsGeometry.only(bottom: 15),
-                              child: _rightArrow,
-                            ).animate(
-                              effects: [
-                                Phanimations.slideRightEffect,
-                                Phanimations.fadeInEffect
-                              ],
-                            );
-                          }),
-                      SizedBox(width: 5),
-                    ],
-                  ),
+                          return Padding(
+                            padding: EdgeInsetsGeometry.only(bottom: 15),
+                            child: _ColorMeterRightArrow(),
+                          ).animate(
+                            effects: [
+                              Phanimations.slideRightEffect,
+                              Phanimations.fadeInEffect
+                            ],
+                          );
+                        }),
+                    SizedBox(width: 5),
+                  ],
                 ),
                 //
                 // Main middle block
@@ -674,119 +657,108 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Container(
-                            // color: Colors.lightBlueAccent,
-                            child: Column(
-                              spacing: 4,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                //
-                                // Top row
-                                //
-                                Container(
-                                  // color: Colors.green,
-                                  child: Row(
-                                    children: [
-                                      ...colorMeterHSLItems(),
-                                    ],
-                                  ),
-                                ),
+                          Column(
+                            spacing: 4,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              //
+                              // Top row
+                              //
+                              Row(
+                                children: [
+                                  ...colorMeterHSLItems(),
+                                ],
+                              ),
 
-                                //
-                                // Divider
-                                //
-                                Container(
-                                  width: 280,
-                                  height: 1,
-                                  color: dividerColor,
-                                ),
+                              //
+                              // Divider
+                              //
+                              const _ColorMeterDivider(),
 
-                                //
-                                // Bottom row
-                                //
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                        width: 100, child: _normalColorBox()),
-                                    SizedBox(width: 25),
-                                    SizedBox(
-                                      width: 225,
-                                      child: ValueListenableBuilder(
-                                        valueListenable: widget
-                                            .model.isBlendModeBoxesEnabled,
-                                        builder: (context, isBlendModesVisible,
-                                            ___) {
-                                          if (!isBlendModesVisible) {
-                                            return SizedBox(
-                                              height: 33,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  widget
-                                                      .model
-                                                      .isBlendModeBoxesEnabled
-                                                      .value = true;
-                                                },
-                                                child: Row(
-                                                  children: const [
-                                                    Spacer(),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 2),
-                                                      child: Icon(
-                                                        Icons.visibility,
-                                                        size: 15,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 6,
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(
-                                                          bottom: 1),
-                                                      child:
-                                                          Text("Blend modes"),
-                                                    ),
-                                                    Spacer(),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }
-
+                              //
+                              // Bottom row
+                              //
+                              Row(
+                                children: [
+                                  SizedBox(
+                                      width: 100, child: _normalColorBox()),
+                                  SizedBox(width: 25),
+                                  SizedBox(
+                                    width: 225,
+                                    child: ValueListenableBuilder(
+                                      valueListenable:
+                                          widget.model.isBlendModeBoxesEnabled,
+                                      builder:
+                                          (context, isBlendModesVisible, ___) {
+                                        if (!isBlendModesVisible) {
                                           return SizedBox(
-                                            //width: 245,
                                             height: 33,
                                             child: TextButton(
                                               onPressed: () {
                                                 widget
                                                     .model
                                                     .isBlendModeBoxesEnabled
-                                                    .value = false;
+                                                    .value = true;
                                               },
-                                              style: ButtonStyle(
-                                                padding: WidgetStatePropertyAll(
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 0,
-                                                    horizontal: 2,
+                                              child: Row(
+                                                children: const [
+                                                  Spacer(),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsets.only(top: 2),
+                                                    child: Icon(
+                                                      Icons.visibility,
+                                                      size: 15,
+                                                    ),
                                                   ),
-                                                ),
+                                                  SizedBox(
+                                                    width: 6,
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        bottom: 1),
+                                                    child: Text("Blend modes"),
+                                                  ),
+                                                  Spacer(),
+                                                ],
                                               ),
-                                              child: _blendModeBoxes(),
                                             ),
                                           );
-                                        },
-                                      ),
+                                        }
+
+                                        return SizedBox(
+                                          //width: 245,
+                                          height: 33,
+                                          child: TextButton(
+                                            onPressed: () {
+                                              widget
+                                                  .model
+                                                  .isBlendModeBoxesEnabled
+                                                  .value = false;
+                                            },
+                                            style: ButtonStyle(
+                                              padding: WidgetStatePropertyAll(
+                                                const EdgeInsets.symmetric(
+                                                  vertical: 0,
+                                                  horizontal: 2,
+                                                ),
+                                              ),
+                                            ),
+                                            child: _blendModeBoxes(),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  ],
-                                )
-                              ].animate(
-                                effects: [
-                                  Phanimations.slideRightWideEffect,
-                                  Phanimations.fadeInEffect
+                                  ),
                                 ],
-                                delay: Duration(milliseconds: 50),
-                                interval: Duration(milliseconds: 60),
-                              ),
+                              )
+                            ].animate(
+                              effects: [
+                                Phanimations.slideRightWideEffect,
+                                Phanimations.fadeInEffect
+                              ],
+                              delay: Duration(milliseconds: 50),
+                              interval: Duration(milliseconds: 60),
                             ),
                           ),
                           SizedBox(
@@ -798,58 +770,54 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
                 //
                 // Rightmost block
                 //
-                Container(
-//                  color: Colors.lightBlueAccent,
-                  // duration: Durations.medium2,
-                  child: ValueListenableBuilder(
-                      valueListenable: isStartColorPicked,
-                      builder: (context, value, child) {
-                        if (value == false) {
-                          return Row(
-                            children: [
-                              SizedBox(width: 28),
-                              SizedBox(width: 48),
-                              SizedBox(width: 72),
-                            ],
-                          );
-                        }
-
+                ValueListenableBuilder(
+                    valueListenable: isStartColorPicked,
+                    builder: (context, value, child) {
+                      if (value == false) {
                         return Row(
                           children: [
-                            Padding(
-                              padding: EdgeInsetsGeometry.only(bottom: 15),
-                              child: _rightArrow,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _endColorBoxWidget(),
-                                    Text(
-                                      PfsLocalization.endColorLabel,
-                                      style: startEndLabelStyle,
-                                    ),
-                                  ],
-                                ),
-                                listeningValuesVertical(
-                                  endColor,
-                                  CrossAxisAlignment.start,
-                                ),
-                              ],
-                            ),
-                          ].animate(
-                            effects: [
-                              Phanimations.slideRightEffect,
-                              Phanimations.fadeInEffect
-                            ],
-                            delay: Duration(milliseconds: 220),
-                            interval: Duration(milliseconds: 80),
-                          ),
+                            SizedBox(width: 28),
+                            SizedBox(width: 48),
+                            SizedBox(width: 72),
+                          ],
                         );
-                      }),
-                ),
+                      }
+
+                      return Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsGeometry.only(bottom: 15),
+                            child: _ColorMeterRightArrow(),
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _endColorBoxWidget(),
+                                  Text(
+                                    PfsLocalization.endColorLabel,
+                                    style: startEndLabelStyle,
+                                  ),
+                                ],
+                              ),
+                              listeningValuesVertical(
+                                endColor,
+                                CrossAxisAlignment.start,
+                              ),
+                            ],
+                          ),
+                        ].animate(
+                          effects: [
+                            Phanimations.slideRightEffect,
+                            Phanimations.fadeInEffect
+                          ],
+                          delay: Duration(milliseconds: 220),
+                          interval: Duration(milliseconds: 80),
+                        ),
+                      );
+                    }),
                 SizedBox(width: barLeftRightPadding),
               ],
             ),
@@ -1165,17 +1133,6 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     );
   }
 
-  Widget get _rightArrow {
-    return _barIcon(Icons.arrow_right_alt);
-  }
-
-  Widget _barIcon(IconData iconData) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Icon(iconData),
-    );
-  }
-
   Widget valueListeningColorBox(
     ValueListenable<Color> listenableColor, {
     double size = colorBoxSize,
@@ -1289,6 +1246,35 @@ enum ColorDifference {
   same,
   mixed,
   invalid,
+}
+
+class _ColorMeterRightArrow extends StatelessWidget {
+  const _ColorMeterRightArrow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Icon(Icons.arrow_right_alt),
+    );
+  }
+}
+
+class _ColorMeterDivider extends StatelessWidget {
+  const _ColorMeterDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final dividerColor = onSurface.withValues(alpha: 0.15);
+
+    return Container(
+      width: 280,
+      height: 1,
+      color: dividerColor,
+    );
+  }
 }
 
 class CalculatedColors {
