@@ -76,6 +76,14 @@ class ColorMeterModel {
       ValueNotifier<ColorComponentsMode>(ColorComponentsMode.none);
   bool isColorMetering = false;
 
+  void cycleComponentsMode() {
+    startEndComponentsMode.value = switch (startEndComponentsMode.value) {
+      ColorComponentsMode.none => ColorComponentsMode.rgb,
+      ColorComponentsMode.rgb => ColorComponentsMode.hsl,
+      _ => ColorComponentsMode.none,
+    };
+  }
+
   void startOverlay(BuildContext context, GlobalKey eyeDropKey) {
     try {
       final eyeDropper = eyeDropKey.currentWidget as EyeDropperLayer?;
@@ -230,179 +238,22 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     endColorPosition.value = offset;
   }
 
-  Iterable<Widget> colorMeterHSLItems() {
-    final textGray = textGrayFrom(Theme.of(context));
-    const double numberLabelSize = 13;
+  static const labelAlpha = 0.50;
 
-    final numberLabel = TextStyle(
-      fontSize: numberLabelSize,
-      color: textGray,
-    );
+  TextStyle blendModeLabelStyle(ThemeData theme) {
+    final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
+    final labelTextColor =
+        theme.colorScheme.onSurface.withValues(alpha: labelAlpha);
 
-    return [
-      ValueListenableBuilder(
-        valueListenable: endColor,
-        builder: (_, __, ___) {
-          return ValueListenableBuilder(
-            valueListenable: startColor,
-            builder: (context, __, ___) {
-              final start = startColor.value.hsl;
-              final end = endColor.value.hsl;
+    return TextStyle(fontSize: labelTextSize, color: labelTextColor);
+  }
 
-              var hueDifference = end.hue - start.hue;
-              if (hueDifference < -180) {
-                hueDifference += 180;
-              } else if (hueDifference > 180) {
-                hueDifference -= 180;
-              }
-              hueDifference *= 100.0 / 180.0;
+  Color textGrayFrom(ThemeData theme) {
+    return theme.colorScheme.onSurface.withValues(alpha: labelAlpha);
+  }
 
-              final ss = start.saturation;
-              final es = end.saturation;
-
-              final saturationPercent = (es / ss);
-              final saturationDifference = (es - ss) * 100;
-
-              final sDifferenceText =
-                  "${saturationDifference > 0 ? "+" : ""}${saturationDifference.toStringAsFixed(0)}";
-
-              final isSaturationInvalid =
-                  (saturationPercent.isInfinite || saturationPercent.isNaN);
-
-              final lightnessPercent = (end.lightness / start.lightness) * 100;
-              final lPercentText =
-                  (lightnessPercent.isInfinite || lightnessPercent.isNaN)
-                      ? "-"
-                      : lightnessPercent.toStringAsFixed(0);
-
-              final hueDecimalCount = (hueDifference < 1.0 &&
-                      hueDifference > 1.0 &&
-                      hueDifference != 0)
-                  ? 1
-                  : 0;
-              final hueDiffText = isSaturationInvalid || end.saturation == 0
-                  ? "-"
-                  : (hueDifference > 0 ? "+" : "") +
-                      hueDifference.toStringAsFixed(hueDecimalCount);
-
-              final theme = Theme.of(context);
-              final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
-              final lightnessPercentTextStyle = TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: baseSize * 1.4,
-              );
-
-              final percentTextStyle =
-                  theme.textTheme.labelMedium?.copyWith(color: textGray);
-
-              final percentLabel = Text("%", style: percentTextStyle);
-
-              return SizedBox(
-                width: 360,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Hue
-                      Tooltip(
-                        message:
-                            "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: hueDifference,
-                              cutoff: 0,
-                              increase: Icons.redo,
-                              decrease: Icons.undo,
-                              extraRightPadding: 3,
-                            ),
-                            Text("hue ", style: numberLabel),
-                            SizedBox(
-                                width: 52,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [Text(hueDiffText), percentLabel],
-                                )),
-                          ],
-                        ),
-                      ),
-                      // Saturation
-                      Tooltip(
-                        message:
-                            "Change in saturation\nThe difference in saturation between the start and end colors.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: saturationPercent,
-                              cutoff: 100,
-                              decrease: Icons.arrow_back,
-                              increase: Icons.arrow_forward,
-                            ),
-                            Text("sat ", style: numberLabel),
-                            SizedBox(
-                              width: 50,
-                              child: Row(
-                                children: [
-                                  Text(sDifferenceText),
-                                  percentLabel,
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Lightness
-                      Tooltip(
-                        message:
-                            "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
-                        child: Row(
-                          children: [
-                            HslChangeIcon(
-                              value: lightnessPercent,
-                              cutoff: 100,
-                              decrease: Icons.arrow_downward,
-                              increase: Icons.arrow_upward,
-                            ),
-                            Text("lightness × ", style: numberLabel),
-                            SizedBox(
-                              width: 52,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 1.55,
-                                      bottom: 1,
-                                    ),
-                                    child: Text(
-                                      lPercentText,
-                                      style: lightnessPercentTextStyle,
-                                    ),
-                                  ),
-                                  percentLabel,
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ].animate(
-                      effects: [
-                        Phanimations.slideRightEffect,
-                        Phanimations.fadeInEffect
-                      ],
-                      delay: Duration(milliseconds: 30),
-                      interval: Duration(milliseconds: 60),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    ];
+  Color faintIconColor(ThemeData theme) {
+    return theme.colorScheme.onSurface.withValues(alpha: 0.4);
   }
 
   @override
@@ -858,38 +709,179 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     );
   }
 
-  void cycleStartEndColorComponentsVisibility() {
-    widget.model.startEndComponentsMode.value =
-        switch (widget.model.startEndComponentsMode.value) {
-      ColorComponentsMode.none => ColorComponentsMode.rgb,
-      ColorComponentsMode.rgb => ColorComponentsMode.hsl,
-      _ => ColorComponentsMode.none,
-    };
-  }
+  Iterable<Widget> colorMeterHSLItems() {
+    final textGray = textGrayFrom(Theme.of(context));
+    const double numberLabelSize = 13;
 
-  static const labelAlpha = 0.50;
+    final numberLabel = TextStyle(
+      fontSize: numberLabelSize,
+      color: textGray,
+    );
 
-  TextStyle blendModeLabelStyle(ThemeData theme) {
-    final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
+    return [
+      ValueListenableBuilder(
+        valueListenable: endColor,
+        builder: (_, __, ___) {
+          return ValueListenableBuilder(
+            valueListenable: startColor,
+            builder: (context, __, ___) {
+              final start = startColor.value.hsl;
+              final end = endColor.value.hsl;
 
-    final colorScheme = theme.colorScheme;
-    final textColor = colorScheme.onSurface;
-    final labelTextColor = textColor.withValues(alpha: labelAlpha);
+              var hueDifference = end.hue - start.hue;
+              if (hueDifference < -180) {
+                hueDifference += 180;
+              } else if (hueDifference > 180) {
+                hueDifference -= 180;
+              }
+              hueDifference *= 100.0 / 180.0;
 
-    return TextStyle(fontSize: labelTextSize, color: labelTextColor);
-  }
+              final ss = start.saturation;
+              final es = end.saturation;
 
-  Color textGrayFrom(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final textColor = colorScheme.onSurface;
-    final labelTextColor = textColor.withValues(alpha: labelAlpha);
-    return labelTextColor;
-  }
+              final saturationPercent = (es / ss);
+              final saturationDifference = (es - ss) * 100;
 
-  Color faintIconColor(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final textColor = colorScheme.onSurface;
-    return textColor.withValues(alpha: 0.4);
+              final sDifferenceText =
+                  "${saturationDifference > 0 ? "+" : ""}${saturationDifference.toStringAsFixed(0)}";
+
+              final isSaturationInvalid =
+                  (saturationPercent.isInfinite || saturationPercent.isNaN);
+
+              final lightnessPercent = (end.lightness / start.lightness) * 100;
+              final lPercentText =
+                  (lightnessPercent.isInfinite || lightnessPercent.isNaN)
+                      ? "-"
+                      : lightnessPercent.toStringAsFixed(0);
+
+              final hueDecimalCount = (hueDifference < 1.0 &&
+                      hueDifference > 1.0 &&
+                      hueDifference != 0)
+                  ? 1
+                  : 0;
+              final hueDiffText = isSaturationInvalid || end.saturation == 0
+                  ? "-"
+                  : (hueDifference > 0 ? "+" : "") +
+                      hueDifference.toStringAsFixed(hueDecimalCount);
+
+              final theme = Theme.of(context);
+              final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
+              final lightnessPercentTextStyle = TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: baseSize * 1.4,
+              );
+
+              final percentTextStyle =
+                  theme.textTheme.labelMedium?.copyWith(color: textGray);
+
+              final percentLabel = Text("%", style: percentTextStyle);
+
+              return SizedBox(
+                width: 360,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Hue
+                      Tooltip(
+                        message:
+                            "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: hueDifference,
+                              cutoff: 0,
+                              increase: Icons.redo,
+                              decrease: Icons.undo,
+                              extraRightPadding: 3,
+                            ),
+                            Text("hue ", style: numberLabel),
+                            SizedBox(
+                                width: 52,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [Text(hueDiffText), percentLabel],
+                                )),
+                          ],
+                        ),
+                      ),
+                      // Saturation
+                      Tooltip(
+                        message:
+                            "Change in saturation\nThe difference in saturation between the start and end colors.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: saturationPercent,
+                              cutoff: 100,
+                              decrease: Icons.arrow_back,
+                              increase: Icons.arrow_forward,
+                            ),
+                            Text("sat ", style: numberLabel),
+                            SizedBox(
+                              width: 50,
+                              child: Row(
+                                children: [
+                                  Text(sDifferenceText),
+                                  percentLabel,
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Lightness
+                      Tooltip(
+                        message:
+                            "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
+                        child: Row(
+                          children: [
+                            HslChangeIcon(
+                              value: lightnessPercent,
+                              cutoff: 100,
+                              decrease: Icons.arrow_downward,
+                              increase: Icons.arrow_upward,
+                            ),
+                            Text("lightness × ", style: numberLabel),
+                            SizedBox(
+                              width: 52,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 1.55,
+                                      bottom: 1,
+                                    ),
+                                    child: Text(
+                                      lPercentText,
+                                      style: lightnessPercentTextStyle,
+                                    ),
+                                  ),
+                                  percentLabel,
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ].animate(
+                      effects: [
+                        Phanimations.slideRightEffect,
+                        Phanimations.fadeInEffect
+                      ],
+                      delay: Duration(milliseconds: 30),
+                      interval: Duration(milliseconds: 60),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    ];
   }
 
   Widget _normalColorBox() {
@@ -1007,12 +999,18 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   }
 
   Widget _disabledLabeledColorBox() {
-    return _labeledColorBox(
-      label: "             ",
-      boxWidget: _colorBox(
-        Colors.transparent,
-        borderColor: Colors.grey.withValues(alpha: 0.3),
-      ),
+    return Builder(
+      builder: (context) {
+        final color =
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15);
+        return _labeledColorBox(
+          label: "             ",
+          boxWidget: _colorBox(
+            Colors.transparent,
+            borderColor: color,
+          ),
+        );
+      },
     );
   }
 
@@ -1089,7 +1087,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     return Tooltip(
       message: PfsLocalization.clickForColorComponents,
       child: GestureDetector(
-        onTap: () => cycleStartEndColorComponentsVisibility(),
+        onTap: () => widget.model.cycleComponentsMode(),
         child: innerWidget,
       ),
     );
@@ -1127,7 +1125,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     return Tooltip(
       message: PfsLocalization.clickForColorComponents,
       child: GestureDetector(
-        onTap: () => cycleStartEndColorComponentsVisibility(),
+        onTap: () => widget.model.cycleComponentsMode(),
         child: innerWidget,
       ),
     );
