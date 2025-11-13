@@ -62,7 +62,6 @@ class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
         PlayPauseAnimatedIcon,
-        MainScreenBuildContext,
         MainScreenModels,
         MainScreenWindow,
         MainScreenPanels,
@@ -202,8 +201,6 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    updateCurrentBuildContext(context: context);
-
     final loadingSheetLayer = ValueListenableBuilder(
       valueListenable: model.isLoadingImages,
       builder: (_, isLoading, __) {
@@ -388,12 +385,12 @@ class _MainScreenState extends State<MainScreen>
     if (filesSkipped == 0) {
       if (filesLoaded == 1) {
         Phtoasts.showWidget(
-          currentContext,
+          context,
           child: Text("${imageNoun.withFirstLetterCapitalized()} loaded."),
         );
       } else {
         Phtoasts.showWidget(
-          currentContext,
+          context,
           child: PfsLocalization.textWithMultiBold(
             text1: '',
             boldText1: '$filesLoaded $imageNoun',
@@ -405,7 +402,7 @@ class _MainScreenState extends State<MainScreen>
       final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
       Phtoasts.showWidget(
-        currentContext,
+        context,
         child: PfsLocalization.textWithMultiBold(
             text1: '',
             boldText1: '$filesLoaded $imageNoun',
@@ -421,7 +418,7 @@ class _MainScreenState extends State<MainScreen>
       boldText1: '${model.timerModel.currentDurationSeconds} seconds',
       text2: ' per image.',
     );
-    Phtoasts.showWidget(currentContext, child: toastContent);
+    Phtoasts.showWidget(context, child: toastContent);
   }
 
   void _handleOnImageChange() {
@@ -687,14 +684,6 @@ mixin PlayPauseAnimatedIcon on TickerProvider {
   }
 }
 
-mixin MainScreenBuildContext {
-  BuildContext? currentContext;
-
-  void updateCurrentBuildContext({required BuildContext context}) {
-    currentContext = context;
-  }
-}
-
 mixin MainScreenImageViewedCounter {
   final imagesViewedCounter = ValueNotifier<int>(0);
 
@@ -731,16 +720,14 @@ mixin MainScreenImageViewedCounter {
   }
 }
 
-mixin MainScreenToaster on MainScreenBuildContext {
+mixin MainScreenToaster on State<MainScreen> {
   void showToast({
     required String message,
     IconData? icon,
     Alignment alignment = Alignment.bottomCenter,
   }) {
-    if (currentContext == null) return;
-
     Phtoasts.show(
-      currentContext,
+      context,
       message: message,
       icon: icon,
       alignment: Phtoasts.topControlsAlign,
