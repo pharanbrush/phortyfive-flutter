@@ -370,6 +370,42 @@ class ImageRightClick extends StatelessWidget {
         ],
       );
 
+      // nativeapi API
+      //
+      // Menu getContextMenu() {
+      //   final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
+      //     ..enabled = imageData is! image_data.InvalidImageData;
+
+      //   final copyFilename = MenuItem(PfsLocalization.copyFileName)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+      //     ..enabled = isFile;
+
+      //   final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
+      //     ..enabled = isFile;
+
+      //   final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+      //     ..enabled = isFile;
+
+      //   final colorChangeMode = MenuItem(PfsLocalization.openColorChangeMeter)
+      //     ..on<MenuItemClickedEvent>((_) => colorChangeModeHandler());
+
+      //   return Menu()
+      //     ..addItem(copyImage)
+      //     ..addItem(copyFilePath)
+      //     ..addItem(copyFilename)
+      //     ..addSeparator()
+      //     ..addItem(colorChangeMode)
+      //     ..addSeparator()
+      //     ..addItem(revealInExplorer);
+      // }
+
+      // void openContextMenu() {
+      //   getContextMenu().open(PositioningStrategy.cursorPosition());
+      // }
+
       void openContextMenu() {
         popUpContextualMenu(contextMenu);
       }

@@ -125,6 +125,31 @@ class PanelCloseButton extends StatelessWidget {
   }
 }
 
+// nativeapi API
+
+// void _popupImagesMenu(PfsAppModel model) {
+//   Menu getOpenImagesMenu(PfsAppModel model) {
+//     return Menu()
+//       ..addItem(
+//         MenuItem("Open images...")
+//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForImages()),
+//       )
+//       ..addSeparator()
+//       ..addItem(
+//         MenuItem("Open images...")
+//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForFolder())
+//       )
+//       ..addItem(
+//         MenuItem("Open folder and subfolders...")..on<MenuItemClickedEvent>(
+//           (_) => model.openFilePickerForFolder(includeSubfolders: true),
+//         ),
+//       );
+//   }
+
+//   final menu = getOpenImagesMenu(model);
+//   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
+// }
+
 void _popupImagesMenu(PfsAppModel model) {
   popUpContextualMenu(
     _getOpenImagesMenu(model),
