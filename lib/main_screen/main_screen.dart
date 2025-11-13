@@ -34,6 +34,7 @@ import 'package:pfs2/phlutter/utils/image_from_file.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
@@ -179,8 +180,6 @@ class _MainScreenState extends State<MainScreen>
       playPauseIconProgress: _playPauseIconStateAnimator,
       imagePhviewer: imagePhviewer,
       revealInExplorerHandler: revealCurrentImageInExplorer,
-      clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
-      clipboardCopyTextHandler: _clipboardCopyTextHandler,
       colorMeterMenuItemHandler: _handleOpenColorMeterMenuItem,
     );
   }
@@ -271,7 +270,7 @@ class _MainScreenState extends State<MainScreen>
       return welcomeChooseModeApp;
     }
 
-    Widget shortcutsWrapper(Widget childWidget) {
+    Widget shortcutsWrapper({required Widget child}) {
       if (shortcutActions.isEmpty) {
         for (final (intentType, callback) in shortcutIntentActions) {
           shortcutActions[intentType] = CallbackAction(onInvoke: callback);
@@ -285,7 +284,7 @@ class _MainScreenState extends State<MainScreen>
           child: Focus(
             focusNode: mainWindowFocus,
             autofocus: true,
-            child: childWidget,
+            child: child,
           ),
         ),
       );
@@ -293,34 +292,44 @@ class _MainScreenState extends State<MainScreen>
       return wrappedWidget;
     }
 
-    final appWindowContent = shortcutsWrapper(
-      Stack(
-        children: [
-          Overlay.wrap(
-            child: EyeDropperLayer(
-              key: eyeDropKey,
-              child: imagePhviewer.widget(windowState.isBottomBarMinimized),
+    Widget inheritedWidgetsWrapper({required Widget child}) {
+      return ClipboardHandlers(
+        copyText: _setClipboardText,
+        copyCurrentImage: copyCurrentImageToClipboard,
+        child: child,
+      );
+    }
+
+    final appWindowContent = inheritedWidgetsWrapper(
+      child: shortcutsWrapper(
+        child: Stack(
+          children: [
+            Overlay.wrap(
+              child: EyeDropperLayer(
+                key: eyeDropKey,
+                child: imagePhviewer.widget(windowState.isBottomBarMinimized),
+              ),
             ),
-          ),
-          _fileDropZone(model),
-          overlayGestureControls(context),
-          const CountdownSheet(),
-          CornerWindowControls(
-            windowState: windowState,
-            imagePhviewer: imagePhviewer,
-            helpMenu: helpMenu,
-            settingsMenu: settingsMenu,
-          ),
-          bottomControlBar(context),
-          currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
-              ? WindowDockingControls(
-                  isBottomBarMinimized: windowState.isBottomBarMinimized,
-                )
-              : SizedBox.shrink(),
-          colorMeterPanel.widget(),
-          ...modalPanelWidgets,
-          loadingSheetLayer,
-        ],
+            _fileDropZone(model),
+            overlayGestureControls(context),
+            const CountdownSheet(),
+            CornerWindowControls(
+              windowState: windowState,
+              imagePhviewer: imagePhviewer,
+              helpMenu: helpMenu,
+              settingsMenu: settingsMenu,
+            ),
+            bottomControlBar(context),
+            currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
+                ? WindowDockingControls(
+                    isBottomBarMinimized: windowState.isBottomBarMinimized,
+                  )
+                : SizedBox.shrink(),
+            colorMeterPanel.widget(),
+            ...modalPanelWidgets,
+            loadingSheetLayer,
+          ],
+        ),
       ),
     );
 
@@ -858,9 +867,6 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
       }
     }
   }
-
-  void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
-      _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 }
 
 mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
@@ -1051,16 +1057,12 @@ class ImageBrowseGestureControls extends StatelessWidget {
     required this.playPauseIconProgress,
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
-    required this.clipboardCopyTextHandler,
-    required this.clipboardCopyImageFileHandler,
     required this.colorMeterMenuItemHandler,
   });
 
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
-  final ClipboardCopyTextHandler clipboardCopyTextHandler;
-  final VoidCallback clipboardCopyImageFileHandler;
   final VoidCallback colorMeterMenuItemHandler;
 
   @override
@@ -1106,8 +1108,6 @@ class ImageBrowseGestureControls extends StatelessWidget {
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-            clipboardCopyHandler: clipboardCopyTextHandler,
-            copyImageFileHandler: clipboardCopyImageFileHandler,
             colorChangeModeHandler: colorMeterMenuItemHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,

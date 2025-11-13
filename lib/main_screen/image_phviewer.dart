@@ -18,6 +18,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/annotation_overlay.dart';
+import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
@@ -284,25 +285,18 @@ class ImageClickableLabel extends StatelessWidget {
   }
 }
 
-typedef ClipboardCopyTextHandler = void Function(
-    {required String newClipboardText, String? toastMessage});
-
 class ImageRightClick extends StatelessWidget {
   const ImageRightClick({
     super.key,
     required this.child,
-    this.clipboardCopyHandler,
     required this.resetZoomLevelHandler,
     required this.revealInExplorerHandler,
-    required this.copyImageFileHandler,
     required this.colorChangeModeHandler,
   });
 
   final Widget child;
-  final ClipboardCopyTextHandler? clipboardCopyHandler;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
-  final VoidCallback copyImageFileHandler;
   final VoidCallback colorChangeModeHandler;
 
   @override
@@ -311,8 +305,8 @@ class ImageRightClick extends StatelessWidget {
       void handleCopyFilePath() {
         final currentImageData = model.getCurrentImageData();
         if (currentImageData is ImageFileData) {
-          clipboardCopyHandler?.call(
-            newClipboardText: currentImageData.filePath,
+          ClipboardHandlers.of(context)?.copyText(
+            text: currentImageData.filePath,
             toastMessage: 'File path copied to clipboard.',
           );
         }
@@ -321,11 +315,15 @@ class ImageRightClick extends StatelessWidget {
       void handleCopyFilename() {
         final currentImageData = model.getCurrentImageData();
         if (currentImageData is ImageFileData) {
-          clipboardCopyHandler?.call(
-            newClipboardText: currentImageData.fileName,
+          ClipboardHandlers.of(context)?.copyText(
+            text: currentImageData.fileName,
             toastMessage: 'Filename copied to clipboard.',
           );
         }
+      }
+
+      void handleCopyCurrentImage() {
+        ClipboardHandlers.of(context)?.copyCurrentImage();
       }
 
       final imageData = model.getCurrentImageData();
@@ -333,7 +331,7 @@ class ImageRightClick extends StatelessWidget {
 
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,
-        onClick: (menuItem) => copyImageFileHandler(),
+        onClick: (menuItem) => handleCopyCurrentImage(),
         disabled: imageData is image_data.InvalidImageData,
       );
 
