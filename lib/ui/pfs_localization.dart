@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 extension CapitalizeExtension on String {
-  String withFirstLetterCapitalized() {
+  String capitalizeFirst() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
@@ -54,7 +53,7 @@ class PfsLocalization {
 
   static const String press = isDesktop ? 'click' : 'tap';
 
-  static String get pressCapital => capitalizeFirst(press);
+  static String get pressCapital => press.capitalizeFirst();
 
   static const String secondaryPressCapital =
       isDesktop ? 'Right-click' : 'Long-press';
@@ -65,10 +64,6 @@ class PfsLocalization {
 
   static String fileNoun(int count) {
     return count == 1 ? 'file' : 'files';
-  }
-
-  static String capitalizeFirst(String s) {
-    return GetUtils.capitalizeFirst(s)!;
   }
 
   static String tooltipShortcut(SingleActivator shortcut) {

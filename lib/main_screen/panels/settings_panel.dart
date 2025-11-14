@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/models/preferences.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
@@ -119,7 +119,7 @@ class SettingsPanel extends StatelessWidget {
       for (final key in PfsTheme.themeMap.keys) {
         themeMenuItems.add(DropdownMenuItem(
           value: key,
-          child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst ?? ''),
+          child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst()),
         ));
       }
     }

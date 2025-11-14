@@ -130,7 +130,7 @@ packages:
     source: hosted
     version: "2.1.2"
   change_app_package_name:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: change_app_package_name
       sha256: "8e43b754fe960426904d77ed4c62fa8c9834deaf6e293ae40963fa447482c4c5"
@@ -389,14 +389,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  get:
-    dependency: "direct main"
-    description:
-      name: get
-      sha256: c79eeb4339f1f3deffd9ec912f8a923834bec55f7b49c9e882b8fef2c139d425
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.7.2"
   get_it:
     dependency: transitive
     description:
@@ -526,7 +518,7 @@ packages:
     source: hosted
     version: "1.16.0"
   msix:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: msix
       sha256: f88033fcb9e0dd8de5b18897cbebbd28ea30596810f4a7c86b12b0c03ace87e5

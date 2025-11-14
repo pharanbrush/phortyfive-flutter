@@ -397,7 +397,7 @@ class _MainScreenState extends State<MainScreen>
       if (filesLoaded == 1) {
         Phtoasts.showWidget(
           context,
-          child: Text("${imageNoun.withFirstLetterCapitalized()} loaded."),
+          child: Text("${imageNoun.capitalizeFirst()} loaded."),
         );
       } else {
         Phtoasts.showWidget(
