@@ -33,6 +33,8 @@ class Phshortcuts {
   static const copyFile =
       SingleActivator(LogicalKeyboardKey.keyC, control: true);
 
+  static const paste = SingleActivator(LogicalKeyboardKey.keyV, control: true);
+
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
   static const zoomOutNumpad =
@@ -60,14 +62,14 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.keyH, control: true);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
-  static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
+  static const escape = SingleActivator(LogicalKeyboardKey.escape);
 
   static bool isDragZoomModifierPressed() {
     final keyboard = HardwareKeyboard.instance;
     final isSpacePressed =
         keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
     final isShiftPressed = keyboard.isShiftPressed;
-    
+
     return isSpacePressed && isShiftPressed;
   }
 
@@ -91,7 +93,7 @@ class Phshortcuts {
     Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
     Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
     Phshortcuts.toggleSounds: ToggleSoundIntent(),
-    Phshortcuts.returnHome: ReturnHomeIntent(),
+    Phshortcuts.escape: EscapeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.flipHorizontal: FlipHorizontalIntent(),
@@ -108,11 +110,12 @@ class Phshortcuts {
     Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
     Phshortcuts.clearAnnotations: AnnotationClearIntent(),
     Phshortcuts.cycleAnnotationColors: AnnotationCycleColorsIntent(),
+    Phshortcuts.paste: PasteIntent(),
   };
 }
 
-class ReturnHomeIntent extends Intent {
-  const ReturnHomeIntent();
+class EscapeIntent extends Intent {
+  const EscapeIntent();
 }
 
 class ToggleSoundIntent extends Intent {
@@ -201,4 +204,8 @@ class FlipHorizontalIntent extends Intent {
 
 class CopyFileIntent extends Intent {
   const CopyFileIntent();
+}
+
+class PasteIntent extends Intent {
+  const PasteIntent();
 }

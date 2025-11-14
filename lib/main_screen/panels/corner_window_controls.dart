@@ -13,13 +13,13 @@ class CornerWindowControls extends StatelessWidget {
   const CornerWindowControls({
     super.key,
     required this.windowState,
-    required this.imagePhviewer,
+    required this.zoomPanner,
     required this.helpMenu,
     required this.settingsMenu,
   });
 
   final PfsWindowState windowState;
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
   final ModalPanel helpMenu, settingsMenu;
 
   static const double controlsWidth = 130;
@@ -70,7 +70,7 @@ class CornerWindowControls extends StatelessWidget {
                   ),
                   CornerButton(
                     onPressed: () => helpMenu.open(),
-                    icon: Icons.help_rounded,
+                    icon: Icons.keyboard,
                     tooltip: PfsLocalization.buttonTooltip(
                       commandName: PfsLocalization.shortcutHelp,
                       shortcut: Phshortcuts.help,
@@ -93,12 +93,12 @@ class CornerWindowControls extends StatelessWidget {
                   const Text('For testing only\n'
                       '${PfsLocalization.version}'),
                   ValueListenableBuilder(
-                    valueListenable: imagePhviewer.zoomLevelListenable,
+                    valueListenable: zoomPanner.zoomLevelListenable,
                     builder: (_, __, ___) {
                       return Visibility(
-                        visible: !imagePhviewer.isZoomLevelDefault,
-                        child: Text(
-                            'Zoom ${imagePhviewer.currentZoomScalePercent}%'),
+                        visible: !zoomPanner.isZoomLevelDefault,
+                        child:
+                            Text('Zoom ${zoomPanner.currentZoomScalePercent}%'),
                       );
                     },
                   ),

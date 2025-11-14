@@ -28,7 +28,7 @@ class WelcomeChooseModeSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int imageCount = model.circulator.count;
+    final imageCount = model.circulator.count;
     const padding = EdgeInsets.symmetric(vertical: 10, horizontal: 20);
 
     // final currentTheme = Theme.of(context).extension<PhtimerTheme>();
@@ -108,7 +108,7 @@ class WelcomeChooseModeSheet extends StatelessWidget {
       //foregroundColor: color,
     );
 
-    var button = FilledButton.tonalIcon(
+    final button = FilledButton.tonalIcon(
       onPressed: onPressed,
       icon: icon,
       style: buttonStyle,

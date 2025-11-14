@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutQuint;
-  
+
   static const userPanDuration = Duration(milliseconds: 30);
 
   static const toastCurve = Curves.easeOutExpo;
@@ -13,6 +13,20 @@ class Phanimations {
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
   static const slowDuration = Duration(milliseconds: 300);
+
+  static const itemPulseEffect = ScaleEffect(
+    duration: Duration(milliseconds: 500),
+    curve: Curves.easeOutCubic,
+    begin: Offset(1.4, 1.4),
+    end: Offset(1, 1),
+  );
+
+  static const startColorPulseEffect = ScaleEffect(
+    duration: Duration(milliseconds: 400),
+    curve: Curves.easeOutQuart,
+    begin: Offset(1.55, 1.55),
+    end: Offset(1, 1),
+  );
 
   static const bottomBarSlideUpEffect = SlideEffect(
     duration: fastDuration,
@@ -38,6 +52,20 @@ class Phanimations {
   static const slideUpEffect = SlideEffect(
     duration: defaultDuration,
     begin: Offset(0, 0.2),
+    end: Offset.zero,
+    curve: Curves.easeOutQuart,
+  );
+
+  static const slideRightWideEffect = SlideEffect(
+    duration: defaultDuration,
+    begin: Offset(-0.05, 0),
+    end: Offset.zero,
+    curve: Curves.easeOutQuart,
+  );
+
+  static const slideRightEffect = SlideEffect(
+    duration: defaultDuration,
+    begin: Offset(-0.15, 0),
     end: Offset.zero,
     curve: Curves.easeOutQuart,
   );

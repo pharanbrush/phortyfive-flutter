@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_data.dart' as file_data;
-import 'package:pfs2/core/file_data.dart';
-import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/core/image_memory_data.dart';
+import 'package:pfs2/core/image_data.dart' as image_data;
+import 'package:pfs2/core/image_data.dart';
+import 'package:pfs2/core/image_list.dart';
+import 'package:pfs2/libraries/color_meter_cyclop.dart';
+import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/panels/corner_window_controls.dart';
 import 'package:pfs2/main_screen/panels/filter_panel.dart';
@@ -19,6 +22,7 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -26,10 +30,12 @@ import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/utils/image_data.dart';
+import 'package:pfs2/phlutter/utils/image_from_file.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
-import 'package:pfs2/phlutter/utils/phclipboard.dart';
+import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/widgets/clipboard_handlers.dart';
+import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/widgets/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
@@ -53,19 +59,17 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class AppControlsMode {}
-
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
         PlayPauseAnimatedIcon,
-        MainScreenBuildContext,
         MainScreenModels,
         MainScreenWindow,
         MainScreenPanels,
+        MainScreenColorMeter,
         MainScreenSound,
         MainScreenToaster,
-        MainScreenScore,
+        MainScreenImageViewedCounter,
         MainScreenClipboardFunctions {
   @override
   ValueNotifier<bool> getSoundEnabledNotifier() =>
@@ -81,17 +85,24 @@ class _MainScreenState extends State<MainScreen>
   bool get isTimerRunning => model.timerModel.isRunning;
 
   @override
-  FileData getCurrentImageFileData() => model.getCurrentImageFileData();
+  ImageData getCurrentImageFileData() => model.getCurrentImageData();
 
   @override
-  String getCurrentImagePath() => getCurrentImageFileData().filePath;
+  String getCurrentImagePath() {
+    final currentImageData = getCurrentImageFileData();
+    if (currentImageData is ImageFileData) {
+      return currentImageData.filePath;
+    }
+
+    return "";
+  }
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
     (PreviousImageIntent, (_) => model.previousImageNewTimer()),
     (NextImageIntent, (_) => model.nextImageNewTimer()),
     (PlayPauseIntent, (_) => model.tryTogglePlayPauseTimer()),
-    (RestartTimerIntent, (_) => model.timerModel.restartTimer()),
+    (RestartTimerIntent, (_) => model.timerModel.resetTimer()),
     (OpenFilesIntent, (_) => model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => model.openFilePickerForFolder()),
     (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
@@ -100,19 +111,19 @@ class _MainScreenState extends State<MainScreen>
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
-    (ReturnHomeIntent, (_) => _tryReturnHome()),
+    (EscapeIntent, (_) => _tryEscape()),
     (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
     (OpenPreferencesIntent, (_) => settingsMenu.open()),
     (ZoomInIntent, (_) => imagePhviewer.incrementZoomLevel(1)),
     (FlipHorizontalIntent, (_) => imagePhviewer.flipHorizontal()),
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
+    (PasteIntent, (_) => tryPaste()),
   ];
 
-  final imageBrowseMode = AppControlsMode();
-  final annotationMode = AppControlsMode(); 
-  final colorPickMode = AppControlsMode();
-  late AppControlsMode currentAppControlsMode = imageBrowseMode;
+  final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
+  late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
+      [(PasteIntent, (_) => tryPaste())];
 
   @override
   void initState() {
@@ -120,9 +131,18 @@ class _MainScreenState extends State<MainScreen>
     _loadSettings();
     super.initState();
 
-    currentAppControlsMode = imageBrowseMode;
-
     _checkAndLoadLaunchArgPath();
+
+    EscapeNavigator.of(context)?.push(
+      EscapeRoute(
+        name: "home",
+        onEscape: () {
+          setAppMode(PfsAppControlsMode.imageBrowse);
+          closeAllPanels();
+        },
+        willPopOnEscape: false,
+      ),
+    );
   }
 
   @override
@@ -132,8 +152,27 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
+  @override
+  void onAppModeChange() {
+    setState(() {});
+  }
+
+  void tryPaste() async {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+    for (final panel in modalPanels) {
+      if (panel.isOpen) return;
+    }
+
+    phclipboard.getImageBytesFromClipboard(
+      (imageBytes) {
+        final imageDataFromPaste = ImageMemoryData(bytes: imageBytes);
+        model.loadImage(imageDataFromPaste);
+      },
+    );
+  }
+
   Widget overlayGestureControls(BuildContext context) {
-    if (currentAppControlsMode == colorPickMode) {
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
       return SizedBox.shrink();
     }
 
@@ -141,8 +180,7 @@ class _MainScreenState extends State<MainScreen>
       playPauseIconProgress: _playPauseIconStateAnimator,
       imagePhviewer: imagePhviewer,
       revealInExplorerHandler: revealCurrentImageInExplorer,
-      clipboardCopyImageFileHandler: copyCurrentImageToClipboard,
-      clipboardCopyTextHandler: _clipboardCopyTextHandler,
+      colorMeterMenuItemHandler: _handleOpenColorMeterMenuItem,
     );
   }
 
@@ -152,7 +190,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,
       builder: (_, __, ___) {
-        return _imageBrowseBottomControls(
+        return _bottomControls(
           context,
           windowWidth: windowSize.width,
         );
@@ -162,8 +200,6 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    updateCurrentBuildContext(context: context);
-
     final loadingSheetLayer = ValueListenableBuilder(
       valueListenable: model.isLoadingImages,
       builder: (_, isLoading, __) {
@@ -176,19 +212,19 @@ class _MainScreenState extends State<MainScreen>
       },
     );
 
-    if (!model.hasFilesLoaded) {
+    if (!model.hasImagesLoaded) {
       final firstActionApp = Stack(
         children: [
           const FirstActionSheet(),
           CornerWindowControls(
             windowState: windowState,
-            imagePhviewer: imagePhviewer,
+            zoomPanner: imagePhviewer,
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) => _imageBrowseBottomControls(context),
+            builder: (context, __, ___) => _bottomControls(context),
           ),
           _fileDropZone(model),
           ...modalPanelWidgets,
@@ -196,23 +232,36 @@ class _MainScreenState extends State<MainScreen>
         ],
       );
 
-      return firstActionApp;
-    }
+      if (firstScreenShortcutActions.isEmpty) {
+        for (final (intentType, callback) in firstScreenShortcutIntentActions) {
+          firstScreenShortcutActions[intentType] =
+              CallbackAction(onInvoke: callback);
+        }
+      }
 
-    if (model.hasFilesLoaded && !model.isWelcomeDone) {
+      final wrappedFirstActionApp = Shortcuts(
+        shortcuts: Phshortcuts.intentMap,
+        child: Actions(
+          actions: firstScreenShortcutActions,
+          child: Focus(
+            focusNode: mainWindowFocus,
+            autofocus: true,
+            child: firstActionApp,
+          ),
+        ),
+      );
+
+      return wrappedFirstActionApp;
+    } else if (!model.isWelcomeDone && model.hasImagesLoaded) {
       final welcomeChooseModeApp = Stack(
         children: [
           WelcomeChooseModeSheet(model: model),
-          // CornerWindowControls(
-          //   windowState: windowState,
-          //   imagePhviewer: imagePhviewer,
-          //   helpMenu: helpMenu,
-          //   settingsMenu: settingsMenu,
-          // ),
-          // ValueListenableBuilder(
-          //   valueListenable: windowState.isBottomBarMinimized,
-          //   builder: (context, __, ___) => _bottomBar(context),
-          // ),
+          CornerWindowControls(
+            windowState: windowState,
+            zoomPanner: imagePhviewer,
+            helpMenu: helpMenu,
+            settingsMenu: settingsMenu,
+          ),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
@@ -221,46 +270,66 @@ class _MainScreenState extends State<MainScreen>
       return welcomeChooseModeApp;
     }
 
-    Widget shortcutsWrapper(Widget childWidget) {
+    Widget shortcutsWrapper({required Widget child}) {
       if (shortcutActions.isEmpty) {
-        for (var (intentType, callback) in shortcutIntentActions) {
+        for (final (intentType, callback) in shortcutIntentActions) {
           shortcutActions[intentType] = CallbackAction(onInvoke: callback);
         }
       }
 
-      return Shortcuts(
+      final Widget wrappedWidget = Shortcuts(
         shortcuts: Phshortcuts.intentMap,
         child: Actions(
           actions: shortcutActions,
           child: Focus(
             focusNode: mainWindowFocus,
             autofocus: true,
-            child: childWidget,
+            child: child,
           ),
         ),
       );
+
+      return wrappedWidget;
     }
 
-    final appWindowContent = shortcutsWrapper(
-      Stack(
-        children: [
-          imagePhviewer.widget(windowState.isBottomBarMinimized),
-          _fileDropZone(model),
-          overlayGestureControls(context),
-          const CountdownSheet(),
-          CornerWindowControls(
-            windowState: windowState,
-            imagePhviewer: imagePhviewer,
-            helpMenu: helpMenu,
-            settingsMenu: settingsMenu,
-          ),
-          bottomControlBar(context),
-          WindowDockingControls(
-            isBottomBarMinimized: windowState.isBottomBarMinimized,
-          ),
-          ...modalPanelWidgets,
-          loadingSheetLayer,
-        ],
+    Widget inheritedWidgetsWrapper({required Widget child}) {
+      return ClipboardHandlers(
+        copyText: _setClipboardText,
+        copyCurrentImage: copyCurrentImageToClipboard,
+        child: child,
+      );
+    }
+
+    final appWindowContent = inheritedWidgetsWrapper(
+      child: shortcutsWrapper(
+        child: Stack(
+          children: [
+            Overlay.wrap(
+              child: EyeDropperLayer(
+                key: eyeDropKey,
+                child: imagePhviewer.widget(windowState.isBottomBarMinimized),
+              ),
+            ),
+            _fileDropZone(model),
+            overlayGestureControls(context),
+            const CountdownSheet(),
+            CornerWindowControls(
+              windowState: windowState,
+              zoomPanner: imagePhviewer,
+              helpMenu: helpMenu,
+              settingsMenu: settingsMenu,
+            ),
+            bottomControlBar(context),
+            currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
+                ? WindowDockingControls(
+                    isBottomBarMinimized: windowState.isBottomBarMinimized,
+                  )
+                : SizedBox.shrink(),
+            colorMeterPanel.widget(),
+            ...modalPanelWidgets,
+            loadingSheetLayer,
+          ],
+        ),
       ),
     );
 
@@ -283,8 +352,8 @@ class _MainScreenState extends State<MainScreen>
 
   void _bindModelCallbacks() {
     final model = this.model;
-    model.onFilesChanged ??= () => _handleStateChange();
-    model.onFilesLoadedSuccess ??= _handleFilesLoadedSuccess;
+    model.onImagesChanged ??= () => _handleStateChange();
+    model.onImagesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => _playClickSound();
     model.onImageDurationElapse ??= () => _playClickSound();
@@ -298,6 +367,12 @@ class _MainScreenState extends State<MainScreen>
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
+
+    currentAppControlsMode.addListener(() => _handleAppControlsChanged());
+
+    onColorMeterExit = () {
+      setState(() => setAppMode(PfsAppControlsMode.imageBrowse));
+    };
   }
 
   void _handleDisposeCallbacks() {
@@ -309,27 +384,39 @@ class _MainScreenState extends State<MainScreen>
     _handleTimerPlayPause();
   }
 
-  void _tryReturnHome() {
-    _closeAllPanels();
+  void _tryEscape() {
+    EscapeNavigator.of(context)?.tryEscape();
+  }
+
+  void _handleOpenColorMeterMenuItem() {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+    setAppMode(PfsAppControlsMode.colorMeter);
   }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
     if (filesSkipped == 0) {
-      Phtoasts.showWidget(
-        currentContext,
-        child: PfsLocalization.textWithMultiBold(
-          text1: '',
-          boldText1: '$filesLoaded $imageNoun',
-          text2: ' loaded.',
-        ),
-      );
+      if (filesLoaded == 1) {
+        Phtoasts.showWidget(
+          context,
+          child: Text("${imageNoun.withFirstLetterCapitalized()} loaded."),
+        );
+      } else {
+        Phtoasts.showWidget(
+          context,
+          child: PfsLocalization.textWithMultiBold(
+            text1: '',
+            boldText1: '$filesLoaded $imageNoun',
+            text2: ' loaded.',
+          ),
+        );
+      }
     } else {
       final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
 
       Phtoasts.showWidget(
-        currentContext,
+        context,
         child: PfsLocalization.textWithMultiBold(
             text1: '',
             boldText1: '$filesLoaded $imageNoun',
@@ -345,7 +432,7 @@ class _MainScreenState extends State<MainScreen>
       boldText1: '${model.timerModel.currentDurationSeconds} seconds',
       text2: ' per image.',
     );
-    Phtoasts.showWidget(currentContext, child: toastContent);
+    Phtoasts.showWidget(context, child: toastContent);
   }
 
   void _handleOnImageChange() {
@@ -367,8 +454,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleTimerPlayPause() {
-    showTimerToast() {
-      bool isRunning = model.timerModel.isRunning;
+    void showTimerToast() {
+      final isRunning = model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
@@ -384,8 +471,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleAlwaysOnTopChanged() {
-    showAlwaysOnTopToast() {
-      bool wasEnabled = windowState.isAlwaysOnTop.value;
+    void showAlwaysOnTopToast() {
+      final bool wasEnabled = windowState.isAlwaysOnTop.value;
       final message = PfsLocalization.alwaysOnTopSwitched(wasEnabled);
 
       final icon = wasEnabled
@@ -404,8 +491,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleSoundChanged() {
-    showSoundToggleToast() {
-      bool wasEnabled = windowState.isSoundsEnabled.value;
+    void showSoundToggleToast() {
+      final bool wasEnabled = windowState.isSoundsEnabled.value;
       final message = PfsLocalization.soundsSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.volume_up : Icons.volume_off;
 
@@ -420,12 +507,34 @@ class _MainScreenState extends State<MainScreen>
     Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
+  void _handleAppControlsChanged() {
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
+      final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
+      if (imageWidgetContext != null) {
+        colorMeterPanel.open();
+      } else {
+        debugPrint(
+            "image widget not found. canceled opening color meter panel");
+        setAppMode(PfsAppControlsMode.imageBrowse);
+      }
+    } else {
+      colorMeterPanel.close();
+      colorMeterModel.endColorMeter();
+    }
+  }
+
   void revealCurrentImageInExplorer() {
     final currentImageData = getCurrentImageFileData();
-    file_data.revealInExplorer(currentImageData);
+    if (currentImageData is ImageFileData) {
+      image_data.revealImageFileDataInExplorer(currentImageData);
+    }
   }
 
   Widget _fileDropZone(PfsAppModel model) {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) {
+      return const SizedBox.shrink();
+    }
+
     return Positioned.fill(
       left: 20,
       right: 20,
@@ -434,10 +543,10 @@ class _MainScreenState extends State<MainScreen>
       child: ImageDropTarget(
         dragImagesHandler: (details) {
           if (details.files.isEmpty) return;
-          List<String> filePaths = [];
-          for (var file in details.files) {
-            var filePath = file.path;
-            if (FileList.fileIsImage(filePath)) {
+          final List<String> filePaths = [];
+          for (final file in details.files) {
+            final filePath = file.path;
+            if (ImageList.fileIsImage(filePath)) {
               filePaths.add(filePath);
             } else if (pathIsDirectory(filePath)) {
               filePaths.add(filePath);
@@ -445,9 +554,9 @@ class _MainScreenState extends State<MainScreen>
           }
           if (filePaths.isEmpty) return;
 
-          model.loadImages(filePaths, recursive: true);
+          model.loadImageFiles(filePaths, recursive: true);
 
-          if (model.hasFilesLoaded) {
+          if (model.hasImagesLoaded) {
             _onFileDropped();
           }
         },
@@ -459,8 +568,11 @@ class _MainScreenState extends State<MainScreen>
     windowManager.focus();
   }
 
-  Widget _imageBrowseBottomControls(BuildContext context, {double? windowWidth}) {
-    bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
+  Widget _bottomControls(
+    BuildContext context, {
+    double? windowWidth,
+  }) {
+    final bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
 
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
@@ -475,13 +587,19 @@ class _MainScreenState extends State<MainScreen>
       return minimizedBottomBar;
     }
 
-    List<Widget> bottomBarItems(PfsAppModel model, {double spacing = 15}) {
+    List<Widget> imageBrowseBottomBarItems(
+      PfsAppModel model, {
+      double spacing = 15,
+    }) {
       final SizedBox spacingBox = SizedBox(width: spacing);
 
-      if (model.hasFilesLoaded) {
+      if (model.hasImagesLoaded) {
         return [
-          ResetZoomButton(imageZoomPanner: imagePhviewer),
-          FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
+          colorMeterModeButton(onPressed: () {
+            setAppMode(PfsAppControlsMode.colorMeter);
+          }),
+          ResetZoomButton(zoomPanner: imagePhviewer),
+          FiltersButton(imageFilters: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
           Phbuttons.timerSettingsButton(
               onPressed: () => timerDurationMenu.open()),
@@ -508,35 +626,54 @@ class _MainScreenState extends State<MainScreen>
 
     const double narrowSpacing = 4;
     const double wideSpacing = 12;
+    const double minimizeButtonRightSpace = 10;
 
-    final normalBottomBar = Positioned(
-      bottom: 0,
-      right: 10,
-      child: PfsAppModel.scope(
-        (_, __, model) {
-          return TweenAnimationBuilder<double>(
-            duration: Phanimations.defaultDuration,
-            tween: Tween<double>(
-              begin: narrowSpacing,
-              end: isNarrowWindow ? narrowSpacing : wideSpacing,
-            ),
-            builder: (_, spacing, __) {
-              return Row(
-                children: bottomBarItems(
-                  model,
-                  spacing: spacing,
-                ).animate(
-                  interval: const Duration(milliseconds: 25),
-                  effects: [Phanimations.bottomBarSlideUpEffect],
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
+      return SizedBox.shrink();
+    }
 
-    return normalBottomBar;
+    Widget imageBrowseBottomBar() {
+      return Positioned(
+        bottom: 0,
+        right: minimizeButtonRightSpace,
+        child: PfsAppModel.scope(
+          (_, __, model) {
+            return TweenAnimationBuilder<double>(
+              duration: Phanimations.defaultDuration,
+              tween: Tween<double>(
+                begin: narrowSpacing,
+                end: isNarrowWindow ? narrowSpacing : wideSpacing,
+              ),
+              builder: (_, spacing, __) {
+                final theme = Theme.of(context);
+                final containerBorderRadius =
+                    theme.extension<PfsAppTheme>()?.borderRadius ??
+                        BorderRadius.circular(25);
+
+                return HoverContainer(
+                  hoverBackgroundColor: theme.scaffoldBackgroundColor,
+                  borderRadius: containerBorderRadius,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Row(
+                      children: imageBrowseBottomBarItems(
+                        model,
+                        spacing: spacing,
+                      ).animate(
+                        interval: const Duration(milliseconds: 25),
+                        effects: const [Phanimations.bottomBarSlideUpEffect],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    return imageBrowseBottomBar();
   }
 }
 
@@ -558,15 +695,7 @@ mixin PlayPauseAnimatedIcon on TickerProvider {
   }
 }
 
-mixin MainScreenBuildContext {
-  BuildContext? currentContext;
-
-  void updateCurrentBuildContext({required BuildContext context}) {
-    currentContext = context;
-  }
-}
-
-mixin MainScreenScore {
+mixin MainScreenImageViewedCounter {
   final imagesViewedCounter = ValueNotifier<int>(0);
 
   final _viewedImages = <String>{};
@@ -602,16 +731,14 @@ mixin MainScreenScore {
   }
 }
 
-mixin MainScreenToaster on MainScreenBuildContext {
+mixin MainScreenToaster on State<MainScreen> {
   void showToast({
     required String message,
     IconData? icon,
     Alignment alignment = Alignment.bottomCenter,
   }) {
-    if (currentContext == null) return;
-
     Phtoasts.show(
-      currentContext,
+      context,
       message: message,
       icon: icon,
       alignment: Phtoasts.topControlsAlign,
@@ -642,22 +769,48 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 
   void _updateAlwaysOnTop() {
-    bool isPickingFiles = model.isPickerOpen;
-    bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
+    final bool isPickingFiles = model.isPickerOpen;
+    final bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
 
-    bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
+    final bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
     windowManager.setAlwaysOnTop(currentAlwaysOnTop);
   }
 }
 
+enum PfsAppControlsMode {
+  imageBrowse,
+  colorMeter,
+  annotation,
+  firstAction,
+  welcomeChoice
+}
+
 mixin MainScreenModels on State<MainScreen> {
-  late ImagePhviewer imagePhviewer = ImagePhviewer();
+  final currentAppControlsMode =
+      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+
+  void setAppMode(PfsAppControlsMode newMode) {
+    final oldValue = currentAppControlsMode.value;
+
+    if (oldValue == PfsAppControlsMode.imageBrowse) {
+      model.tryPauseTimer();
+    }
+
+    currentAppControlsMode.value = newMode;
+    onAppModeChange();
+  }
+
+  void onAppModeChange();
+
+  late ImagePhviewer imagePhviewer = ImagePhviewer(
+    appControlsMode: currentAppControlsMode,
+  );
 
   PfsAppModel get model => widget.model;
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {
-  FileData getCurrentImageFileData();
+  ImageData getCurrentImageFileData();
 
   void _setClipboardText({
     required String text,
@@ -676,29 +829,44 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
 
   void copyCurrentImageToClipboard() async {
     final currentImageData = getCurrentImageFileData();
-    final filePath = currentImageData.filePath;
-    try {
-      final imageData = await getImageDataFromFile(filePath);
-      await copyImageFileToClipboardAsPngAndFileUri(
-        image: imageData,
-        filePath: currentImageData.filePath,
-        suggestedName: currentImageData.fileName,
-      );
-      showToast(
-        message: "Image copied to clipboard",
-        icon: Icons.copy,
-        alignment: Alignment.center,
-      );
-    } catch (e) {
-      showToast(
-        message: "Image copy failed",
-        icon: Icons.error,
-      );
+
+    if (currentImageData is ImageFileData) {
+      final filePath = currentImageData.filePath;
+      try {
+        final imageData = await getUiImageFromFile(filePath);
+        await phclipboard.copyImageFileToClipboardAsPngAndFileUri(
+          image: imageData,
+          filePath: currentImageData.filePath,
+          suggestedName: currentImageData.fileName,
+        );
+        showToast(
+          message: "Image copied to clipboard",
+          icon: Icons.copy,
+          alignment: Alignment.center,
+        );
+      } catch (e) {
+        showToast(
+          message: "Image copy failed",
+          icon: Icons.error,
+        );
+      }
+    } else if (currentImageData is ImageMemoryData) {
+      try {
+        await phclipboard.copyImageBytesToClipboardAsPng(
+            imageBytes: currentImageData.bytes!);
+        showToast(
+          message: "Image copied to clipboard",
+          icon: Icons.copy,
+          alignment: Alignment.center,
+        );
+      } catch (e) {
+        showToast(
+          message: "Image copy failed",
+          icon: Icons.error,
+        );
+      }
     }
   }
-
-  void _clipboardCopyTextHandler({newClipboardText, toastMessage}) =>
-      _setClipboardText(text: newClipboardText, toastMessage: toastMessage);
 }
 
 mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
@@ -706,14 +874,20 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<String> getThemeNotifier();
 
   late final ModalPanel filtersMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: filtersMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: filtersMenu);
+      registerEscape("filters panel");
+    },
     isUnderlayTransparent: true,
     builder: () => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
   late final ModalPanel helpMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: helpMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: helpMenu);
+      registerEscape("help menu");
+    },
     builder: () {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
@@ -723,7 +897,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel settingsMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: settingsMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: settingsMenu);
+      registerEscape("settings menu");
+    },
     builder: () {
       return SettingsPanel(
         appModel: model,
@@ -736,7 +913,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel timerDurationMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: timerDurationMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: timerDurationMenu);
+      registerEscape("timer durations menu");
+    },
     onOpened: () {
       timerDurationEditor.setActive(
           timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
@@ -751,7 +931,10 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   );
 
   late final ModalPanel aboutMenu = ModalPanel(
-    onBeforeOpen: () => _closeAllPanels(except: aboutMenu),
+    onBeforeOpen: () {
+      closeAllPanels(except: aboutMenu);
+      registerEscape("about menu");
+    },
     builder: () => const AboutSheet(),
   );
 
@@ -764,12 +947,25 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ];
 
   Iterable<Widget> get modalPanelWidgets sync* {
-    for (var panel in modalPanels) {
+    for (final panel in modalPanels) {
       yield panel.widget();
     }
   }
 
-  void _closeAllPanels({ModalPanel? except}) {
+  void registerEscape(String panelName) {
+    final escapeNavigator = EscapeNavigator.of(context);
+    escapeNavigator?.push(
+      EscapeRoute(
+        name: panelName,
+        onEscape: () {
+          closeAllPanels();
+        },
+        willPopOnEscape: true,
+      ),
+    );
+  }
+
+  void closeAllPanels({ModalPanel? except}) {
     void tryDismiss(ModalPanel toDismiss) {
       if (except != null || toDismiss != except) {
         toDismiss.close();
@@ -785,17 +981,17 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
 class FiltersButton extends StatelessWidget {
   const FiltersButton({
     super.key,
-    required this.imagePhviewer,
+    required this.imageFilters,
     required this.filtersMenu,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageFilters imageFilters;
   final ModalPanel filtersMenu;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.filtersChangeListenable,
+      valueListenable: imageFilters.filtersChangeListenable,
       builder: (_, __, ___) {
         const double filterIconSize = 20;
         const filterIconOff = Icon(
@@ -807,21 +1003,21 @@ class FiltersButton extends StatelessWidget {
           size: filterIconSize,
         );
 
-        String tooltip = imagePhviewer.isFilterActive
-            ? 'Filters (${imagePhviewer.activeFilterCount})'
+        final String tooltip = imageFilters.isFilterActive
+            ? 'Filters (${imageFilters.activeFilterCount})'
             : 'Filters';
 
         return GestureDetector(
           onTertiaryTapDown: (details) {
-            if (imagePhviewer.isFilterActive) {
-              imagePhviewer.resetAllFilters();
+            if (imageFilters.isFilterActive) {
+              imageFilters.resetAllFilters();
             }
           },
           child: IconButton(
             onPressed: () => filtersMenu.open(),
-            isSelected: imagePhviewer.isFilterActive,
+            isSelected: imageFilters.isFilterActive,
             tooltip: tooltip,
-            icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+            icon: imageFilters.isFilterActive ? filterIconOn : filterIconOff,
           ),
         );
       },
@@ -861,25 +1057,26 @@ class ImageBrowseGestureControls extends StatelessWidget {
     required this.playPauseIconProgress,
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
-    required this.clipboardCopyTextHandler,
-    required this.clipboardCopyImageFileHandler,
+    required this.colorMeterMenuItemHandler,
   });
 
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
-  final ClipboardCopyTextHandler clipboardCopyTextHandler;
-  final VoidCallback clipboardCopyImageFileHandler;
+  final VoidCallback colorMeterMenuItemHandler;
 
   @override
   Widget build(BuildContext context) {
-    AnimatedIcon playPauseIcon = AnimatedIcon(
+    final AnimatedIcon playPauseIcon = AnimatedIcon(
       icon: AnimatedIcons.play_pause,
       size: 80,
       progress: playPauseIconProgress,
     );
 
     return PfsAppModel.scope((_, __, model) {
+      const double beforeButtonWidth = 100;
+      const double afterButtonWidth = 140;
+
       Widget nextPreviousGestureButton(
           {required double width,
           required Function()? onPressed,
@@ -898,24 +1095,25 @@ class ImageBrowseGestureControls extends StatelessWidget {
 
       Widget middleGestureButton() {
         Widget playPauseButton() {
-          return OverlayButton(
-            onPressed: () => model.tryTogglePlayPauseTimer(),
-            child: playPauseIcon,
-          );
+          return model.allowTimerPlayPause
+              ? OverlayButton(
+                  onPressed: () => model.tryTogglePlayPauseTimer(),
+                  child: playPauseIcon,
+                )
+              : TextButton(onPressed: null, child: Text(""));
         }
 
         return ImagePhviewerZoomOnScrollListener(
-          imagePhviewer: imagePhviewer,
+          zoomPanner: imagePhviewer,
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-            clipboardCopyHandler: clipboardCopyTextHandler,
-            copyImageFileHandler: clipboardCopyImageFileHandler,
+            colorChangeModeHandler: colorMeterMenuItemHandler,
             child: ValueListenableBuilder(
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
                 return ImagePhviewerPanListener(
-                  imagePhviewer: imagePhviewer,
+                  zoomPanner: imagePhviewer,
                   child: playPauseButton(),
                 );
               },
@@ -934,20 +1132,24 @@ class ImageBrowseGestureControls extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              nextPreviousGestureButton(
-                width: 100,
-                onPressed: () => model.previousImageNewTimer(),
-                child: PfsTheme.beforeGestureIcon,
-              ),
+              model.allowCirculatorControl
+                  ? nextPreviousGestureButton(
+                      width: beforeButtonWidth,
+                      onPressed: () => model.nextImageNewTimer(),
+                      child: PfsTheme.beforeGestureIcon,
+                    )
+                  : SizedBox(width: beforeButtonWidth),
               Expanded(
                 flex: 4,
                 child: middleGestureButton(),
               ),
-              nextPreviousGestureButton(
-                width: 140,
-                onPressed: () => model.nextImageNewTimer(),
-                child: PfsTheme.nextGestureIcon,
-              ),
+              model.allowCirculatorControl
+                  ? nextPreviousGestureButton(
+                      width: afterButtonWidth,
+                      onPressed: () => model.nextImageNewTimer(),
+                      child: PfsTheme.nextGestureIcon,
+                    )
+                  : SizedBox(width: afterButtonWidth),
             ],
           ),
         ),

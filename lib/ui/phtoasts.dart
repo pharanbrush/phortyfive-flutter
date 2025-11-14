@@ -59,7 +59,7 @@ class Phtoasts {
         theme.primaryTextTheme.bodyMedium ??
         const TextStyle(fontSize: 16);
 
-    Widget toastWidget = DefaultTextStyle(
+    final Widget toastWidget = DefaultTextStyle(
       style: textStyle,
       child: Material(
         type: MaterialType.canvas,
@@ -80,7 +80,7 @@ class Phtoasts {
     const duration = Duration(milliseconds: 1800);
     const double offsetFromEdge = 70;
 
-    bool isTop = alignment.y < 0;
+    final isTop = alignment.y < 0;
     final animation = isTop
         ? StyledToastAnimation.slideFromTopFade
         : StyledToastAnimation.slideFromBottomFade;

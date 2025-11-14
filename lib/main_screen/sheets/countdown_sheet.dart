@@ -30,8 +30,8 @@ class CountdownSheet extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      int countdownNumber = model.countdownLeft;
-      String countdownString = countdownNumber.toString();
+      final countdownNumber = model.countdownLeft;
+      final countdownString = countdownNumber.toString();
 
       return Stack(
         children: [

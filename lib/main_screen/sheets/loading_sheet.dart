@@ -14,7 +14,7 @@ class LoadingSheet extends StatelessWidget {
     return Stack(
       children: [
         ModalBarrier(
-          color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
           dismissible: false,
         ),
         Center(

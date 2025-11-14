@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
-import 'package:pfs2/core/file_data.dart';
-import 'package:pfs2/core/file_list.dart';
+import 'package:pfs2/core/image_data.dart';
+import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PfsAppModel extends Model
     with
-        PfsImageFileManager,
+        PfsImageListManager,
         PfsModelTimer,
         PfsCountdownCounter,
         PfsWelcomer,
@@ -22,15 +22,26 @@ class PfsAppModel extends Model
           ScopedModelDescendantBuilder<PfsAppModel> builder) =>
       ScopedModelDescendant<PfsAppModel>(builder: builder);
 
-  bool get allowTimerPlayPause => hasFilesLoaded && isWelcomeDone && !isAnnotating;
-  bool get allowCirculatorControl => hasFilesLoaded && isWelcomeDone && !isAnnotating;
-  bool get isAnnotating => isAnnotatingMode.value;
+  bool get allowTimerPlayPause =>
+      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
+  bool get allowCirculatorControl =>
+      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
+  // bool get isAnnotating => isAnnotatingMode.value;
 
   @override
-  bool _canStartCountdown() => timerModel.isRunning && !isAnnotating;
+  bool _canStartCountdown() => timerModel.isRunning; // && !isAnnotating;
 
-  FileData getCurrentImageFileData() {
-    return fileList.get(circulator.currentIndex);
+  ImageData getCurrentImageData() {
+    if (!imageList.isPopulated()) return ImageData.invalid;
+
+    return imageList.get(circulator.currentIndex);
+  }
+
+  void tryPauseTimer() {
+    if (timerModel.isRunning) {
+      tryCancelCountdown();
+      timerModel.playPauseToggleTimer();
+    }
   }
 
   void tryTogglePlayPauseTimer() {
@@ -44,7 +55,7 @@ class PfsAppModel extends Model
     if (!allowCirculatorControl) return;
 
     tryCancelCountdown();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
     onImageChange?.call();
     _previousImage();
   }
@@ -53,7 +64,7 @@ class PfsAppModel extends Model
     if (!allowCirculatorControl) return;
 
     tryCancelCountdown();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
     onImageChange?.call();
     _nextImage();
   }
@@ -83,7 +94,7 @@ class PfsAppModel extends Model
 
   @override
   void _onImagesLoaded() {
-    final loadedCount = fileList.getCount();
+    final loadedCount = imageList.getCount();
     circulator.startNewOrder(loadedCount);
 
     if (isWelcomeDone) {
@@ -94,12 +105,17 @@ class PfsAppModel extends Model
 
       onImageChange?.call();
       notifyListeners();
+    } else {
+      if (loadedCount == 1) {
+        isWelcomeDone = true;
+      }
     }
   }
 
   void tryStartSession() {
     reinitializeTimer();
     if (isUserChoseToStartTimer) {
+      timerModel.setActive(true);
       tryStartCountdown();
     } else {
       timerModel.setActive(false);
@@ -107,12 +123,12 @@ class PfsAppModel extends Model
 
     onImageChange?.call();
     notifyListeners();
-  }  
+  }
 
   void reinitializeTimer() {
     timerModel.tryInitialize();
     timerModel.onElapse ??= () => _handleTimerElapsed();
-    timerModel.restartTimer();
+    timerModel.resetTimer();
   }
 
   @override
@@ -129,7 +145,7 @@ class PfsAppModel extends Model
   @override
   void _onCountdownElapsedInternal() {
     timerModel.deregisterPauser(this);
-    timerModel.restartTimer();
+    timerModel.resetTimer();
   }
 }
 
@@ -141,11 +157,11 @@ mixin PfsWelcomer {
 }
 
 mixin PfsAnnotator {
-  final isAnnotatingMode = ValueNotifier(false);
+  // final isAnnotatingMode = ValueNotifier(false);
 
-  void toggleAnnotationMode() {
-    isAnnotatingMode.value = !isAnnotatingMode.value;
-  }
+  // void toggleAnnotationMode() {
+  //   isAnnotatingMode.value = !isAnnotatingMode.value;
+  // }
 }
 
 mixin PfsCirculator {
@@ -184,6 +200,7 @@ mixin PfsCountdownCounter on Model {
     _onCountdownActiveStateChanged();
   }
 
+  /// Countdown doesn't start if timer is not enabled.
   void tryStartCountdown() {
     if (_isCountdownEnabled && _canStartCountdown()) {
       _countdownRoutine();
@@ -229,17 +246,18 @@ mixin PfsCountdownCounter on Model {
   }
 }
 
-mixin PfsImageFileManager {
-  final FileList fileList = FileList();
+mixin PfsImageListManager {
+  final ImageList imageList = ImageList();
 
   String lastFolder = '';
   bool isPickerOpen = false;
-  bool get hasFilesLoaded => fileList.isPopulated();
+  bool get hasImagesLoaded => imageList.isPopulated();
+  bool get hasMoreThanOneImage => imageList.getCount() > 1;
 
-  void Function(int loadedCount, int skippedCount)? onFilesLoadedSuccess;
+  void Function(int loadedCount, int skippedCount)? onImagesLoadedSuccess;
   void Function()? onFilePickerStateChange;
   void Function()? onImageChange;
-  void Function()? onFilesChanged;
+  void Function()? onImagesChanged;
 
   final isLoadingImages = ValueNotifier(false);
   final currentlyLoadingImages = ValueNotifier<int>(0);
@@ -259,7 +277,7 @@ mixin PfsImageFileManager {
       acceptedTypeGroups: [
         const XTypeGroup(
           label: 'images',
-          extensions: FileList.allowedExtensions,
+          extensions: ImageList.allowedExtensions,
         )
       ],
     );
@@ -268,14 +286,14 @@ mixin PfsImageFileManager {
     if (files.isEmpty) return;
 
     final pathList = files.map((file) => file.path).toList();
-    loadImages(pathList);
+    loadImageFiles(pathList);
   }
 
   void openFilePickerForFolder({bool includeSubfolders = false}) async {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    var folder = await getDirectoryPath();
+    final folder = await getDirectoryPath();
     _setStateFilePickerOpen(false);
 
     if (folder == null || folder.isEmpty) return;
@@ -296,7 +314,7 @@ mixin PfsImageFileManager {
           filePaths.add(entry.path);
         }
       }
-      await loadImages(filePaths);
+      await loadImageFiles(filePaths);
       lastFolder = directory.path.split(Platform.pathSeparator).last;
     } catch (e) {
       isPickerOpen = false;
@@ -304,31 +322,59 @@ mixin PfsImageFileManager {
     }
   }
 
-  Future loadImages(
+  Future loadImageFiles(
     List<String?> filePaths, {
     bool recursive = false,
   }) async {
     if (filePaths.isEmpty) return;
 
-    isLoadingImages.value = true;
+    _startLoadingImages();
+
     final expandedFilePaths = await getExpandedList(
       filePaths,
       onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
       recursive: recursive,
     );
 
-    await fileList.load(expandedFilePaths);
+    await imageList.loadFiles(expandedFilePaths);
 
-    final loadedCount = fileList.getCount();
-    final lastFile = fileList.getLast();
-    final potentialFolderPath = lastFile.fileFolder;
-    if (potentialFolderPath.trim().isNotEmpty) {
-      lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
+    final lastFile = imageList.getLast();
+    if (lastFile is ImageFileData) {
+      final potentialFolderPath = lastFile.fileFolder;
+      if (potentialFolderPath.trim().isNotEmpty) {
+        lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
+      } else {
+        lastFolder = "[mixed]";
+      }
     } else {
-      lastFolder = '[mixed]';
+      lastFolder = "";
     }
-    onFilesChanged?.call();
-    onFilesLoadedSuccess?.call(loadedCount, loadedCount - filePaths.length);
+
+    _endLoadingImages(expandedFilePaths.length);
+  }
+
+  Future loadImage(ImageData? image) async {
+    if (image == null) return;
+    _startLoadingImages();
+    await imageList.loadImage(image);
+    _endLoadingImages(1);
+  }
+
+  Future loadImages(List<ImageData?> images) async {
+    if (images.isEmpty) return;
+    _startLoadingImages();
+    await imageList.loadImages(images);
+    _endLoadingImages(images.length);
+  }
+
+  void _startLoadingImages() {
+    isLoadingImages.value = true;
+  }
+
+  void _endLoadingImages(int sourceCount) {
+    final loadedCount = imageList.getCount();
+    onImagesChanged?.call();
+    onImagesLoadedSuccess?.call(loadedCount, loadedCount - sourceCount);
     isLoadingImages.value = false;
 
     _onImagesLoaded();

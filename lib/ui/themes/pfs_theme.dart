@@ -47,8 +47,8 @@ class PfsTheme {
 
   //
   static const windowsTenTooltipTheme = TooltipThemeData(
+    constraints: BoxConstraints(minHeight: 16),
     verticalOffset: 26,
-    height: 16,
     padding: EdgeInsets.only(
       top: 0,
       left: 5,
@@ -131,7 +131,7 @@ class PfsTheme {
 
       const Color filledbuttonContentColor = Color.fromARGB(223, 241, 237, 241);
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -189,7 +189,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 10,
           surfaceTintColor: Colors.transparent,
           color: panelBackground,
@@ -278,10 +278,10 @@ class PfsTheme {
       const Color outline = Color(0xFFC0C0C0);
       const Color dullBlue = Color(0xDD95A0A6);
 
-      const Color filledbuttonContentColor = appBackground;
+      final iconColor = textColor.withValues(alpha: 0.5);
       const double panelElevation = 20;
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -348,15 +348,15 @@ class PfsTheme {
             iconColor: const WidgetStatePropertyAll(Color(0xBB333333)),
           ),
         ),
-        iconTheme: const IconThemeData(
-          color: filledbuttonContentColor,
+        iconTheme: IconThemeData(
+          color: iconColor,
         ),
         menuButtonTheme: const MenuButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -493,7 +493,7 @@ class PfsTheme {
       const double panelElevation = 10;
       const panelOutline = BorderSide(width: 1.0, color: Color(0xFF282A2E));
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -583,7 +583,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -706,7 +706,7 @@ class PfsTheme {
       const Color filledbuttonContentColor = buttonContentColor;
       const double cspPanelElevation = 20;
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -776,7 +776,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 2,
           surfaceTintColor: Colors.transparent,
           shape: Border(
@@ -888,7 +888,7 @@ class PfsTheme {
       const Color cardOutlineColor = Color(0xFFEEEEEE);
       const Color outline = Color.fromARGB(82, 94, 76, 53);
 
-      var newData = ThemeData(
+      final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
@@ -924,7 +924,7 @@ class PfsTheme {
             backgroundColor: WidgetStatePropertyAll(panelBackground),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(

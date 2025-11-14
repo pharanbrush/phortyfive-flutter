@@ -6,8 +6,10 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:pfs2/core/file_data.dart' as file_data;
-import 'package:pfs2/core/file_data.dart' show FileData;
+import 'package:pfs2/core/image_memory_data.dart';
+import 'package:pfs2/core/image_data.dart' as image_data;
+import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
+import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -16,14 +18,17 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/widgets/annotation_overlay.dart';
+import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
-class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
-  ImagePhviewer();
+class ImagePhviewer with ImageZoomPanner, ImageFilters {
+  ImagePhviewer({required this.appControlsMode});
 
   static final imageWidgetKey = GlobalKey();
+
+  final ValueListenable<PfsAppControlsMode> appControlsMode;
 
   @override
   Size getImageSize() {
@@ -32,22 +37,14 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters, ImageAnnotator {
 
   Widget widget(ValueListenable<bool> isBottomBarMinimized) {
     return ImageViewerStackWidget(
-      flipHorizontalListenable: flipHorizontalListenable,
-      panDurationListenable: panDurationListenable,
+      zoomPanner: this,
+      filters: this,
+      panDurationListenable: panDuration,
       isBottomBarMinimized: isBottomBarMinimized,
-      offsetListenable: offsetListenable,
-      blurLevelListenable: blurLevelListenable,
-      usingGrayscaleListenable: usingGrayscaleListenable,
-      isAnnotatingListenable: isAnnotatingListenable,
-      zoomLevelListenable: zoomLevelListenable,
-      getCurrentZoomScale: () => currentZoomScale,
-      revealInExplorerHandler: file_data.revealInExplorer,
+      revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
+      currentAppControlsMode: appControlsMode,
     );
   }
-}
-
-mixin ImageAnnotator {
-  final isAnnotatingListenable = ValueNotifier<bool>(false);
 }
 
 mixin ImageFilters {
@@ -62,25 +59,17 @@ mixin ImageFilters {
   set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
   final usingGrayscaleListenable = ValueNotifier<bool>(false);
 
-  late final filtersChangeListenable = ValuesNotifier([
-    blurLevelListenable,
-    usingGrayscaleListenable,
-  ]);
-
   bool get isFilterActive =>
       (isUsingGrayscale || blurLevelListenable.value > 0);
 
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
-    if (blurLevelListenable.value > 0) currentActiveFiltersCount++;
+    if (blurLevelListenable.value > 0) {
+      currentActiveFiltersCount++;
+    }
     if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
-  }
-
-  void resetAllFilters() {
-    isUsingGrayscale = false;
-    blurLevel = 0;
   }
 
   void incrementBlurLevel(int increment) {
@@ -90,9 +79,38 @@ mixin ImageFilters {
       blurLevel -= 1;
     }
   }
+
+  late final filtersChangeListenable = ValuesNotifier([
+    blurLevelListenable,
+    usingGrayscaleListenable,
+  ]);
+
+  void resetAllFilters() {
+    isUsingGrayscale = false;
+    blurLevel = 0;
+  }
 }
 
 mixin ImageZoomPanner {
+  final flipHorizontalListenable = ValueNotifier<bool>(false);
+
+  final zoomLevelListenable =
+      ValueNotifier<int>(ImageZoomPanner._defaultZoomLevel);
+  double get currentZoomScale =>
+      ImageZoomPanner._zoomScales[zoomLevelListenable.value];
+  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
+  bool get isZoomLevelDefault =>
+      (zoomLevelListenable.value == ImageZoomPanner._defaultZoomLevel);
+  bool get isZoomedIn => currentZoomScale > 1;
+
+  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
+  Offset get panOffset => offsetListenable.value;
+
+  double zoomAccumulator = 0;
+
+  final panDuration =
+      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
+
   static const List<double> _zoomScales = [
     0.25,
     0.5,
@@ -105,12 +123,11 @@ mixin ImageZoomPanner {
     8.0,
   ];
   static const _defaultZoomLevel = 3;
-  
-  double zoomAccumulator = 0;
-  void incrementZoomAccumulator (double dragIncrement) {
-    final zoomSensitivity = 0.04;
+
+  void incrementZoomAccumulator(double dragIncrement) {
+    const zoomSensitivity = 0.04;
     zoomAccumulator += dragIncrement * zoomSensitivity;
-    
+
     if (zoomAccumulator > 1) {
       zoomAccumulator -= 1;
       incrementZoomLevel(1);
@@ -119,38 +136,23 @@ mixin ImageZoomPanner {
       incrementZoomLevel(-1);
     }
   }
-  
+
   void resetZoomAccumulator() {
     zoomAccumulator = 0;
   }
-  
-
-  final flipHorizontalListenable = ValueNotifier<bool>(false);
-
-  final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
-  double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
-  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
-  bool get isZoomLevelDefault =>
-      (zoomLevelListenable.value == _defaultZoomLevel);
-  bool get isZoomedIn => currentZoomScale > 1;
-
-  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
-  Offset get panOffset => offsetListenable.value;
-  final panDurationListenable =
-      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
 
   void incrementZoomLevel(int increment) {
     final previousZoomLevel = zoomLevelListenable.value;
-    final newZoomLevel =
-        (previousZoomLevel + increment).clamp(0, _zoomScales.length - 1);
+    final newZoomLevel = (previousZoomLevel + increment)
+        .clamp(0, ImageZoomPanner._zoomScales.length - 1);
 
     if (newZoomLevel != previousZoomLevel) {
-      final newZoomScale = _zoomScales[newZoomLevel];
-      final previousZoomScale = _zoomScales[previousZoomLevel];
+      final newZoomScale = ImageZoomPanner._zoomScales[newZoomLevel];
+      final previousZoomScale = ImageZoomPanner._zoomScales[previousZoomLevel];
       _scalePanOffset(previousZoomScale, newZoomScale);
     }
 
-    if (newZoomLevel <= _defaultZoomLevel) {
+    if (newZoomLevel <= ImageZoomPanner._defaultZoomLevel) {
       resetOffset();
     } else if (increment < 1) {
       offsetListenable.value *= 0.75;
@@ -160,7 +162,7 @@ mixin ImageZoomPanner {
   }
 
   void _resetZoomLevel() {
-    zoomLevelListenable.value = _defaultZoomLevel;
+    zoomLevelListenable.value = ImageZoomPanner._defaultZoomLevel;
   }
 
   void resetOffset() {
@@ -184,7 +186,7 @@ mixin ImageZoomPanner {
 
   void _scalePanOffset(double previousZoomScale, double newZoomScale) {
     final scaleDifference = newZoomScale / previousZoomScale;
-    var newOffsetValue = offsetListenable.value * scaleDifference;
+    final newOffsetValue = offsetListenable.value * scaleDifference;
     _setPanOffsetClamped(newOffsetValue);
   }
 
@@ -194,13 +196,13 @@ mixin ImageZoomPanner {
       delta = delta.scale(-1, 1);
     }
 
-    var newOffsetValue = offsetListenable.value + delta;
-    panDurationListenable.value = Phanimations.userPanDuration;
+    final newOffsetValue = offsetListenable.value + delta;
+    panDuration.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
   }
 
   void panRelease() {
-    panDurationListenable.value = Phanimations.zoomTransitionDuration;
+    panDuration.value = Phanimations.zoomTransitionDuration;
   }
 
   Size getImageSize();
@@ -212,8 +214,8 @@ mixin ImageZoomPanner {
 
       final xMax = scaledSize.width * 0.5;
       final yMax = scaledSize.height * 0.5;
-      var dx = clampDouble(offset.dx, -xMax, xMax);
-      var dy = clampDouble(offset.dy, -yMax, yMax);
+      final dx = clampDouble(offset.dx, -xMax, xMax);
+      final dy = clampDouble(offset.dy, -yMax, yMax);
 
       return Offset(dx, dy);
     }
@@ -221,8 +223,6 @@ mixin ImageZoomPanner {
     offsetListenable.value = clampPanOffset(newOffset);
   }
 }
-
-enum ImageColorMode { color, grayscale }
 
 class ImageClickableLabel extends StatelessWidget {
   const ImageClickableLabel({
@@ -256,7 +256,7 @@ class ImageClickableLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
+    final buttonHoverBackground = Theme.of(context).scaffoldBackgroundColor;
     final buttonMaterialColors = hoverColors(
       idle: buttonHoverBackground.withAlpha(0x00),
       hover: buttonHoverBackground,
@@ -285,60 +285,77 @@ class ImageClickableLabel extends StatelessWidget {
   }
 }
 
-typedef ClipboardCopyTextHandler = void Function(
-    {required String newClipboardText, String? toastMessage});
-
 class ImageRightClick extends StatelessWidget {
   const ImageRightClick({
     super.key,
     required this.child,
-    this.clipboardCopyHandler,
     required this.resetZoomLevelHandler,
     required this.revealInExplorerHandler,
-    required this.copyImageFileHandler,
+    required this.colorChangeModeHandler,
   });
 
   final Widget child;
-  final ClipboardCopyTextHandler? clipboardCopyHandler;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
-  final VoidCallback copyImageFileHandler;
+  final VoidCallback colorChangeModeHandler;
 
   @override
   Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
       void handleCopyFilePath() {
-        clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageFileData().filePath,
-          toastMessage: 'File path copied to clipboard.',
-        );
+        final currentImageData = model.getCurrentImageData();
+        if (currentImageData is ImageFileData) {
+          ClipboardHandlers.of(context)?.copyText(
+            text: currentImageData.filePath,
+            toastMessage: 'File path copied to clipboard.',
+          );
+        }
       }
 
       void handleCopyFilename() {
-        clipboardCopyHandler?.call(
-          newClipboardText: model.getCurrentImageFileData().fileName,
-          toastMessage: 'Filename copied to clipboard.',
-        );
+        final currentImageData = model.getCurrentImageData();
+        if (currentImageData is ImageFileData) {
+          ClipboardHandlers.of(context)?.copyText(
+            text: currentImageData.fileName,
+            toastMessage: 'Filename copied to clipboard.',
+          );
+        }
       }
+
+      void handleCopyCurrentImage() {
+        ClipboardHandlers.of(context)?.copyCurrentImage();
+      }
+
+      final imageData = model.getCurrentImageData();
+      final isFile = imageData is ImageFileData;
 
       final copyImageItem = MenuItem(
         label: PfsLocalization.copyImageToClipboard,
-        onClick: (menuItem) => copyImageFileHandler(),
+        onClick: (menuItem) => handleCopyCurrentImage(),
+        disabled: imageData is image_data.InvalidImageData,
       );
 
       final copyFilename = MenuItem(
         label: PfsLocalization.copyFileName,
         onClick: (menuItem) => handleCopyFilename(),
+        disabled: !isFile,
       );
 
       final copyFilePathItem = MenuItem(
         label: PfsLocalization.copyFilePath,
         onClick: (menuItem) => handleCopyFilePath(),
+        disabled: !isFile,
       );
 
       final revealInExplorerItem = MenuItem(
         label: PfsLocalization.revealInExplorer,
         onClick: (menuItem) => revealInExplorerHandler(),
+        disabled: !isFile,
+      );
+
+      final colorChangeModeItem = MenuItem(
+        label: PfsLocalization.openColorChangeMeter,
+        onClick: (menuItem) => colorChangeModeHandler(),
       );
 
       final contextMenu = Menu(
@@ -347,9 +364,47 @@ class ImageRightClick extends StatelessWidget {
           copyFilePathItem,
           copyFilename,
           MenuItem.separator(),
+          colorChangeModeItem,
+          MenuItem.separator(),
           revealInExplorerItem,
         ],
       );
+
+      // nativeapi API
+      //
+      // Menu getContextMenu() {
+      //   final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
+      //     ..enabled = imageData is! image_data.InvalidImageData;
+
+      //   final copyFilename = MenuItem(PfsLocalization.copyFileName)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+      //     ..enabled = isFile;
+
+      //   final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
+      //     ..enabled = isFile;
+
+      //   final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
+      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+      //     ..enabled = isFile;
+
+      //   final colorChangeMode = MenuItem(PfsLocalization.openColorChangeMeter)
+      //     ..on<MenuItemClickedEvent>((_) => colorChangeModeHandler());
+
+      //   return Menu()
+      //     ..addItem(copyImage)
+      //     ..addItem(copyFilePath)
+      //     ..addItem(copyFilename)
+      //     ..addSeparator()
+      //     ..addItem(colorChangeMode)
+      //     ..addSeparator()
+      //     ..addItem(revealInExplorer);
+      // }
+
+      // void openContextMenu() {
+      //   getContextMenu().open(PositioningStrategy.cursorPosition());
+      // }
 
       void openContextMenu() {
         popUpContextualMenu(contextMenu);
@@ -368,70 +423,88 @@ class ImageViewerStackWidget extends StatelessWidget {
   const ImageViewerStackWidget({
     super.key,
     required this.isBottomBarMinimized,
-    required this.zoomLevelListenable,
-    required this.blurLevelListenable,
-    required this.usingGrayscaleListenable,
-    required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
-    required this.isAnnotatingListenable,
-    required this.offsetListenable,
-    required this.flipHorizontalListenable,
     required this.panDurationListenable,
+    required this.currentAppControlsMode,
+    required this.zoomPanner,
+    required this.filters,
   });
 
+  final ImageZoomPanner zoomPanner;
+  final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<bool> isBottomBarMinimized;
-  final ValueListenable<Offset> offsetListenable;
-  final ValueNotifier<int> zoomLevelListenable;
-  final ValueNotifier<double> blurLevelListenable;
-  final ValueNotifier<bool> isAnnotatingListenable;
-  final ValueNotifier<bool> flipHorizontalListenable;
-  final ValueNotifier<bool> usingGrayscaleListenable;
-  final double Function() getCurrentZoomScale;
-  final Function(FileData fileData) revealInExplorerHandler;
+  final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
+  final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
   Widget build(BuildContext context) {
     final content = PfsAppModel.scope((_, __, model) {
-      const defaultImage = '';
-
-      final FileData imageFileData = model.hasFilesLoaded
-          ? model.getCurrentImageFileData()
-          : file_data.fileDataFromPath(defaultImage);
-
-      final File imageFile = File(imageFileData.filePath);
-      final imageWidget = Image.file(
-        filterQuality: FilterQuality.medium,
-        key: ImagePhviewer.imageWidgetKey,
-        imageFile,
-      );
-
-      final possiblyAnnotatedImageWidget = ValueListenableBuilder(
-        valueListenable: isAnnotatingListenable,
-        builder: (BuildContext context, bool useAnnotation, Widget? child) {
-          if (useAnnotation) {
-            final annotatedImageWidget = AnnotationOverlay(
-              image: imageWidget,
-              annotationType: AnnotationType.line,
-              child: imageWidget,
+      Image getImageWidget(ImageData imageData) {
+        if (imageData is image_data.ImageFileData) {
+          final imageFile = File(imageData.filePath);
+          return Image.file(
+            filterQuality: FilterQuality.medium,
+            key: ImagePhviewer.imageWidgetKey,
+            imageFile,
+          );
+        } else if (imageData is ImageMemoryData) {
+          final byteData = imageData.bytes;
+          if (byteData != null) {
+            return Image.memory(
+              filterQuality: FilterQuality.medium,
+              key: ImagePhviewer.imageWidgetKey,
+              byteData,
             );
-            return annotatedImageWidget;
-          } else {
-            return imageWidget;
+          }
+        }
+
+        return Image.file(File(""));
+      }
+
+      final currentImageData = model.getCurrentImageData();
+      final imageWidget = getImageWidget(currentImageData);
+      final possiblyOverlayedWidget = ValueListenableBuilder(
+        valueListenable: currentAppControlsMode,
+        builder: (
+          BuildContext context,
+          PfsAppControlsMode mode,
+          Widget? child,
+        ) {
+          switch (mode) {
+            case PfsAppControlsMode.annotation:
+              final annotatedImageWidget = AnnotationOverlay(
+                image: imageWidget,
+                annotationType: AnnotationType.line,
+                child: imageWidget,
+              );
+              return annotatedImageWidget;
+
+            // case PfsAppControlsMode.eyedrop:
+            //   return EyeDrop(child: imageWidget);
+
+            default:
+              return imageWidget;
           }
         },
       );
 
-      final imageFilenameLayer = Align(
-        heightFactor: 2,
-        alignment: Alignment.topCenter,
-        child: ImageClickableLabel(
-          label: imageFileData.fileName,
-          tooltip:
-              "${PfsLocalization.revealInExplorer} : ${imageFileData.parentFolderName}",
-          onTap: () => revealInExplorerHandler(imageFileData),
-        ),
-      );
+      Widget imageFilenameLayer(ImageData imageData) {
+        if (imageData is ImageFileData) {
+          return Align(
+            heightFactor: 2,
+            alignment: Alignment.topCenter,
+            child: ImageClickableLabel(
+              label: imageData.fileName,
+              tooltip:
+                  "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
+              onTap: () => revealInExplorerHandler(imageData),
+            ),
+          );
+        }
+
+        return SizedBox.shrink();
+      }
 
       final isNextImageTransition = model.lastIncrement > 0;
       final currentImageIndexString = model.currentImageIndex.toString();
@@ -448,25 +521,25 @@ class ImageViewerStackWidget extends StatelessWidget {
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
               child: ValueListenableBuilder(
-                valueListenable: flipHorizontalListenable,
+                valueListenable: zoomPanner.flipHorizontalListenable,
                 builder: (_, __, ___) {
                   return Transform.flip(
-                    flipX: flipHorizontalListenable.value,
+                    flipX: zoomPanner.flipHorizontalListenable.value,
                     flipY: false,
                     child: ValueListenableBuilder(
                         valueListenable: panDurationListenable,
                         builder: (_, panDuration, ___) {
                           return ListeningAnimatedTranslate(
-                            offsetListenable: offsetListenable,
+                            offsetListenable: zoomPanner.offsetListenable,
                             duration: panDuration,
                             child: ValueListenableBuilder(
-                              valueListenable: zoomLevelListenable,
+                              valueListenable: zoomPanner.zoomLevelListenable,
                               builder: (_, __, ___) {
                                 return AnimatedScale(
                                   duration: Phanimations.zoomTransitionDuration,
                                   curve: Phanimations.zoomTransitionCurve,
-                                  scale: getCurrentZoomScale(),
-                                  child: possiblyAnnotatedImageWidget,
+                                  scale: zoomPanner.currentZoomScale,
+                                  child: possiblyOverlayedWidget,
                                 );
                               },
                             ),
@@ -478,7 +551,7 @@ class ImageViewerStackWidget extends StatelessWidget {
             ),
           ),
           ValueListenableBuilder(
-            valueListenable: blurLevelListenable,
+            valueListenable: filters.blurLevelListenable,
             builder: (_, blurValue, __) {
               if (blurValue <= 0) return const SizedBox.expand();
               final sigma = pow(1.3, blurValue).toDouble();
@@ -489,11 +562,11 @@ class ImageViewerStackWidget extends StatelessWidget {
             },
           ),
           ValueListenableBuilder(
-            valueListenable: usingGrayscaleListenable,
+            valueListenable: filters.usingGrayscaleListenable,
             builder: (_, value, ___) =>
                 value ? grayscaleBackdropFilter : const SizedBox.expand(),
           ),
-          imageFilenameLayer,
+          imageFilenameLayer(currentImageData),
         ],
       );
     });
@@ -609,11 +682,11 @@ class AnimatedTranslate extends StatelessWidget {
 class ImagePhviewerPanListener extends StatelessWidget {
   const ImagePhviewerPanListener({
     super.key,
-    required this.imagePhviewer,
+    required this.zoomPanner,
     required this.child,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
   final Widget child;
 
   @override
@@ -621,23 +694,23 @@ class ImagePhviewerPanListener extends StatelessWidget {
     return GestureDetector(
       onPanUpdate: (details) {
         final pointerDelta = details.delta;
-    
+
         if (Phshortcuts.isDragZoomModifierPressed()) {
-          imagePhviewer.incrementZoomAccumulator(pointerDelta.dx);
-          imagePhviewer.incrementZoomAccumulator(-pointerDelta.dy);
+          zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
+          zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
           return;
         }
-    
-        if (!imagePhviewer.isZoomedIn) return;
-    
-        imagePhviewer.panImage(pointerDelta);
+
+        if (!zoomPanner.isZoomedIn) return;
+
+        zoomPanner.panImage(pointerDelta);
       },
       onPanEnd: (details) {
-        imagePhviewer.resetZoomAccumulator();
-        
-        if (!imagePhviewer.isZoomedIn) return;
-    
-        imagePhviewer.panRelease();
+        zoomPanner.resetZoomAccumulator();
+
+        if (!zoomPanner.isZoomedIn) return;
+
+        zoomPanner.panRelease();
       },
       child: child,
     );
@@ -648,17 +721,17 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
   const ImagePhviewerZoomOnScrollListener({
     super.key,
     required this.child,
-    required this.imagePhviewer,
+    required this.zoomPanner,
   });
 
   final Widget child;
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ScrollListener(
-      onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
-      onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
+      onScrollDown: () => zoomPanner.incrementZoomLevel(-1),
+      onScrollUp: () => zoomPanner.incrementZoomLevel(1),
       child: child,
     );
   }
@@ -667,21 +740,21 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
 class ResetZoomButton extends StatelessWidget {
   const ResetZoomButton({
     super.key,
-    required this.imageZoomPanner,
+    required this.zoomPanner,
   });
 
-  final ImageZoomPanner imageZoomPanner;
+  final ImageZoomPanner zoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imageZoomPanner.zoomLevelListenable,
+      valueListenable: zoomPanner.zoomLevelListenable,
       builder: (_, __, ___) {
         return Visibility(
-          visible: !imageZoomPanner.isZoomLevelDefault,
+          visible: !zoomPanner.isZoomLevelDefault,
           child: IconButton(
             tooltip: 'Reset zoom',
-            onPressed: () => imageZoomPanner.resetTransform(),
+            onPressed: () => zoomPanner.resetTransform(),
             icon: const Icon(Icons.youtube_searched_for),
           ),
         );

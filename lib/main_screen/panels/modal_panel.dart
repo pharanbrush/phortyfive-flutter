@@ -19,6 +19,7 @@ class ModalPanel {
     this.onOpened,
     this.onClosed,
     this.isUnderlayTransparent = false,
+    this.useUnderlay = true,
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
   });
 
@@ -31,6 +32,10 @@ class ModalPanel {
   /// [ModalPanel] automatically adds a clickable scrim/underlay to make the underlying elements
   /// less prominent. [isUnderlayTransparent] makes the underlay invisible but still clickable.
   final bool isUnderlayTransparent;
+
+  /// [ModalPanel] automatically adds a clickable scrim/underlay to make the underlying elements
+  /// less prominent. Setting [useUnderlay] to false allows the panel to stay open even if you click outside of it.
+  final bool useUnderlay;
 
   /// Defines the transition animation widget builder used by the internal [AnimatedSwitcher].
   /// See documentation on [AnimatedSwitcher] for more info.
@@ -59,6 +64,7 @@ class ModalPanel {
       isOpen: _isOpen,
       close: close,
       isUnderlayTransparent: isUnderlayTransparent,
+      useUnderlay: useUnderlay,
       transitionBuilder: transitionBuilder,
       builder: builder,
     );
@@ -71,6 +77,7 @@ class _ModalPanelWidget extends StatelessWidget {
     required this.isOpen,
     required this.close,
     required this.isUnderlayTransparent,
+    required this.useUnderlay,
     required this.transitionBuilder,
     required this.builder,
   });
@@ -78,6 +85,7 @@ class _ModalPanelWidget extends StatelessWidget {
   final ValueListenable<bool> isOpen;
   final VoidCallback close;
   final bool isUnderlayTransparent;
+  final bool useUnderlay;
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
   final Widget Function() builder;
 
@@ -89,28 +97,34 @@ class _ModalPanelWidget extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: isOpen,
       builder: (_, value, __) {
+        final Widget panel = AnimatedSwitcher(
+          transitionBuilder: transitionBuilder,
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeOutCubic,
+          duration: defaultDuration,
+          reverseDuration: fastDuration,
+          child: value ? builder() : null,
+        );
+
+        final Widget panelStack = Stack(
+          children: useUnderlay
+              ? [
+                  AnimatedSwitcher(
+                    duration: fastDuration,
+                    child: value
+                        ? (isUnderlayTransparent
+                            ? const ModalUnderlay.transparent()
+                            : const ModalUnderlay())
+                        : null,
+                  ),
+                  panel,
+                ]
+              : [panel],
+        );
+
         return ModalDismissContext(
           onDismiss: close,
-          child: Stack(
-            children: [
-              AnimatedSwitcher(
-                duration: fastDuration,
-                child: value
-                    ? (isUnderlayTransparent
-                        ? const ModalUnderlay.transparent()
-                        : const ModalUnderlay())
-                    : null,
-              ),
-              AnimatedSwitcher(
-                transitionBuilder: transitionBuilder,
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeOutCubic,
-                duration: defaultDuration,
-                reverseDuration: fastDuration,
-                child: value ? builder() : null,
-              ),
-            ],
-          ),
+          child: panelStack,
         );
       },
     );

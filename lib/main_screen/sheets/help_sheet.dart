@@ -164,7 +164,7 @@ class HelpSheet extends StatelessWidget {
                                 ),
                               ),
                               const Text(
-                                  'You can also load new images using drag and drop.'),
+                                  'You can also load new images using drag and drop,\nor paste screenshots.'),
                               if (!isWindowVeryNarrow)
                                 const Padding(
                                   padding: EdgeInsets.all(20.0),

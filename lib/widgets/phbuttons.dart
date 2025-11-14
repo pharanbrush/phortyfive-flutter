@@ -89,7 +89,7 @@ class Phbuttons {
   }) {
     double remap(double iMin, double iMax, double oMin, double oMax, double v) {
       double inverseLerp(double a, double b, double v) => (v - a) / (b - a);
-      double t = inverseLerp(iMin, iMax, v);
+      final double t = inverseLerp(iMin, iMax, v);
       return lerpDouble(oMin, oMax, t) ?? oMin;
     }
 
@@ -100,6 +100,55 @@ class Phbuttons {
     return output;
   }
 }
+
+class PanelCloseButton extends StatelessWidget {
+  const PanelCloseButton({
+    super.key,
+    required this.onPressed,
+  });
+
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 25,
+      height: 25,
+      child: IconButton.filled(
+        tooltip: "Close panel",
+        padding: EdgeInsets.all(2.0),
+        onPressed: onPressed,
+        icon: Icon(Icons.close, size: 14),
+        //hoverColor: Colors.red,
+      ),
+    );
+  }
+}
+
+// nativeapi API
+
+// void _popupImagesMenu(PfsAppModel model) {
+//   Menu getOpenImagesMenu(PfsAppModel model) {
+//     return Menu()
+//       ..addItem(
+//         MenuItem("Open images...")
+//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForImages()),
+//       )
+//       ..addSeparator()
+//       ..addItem(
+//         MenuItem("Open images...")
+//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForFolder())
+//       )
+//       ..addItem(
+//         MenuItem("Open folder and subfolders...")..on<MenuItemClickedEvent>(
+//           (_) => model.openFilePickerForFolder(includeSubfolders: true),
+//         ),
+//       );
+//   }
+
+//   final menu = getOpenImagesMenu(model);
+//   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
+// }
 
 void _popupImagesMenu(PfsAppModel model) {
   popUpContextualMenu(
@@ -150,9 +199,10 @@ class ImageSetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PfsAppModel.scope((_, __, model) {
-      final fileCount = model.fileList.getCount();
+      final fileCount = model.imageList.getCount();
       final lastFolder = model.lastFolder;
-      final String tooltip = '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
+      final String tooltip =
+          '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
           '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
 
       const double wideWidth = 80;

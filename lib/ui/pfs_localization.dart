@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+extension CapitalizeExtension on String {
+  String withFirstLetterCapitalized() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  }
+}
+
 class PfsLocalization {
   static const bool isDesktop = true;
-  static const String version = '0.9.20251023a';
+  static const String version = '0.9.20251113d';
 
   static const String alwaysOnTop = 'Keep window on top';
   static const String shortcutHelp = 'Shortcut help...';
@@ -14,6 +20,26 @@ class PfsLocalization {
 
   static const String timerPlaying = 'Timer running';
   static const String timerPaused = 'Timer paused';
+
+  static const String openColorChangeMeter = 'Open color change meter';
+  static const String colorChangeMeter = 'Color change meter';
+  static const String clickForColorComponents =
+      'Click to toggle color components.';
+
+  static const String clickImageToPickStartingColor =
+      "Click on the image to pick the starting color.";
+  static const String rightClickToExitColorMeter =
+      "Right-click to exit color change meter.";
+
+  static const String normal = "normal";
+  static const String multiply = "multiply";
+  static const String screen = "screen";
+  static const String colorDodge = "color dodge";
+  static const String add = "add";
+  static const String linearBurn = "linear burn";
+
+  static const String startColorLabel = "start";
+  static const String endColorLabel = "end";
 
   static const String timer = 'Timer';
 
@@ -46,7 +72,7 @@ class PfsLocalization {
   }
 
   static String tooltipShortcut(SingleActivator shortcut) {
-    var keyString = shortcut.trigger.keyLabel;
+    final keyString = shortcut.trigger.keyLabel;
     return '${shortcut.control ? 'Ctrl+' : ''}${shortcut.shift ? 'Shift+' : ''}$keyString';
   }
 
