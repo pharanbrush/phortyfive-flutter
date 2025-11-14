@@ -10,6 +10,7 @@ import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
+import 'package:pfs2/main_screen/main_screen_sound.dart';
 import 'package:pfs2/main_screen/panels/corner_window_controls.dart';
 import 'package:pfs2/main_screen/panels/filter_panel.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
@@ -26,7 +27,6 @@ import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
-import 'package:pfs2/ui/phclicker.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -355,14 +355,14 @@ class _MainScreenState extends State<MainScreen>
     model.onImagesChanged ??= () => _handleStateChange();
     model.onImagesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
-    model.onCountdownUpdate ??= () => _playClickSound();
-    model.onImageDurationElapse ??= () => _playClickSound();
+    model.onCountdownUpdate ??= () => playClickSound();
+    model.onImageDurationElapse ??= () => playClickSound();
     model.onFilePickerStateChange ??= () => _handleFilePickerOpenClose();
     model.onWelcomeComplete ??= () => _handleWelcomeComplete();
 
     final timerModel = model.timerModel;
     timerModel.onPlayPause ??= () => _handleTimerPlayPause();
-    timerModel.onReset ??= () => _playClickSound();
+    timerModel.onReset ??= () => playClickSound();
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
@@ -467,7 +467,7 @@ class _MainScreenState extends State<MainScreen>
 
     updateTimerPlayPauseIcon();
     showTimerToast();
-    _playClickSound(playWhilePaused: true);
+    playClickSound(playWhilePaused: true);
   }
 
   void _handleAlwaysOnTopChanged() {
@@ -743,19 +743,6 @@ mixin MainScreenToaster on State<MainScreen> {
       icon: icon,
       alignment: Phtoasts.topControlsAlign,
     );
-  }
-}
-
-mixin MainScreenSound {
-  final Phclicker clicker = Phclicker();
-
-  bool get isSoundsEnabled;
-  bool get isTimerRunning;
-
-  void _playClickSound({bool playWhilePaused = false}) {
-    if (!isSoundsEnabled) return;
-    if (!isTimerRunning && !playWhilePaused) return;
-    clicker.playSound();
   }
 }
 
