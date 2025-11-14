@@ -190,10 +190,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,
       builder: (_, __, ___) {
-        return _bottomControls(
-          context,
-          windowWidth: windowSize.width,
-        );
+        return _bottomControls(windowWidth: windowSize.width);
       },
     );
   }
@@ -224,7 +221,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) => _bottomControls(context),
+            builder: (context, __, ___) => _bottomControls(),
           ),
           _fileDropZone(model),
           ...modalPanelWidgets,
@@ -535,11 +532,15 @@ class _MainScreenState extends State<MainScreen>
       return const SizedBox.shrink();
     }
 
+    const double horizontalMargin = 20;
+    const double bottomMargin = 40;
+    const double topMargin = 30;
+
     return Positioned.fill(
-      left: 20,
-      right: 20,
-      bottom: 40,
-      top: 30,
+      left: horizontalMargin,
+      right: horizontalMargin,
+      bottom: bottomMargin,
+      top: topMargin,
       child: ImageDropTarget(
         dragImagesHandler: (details) {
           if (details.files.isEmpty) return;
@@ -568,10 +569,7 @@ class _MainScreenState extends State<MainScreen>
     windowManager.focus();
   }
 
-  Widget _bottomControls(
-    BuildContext context, {
-    double? windowWidth,
-  }) {
+  Widget _bottomControls({double? windowWidth}) {
     final bool isNarrowWindow = windowWidth != null && windowWidth < 500.00;
 
     const Widget minimizedBottomBar = Positioned(
@@ -591,6 +589,7 @@ class _MainScreenState extends State<MainScreen>
       PfsAppModel model, {
       double spacing = 15,
     }) {
+      const double rightMargin = 20;
       final SizedBox spacingBox = SizedBox(width: spacing);
 
       if (model.hasImagesLoaded) {
@@ -614,7 +613,7 @@ class _MainScreenState extends State<MainScreen>
                   extraTooltip: getScoreText(),
                 );
               }),
-          const SizedBox(width: 20),
+          const SizedBox(width: rightMargin),
         ];
       } else {
         return [
@@ -1019,12 +1018,13 @@ class WindowDockingControls extends StatelessWidget {
   });
 
   final ValueNotifier<bool> isBottomBarMinimized;
+  static const double cornerMargin = 3;
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 3,
-      right: 3,
+      bottom: cornerMargin,
+      right: cornerMargin,
       child: ValueListenableBuilder(
         valueListenable: isBottomBarMinimized,
         builder: (_, __, ___) {
