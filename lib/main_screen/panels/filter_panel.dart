@@ -26,18 +26,17 @@ class FilterPanel extends StatelessWidget {
             children: [
               const FilterPanelHeading(),
               const Spacer(),
-              ResetAllFiltersButton(imagePhviewer: imagePhviewer),
+              ResetAllFiltersButton(filters: imagePhviewer),
             ],
           ),
           ColorModeButtons(
-            imagePhviewer: imagePhviewer,
+            filters: imagePhviewer,
             onSelectionChanged: handleImageModeSelectionChanged,
           ),
           BlurSlider(
-            imagePhviewer: imagePhviewer,
-            onChanged: handleBlurSliderChanged,
+            filters: imagePhviewer,
           ),
-          FlipControls(imagePhviewer: imagePhviewer),
+          FlipControls(zoomPanner: imagePhviewer),
         ],
       ),
     );
@@ -47,10 +46,6 @@ class FilterPanel extends StatelessWidget {
     final isSelectionGrayscale =
         newSelection.contains(ImageColorMode.grayscale);
     imagePhviewer.isUsingGrayscale = isSelectionGrayscale;
-  }
-
-  void handleBlurSliderChanged(value) {
-    imagePhviewer.blurLevel = value;
   }
 
   Widget _headerRow({required List<Widget> children}) {
@@ -113,16 +108,16 @@ class FilterPanel extends StatelessWidget {
 class FlipControls extends StatelessWidget {
   const FlipControls({
     super.key,
-    required this.imagePhviewer,
+    required this.zoomPanner,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.flipHorizontalListenable,
-      builder: (_, __, ___) {
+      valueListenable: zoomPanner.flipHorizontalListenable,
+      builder: (_, isFlippedHorizontal, ___) {
         return Row(
           children: [
             Text(
@@ -130,9 +125,9 @@ class FlipControls extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge,
             ),
             IconButton.filled(
-              onPressed: () => imagePhviewer.flipHorizontal(),
+              onPressed: () => zoomPanner.flipHorizontal(),
               icon: Icon(Icons.flip),
-              isSelected: imagePhviewer.flipHorizontalListenable.value,
+              isSelected: isFlippedHorizontal,
               tooltip: "Flip the view horizontally (H)",
             ),
           ],
@@ -142,27 +137,29 @@ class FlipControls extends StatelessWidget {
   }
 }
 
+enum ImageColorMode { color, grayscale }
+
 class ColorModeButtons extends StatelessWidget {
   const ColorModeButtons({
     super.key,
-    required this.imagePhviewer,
+    required this.filters,
     required this.onSelectionChanged,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageFilters filters;
   final Function(Set<ImageColorMode> newSelection) onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.filtersChangeListenable,
+      valueListenable: filters.filtersChangeListenable,
       builder: (_, __, ___) {
-        return buttons(context, imagePhviewer);
+        return buttons();
       },
     );
   }
 
-  Widget buttons(BuildContext context, ImagePhviewer imagePhviewer) {
+  Widget buttons() {
     return SizedBox(
       width: 250,
       child: SegmentedButton<ImageColorMode>(
@@ -179,7 +176,7 @@ class ColorModeButtons extends StatelessWidget {
               label: Text('Grayscale'),
               icon: Icon(Icons.invert_colors)),
         ],
-        selected: imagePhviewer.isUsingGrayscale
+        selected: filters.isUsingGrayscale
             ? const {ImageColorMode.grayscale}
             : const {ImageColorMode.color},
         onSelectionChanged: (Set<ImageColorMode> newSelection) {
@@ -193,12 +190,10 @@ class ColorModeButtons extends StatelessWidget {
 class BlurSlider extends StatelessWidget {
   const BlurSlider({
     super.key,
-    required this.imagePhviewer,
-    required this.onChanged,
+    required this.filters,
   });
 
-  final ImagePhviewer imagePhviewer;
-  final Function(double) onChanged;
+  final ImageFilters filters;
 
   @override
   Widget build(BuildContext context) {
@@ -211,11 +206,11 @@ class BlurSlider extends StatelessWidget {
     );
 
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.blurLevelListenable,
+      valueListenable: filters.blurLevelListenable,
       builder: (_, __, ___) {
         return ScrollListener(
-          onScrollUp: () => imagePhviewer.incrementBlurLevel(1),
-          onScrollDown: () => imagePhviewer.incrementBlurLevel(-1),
+          onScrollUp: () => filters.incrementBlurLevel(1),
+          onScrollDown: () => filters.incrementBlurLevel(-1),
           child: Row(
             children: [
               label,
@@ -225,9 +220,9 @@ class BlurSlider extends StatelessWidget {
                   min: 0,
                   max: 12,
                   divisions: 12,
-                  label: imagePhviewer.blurLevel.toInt().toString(),
-                  onChanged: onChanged,
-                  value: imagePhviewer.blurLevel,
+                  label: filters.blurLevel.toInt().toString(),
+                  onChanged: (newValue) => filters.blurLevel = newValue,
+                  value: filters.blurLevel,
                 ),
               ),
             ],
@@ -274,21 +269,20 @@ class FilterPanelHeading extends StatelessWidget {
 class ResetAllFiltersButton extends StatelessWidget {
   const ResetAllFiltersButton({
     super.key,
-    required this.imagePhviewer,
+    required this.filters,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageFilters filters;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.filtersChangeListenable,
+      valueListenable: filters.filtersChangeListenable,
       builder: (_, __, ___) => IconButton(
         tooltip: 'Reset all filters',
         color: Theme.of(context).colorScheme.tertiary,
-        onPressed: imagePhviewer.isFilterActive
-            ? () => imagePhviewer.resetAllFilters()
-            : null,
+        onPressed:
+            filters.isFilterActive ? () => filters.resetAllFilters() : null,
         icon: const Icon(Icons.format_color_reset),
       ),
     );

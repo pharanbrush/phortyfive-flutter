@@ -218,7 +218,7 @@ class _MainScreenState extends State<MainScreen>
           const FirstActionSheet(),
           CornerWindowControls(
             windowState: windowState,
-            imagePhviewer: imagePhviewer,
+            zoomPanner: imagePhviewer,
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
@@ -258,7 +258,7 @@ class _MainScreenState extends State<MainScreen>
           WelcomeChooseModeSheet(model: model),
           CornerWindowControls(
             windowState: windowState,
-            imagePhviewer: imagePhviewer,
+            zoomPanner: imagePhviewer,
             helpMenu: helpMenu,
             settingsMenu: settingsMenu,
           ),
@@ -315,7 +315,7 @@ class _MainScreenState extends State<MainScreen>
             const CountdownSheet(),
             CornerWindowControls(
               windowState: windowState,
-              imagePhviewer: imagePhviewer,
+              zoomPanner: imagePhviewer,
               helpMenu: helpMenu,
               settingsMenu: settingsMenu,
             ),
@@ -598,8 +598,8 @@ class _MainScreenState extends State<MainScreen>
           colorMeterModeButton(onPressed: () {
             setAppMode(PfsAppControlsMode.colorMeter);
           }),
-          ResetZoomButton(imageZoomPanner: imagePhviewer),
-          FiltersButton(imagePhviewer: imagePhviewer, filtersMenu: filtersMenu),
+          ResetZoomButton(zoomPanner: imagePhviewer),
+          FiltersButton(imageFilters: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
           Phbuttons.timerSettingsButton(
               onPressed: () => timerDurationMenu.open()),
@@ -981,17 +981,17 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
 class FiltersButton extends StatelessWidget {
   const FiltersButton({
     super.key,
-    required this.imagePhviewer,
+    required this.imageFilters,
     required this.filtersMenu,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageFilters imageFilters;
   final ModalPanel filtersMenu;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imagePhviewer.filtersChangeListenable,
+      valueListenable: imageFilters.filtersChangeListenable,
       builder: (_, __, ___) {
         const double filterIconSize = 20;
         const filterIconOff = Icon(
@@ -1003,21 +1003,21 @@ class FiltersButton extends StatelessWidget {
           size: filterIconSize,
         );
 
-        final String tooltip = imagePhviewer.isFilterActive
-            ? 'Filters (${imagePhviewer.activeFilterCount})'
+        final String tooltip = imageFilters.isFilterActive
+            ? 'Filters (${imageFilters.activeFilterCount})'
             : 'Filters';
 
         return GestureDetector(
           onTertiaryTapDown: (details) {
-            if (imagePhviewer.isFilterActive) {
-              imagePhviewer.resetAllFilters();
+            if (imageFilters.isFilterActive) {
+              imageFilters.resetAllFilters();
             }
           },
           child: IconButton(
             onPressed: () => filtersMenu.open(),
-            isSelected: imagePhviewer.isFilterActive,
+            isSelected: imageFilters.isFilterActive,
             tooltip: tooltip,
-            icon: imagePhviewer.isFilterActive ? filterIconOn : filterIconOff,
+            icon: imageFilters.isFilterActive ? filterIconOn : filterIconOff,
           ),
         );
       },
@@ -1104,7 +1104,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
         }
 
         return ImagePhviewerZoomOnScrollListener(
-          imagePhviewer: imagePhviewer,
+          zoomPanner: imagePhviewer,
           child: ImageRightClick(
             revealInExplorerHandler: revealInExplorerHandler,
             resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
@@ -1113,7 +1113,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
               valueListenable: imagePhviewer.zoomLevelListenable,
               builder: (_, __, ___) {
                 return ImagePhviewerPanListener(
-                  imagePhviewer: imagePhviewer,
+                  zoomPanner: imagePhviewer,
                   child: playPauseButton(),
                 );
               },

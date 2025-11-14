@@ -37,14 +37,10 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
 
   Widget widget(ValueListenable<bool> isBottomBarMinimized) {
     return ImageViewerStackWidget(
-      flipHorizontalListenable: flipHorizontalListenable,
-      panDurationListenable: panDurationListenable,
+      zoomPanner: this,
+      filters: this,
+      panDurationListenable: panDuration,
       isBottomBarMinimized: isBottomBarMinimized,
-      offsetListenable: offsetListenable,
-      blurLevelListenable: blurLevelListenable,
-      usingGrayscaleListenable: usingGrayscaleListenable,
-      zoomLevelListenable: zoomLevelListenable,
-      getCurrentZoomScale: () => currentZoomScale,
       revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
       currentAppControlsMode: appControlsMode,
     );
@@ -63,25 +59,17 @@ mixin ImageFilters {
   set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
   final usingGrayscaleListenable = ValueNotifier<bool>(false);
 
-  late final filtersChangeListenable = ValuesNotifier([
-    blurLevelListenable,
-    usingGrayscaleListenable,
-  ]);
-
   bool get isFilterActive =>
       (isUsingGrayscale || blurLevelListenable.value > 0);
 
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
-    if (blurLevelListenable.value > 0) currentActiveFiltersCount++;
+    if (blurLevelListenable.value > 0) {
+      currentActiveFiltersCount++;
+    }
     if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
-  }
-
-  void resetAllFilters() {
-    isUsingGrayscale = false;
-    blurLevel = 0;
   }
 
   void incrementBlurLevel(int increment) {
@@ -91,9 +79,38 @@ mixin ImageFilters {
       blurLevel -= 1;
     }
   }
+
+  late final filtersChangeListenable = ValuesNotifier([
+    blurLevelListenable,
+    usingGrayscaleListenable,
+  ]);
+
+  void resetAllFilters() {
+    isUsingGrayscale = false;
+    blurLevel = 0;
+  }
 }
 
 mixin ImageZoomPanner {
+  final flipHorizontalListenable = ValueNotifier<bool>(false);
+
+  final zoomLevelListenable =
+      ValueNotifier<int>(ImageZoomPanner._defaultZoomLevel);
+  double get currentZoomScale =>
+      ImageZoomPanner._zoomScales[zoomLevelListenable.value];
+  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
+  bool get isZoomLevelDefault =>
+      (zoomLevelListenable.value == ImageZoomPanner._defaultZoomLevel);
+  bool get isZoomedIn => currentZoomScale > 1;
+
+  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
+  Offset get panOffset => offsetListenable.value;
+
+  double zoomAccumulator = 0;
+
+  final panDuration =
+      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
+
   static const List<double> _zoomScales = [
     0.25,
     0.5,
@@ -107,7 +124,6 @@ mixin ImageZoomPanner {
   ];
   static const _defaultZoomLevel = 3;
 
-  double zoomAccumulator = 0;
   void incrementZoomAccumulator(double dragIncrement) {
     const zoomSensitivity = 0.04;
     zoomAccumulator += dragIncrement * zoomSensitivity;
@@ -125,32 +141,18 @@ mixin ImageZoomPanner {
     zoomAccumulator = 0;
   }
 
-  final flipHorizontalListenable = ValueNotifier<bool>(false);
-
-  final zoomLevelListenable = ValueNotifier<int>(_defaultZoomLevel);
-  double get currentZoomScale => _zoomScales[zoomLevelListenable.value];
-  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
-  bool get isZoomLevelDefault =>
-      (zoomLevelListenable.value == _defaultZoomLevel);
-  bool get isZoomedIn => currentZoomScale > 1;
-
-  final offsetListenable = ValueNotifier<Offset>(Offset.zero);
-  Offset get panOffset => offsetListenable.value;
-  final panDurationListenable =
-      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
-
   void incrementZoomLevel(int increment) {
     final previousZoomLevel = zoomLevelListenable.value;
-    final newZoomLevel =
-        (previousZoomLevel + increment).clamp(0, _zoomScales.length - 1);
+    final newZoomLevel = (previousZoomLevel + increment)
+        .clamp(0, ImageZoomPanner._zoomScales.length - 1);
 
     if (newZoomLevel != previousZoomLevel) {
-      final newZoomScale = _zoomScales[newZoomLevel];
-      final previousZoomScale = _zoomScales[previousZoomLevel];
+      final newZoomScale = ImageZoomPanner._zoomScales[newZoomLevel];
+      final previousZoomScale = ImageZoomPanner._zoomScales[previousZoomLevel];
       _scalePanOffset(previousZoomScale, newZoomScale);
     }
 
-    if (newZoomLevel <= _defaultZoomLevel) {
+    if (newZoomLevel <= ImageZoomPanner._defaultZoomLevel) {
       resetOffset();
     } else if (increment < 1) {
       offsetListenable.value *= 0.75;
@@ -160,7 +162,7 @@ mixin ImageZoomPanner {
   }
 
   void _resetZoomLevel() {
-    zoomLevelListenable.value = _defaultZoomLevel;
+    zoomLevelListenable.value = ImageZoomPanner._defaultZoomLevel;
   }
 
   void resetOffset() {
@@ -195,12 +197,12 @@ mixin ImageZoomPanner {
     }
 
     final newOffsetValue = offsetListenable.value + delta;
-    panDurationListenable.value = Phanimations.userPanDuration;
+    panDuration.value = Phanimations.userPanDuration;
     _setPanOffsetClamped(newOffsetValue);
   }
 
   void panRelease() {
-    panDurationListenable.value = Phanimations.zoomTransitionDuration;
+    panDuration.value = Phanimations.zoomTransitionDuration;
   }
 
   Size getImageSize();
@@ -221,8 +223,6 @@ mixin ImageZoomPanner {
     offsetListenable.value = clampPanOffset(newOffset);
   }
 }
-
-enum ImageColorMode { color, grayscale }
 
 class ImageClickableLabel extends StatelessWidget {
   const ImageClickableLabel({
@@ -423,26 +423,18 @@ class ImageViewerStackWidget extends StatelessWidget {
   const ImageViewerStackWidget({
     super.key,
     required this.isBottomBarMinimized,
-    required this.zoomLevelListenable,
-    required this.blurLevelListenable,
-    required this.usingGrayscaleListenable,
-    required this.getCurrentZoomScale,
     required this.revealInExplorerHandler,
-    required this.offsetListenable,
-    required this.flipHorizontalListenable,
     required this.panDurationListenable,
     required this.currentAppControlsMode,
+    required this.zoomPanner,
+    required this.filters,
   });
 
+  final ImageZoomPanner zoomPanner;
+  final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<bool> isBottomBarMinimized;
-  final ValueListenable<Offset> offsetListenable;
-  final ValueNotifier<int> zoomLevelListenable;
-  final ValueNotifier<double> blurLevelListenable;
-  final ValueNotifier<bool> flipHorizontalListenable;
-  final ValueNotifier<bool> usingGrayscaleListenable;
   final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
-  final double Function() getCurrentZoomScale;
   final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
@@ -529,24 +521,24 @@ class ImageViewerStackWidget extends StatelessWidget {
                 : Phanimations.imagePrevious,
             child: SizedBox.expand(
               child: ValueListenableBuilder(
-                valueListenable: flipHorizontalListenable,
+                valueListenable: zoomPanner.flipHorizontalListenable,
                 builder: (_, __, ___) {
                   return Transform.flip(
-                    flipX: flipHorizontalListenable.value,
+                    flipX: zoomPanner.flipHorizontalListenable.value,
                     flipY: false,
                     child: ValueListenableBuilder(
                         valueListenable: panDurationListenable,
                         builder: (_, panDuration, ___) {
                           return ListeningAnimatedTranslate(
-                            offsetListenable: offsetListenable,
+                            offsetListenable: zoomPanner.offsetListenable,
                             duration: panDuration,
                             child: ValueListenableBuilder(
-                              valueListenable: zoomLevelListenable,
+                              valueListenable: zoomPanner.zoomLevelListenable,
                               builder: (_, __, ___) {
                                 return AnimatedScale(
                                   duration: Phanimations.zoomTransitionDuration,
                                   curve: Phanimations.zoomTransitionCurve,
-                                  scale: getCurrentZoomScale(),
+                                  scale: zoomPanner.currentZoomScale,
                                   child: possiblyOverlayedWidget,
                                 );
                               },
@@ -559,7 +551,7 @@ class ImageViewerStackWidget extends StatelessWidget {
             ),
           ),
           ValueListenableBuilder(
-            valueListenable: blurLevelListenable,
+            valueListenable: filters.blurLevelListenable,
             builder: (_, blurValue, __) {
               if (blurValue <= 0) return const SizedBox.expand();
               final sigma = pow(1.3, blurValue).toDouble();
@@ -570,7 +562,7 @@ class ImageViewerStackWidget extends StatelessWidget {
             },
           ),
           ValueListenableBuilder(
-            valueListenable: usingGrayscaleListenable,
+            valueListenable: filters.usingGrayscaleListenable,
             builder: (_, value, ___) =>
                 value ? grayscaleBackdropFilter : const SizedBox.expand(),
           ),
@@ -690,11 +682,11 @@ class AnimatedTranslate extends StatelessWidget {
 class ImagePhviewerPanListener extends StatelessWidget {
   const ImagePhviewerPanListener({
     super.key,
-    required this.imagePhviewer,
+    required this.zoomPanner,
     required this.child,
   });
 
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
   final Widget child;
 
   @override
@@ -704,21 +696,21 @@ class ImagePhviewerPanListener extends StatelessWidget {
         final pointerDelta = details.delta;
 
         if (Phshortcuts.isDragZoomModifierPressed()) {
-          imagePhviewer.incrementZoomAccumulator(pointerDelta.dx);
-          imagePhviewer.incrementZoomAccumulator(-pointerDelta.dy);
+          zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
+          zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
           return;
         }
 
-        if (!imagePhviewer.isZoomedIn) return;
+        if (!zoomPanner.isZoomedIn) return;
 
-        imagePhviewer.panImage(pointerDelta);
+        zoomPanner.panImage(pointerDelta);
       },
       onPanEnd: (details) {
-        imagePhviewer.resetZoomAccumulator();
+        zoomPanner.resetZoomAccumulator();
 
-        if (!imagePhviewer.isZoomedIn) return;
+        if (!zoomPanner.isZoomedIn) return;
 
-        imagePhviewer.panRelease();
+        zoomPanner.panRelease();
       },
       child: child,
     );
@@ -729,17 +721,17 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
   const ImagePhviewerZoomOnScrollListener({
     super.key,
     required this.child,
-    required this.imagePhviewer,
+    required this.zoomPanner,
   });
 
   final Widget child;
-  final ImagePhviewer imagePhviewer;
+  final ImageZoomPanner zoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ScrollListener(
-      onScrollDown: () => imagePhviewer.incrementZoomLevel(-1),
-      onScrollUp: () => imagePhviewer.incrementZoomLevel(1),
+      onScrollDown: () => zoomPanner.incrementZoomLevel(-1),
+      onScrollUp: () => zoomPanner.incrementZoomLevel(1),
       child: child,
     );
   }
@@ -748,21 +740,21 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
 class ResetZoomButton extends StatelessWidget {
   const ResetZoomButton({
     super.key,
-    required this.imageZoomPanner,
+    required this.zoomPanner,
   });
 
-  final ImageZoomPanner imageZoomPanner;
+  final ImageZoomPanner zoomPanner;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: imageZoomPanner.zoomLevelListenable,
+      valueListenable: zoomPanner.zoomLevelListenable,
       builder: (_, __, ___) {
         return Visibility(
-          visible: !imageZoomPanner.isZoomLevelDefault,
+          visible: !zoomPanner.isZoomLevelDefault,
           child: IconButton(
             tooltip: 'Reset zoom',
-            onPressed: () => imageZoomPanner.resetTransform(),
+            onPressed: () => zoomPanner.resetTransform(),
             icon: const Icon(Icons.youtube_searched_for),
           ),
         );
