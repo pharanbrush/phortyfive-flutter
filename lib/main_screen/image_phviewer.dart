@@ -50,24 +50,34 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
 mixin ImageFilters {
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
+  
   final blurLevelListenable = ValueNotifier<double>(0.0);
   double get blurLevel => blurLevelListenable.value;
   set blurLevel(double val) => blurLevelListenable.value =
       clampDouble(val, _minBlurLevel, _maxBlurLevel);
 
+  final usingGrayscaleListenable = ValueNotifier<bool>(false);
   bool get isUsingGrayscale => usingGrayscaleListenable.value;
   set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
-  final usingGrayscaleListenable = ValueNotifier<bool>(false);
 
-  bool get isFilterActive =>
-      (isUsingGrayscale || blurLevelListenable.value > 0);
+  late final filtersChangeListenable = ValuesNotifier([
+    blurLevelListenable,
+    usingGrayscaleListenable,
+  ]);
+
+  late final filterActiveChecks = [
+    () => isUsingGrayscale,
+    () => blurLevelListenable.value > 0,
+  ];
+
+  bool get isFilterActive => activeFilterCount > 0;
 
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
-    if (blurLevelListenable.value > 0) {
-      currentActiveFiltersCount++;
+
+    for (final filterCheck in filterActiveChecks) {
+      if (filterCheck()) currentActiveFiltersCount++;
     }
-    if (isUsingGrayscale) currentActiveFiltersCount++;
 
     return currentActiveFiltersCount;
   }
@@ -79,11 +89,6 @@ mixin ImageFilters {
       blurLevel -= 1;
     }
   }
-
-  late final filtersChangeListenable = ValuesNotifier([
-    blurLevelListenable,
-    usingGrayscaleListenable,
-  ]);
 
   void resetAllFilters() {
     isUsingGrayscale = false;
