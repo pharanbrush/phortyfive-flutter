@@ -7,10 +7,25 @@ import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/models/phtimer_model.dart';
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class PfsAppModel extends Model
+class PfsAppModelScope extends InheritedWidget {
+  const PfsAppModelScope({
+    super.key,
+    required super.child,
+    required this.model,
+  });
+
+  final PfsAppModel model;
+
+  @override
+  bool updateShouldNotify(PfsAppModelScope oldWidget) {
+    return false;
+  }
+}
+
+class PfsAppModel
     with
         PfsImageListManager,
         PfsModelTimer,
@@ -18,15 +33,24 @@ class PfsAppModel extends Model
         PfsWelcomer,
         PfsCirculator,
         PfsAnnotator {
-  static ScopedModelDescendant<PfsAppModel> scope(
-          ScopedModelDescendantBuilder<PfsAppModel> builder) =>
-      ScopedModelDescendant<PfsAppModel>(builder: builder);
+  static PfsAppModel of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<PfsAppModelScope>()!
+        .model;
+  }
 
   bool get allowTimerPlayPause =>
-      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
+      hasMoreThanOneImage && isWelcomeDone.value; //&& !isAnnotating;
   bool get allowCirculatorControl =>
-      hasMoreThanOneImage && isWelcomeDone; //&& !isAnnotating;
+      hasMoreThanOneImage && isWelcomeDone.value; //&& !isAnnotating;
   // bool get isAnnotating => isAnnotatingMode.value;
+
+  late final allowedControlsChanged = Listenable.merge([
+    imageListChangedNotifier,
+    isWelcomeDone,
+  ]);
+
+  final currentImageChangedNotifier = SimpleNotifier();
 
   @override
   bool _canStartCountdown() => timerModel.isRunning; // && !isAnnotating;
@@ -56,7 +80,6 @@ class PfsAppModel extends Model
 
     tryCancelCountdown();
     timerModel.resetTimer();
-    onImageChange?.call();
     _previousImage();
   }
 
@@ -65,8 +88,13 @@ class PfsAppModel extends Model
 
     tryCancelCountdown();
     timerModel.resetTimer();
-    onImageChange?.call();
+
     _nextImage();
+  }
+
+  void _notifyImageChange() {
+    onImageChange?.call();
+    currentImageChangedNotifier.notify();
   }
 
   void _previousImage() {
@@ -74,7 +102,7 @@ class PfsAppModel extends Model
 
     circulator.movePrevious();
     lastIncrement = -1;
-    notifyListeners();
+    _notifyImageChange();
   }
 
   void _nextImage() {
@@ -82,14 +110,14 @@ class PfsAppModel extends Model
 
     circulator.moveNext();
     lastIncrement = 1;
-    notifyListeners();
+    _notifyImageChange();
   }
 
   void _handleTimerElapsed() {
     nextImageNewTimer();
     onImageDurationElapse?.call();
     tryStartCountdown();
-    notifyListeners();
+    _notifyImageChange();
   }
 
   @override
@@ -97,17 +125,16 @@ class PfsAppModel extends Model
     final loadedCount = imageList.getCount();
     circulator.startNewOrder(loadedCount);
 
-    if (isWelcomeDone) {
+    if (isWelcomeDone.value) {
       reinitializeTimer();
       if (timerModel.isRunning) {
         tryStartCountdown();
       }
 
-      onImageChange?.call();
-      notifyListeners();
+      _notifyImageChange();
     } else {
       if (loadedCount == 1) {
-        isWelcomeDone = true;
+        isWelcomeDone.value = true;
       }
     }
   }
@@ -121,8 +148,7 @@ class PfsAppModel extends Model
       timerModel.setActive(false);
     }
 
-    onImageChange?.call();
-    notifyListeners();
+    _notifyImageChange();
   }
 
   void reinitializeTimer() {
@@ -134,7 +160,7 @@ class PfsAppModel extends Model
   @override
   void _onCountdownCanceled() {
     timerModel.deregisterPauser(this);
-    notifyListeners();
+    countdownChangedListenable.notify();
   }
 
   @override
@@ -150,7 +176,7 @@ class PfsAppModel extends Model
 }
 
 mixin PfsWelcomer {
-  bool isWelcomeDone = false;
+  final isWelcomeDone = ValueNotifier(false);
   bool isUserChoseToStartTimer = false;
 
   void Function()? onWelcomeComplete;
@@ -177,7 +203,7 @@ mixin PfsModelTimer {
   void Function()? onImageDurationElapse;
 }
 
-mixin PfsCountdownCounter on Model {
+mixin PfsCountdownCounter {
   bool _isCountdownEnabled = true;
   bool get isCountdownEnabled => _isCountdownEnabled;
   static const int countdownStart = 3;
@@ -188,8 +214,10 @@ mixin PfsCountdownCounter on Model {
   void Function()? onCountdownElapsed;
   void Function()? onCountdownUpdate;
 
-  void _onCountdownActiveStateChanged() => notifyListeners();
-  void _onCountdownCountChanged() => notifyListeners();
+  final countdownChangedListenable = SimpleNotifier();
+
+  void _onCountdownActiveStateChanged() => countdownChangedListenable.notify();
+  void _onCountdownCountChanged() => countdownChangedListenable.notify();
   void _onCountdownCanceled();
   void _onCountdownStartInternal();
   void _onCountdownElapsedInternal();
@@ -253,6 +281,8 @@ mixin PfsImageListManager {
   bool isPickerOpen = false;
   bool get hasImagesLoaded => imageList.isPopulated();
   bool get hasMoreThanOneImage => imageList.getCount() > 1;
+
+  final imageListChangedNotifier = SimpleNotifier();
 
   void Function(int loadedCount, int skippedCount)? onImagesLoadedSuccess;
   void Function()? onFilePickerStateChange;
@@ -374,8 +404,10 @@ mixin PfsImageListManager {
   void _endLoadingImages(int sourceCount) {
     final loadedCount = imageList.getCount();
     onImagesChanged?.call();
+
     onImagesLoadedSuccess?.call(loadedCount, loadedCount - sourceCount);
     isLoadingImages.value = false;
+    imageListChangedNotifier.notify();
 
     _onImagesLoaded();
   }

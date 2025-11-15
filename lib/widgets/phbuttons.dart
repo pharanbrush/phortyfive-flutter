@@ -14,12 +14,12 @@ import 'package:pfs2/phlutter/scroll_listener.dart';
 class Phbuttons {
   static const double windowTitleBarHeight = 32;
 
-  static Widget openFiles({double width = 40.0}) {
+  static Widget openFiles({double width = 40.0, required PfsAppModel model}) {
     final toolTipText =
         'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})';
 
-    return PfsAppModel.scope(
-      (context, __, model) {
+    return Builder(
+      builder: (context) {
         final style = FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.tertiary,
         );
@@ -188,6 +188,7 @@ class ImageSetButton extends StatelessWidget {
     super.key,
     this.narrowButton = false,
     this.extraTooltip,
+    required this.model,
   });
 
   static const double _iconSize = 18;
@@ -195,49 +196,53 @@ class ImageSetButton extends StatelessWidget {
 
   final bool narrowButton;
   final String? extraTooltip;
+  final PfsAppModel model;
 
   @override
   Widget build(BuildContext context) {
-    return PfsAppModel.scope((_, __, model) {
-      final fileCount = model.imageList.getCount();
-      final lastFolder = model.lastFolder;
-      final String tooltip =
-          '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
-          '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
+    return ListenableBuilder(
+        listenable: model.imageListChangedNotifier,
+        builder: (context, __) {
+          final fileCount = model.imageList.getCount();
+          final lastFolder = model.lastFolder;
+          final String tooltip =
+              '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
+              '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
 
-      const double wideWidth = 80;
-      const double narrowWidth = 18;
+          const double wideWidth = 80;
+          const double narrowWidth = 18;
 
-      final double currentWidth = narrowButton ? narrowWidth : wideWidth;
+          final double currentWidth = narrowButton ? narrowWidth : wideWidth;
 
-      return Tooltip(
-        message: tooltip,
-        child: TextButton(
-          onPressed: () => _popupImagesMenu(model),
-          child: AnimatedSizedBoxWidth(
-            defaultWidth: narrowWidth,
-            width: currentWidth,
-            height: 28,
-            duration: Phanimations.defaultDuration,
-            child: Align(
-              alignment: Alignment.center,
-              child: OverflowBox(
-                maxWidth: currentWidth,
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    narrowButton
-                        ? _icon
-                        : Phbuttons.textThenIcon(fileCount.toString(), _icon),
-                    const Spacer(),
-                  ],
+          return Tooltip(
+            message: tooltip,
+            child: TextButton(
+              onPressed: () => _popupImagesMenu(model),
+              child: AnimatedSizedBoxWidth(
+                defaultWidth: narrowWidth,
+                width: currentWidth,
+                height: 28,
+                duration: Phanimations.defaultDuration,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: OverflowBox(
+                    maxWidth: currentWidth,
+                    child: Row(
+                      children: [
+                        const Spacer(),
+                        narrowButton
+                            ? _icon
+                            : Phbuttons.textThenIcon(
+                                fileCount.toString(), _icon),
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      );
-    });
+          );
+        });
   }
 }
 

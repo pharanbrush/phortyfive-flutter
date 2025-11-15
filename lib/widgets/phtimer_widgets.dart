@@ -15,42 +15,38 @@ class TimerControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = PfsAppModel.of(context);
+
     // PARTS
-    final restartTimerButton = PhtimerModel.scope(
-      (_, __, timerModel) => TimerControlButton(
-        onPressed: () => timerModel.resetTimer(),
-        icon: Icons.refresh,
+    final restartTimerButton = TimerControlButton(
+      onPressed: () => model.timerModel.resetTimer(),
+      icon: Icons.refresh,
+      tooltip: PfsLocalization.buttonTooltip(
+        commandName: 'Restart timer',
+        shortcut: Phshortcuts.restartTimer,
+      ),
+    );
+
+    final previousButton = Phbuttons.nextPreviousOnScrollListener(
+      model: model,
+      child: TimerControlButton(
+        onPressed: () => model.previousImageNewTimer(),
+        icon: Icons.skip_previous,
         tooltip: PfsLocalization.buttonTooltip(
-          commandName: 'Restart timer',
-          shortcut: Phshortcuts.restartTimer,
+          commandName: 'Previous Image',
+          shortcut: Phshortcuts.previous2,
         ),
       ),
     );
 
-    final previousButton = PfsAppModel.scope(
-      (_, __, model) => Phbuttons.nextPreviousOnScrollListener(
-        model: model,
-        child: TimerControlButton(
-          onPressed: () => model.previousImageNewTimer(),
-          icon: Icons.skip_previous,
-          tooltip: PfsLocalization.buttonTooltip(
-            commandName: 'Previous Image',
-            shortcut: Phshortcuts.previous2,
-          ),
-        ),
-      ),
-    );
-
-    final nextButton = PfsAppModel.scope(
-      (_, __, model) => Phbuttons.nextPreviousOnScrollListener(
-        model: model,
-        child: TimerControlButton(
-          onPressed: () => model.nextImageNewTimer(),
-          icon: Icons.skip_next,
-          tooltip: PfsLocalization.buttonTooltip(
-            commandName: 'Next Image',
-            shortcut: Phshortcuts.next2,
-          ),
+    final nextButton = Phbuttons.nextPreviousOnScrollListener(
+      model: model,
+      child: TimerControlButton(
+        onPressed: () => model.nextImageNewTimer(),
+        icon: Icons.skip_next,
+        tooltip: PfsLocalization.buttonTooltip(
+          commandName: 'Next Image',
+          shortcut: Phshortcuts.next2,
         ),
       ),
     );
@@ -122,7 +118,10 @@ class TimerBar extends StatelessWidget {
 }
 
 class PlayPauseTimerButton extends StatelessWidget {
-  const PlayPauseTimerButton({super.key, required this.iconProgress});
+  const PlayPauseTimerButton({
+    super.key,
+    required this.iconProgress,
+  });
 
   final Animation<double> iconProgress;
 
@@ -135,54 +134,58 @@ class PlayPauseTimerButton extends StatelessWidget {
         PfsLocalization.tooltipShortcut(Phshortcuts.playPause);
     final pressLabel = PfsLocalization.pressCapital;
 
-    return PfsAppModel.scope((_, __, model) {
-      return PhtimerModel.scope((_, __, timerModel) {
-        final playButtonTooltip =
-            'Timer paused. $pressLabel to resume ($shortcutLabel)';
-        final pauseButtonTooltip =
-            'Timer running. $pressLabel to pause ($shortcutLabel)';
-        final icon = AnimatedIcon(
-          icon: AnimatedIcons.play_pause,
-          progress: iconProgress,
-        );
+    final model = PfsAppModel.of(context);
 
-        final bool allowTimerControl = model.allowTimerPlayPause;
-        final Color buttonColor = allowTimerControl
-            ? (timerModel.isRunning
-                ? timerTheme.runningButton
-                : timerTheme.pausedButton)
-            : timerTheme.disabledColor;
+    return ListenableBuilder(
+        listenable: model.allowedControlsChanged,
+        builder: (_, __) {
+          return PhtimerModel.scope((_, __, timerModel) {
+            final playButtonTooltip =
+                'Timer paused. $pressLabel to resume ($shortcutLabel)';
+            final pauseButtonTooltip =
+                'Timer running. $pressLabel to pause ($shortcutLabel)';
+            final icon = AnimatedIcon(
+              icon: AnimatedIcons.play_pause,
+              progress: iconProgress,
+            );
 
-        final style = ButtonStyle(
-          animationDuration: const Duration(milliseconds: 300),
-          backgroundColor:
-              WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-            if (states.contains(WidgetState.hovered)) {
-              return buttonColor.withValues(alpha: 1.0);
-            }
-            return buttonColor;
-          }),
-          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-          elevation: const WidgetStatePropertyAll(0),
-        );
+            final bool allowTimerControl = model.allowTimerPlayPause;
+            final Color buttonColor = allowTimerControl
+                ? (timerModel.isRunning
+                    ? timerTheme.runningButton
+                    : timerTheme.pausedButton)
+                : timerTheme.disabledColor;
 
-        final tooltipText =
-            timerModel.isRunning ? pauseButtonTooltip : playButtonTooltip;
+            final style = ButtonStyle(
+              animationDuration: const Duration(milliseconds: 300),
+              backgroundColor:
+                  WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+                if (states.contains(WidgetState.hovered)) {
+                  return buttonColor.withValues(alpha: 1.0);
+                }
+                return buttonColor;
+              }),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              elevation: const WidgetStatePropertyAll(0),
+            );
 
-        return Tooltip(
-          message: tooltipText,
-          child: FilledButton(
-            style: style,
-            onPressed: () => model.tryTogglePlayPauseTimer(),
-            child: Container(
-              alignment: Alignment.center,
-              width: 50,
-              child: icon,
-            ),
-          ),
-        );
-      });
-    });
+            final tooltipText =
+                timerModel.isRunning ? pauseButtonTooltip : playButtonTooltip;
+
+            return Tooltip(
+              message: tooltipText,
+              child: FilledButton(
+                style: style,
+                onPressed: () => model.tryTogglePlayPauseTimer(),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 50,
+                  child: icon,
+                ),
+              ),
+            );
+          });
+        });
   }
 }
 

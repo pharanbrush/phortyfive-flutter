@@ -25,31 +25,35 @@ class CountdownSheet extends StatelessWidget {
       fontWeight: FontWeight.bold,
     );
 
-    return PfsAppModel.scope((_, __, model) {
-      if (!model.isCountingDown) {
-        return const SizedBox.shrink();
-      }
+    final counter = PfsAppModel.of(context);
 
-      final countdownNumber = model.countdownLeft;
-      final countdownString = countdownNumber.toString();
+    return ListenableBuilder(
+        listenable: counter.countdownChangedListenable,
+        builder: (_, __) {
+          if (!counter.isCountingDown) {
+            return const SizedBox.shrink();
+          }
 
-      return Stack(
-        children: [
-          ModalBarrier(
-            color: Theme.of(context).colorScheme.surface,
-            dismissible: false,
-          ),
-          Center(
-            child: Text(
-              countdownString,
-              style: style,
-            ).animate(
-              key: Key('count$countdownString'),
-              effects: animationEffects,
-            ),
-          ),
-        ],
-      );
-    });
+          final countdownNumber = counter.countdownLeft;
+          final countdownString = countdownNumber.toString();
+
+          return Stack(
+            children: [
+              ModalBarrier(
+                color: Theme.of(context).colorScheme.surface,
+                dismissible: false,
+              ),
+              Center(
+                child: Text(
+                  countdownString,
+                  style: style,
+                ).animate(
+                  key: Key('count$countdownString'),
+                  effects: animationEffects,
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

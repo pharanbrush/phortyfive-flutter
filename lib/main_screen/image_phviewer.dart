@@ -50,7 +50,7 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
 mixin ImageFilters {
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
-  
+
   final blurLevelListenable = ValueNotifier<double>(0.0);
   double get blurLevel => blurLevelListenable.value;
   set blurLevel(double val) => blurLevelListenable.value =
@@ -306,121 +306,121 @@ class ImageRightClick extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PfsAppModel.scope((_, __, model) {
-      void handleCopyFilePath() {
-        final currentImageData = model.getCurrentImageData();
-        if (currentImageData is ImageFileData) {
-          ClipboardHandlers.of(context)?.copyText(
-            text: currentImageData.filePath,
-            toastMessage: 'File path copied to clipboard.',
-          );
-        }
+    final model = PfsAppModel.of(context);
+
+    void handleCopyFilePath() {
+      final currentImageData = model.getCurrentImageData();
+      if (currentImageData is ImageFileData) {
+        ClipboardHandlers.of(context)?.copyText(
+          text: currentImageData.filePath,
+          toastMessage: 'File path copied to clipboard.',
+        );
       }
+    }
 
-      void handleCopyFilename() {
-        final currentImageData = model.getCurrentImageData();
-        if (currentImageData is ImageFileData) {
-          ClipboardHandlers.of(context)?.copyText(
-            text: currentImageData.fileName,
-            toastMessage: 'Filename copied to clipboard.',
-          );
-        }
+    void handleCopyFilename() {
+      final currentImageData = model.getCurrentImageData();
+      if (currentImageData is ImageFileData) {
+        ClipboardHandlers.of(context)?.copyText(
+          text: currentImageData.fileName,
+          toastMessage: 'Filename copied to clipboard.',
+        );
       }
+    }
 
-      void handleCopyCurrentImage() {
-        ClipboardHandlers.of(context)?.copyCurrentImage();
-      }
+    void handleCopyCurrentImage() {
+      ClipboardHandlers.of(context)?.copyCurrentImage();
+    }
 
-      final imageData = model.getCurrentImageData();
-      final isFile = imageData is ImageFileData;
+    final imageData = model.getCurrentImageData();
+    final isFile = imageData is ImageFileData;
 
-      final copyImageItem = MenuItem(
-        label: PfsLocalization.copyImageToClipboard,
-        onClick: (menuItem) => handleCopyCurrentImage(),
-        disabled: imageData is image_data.InvalidImageData,
-      );
+    final copyImageItem = MenuItem(
+      label: PfsLocalization.copyImageToClipboard,
+      onClick: (menuItem) => handleCopyCurrentImage(),
+      disabled: imageData is image_data.InvalidImageData,
+    );
 
-      final copyFilename = MenuItem(
-        label: PfsLocalization.copyFileName,
-        onClick: (menuItem) => handleCopyFilename(),
-        disabled: !isFile,
-      );
+    final copyFilename = MenuItem(
+      label: PfsLocalization.copyFileName,
+      onClick: (menuItem) => handleCopyFilename(),
+      disabled: !isFile,
+    );
 
-      final copyFilePathItem = MenuItem(
-        label: PfsLocalization.copyFilePath,
-        onClick: (menuItem) => handleCopyFilePath(),
-        disabled: !isFile,
-      );
+    final copyFilePathItem = MenuItem(
+      label: PfsLocalization.copyFilePath,
+      onClick: (menuItem) => handleCopyFilePath(),
+      disabled: !isFile,
+    );
 
-      final revealInExplorerItem = MenuItem(
-        label: PfsLocalization.revealInExplorer,
-        onClick: (menuItem) => revealInExplorerHandler(),
-        disabled: !isFile,
-      );
+    final revealInExplorerItem = MenuItem(
+      label: PfsLocalization.revealInExplorer,
+      onClick: (menuItem) => revealInExplorerHandler(),
+      disabled: !isFile,
+    );
 
-      final colorChangeModeItem = MenuItem(
-        label: PfsLocalization.openColorChangeMeter,
-        onClick: (menuItem) => colorChangeModeHandler(),
-      );
+    final colorChangeModeItem = MenuItem(
+      label: PfsLocalization.openColorChangeMeter,
+      onClick: (menuItem) => colorChangeModeHandler(),
+    );
 
-      final contextMenu = Menu(
-        items: [
-          copyImageItem,
-          copyFilePathItem,
-          copyFilename,
-          MenuItem.separator(),
-          colorChangeModeItem,
-          MenuItem.separator(),
-          revealInExplorerItem,
-        ],
-      );
+    final contextMenu = Menu(
+      items: [
+        copyImageItem,
+        copyFilePathItem,
+        copyFilename,
+        MenuItem.separator(),
+        colorChangeModeItem,
+        MenuItem.separator(),
+        revealInExplorerItem,
+      ],
+    );
 
-      // nativeapi API
-      //
-      // Menu getContextMenu() {
-      //   final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
-      //     ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
-      //     ..enabled = imageData is! image_data.InvalidImageData;
+    // nativeapi API
+    //
+    // Menu getContextMenu() {
+    //   final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
+    //     ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
+    //     ..enabled = imageData is! image_data.InvalidImageData;
 
-      //   final copyFilename = MenuItem(PfsLocalization.copyFileName)
-      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
-      //     ..enabled = isFile;
+    //   final copyFilename = MenuItem(PfsLocalization.copyFileName)
+    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+    //     ..enabled = isFile;
 
-      //   final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
-      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
-      //     ..enabled = isFile;
+    //   final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
+    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
+    //     ..enabled = isFile;
 
-      //   final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
-      //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
-      //     ..enabled = isFile;
+    //   final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
+    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+    //     ..enabled = isFile;
 
-      //   final colorChangeMode = MenuItem(PfsLocalization.openColorChangeMeter)
-      //     ..on<MenuItemClickedEvent>((_) => colorChangeModeHandler());
+    //   final colorChangeMode = MenuItem(PfsLocalization.openColorChangeMeter)
+    //     ..on<MenuItemClickedEvent>((_) => colorChangeModeHandler());
 
-      //   return Menu()
-      //     ..addItem(copyImage)
-      //     ..addItem(copyFilePath)
-      //     ..addItem(copyFilename)
-      //     ..addSeparator()
-      //     ..addItem(colorChangeMode)
-      //     ..addSeparator()
-      //     ..addItem(revealInExplorer);
-      // }
+    //   return Menu()
+    //     ..addItem(copyImage)
+    //     ..addItem(copyFilePath)
+    //     ..addItem(copyFilename)
+    //     ..addSeparator()
+    //     ..addItem(colorChangeMode)
+    //     ..addSeparator()
+    //     ..addItem(revealInExplorer);
+    // }
 
-      // void openContextMenu() {
-      //   getContextMenu().open(PositioningStrategy.cursorPosition());
-      // }
+    // void openContextMenu() {
+    //   getContextMenu().open(PositioningStrategy.cursorPosition());
+    // }
 
-      void openContextMenu() {
-        popUpContextualMenu(contextMenu);
-      }
+    void openContextMenu() {
+      popUpContextualMenu(contextMenu);
+    }
 
-      return GestureDetector(
-        onTertiaryTapDown: (details) => resetZoomLevelHandler(),
-        onSecondaryTapDown: (details) => openContextMenu(),
-        child: child,
-      );
-    });
+    return GestureDetector(
+      onTertiaryTapDown: (details) => resetZoomLevelHandler(),
+      onSecondaryTapDown: (details) => openContextMenu(),
+      child: child,
+    );
   }
 }
 
@@ -444,137 +444,143 @@ class ImageViewerStackWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = PfsAppModel.scope((_, __, model) {
-      Image getImageWidget(ImageData imageData) {
-        if (imageData is image_data.ImageFileData) {
-          final imageFile = File(imageData.filePath);
-          return Image.file(
-            filterQuality: FilterQuality.medium,
-            key: ImagePhviewer.imageWidgetKey,
-            imageFile,
-          );
-        } else if (imageData is ImageMemoryData) {
-          final byteData = imageData.bytes;
-          if (byteData != null) {
-            return Image.memory(
-              filterQuality: FilterQuality.medium,
-              key: ImagePhviewer.imageWidgetKey,
-              byteData,
-            );
-          }
-        }
+    final model = PfsAppModel.of(context);
 
-        return Image.file(File(""));
-      }
-
-      final currentImageData = model.getCurrentImageData();
-      final imageWidget = getImageWidget(currentImageData);
-      final possiblyOverlayedWidget = ValueListenableBuilder(
-        valueListenable: currentAppControlsMode,
-        builder: (
-          BuildContext context,
-          PfsAppControlsMode mode,
-          Widget? child,
-        ) {
-          switch (mode) {
-            case PfsAppControlsMode.annotation:
-              final annotatedImageWidget = AnnotationOverlay(
-                image: imageWidget,
-                annotationType: AnnotationType.line,
-                child: imageWidget,
+    final content = ListenableBuilder(
+        listenable: model.currentImageChangedNotifier,
+        builder: (context, _) {
+          Image getImageWidget(ImageData imageData) {
+            if (imageData is image_data.ImageFileData) {
+              final imageFile = File(imageData.filePath);
+              return Image.file(
+                filterQuality: FilterQuality.medium,
+                key: ImagePhviewer.imageWidgetKey,
+                imageFile,
               );
-              return annotatedImageWidget;
+            } else if (imageData is ImageMemoryData) {
+              final byteData = imageData.bytes;
+              if (byteData != null) {
+                return Image.memory(
+                  filterQuality: FilterQuality.medium,
+                  key: ImagePhviewer.imageWidgetKey,
+                  byteData,
+                );
+              }
+            }
 
-            // case PfsAppControlsMode.eyedrop:
-            //   return EyeDrop(child: imageWidget);
-
-            default:
-              return imageWidget;
+            return Image.file(File(""));
           }
-        },
-      );
 
-      Widget imageFilenameLayer(ImageData imageData) {
-        if (imageData is ImageFileData) {
-          return Align(
-            heightFactor: 2,
-            alignment: Alignment.topCenter,
-            child: ImageClickableLabel(
-              label: imageData.fileName,
-              tooltip:
-                  "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
-              onTap: () => revealInExplorerHandler(imageData),
-            ),
+          final currentImageData = model.getCurrentImageData();
+          final imageWidget = getImageWidget(currentImageData);
+          final possiblyOverlayedWidget = ValueListenableBuilder(
+            valueListenable: currentAppControlsMode,
+            builder: (
+              BuildContext context,
+              PfsAppControlsMode mode,
+              Widget? child,
+            ) {
+              switch (mode) {
+                case PfsAppControlsMode.annotation:
+                  final annotatedImageWidget = AnnotationOverlay(
+                    image: imageWidget,
+                    annotationType: AnnotationType.line,
+                    child: imageWidget,
+                  );
+                  return annotatedImageWidget;
+
+                // case PfsAppControlsMode.eyedrop:
+                //   return EyeDrop(child: imageWidget);
+
+                default:
+                  return imageWidget;
+              }
+            },
           );
-        }
 
-        return SizedBox.shrink();
-      }
+          Widget imageFilenameLayer(ImageData imageData) {
+            if (imageData is ImageFileData) {
+              return Align(
+                heightFactor: 2,
+                alignment: Alignment.topCenter,
+                child: ImageClickableLabel(
+                  label: imageData.fileName,
+                  tooltip:
+                      "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
+                  onTap: () => revealInExplorerHandler(imageData),
+                ),
+              );
+            }
 
-      final isNextImageTransition = model.lastIncrement > 0;
-      final currentImageIndexString = model.currentImageIndex.toString();
-      final slideKeyString = model.isCountingDown
-          ? 'countingDownImage'
-          : 'i$currentImageIndexString';
+            return SizedBox.shrink();
+          }
 
-      return Stack(
-        children: [
-          Animate(
-            key: Key(slideKeyString),
-            effects: isNextImageTransition
-                ? Phanimations.imageNext
-                : Phanimations.imagePrevious,
-            child: SizedBox.expand(
-              child: ValueListenableBuilder(
-                valueListenable: zoomPanner.flipHorizontalListenable,
-                builder: (_, __, ___) {
-                  return Transform.flip(
-                    flipX: zoomPanner.flipHorizontalListenable.value,
-                    flipY: false,
-                    child: ValueListenableBuilder(
-                        valueListenable: panDurationListenable,
-                        builder: (_, panDuration, ___) {
-                          return ListeningAnimatedTranslate(
-                            offsetListenable: zoomPanner.offsetListenable,
-                            duration: panDuration,
-                            child: ValueListenableBuilder(
-                              valueListenable: zoomPanner.zoomLevelListenable,
-                              builder: (_, __, ___) {
-                                return AnimatedScale(
-                                  duration: Phanimations.zoomTransitionDuration,
-                                  curve: Phanimations.zoomTransitionCurve,
-                                  scale: zoomPanner.currentZoomScale,
-                                  child: possiblyOverlayedWidget,
-                                );
-                              },
-                            ),
-                          );
-                        }),
+          final isNextImageTransition = model.lastIncrement > 0;
+          final currentImageIndexString = model.currentImageIndex.toString();
+          final slideKeyString = model.isCountingDown
+              ? 'countingDownImage'
+              : 'i$currentImageIndexString';
+
+          return Stack(
+            children: [
+              Animate(
+                key: Key(slideKeyString),
+                effects: isNextImageTransition
+                    ? Phanimations.imageNext
+                    : Phanimations.imagePrevious,
+                child: SizedBox.expand(
+                  child: ValueListenableBuilder(
+                    valueListenable: zoomPanner.flipHorizontalListenable,
+                    builder: (_, __, ___) {
+                      return Transform.flip(
+                        flipX: zoomPanner.flipHorizontalListenable.value,
+                        flipY: false,
+                        child: ValueListenableBuilder(
+                            valueListenable: panDurationListenable,
+                            builder: (_, panDuration, ___) {
+                              return ListeningAnimatedTranslate(
+                                offsetListenable: zoomPanner.offsetListenable,
+                                duration: panDuration,
+                                child: ValueListenableBuilder(
+                                  valueListenable:
+                                      zoomPanner.zoomLevelListenable,
+                                  builder: (_, __, ___) {
+                                    return AnimatedScale(
+                                      duration:
+                                          Phanimations.zoomTransitionDuration,
+                                      curve: Phanimations.zoomTransitionCurve,
+                                      scale: zoomPanner.currentZoomScale,
+                                      child: possiblyOverlayedWidget,
+                                    );
+                                  },
+                                ),
+                              );
+                            }),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: filters.blurLevelListenable,
+                builder: (_, blurValue, __) {
+                  if (blurValue <= 0) return const SizedBox.expand();
+                  final sigma = pow(1.3, blurValue).toDouble();
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                    child: const SizedBox.expand(),
                   );
                 },
               ),
-            ),
-          ),
-          ValueListenableBuilder(
-            valueListenable: filters.blurLevelListenable,
-            builder: (_, blurValue, __) {
-              if (blurValue <= 0) return const SizedBox.expand();
-              final sigma = pow(1.3, blurValue).toDouble();
-              return BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                child: const SizedBox.expand(),
-              );
-            },
-          ),
-          ValueListenableBuilder(
-            valueListenable: filters.usingGrayscaleListenable,
-            builder: (_, value, ___) =>
-                value ? grayscaleBackdropFilter : const SizedBox.expand(),
-          ),
-          imageFilenameLayer(currentImageData),
-        ],
-      );
-    });
+              ValueListenableBuilder(
+                valueListenable: filters.usingGrayscaleListenable,
+                builder: (_, value, ___) =>
+                    value ? grayscaleBackdropFilter : const SizedBox.expand(),
+              ),
+              imageFilenameLayer(currentImageData),
+            ],
+          );
+        });
 
     return ValueListenableBuilder(
       valueListenable: isBottomBarMinimized,

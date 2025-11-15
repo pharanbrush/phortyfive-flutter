@@ -6,37 +6,31 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 class WelcomeChooseModeSheet extends StatelessWidget {
   const WelcomeChooseModeSheet({
     super.key,
-    required this.model,
   });
-
-  final PfsAppModel model;
-
-  void _chooseTimerSession() {
-    model.isUserChoseToStartTimer = true;
-    _onChoseAnything();
-  }
-
-  void _chooseBrowseSession() {
-    model.isUserChoseToStartTimer = false;
-    _onChoseAnything();
-  }
-
-  void _onChoseAnything() {
-    model.isWelcomeDone = true;
-    model.tryStartSession();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final model = PfsAppModel.of(context);
+
     final imageCount = model.circulator.count;
     const padding = EdgeInsets.symmetric(vertical: 10, horizontal: 20);
 
-    // final currentTheme = Theme.of(context).extension<PhtimerTheme>();
-    // final playColor = currentTheme?.runningColor;
-    // final pausedColor = currentTheme?.pausedColor;
-    // final labelSmall = Theme.of(context).textTheme.labelSmall;
-
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
+
+    void onChoseAnything() {
+      model.isWelcomeDone.value = true;
+      model.tryStartSession();
+    }
+
+    void chooseTimerSession() {
+      model.isUserChoseToStartTimer = true;
+      onChoseAnything();
+    }
+
+    void chooseBrowseSession() {
+      model.isUserChoseToStartTimer = false;
+      onChoseAnything();
+    }
 
     return Center(
       child: SizedBox(
@@ -81,13 +75,13 @@ class WelcomeChooseModeSheet extends StatelessWidget {
                     text: "Start timer",
                     icon: Icon(Icons.timer),
                     //color: playColor,
-                    onPressed: () => _chooseTimerSession(),
+                    onPressed: () => chooseTimerSession(),
                   ),
                   welcomeChoiceButton(
                     text: "Just browse",
                     icon: Icon(Icons.folder),
                     //color: pausedColor,
-                    onPressed: () => _chooseBrowseSession(),
+                    onPressed: () => chooseBrowseSession(),
                   ),
                   SizedBox(width: 10, height: 22),
                 ],

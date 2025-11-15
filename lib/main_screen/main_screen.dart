@@ -82,10 +82,10 @@ class _MainScreenState extends State<MainScreen>
   bool get isSoundsEnabled => windowState.isSoundsEnabled.value;
 
   @override
-  bool get isTimerRunning => model.timerModel.isRunning;
+  bool get isTimerRunning => widget.model.timerModel.isRunning;
 
   @override
-  ImageData getCurrentImageFileData() => model.getCurrentImageData();
+  ImageData getCurrentImageFileData() => widget.model.getCurrentImageData();
 
   @override
   String getCurrentImagePath() {
@@ -99,12 +99,12 @@ class _MainScreenState extends State<MainScreen>
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
-    (PreviousImageIntent, (_) => model.previousImageNewTimer()),
-    (NextImageIntent, (_) => model.nextImageNewTimer()),
-    (PlayPauseIntent, (_) => model.tryTogglePlayPauseTimer()),
-    (RestartTimerIntent, (_) => model.timerModel.resetTimer()),
-    (OpenFilesIntent, (_) => model.openFilePickerForImages()),
-    (OpenFolderIntent, (_) => model.openFilePickerForFolder()),
+    (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
+    (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
+    (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
+    (RestartTimerIntent, (_) => widget.model.timerModel.resetTimer()),
+    (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
+    (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
     (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
     (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
     (HelpIntent, (_) => helpMenu.open()),
@@ -154,7 +154,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void onAppModeChange() {
-    setState(() {});
+    //setState(() {});
   }
 
   void tryPaste() async {
@@ -166,22 +166,27 @@ class _MainScreenState extends State<MainScreen>
     phclipboard.getImageBytesFromClipboard(
       (imageBytes) {
         final imageDataFromPaste = ImageMemoryData(bytes: imageBytes);
-        model.loadImage(imageDataFromPaste);
+        widget.model.loadImage(imageDataFromPaste);
       },
     );
   }
 
   Widget overlayGestureControls(BuildContext context) {
-    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-      return SizedBox.shrink();
-    }
+    return ValueListenableBuilder(
+        valueListenable: currentAppControlsMode,
+        builder: (_, currentAppControlsModeValue, ___) {
+          if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+            return SizedBox.shrink();
+          }
 
-    return ImageBrowseGestureControls(
-      playPauseIconProgress: _playPauseIconStateAnimator,
-      imagePhviewer: imagePhviewer,
-      revealInExplorerHandler: revealCurrentImageInExplorer,
-      colorMeterMenuItemHandler: _handleOpenColorMeterMenuItem,
-    );
+          return ImageBrowseGestureControls(
+            model: widget.model,
+            playPauseIconProgress: _playPauseIconStateAnimator,
+            imagePhviewer: imagePhviewer,
+            revealInExplorerHandler: revealCurrentImageInExplorer,
+            colorMeterMenuItemHandler: _handleOpenColorMeterMenuItem,
+          );
+        });
   }
 
   Widget bottomControlBar(BuildContext context) {
@@ -198,18 +203,18 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     final loadingSheetLayer = ValueListenableBuilder(
-      valueListenable: model.isLoadingImages,
+      valueListenable: widget.model.isLoadingImages,
       builder: (_, isLoading, __) {
         return Visibility(
           visible: isLoading,
           child: LoadingSheet(
-            loadedFileCountListenable: model.currentlyLoadingImages,
+            loadedFileCountListenable: widget.model.currentlyLoadingImages,
           ),
         );
       },
     );
 
-    if (!model.hasImagesLoaded) {
+    if (!widget.model.hasImagesLoaded) {
       final firstActionApp = Stack(
         children: [
           const FirstActionSheet(),
@@ -223,7 +228,7 @@ class _MainScreenState extends State<MainScreen>
             valueListenable: windowState.isBottomBarMinimized,
             builder: (context, __, ___) => _bottomControls(),
           ),
-          _fileDropZone(model),
+          _fileDropZone(),
           ...modalPanelWidgets,
           loadingSheetLayer,
         ],
@@ -249,10 +254,11 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return wrappedFirstActionApp;
-    } else if (!model.isWelcomeDone && model.hasImagesLoaded) {
+    } else if (!widget.model.isWelcomeDone.value &&
+        widget.model.hasImagesLoaded) {
       final welcomeChooseModeApp = Stack(
         children: [
-          WelcomeChooseModeSheet(model: model),
+          const WelcomeChooseModeSheet(),
           CornerWindowControls(
             windowState: windowState,
             zoomPanner: imagePhviewer,
@@ -307,9 +313,9 @@ class _MainScreenState extends State<MainScreen>
                 child: imagePhviewer.widget(windowState.isBottomBarMinimized),
               ),
             ),
-            _fileDropZone(model),
+            _fileDropZone(),
             overlayGestureControls(context),
-            const CountdownSheet(),
+            CountdownSheet(),
             CornerWindowControls(
               windowState: windowState,
               zoomPanner: imagePhviewer,
@@ -317,11 +323,19 @@ class _MainScreenState extends State<MainScreen>
               settingsMenu: settingsMenu,
             ),
             bottomControlBar(context),
-            currentAppControlsMode.value == PfsAppControlsMode.imageBrowse
-                ? WindowDockingControls(
+            ValueListenableBuilder(
+              valueListenable: currentAppControlsMode,
+              builder: (_, currentAppControlsModeValue, __) {
+                if (currentAppControlsModeValue ==
+                    PfsAppControlsMode.imageBrowse) {
+                  return WindowDockingControls(
                     isBottomBarMinimized: windowState.isBottomBarMinimized,
-                  )
-                : SizedBox.shrink(),
+                  );
+                }
+
+                return SizedBox.shrink();
+              },
+            ),
             colorMeterPanel.widget(),
             ...modalPanelWidgets,
             loadingSheetLayer,
@@ -343,12 +357,12 @@ class _MainScreenState extends State<MainScreen>
     if (possiblePath.isEmpty) return;
 
     if (Directory(possiblePath).existsSync()) {
-      model.loadFolder(possiblePath, recursive: true);
+      widget.model.loadFolder(possiblePath, recursive: true);
     }
   }
 
   void _bindModelCallbacks() {
-    final model = this.model;
+    final model = widget.model;
     model.onImagesChanged ??= () => _handleStateChange();
     model.onImagesLoadedSuccess ??= _handleFilesLoadedSuccess;
     model.onImageChange ??= _handleOnImageChange;
@@ -368,7 +382,7 @@ class _MainScreenState extends State<MainScreen>
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
     onColorMeterExit = () {
-      setState(() => setAppMode(PfsAppControlsMode.imageBrowse));
+      setAppMode(PfsAppControlsMode.imageBrowse);
     };
   }
 
@@ -426,7 +440,7 @@ class _MainScreenState extends State<MainScreen>
   void _handleTimerChangeSuccess() {
     final toastContent = PfsLocalization.textWithMultiBold(
       text1: 'Timer is set to ',
-      boldText1: '${model.timerModel.currentDurationSeconds} seconds',
+      boldText1: '${widget.model.timerModel.currentDurationSeconds} seconds',
       text2: ' per image.',
     );
     Phtoasts.showWidget(context, child: toastContent);
@@ -446,13 +460,13 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void updateTimerPlayPauseIcon() {
-    final isTimerRunning = model.timerModel.isRunning;
+    final isTimerRunning = widget.model.timerModel.isRunning;
     animateTimerIconTo(isTimerRunning);
   }
 
   void _handleTimerPlayPause() {
     void showTimerToast() {
-      final isRunning = model.timerModel.isRunning;
+      final isRunning = widget.model.timerModel.isRunning;
       final message = PfsLocalization.timerSwitched(isRunning);
       final icon = isRunning ? Icons.play_arrow : Icons.pause;
 
@@ -527,41 +541,50 @@ class _MainScreenState extends State<MainScreen>
     }
   }
 
-  Widget _fileDropZone(PfsAppModel model) {
-    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) {
-      return const SizedBox.shrink();
-    }
+  Widget _fileDropZone() {
+    return ValueListenableBuilder(
+      valueListenable: currentAppControlsMode,
+      builder: (context, currentAppControlModeValue, __) {
+        if (currentAppControlModeValue != PfsAppControlsMode.imageBrowse) {
+          return const SizedBox.shrink();
+        }
 
-    const double horizontalMargin = 20;
-    const double bottomMargin = 40;
-    const double topMargin = 30;
+        final model = PfsAppModel.of(context);
 
-    return Positioned.fill(
-      left: horizontalMargin,
-      right: horizontalMargin,
-      bottom: bottomMargin,
-      top: topMargin,
-      child: ImageDropTarget(
-        dragImagesHandler: (details) {
-          if (details.files.isEmpty) return;
-          final List<String> filePaths = [];
-          for (final file in details.files) {
-            final filePath = file.path;
-            if (ImageList.fileIsImage(filePath)) {
-              filePaths.add(filePath);
-            } else if (pathIsDirectory(filePath)) {
-              filePaths.add(filePath);
-            }
-          }
-          if (filePaths.isEmpty) return;
+        const double horizontalMargin = 20;
+        const double bottomMargin = 40;
+        const double topMargin = 30;
 
-          model.loadImageFiles(filePaths, recursive: true);
+        return Positioned.fill(
+          left: horizontalMargin,
+          right: horizontalMargin,
+          bottom: bottomMargin,
+          top: topMargin,
+          child: ImageDropTarget(
+            dragImagesHandler: (details) {
+              if (details.files.isEmpty) return;
+              final List<String> filePaths = [];
+              for (final file in details.files) {
+                final filePath = file.path;
+                if (ImageList.fileIsImage(filePath)) {
+                  filePaths.add(filePath);
+                } else if (pathIsDirectory(filePath)) {
+                  filePaths.add(filePath);
+                }
+              }
+              if (filePaths.isEmpty) return;
 
-          if (model.hasImagesLoaded) {
-            _onFileDropped();
-          }
-        },
-      ),
+              model.loadImageFiles(filePaths, recursive: true).then(
+                (_) {
+                  if (model.hasImagesLoaded) {
+                    _onFileDropped();
+                  }
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -585,14 +608,13 @@ class _MainScreenState extends State<MainScreen>
       return minimizedBottomBar;
     }
 
-    List<Widget> imageBrowseBottomBarItems(
-      PfsAppModel model, {
+    List<Widget> imageBrowseBottomBarItems({
       double spacing = 15,
     }) {
       const double rightMargin = 20;
       final SizedBox spacingBox = SizedBox(width: spacing);
 
-      if (model.hasImagesLoaded) {
+      if (widget.model.hasImagesLoaded) {
         return [
           colorMeterModeButton(onPressed: () {
             setAppMode(PfsAppControlsMode.colorMeter);
@@ -609,6 +631,7 @@ class _MainScreenState extends State<MainScreen>
               valueListenable: imagesViewedCounter,
               builder: (context, value, child) {
                 return ImageSetButton(
+                  model: widget.model,
                   narrowButton: isNarrowWindow,
                   extraTooltip: getScoreText(),
                 );
@@ -617,7 +640,10 @@ class _MainScreenState extends State<MainScreen>
         ];
       } else {
         return [
-          Phbuttons.openFiles(width: isNarrowWindow ? 20 : 40),
+          Phbuttons.openFiles(
+            width: isNarrowWindow ? 20 : 40,
+            model: widget.model,
+          ),
           const SizedBox(width: 15, height: 43),
         ];
       }
@@ -626,10 +652,6 @@ class _MainScreenState extends State<MainScreen>
     const double narrowSpacing = 4;
     const double wideSpacing = 12;
     const double minimizeButtonRightSpace = 10;
-
-    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-      return SizedBox.shrink();
-    }
 
     Widget imageBrowseBottomBar() {
       return Positioned(
@@ -652,11 +674,11 @@ class _MainScreenState extends State<MainScreen>
               borderRadius: containerBorderRadius,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20.0),
-                child: PfsAppModel.scope(
-                  (_, __, model) {
+                child: ListenableBuilder(
+                  listenable: widget.model.imageListChangedNotifier,
+                  builder: (context, child) {
                     return Row(
                       children: imageBrowseBottomBarItems(
-                        model,
                         spacing: spacing,
                       ).animate(
                         interval: const Duration(milliseconds: 25),
@@ -672,7 +694,16 @@ class _MainScreenState extends State<MainScreen>
       );
     }
 
-    return imageBrowseBottomBar();
+    return ValueListenableBuilder(
+      valueListenable: currentAppControlsMode,
+      builder: (_, currentAppControlsModeValue, __) {
+        if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+          return SizedBox.shrink();
+        }
+
+        return imageBrowseBottomBar();
+      },
+    );
   }
 }
 
@@ -755,7 +786,7 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 
   void _updateAlwaysOnTop() {
-    final bool isPickingFiles = model.isPickerOpen;
+    final bool isPickingFiles = widget.model.isPickerOpen;
     final bool isAlwaysOnTopUserIntent = windowState.isAlwaysOnTop.value;
 
     final bool currentAlwaysOnTop = isAlwaysOnTopUserIntent && !isPickingFiles;
@@ -779,7 +810,7 @@ mixin MainScreenModels on State<MainScreen> {
     final oldValue = currentAppControlsMode.value;
 
     if (oldValue == PfsAppControlsMode.imageBrowse) {
-      model.tryPauseTimer();
+      widget.model.tryPauseTimer();
     }
 
     currentAppControlsMode.value = newMode;
@@ -791,8 +822,6 @@ mixin MainScreenModels on State<MainScreen> {
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     appControlsMode: currentAppControlsMode,
   );
-
-  PfsAppModel get model => widget.model;
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {
@@ -889,7 +918,6 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
     },
     builder: () {
       return SettingsPanel(
-        appModel: model,
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
         aboutMenu: aboutMenu,
@@ -904,13 +932,13 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       registerEscape("timer durations menu");
     },
     onOpened: () {
-      timerDurationEditor.setActive(
-          timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
+          widget.model.timerModel.currentDurationSeconds);
     },
     onClosed: () {
       refocusMainWindow();
-      timerDurationEditor.setActive(
-          timerDurationMenu.isOpen, model.timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(timerDurationMenu.isOpen,
+          widget.model.timerModel.currentDurationSeconds);
     },
     builder: () => timerDurationEditor.widget(),
     transitionBuilder: Phanimations.bottomMenuTransition,
@@ -1045,8 +1073,10 @@ class ImageBrowseGestureControls extends StatelessWidget {
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
     required this.colorMeterMenuItemHandler,
+    required this.model,
   });
 
+  final PfsAppModel model;
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
@@ -1060,88 +1090,91 @@ class ImageBrowseGestureControls extends StatelessWidget {
       progress: playPauseIconProgress,
     );
 
-    return PfsAppModel.scope((_, __, model) {
-      const double beforeButtonWidth = 100;
-      const double afterButtonWidth = 140;
+    return ListenableBuilder(
+      listenable: model.allowedControlsChanged,
+      builder: (_, __) {
+        const double beforeButtonWidth = 100;
+        const double afterButtonWidth = 140;
 
-      Widget nextPreviousGestureButton(
-          {required double width,
-          required Function()? onPressed,
-          required Widget child}) {
-        return SizedBox(
-          width: 100,
-          child: Phbuttons.nextPreviousOnScrollListener(
-            model: model,
-            child: OverlayButton(
-              onPressed: onPressed,
-              child: child,
+        Widget nextPreviousGestureButton(
+            {required double width,
+            required Function()? onPressed,
+            required Widget child}) {
+          return SizedBox(
+            width: 100,
+            child: Phbuttons.nextPreviousOnScrollListener(
+              model: model,
+              child: OverlayButton(
+                onPressed: onPressed,
+                child: child,
+              ),
             ),
-          ),
-        );
-      }
-
-      Widget middleGestureButton() {
-        Widget playPauseButton() {
-          return model.allowTimerPlayPause
-              ? OverlayButton(
-                  onPressed: () => model.tryTogglePlayPauseTimer(),
-                  child: playPauseIcon,
-                )
-              : TextButton(onPressed: null, child: Text(""));
+          );
         }
 
-        return ImagePhviewerZoomOnScrollListener(
-          zoomPanner: imagePhviewer,
-          child: ImageRightClick(
-            revealInExplorerHandler: revealInExplorerHandler,
-            resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-            colorChangeModeHandler: colorMeterMenuItemHandler,
-            child: ValueListenableBuilder(
-              valueListenable: imagePhviewer.zoomLevelListenable,
-              builder: (_, __, ___) {
-                return ImagePhviewerPanListener(
-                  zoomPanner: imagePhviewer,
-                  child: playPauseButton(),
-                );
-              },
+        Widget middleGestureButton() {
+          Widget playPauseButton() {
+            return model.allowTimerPlayPause
+                ? OverlayButton(
+                    onPressed: () => model.tryTogglePlayPauseTimer(),
+                    child: playPauseIcon,
+                  )
+                : TextButton(onPressed: null, child: Text(""));
+          }
+
+          return ImagePhviewerZoomOnScrollListener(
+            zoomPanner: imagePhviewer,
+            child: ImageRightClick(
+              revealInExplorerHandler: revealInExplorerHandler,
+              resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
+              colorChangeModeHandler: colorMeterMenuItemHandler,
+              child: ValueListenableBuilder(
+                valueListenable: imagePhviewer.zoomLevelListenable,
+                builder: (_, __, ___) {
+                  return ImagePhviewerPanListener(
+                    zoomPanner: imagePhviewer,
+                    child: playPauseButton(),
+                  );
+                },
+              ),
+            ),
+          );
+        }
+
+        return Positioned.fill(
+          top: Phbuttons.windowTitleBarHeight + 50,
+          bottom: 80,
+          left: 10,
+          right: 10,
+          child: Opacity(
+            opacity: 0.4,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                model.allowCirculatorControl
+                    ? nextPreviousGestureButton(
+                        width: beforeButtonWidth,
+                        onPressed: () => model.nextImageNewTimer(),
+                        child: PfsTheme.beforeGestureIcon,
+                      )
+                    : SizedBox(width: beforeButtonWidth),
+                Expanded(
+                  flex: 4,
+                  child: middleGestureButton(),
+                ),
+                model.allowCirculatorControl
+                    ? nextPreviousGestureButton(
+                        width: afterButtonWidth,
+                        onPressed: () => model.nextImageNewTimer(),
+                        child: PfsTheme.nextGestureIcon,
+                      )
+                    : SizedBox(width: afterButtonWidth),
+              ],
             ),
           ),
         );
-      }
-
-      return Positioned.fill(
-        top: Phbuttons.windowTitleBarHeight + 50,
-        bottom: 80,
-        left: 10,
-        right: 10,
-        child: Opacity(
-          opacity: 0.4,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              model.allowCirculatorControl
-                  ? nextPreviousGestureButton(
-                      width: beforeButtonWidth,
-                      onPressed: () => model.nextImageNewTimer(),
-                      child: PfsTheme.beforeGestureIcon,
-                    )
-                  : SizedBox(width: beforeButtonWidth),
-              Expanded(
-                flex: 4,
-                child: middleGestureButton(),
-              ),
-              model.allowCirculatorControl
-                  ? nextPreviousGestureButton(
-                      width: afterButtonWidth,
-                      onPressed: () => model.nextImageNewTimer(),
-                      child: PfsTheme.nextGestureIcon,
-                    )
-                  : SizedBox(width: afterButtonWidth),
-            ],
-          ),
-        ),
-      );
-    });
+      },
+    );
   }
 }
 

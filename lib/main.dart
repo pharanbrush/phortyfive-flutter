@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<PfsAppModel>(
+    return PfsAppModelScope(
       model: appModel,
       child: ScopedModel<PhtimerModel>(
         model: appModel.timerModel,
