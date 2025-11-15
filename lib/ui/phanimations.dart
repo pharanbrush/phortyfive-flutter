@@ -56,6 +56,13 @@ class Phanimations {
     curve: Curves.easeOutQuart,
   );
 
+  static const arrowBounceEffect = SlideEffect(
+    duration: Durations.medium3,
+    begin: Offset(0, 0.2),
+    end: Offset.zero,
+    curve: Curves.easeOutQuart,
+  );
+
   static const slideRightWideEffect = SlideEffect(
     duration: defaultDuration,
     begin: Offset(-0.05, 0),

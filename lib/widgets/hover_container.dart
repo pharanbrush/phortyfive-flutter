@@ -27,18 +27,20 @@ class _HoverContainerState extends State<HoverContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onHover: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: AnimatedContainer(
-        duration: widget.fadeDuration,
-        decoration: BoxDecoration(
-          borderRadius: widget.borderRadius,
-          color: _isHovering
-              ? widget.hoverBackgroundColor
-              : widget.hoverBackgroundColor.withAlpha(widget.unhoveredAlpha),
+    return RepaintBoundary(
+      child: MouseRegion(
+        onHover: (_) => setState(() => _isHovering = true),
+        onExit: (_) => setState(() => _isHovering = false),
+        child: AnimatedContainer(
+          duration: widget.fadeDuration,
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius,
+            color: _isHovering
+                ? widget.hoverBackgroundColor
+                : widget.hoverBackgroundColor.withAlpha(widget.unhoveredAlpha),
+          ),
+          child: widget.child,
         ),
-        child: widget.child,
       ),
     );
   }

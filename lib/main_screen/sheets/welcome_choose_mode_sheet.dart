@@ -45,51 +45,53 @@ class WelcomeChooseModeSheet extends StatelessWidget {
         child: panelMaterial(
           child: Padding(
             padding: padding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(9.0),
-                        child: Icon(Icons.image),
-                      ),
-                      Text(
-                        textAlign: TextAlign.center,
-                        "$imageCount ${PfsLocalization.imageNoun(imageCount)} loaded",
-                      ),
-                      SizedBox(width: 28, height: 28),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Center(
-                    child: Text(
-                      "How do you want to start this session?",
-                      //style: labelSmall,
+            child: RepaintBoundary(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(9.0),
+                          child: Icon(Icons.image),
+                        ),
+                        Text(
+                          textAlign: TextAlign.center,
+                          "$imageCount ${PfsLocalization.imageNoun(imageCount)} loaded",
+                        ),
+                        SizedBox(width: 28, height: 28),
+                      ],
                     ),
                   ),
-                ),
-                welcomeChoiceButton(
-                  text: "Start timer",
-                  icon: Icon(Icons.timer),
-                  //color: playColor,
-                  onPressed: () => _chooseTimerSession(),
-                ),
-                welcomeChoiceButton(
-                  text: "Just browse",
-                  icon: Icon(Icons.folder),
-                  //color: pausedColor,
-                  onPressed: () => _chooseBrowseSession(),
-                ),
-                SizedBox(width: 10, height: 22),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Center(
+                      child: Text(
+                        "How do you want to start this session?",
+                        //style: labelSmall,
+                      ),
+                    ),
+                  ),
+                  welcomeChoiceButton(
+                    text: "Start timer",
+                    icon: Icon(Icons.timer),
+                    //color: playColor,
+                    onPressed: () => _chooseTimerSession(),
+                  ),
+                  welcomeChoiceButton(
+                    text: "Just browse",
+                    icon: Icon(Icons.folder),
+                    //color: pausedColor,
+                    onPressed: () => _chooseBrowseSession(),
+                  ),
+                  SizedBox(width: 10, height: 22),
+                ],
+              ),
             ),
           ),
         ),

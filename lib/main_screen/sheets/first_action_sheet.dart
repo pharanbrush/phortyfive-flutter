@@ -72,14 +72,16 @@ class FirstActionSheet extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.bottomRight,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: Icon(
-                  PfsTheme.downIcon,
-                  color: downArrowColor,
-                ).animate(
-                  effects: const [Phanimations.slideUpEffect],
-                  onPlay: (controller) => controller.repeat(reverse: true),
+              child: RepaintBoundary(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(
+                    PfsTheme.downIcon,
+                    color: downArrowColor,
+                  ).animate(
+                    effects: const [Phanimations.arrowBounceEffect],
+                    onPlay: (controller) => controller.repeat(reverse: true),
+                  ),
                 ),
               ),
             ),
