@@ -635,26 +635,26 @@ class _MainScreenState extends State<MainScreen>
       return Positioned(
         bottom: 0,
         right: minimizeButtonRightSpace,
-        child: PfsAppModel.scope(
-          (_, __, model) {
-            return TweenAnimationBuilder<double>(
-              duration: Phanimations.defaultDuration,
-              tween: Tween<double>(
-                begin: narrowSpacing,
-                end: isNarrowWindow ? narrowSpacing : wideSpacing,
-              ),
-              builder: (_, spacing, __) {
-                final theme = Theme.of(context);
-                final containerBorderRadius =
-                    theme.extension<PfsAppTheme>()?.borderRadius ??
-                        BorderRadius.circular(25);
+        child: TweenAnimationBuilder<double>(
+          duration: Phanimations.defaultDuration,
+          tween: Tween<double>(
+            begin: narrowSpacing,
+            end: isNarrowWindow ? narrowSpacing : wideSpacing,
+          ),
+          builder: (_, spacing, __) {
+            final theme = Theme.of(context);
+            final containerBorderRadius =
+                theme.extension<PfsAppTheme>()?.borderRadius ??
+                    BorderRadius.circular(25);
 
-                return HoverContainer(
-                  hoverBackgroundColor: theme.scaffoldBackgroundColor,
-                  borderRadius: containerBorderRadius,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: Row(
+            return HoverContainer(
+              hoverBackgroundColor: theme.scaffoldBackgroundColor,
+              borderRadius: containerBorderRadius,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: PfsAppModel.scope(
+                  (_, __, model) {
+                    return Row(
                       children: imageBrowseBottomBarItems(
                         model,
                         spacing: spacing,
@@ -662,10 +662,10 @@ class _MainScreenState extends State<MainScreen>
                         interval: const Duration(milliseconds: 25),
                         effects: const [Phanimations.bottomBarSlideUpEffect],
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
             );
           },
         ),
