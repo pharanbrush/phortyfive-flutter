@@ -174,6 +174,6 @@ class ModalDismissContext extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ModalDismissContext oldWidget) {
-    return true;
+    return false;
   }
 }
