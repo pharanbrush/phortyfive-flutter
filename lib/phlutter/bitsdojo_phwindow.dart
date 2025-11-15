@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 
-class KeepWindowOnTopButton extends StatefulWidget {
+class KeepWindowOnTopButton extends StatelessWidget {
   const KeepWindowOnTopButton({
     super.key,
-    this.notifier,
+    required this.notifier,
   });
 
-  final ValueNotifier<bool>? notifier;
-
-  @override
-  State<KeepWindowOnTopButton> createState() => _KeepWindowOnTopButtonState();
-}
-
-class _KeepWindowOnTopButtonState extends State<KeepWindowOnTopButton> {
-  late ValueNotifier<bool> notifier = widget.notifier ?? ValueNotifier(false);
+  final ValueNotifier<bool> notifier;
   void toggleNotifier() => notifier.value = !notifier.value;
 
   @override
