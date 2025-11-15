@@ -102,40 +102,42 @@ class WindowWrapper extends StatelessWidget {
       return WindowTitleBarBox(
         child: Container(
           decoration: BoxDecoration(color: titleBarColor),
-          child: Row(
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 8,
+          child: RepaintBoundary(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.memory(
+                              PfsTheme.pfsIconBytes,
+                              filterQuality: FilterQuality.medium,
+                              color: const Color(0x7EFFFFFF),
+                              colorBlendMode: BlendMode.modulate,
+                            ),
+                            const SizedBox(width: 5),
+                            const Text(
+                              pfsAppTitle,
+                              style: TextStyle(
+                                  color: Color(0x7E999999), fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Image.memory(
-                            PfsTheme.pfsIconBytes,
-                            filterQuality: FilterQuality.medium,
-                            color: const Color(0x7EFFFFFF),
-                            colorBlendMode: BlendMode.modulate,
-                          ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            pfsAppTitle,
-                            style: TextStyle(
-                                color: Color(0x7E999999), fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    MoveWindow(),
-                  ],
+                      MoveWindow(),
+                    ],
+                  ),
                 ),
-              ),
-              KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
-              const WindowButtons(),
-            ],
+                KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
+                const WindowButtons(),
+              ],
+            ),
           ),
         ),
       );
