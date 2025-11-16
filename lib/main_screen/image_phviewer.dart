@@ -453,6 +453,7 @@ class ImageViewerStackWidget extends StatelessWidget {
             if (imageData is image_data.ImageFileData) {
               final imageFile = File(imageData.filePath);
               return Image.file(
+                gaplessPlayback: true,
                 filterQuality: FilterQuality.medium,
                 key: ImagePhviewer.imageWidgetKey,
                 imageFile,
