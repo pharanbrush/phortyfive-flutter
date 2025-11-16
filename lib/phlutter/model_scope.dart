@@ -11,6 +11,6 @@ class ModelScope<T> extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ModelScope<T> oldWidget) {
-    return false;
+    return oldWidget.model != model;
   }
 }

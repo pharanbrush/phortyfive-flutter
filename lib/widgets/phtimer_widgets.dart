@@ -87,11 +87,14 @@ class TimerBar extends StatelessWidget {
     final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
         PhtimerTheme.defaultTheme;
 
+    final timerModel = PhtimerModel.of(context);
+
     return SizedBox(
       width: TimerBar.barWidth,
       height: 2,
-      child: PhtimerModel.scope(
-        (_, __, timerModel) {
+      child: ListenableBuilder(
+        listenable: timerModel.playPauseAndProgressNotifier,
+        builder: (_, __) {
           final barValueFromModel = (1.0 - timerModel.progressPercent);
           final Color barColor = timerModel.isRunning
               ? (barValueFromModel < TimerBar.almostZeroThreshold
@@ -135,56 +138,61 @@ class PlayPauseTimerButton extends StatelessWidget {
     final pressLabel = PfsLocalization.pressCapital;
 
     final model = PfsAppModel.of(context);
+    final timerModel = model.timerModel;
 
     return ListenableBuilder(
         listenable: model.allowedControlsChanged,
         builder: (_, __) {
-          return PhtimerModel.scope((_, __, timerModel) {
-            final playButtonTooltip =
-                'Timer paused. $pressLabel to resume ($shortcutLabel)';
-            final pauseButtonTooltip =
-                'Timer running. $pressLabel to pause ($shortcutLabel)';
-            final icon = AnimatedIcon(
-              icon: AnimatedIcons.play_pause,
-              progress: iconProgress,
-            );
+          return ListenableBuilder(
+              listenable: timerModel.playPauseNotifier,
+              builder: (_, __) {
+                final playButtonTooltip =
+                    'Timer paused. $pressLabel to resume ($shortcutLabel)';
+                final pauseButtonTooltip =
+                    'Timer running. $pressLabel to pause ($shortcutLabel)';
+                final icon = AnimatedIcon(
+                  icon: AnimatedIcons.play_pause,
+                  progress: iconProgress,
+                );
 
-            final bool allowTimerControl = model.allowTimerPlayPause;
-            final Color buttonColor = allowTimerControl
-                ? (timerModel.isRunning
-                    ? timerTheme.runningButton
-                    : timerTheme.pausedButton)
-                : timerTheme.disabledColor;
+                final bool allowTimerControl = model.allowTimerPlayPause;
+                final Color buttonColor = allowTimerControl
+                    ? (timerModel.isRunning
+                        ? timerTheme.runningButton
+                        : timerTheme.pausedButton)
+                    : timerTheme.disabledColor;
 
-            final style = ButtonStyle(
-              animationDuration: const Duration(milliseconds: 300),
-              backgroundColor:
-                  WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-                if (states.contains(WidgetState.hovered)) {
-                  return buttonColor.withValues(alpha: 1.0);
-                }
-                return buttonColor;
-              }),
-              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-              elevation: const WidgetStatePropertyAll(0),
-            );
+                final style = ButtonStyle(
+                  animationDuration: const Duration(milliseconds: 300),
+                  backgroundColor: WidgetStateProperty.resolveWith(
+                      (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.hovered)) {
+                      return buttonColor.withValues(alpha: 1.0);
+                    }
+                    return buttonColor;
+                  }),
+                  overlayColor:
+                      const WidgetStatePropertyAll(Colors.transparent),
+                  elevation: const WidgetStatePropertyAll(0),
+                );
 
-            final tooltipText =
-                timerModel.isRunning ? pauseButtonTooltip : playButtonTooltip;
+                final tooltipText = timerModel.isRunning
+                    ? pauseButtonTooltip
+                    : playButtonTooltip;
 
-            return Tooltip(
-              message: tooltipText,
-              child: FilledButton(
-                style: style,
-                onPressed: () => model.tryTogglePlayPauseTimer(),
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 50,
-                  child: icon,
-                ),
-              ),
-            );
-          });
+                return Tooltip(
+                  message: tooltipText,
+                  child: FilledButton(
+                    style: style,
+                    onPressed: () => model.tryTogglePlayPauseTimer(),
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 50,
+                      child: icon,
+                    ),
+                  ),
+                );
+              });
         });
   }
 }

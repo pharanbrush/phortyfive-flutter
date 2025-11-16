@@ -7,7 +7,6 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class TimerDurationPanel extends StatelessWidget {
   const TimerDurationPanel({
@@ -196,8 +195,8 @@ class TimerPresetButton extends StatelessWidget {
     final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
 
     Widget button;
-
-    final model = ScopedModel.of<PhtimerModel>(context, rebuildOnChange: true);
+    final model = PhtimerModel.of(context);
+    
     void onPressed() {
       model.setDurationSeconds(seconds);
       onDismiss.call();

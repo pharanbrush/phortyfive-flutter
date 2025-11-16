@@ -4,12 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'package:pfs2/core/phtimer.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class PhtimerModel extends Model {
-  static ScopedModelDescendant<PhtimerModel> scope(
-          ScopedModelDescendantBuilder<PhtimerModel> builder) =>
-      ScopedModelDescendant<PhtimerModel>(builder: builder);
+class PhtimerModel {
+  PhtimerModel({
+    required this.onElapse,
+  });
 
   static PhtimerModel of(BuildContext context) {
     return context
@@ -17,7 +16,9 @@ class PhtimerModel extends Model {
         .model;
   }
 
-  final Phtimer timer = Phtimer();
+  late final Phtimer timer = Phtimer(
+    onElapse: handleElapsed,
+  );
   Timer? ticker;
 
   bool get isRunning => timer.isActive;
@@ -28,10 +29,21 @@ class PhtimerModel extends Model {
   void registerPauser(Object o) => _timerPausers.add(o);
   void deregisterPauser(Object o) => _timerPausers.remove(o);
 
-  void Function()? onElapse;
-  void Function()? onReset;
-  void Function()? onPlayPause;
+  final void Function()? onElapse;
+  // void Function()? onReset;
+  // void Function()? onPlayPause;
   void Function()? onDurationChangeSuccess;
+  final m = ChangeNotifier();
+  late final playPauseAndProgressNotifier = Listenable.merge([
+    playPauseNotifier,
+    resetNotifier,
+    durationChangeNotifier,
+    tickNotifier,
+  ]);
+  final playPauseNotifier = SimpleNotifier();
+  final tickNotifier = SimpleNotifier();
+  final resetNotifier = SimpleNotifier();
+  final elapseNotifier = SimpleNotifier();
   final durationChangeNotifier = SimpleNotifier();
 
   void trySetDurationSecondsInput(String secondsString) {
@@ -52,8 +64,7 @@ class PhtimerModel extends Model {
 
   void resetTimer() {
     timer.reset();
-    onReset?.call();
-    notifyListeners();
+    resetNotifier.notify();
   }
 
   void playPauseToggleTimer() {
@@ -62,28 +73,24 @@ class PhtimerModel extends Model {
 
   void setActive(bool active) {
     timer.setActive(active);
-    onPlayPause?.call();
-    notifyListeners();
+    playPauseNotifier.notify();
   }
 
   void tryInitialize() {
-    ticker = Timer.periodic(Phtimer.tickInterval, _handleTick);
-    timer.onElapse ??= () => handleElapsed();
+    ticker?.cancel();
+    ticker = Timer.periodic(Phtimer.tickInterval, _handleTickerTick);
   }
 
   void handleElapsed() {
     onElapse?.call();
-    notifyListeners();
+    elapseNotifier.notify();
   }
 
-  void _handleTick(Timer _) {
-    if (timer.isActive) {
-      if (_timerPausers.isEmpty) {
-        timer.handleTick();
-      }
+  void _handleTickerTick(Timer _) {
+    if (!timer.isActive) return;
+    if (_timerPausers.isNotEmpty) return;
 
-      //log('tick');
-      notifyListeners();
-    }
+    timer.update();
+    tickNotifier.notify();
   }
 }

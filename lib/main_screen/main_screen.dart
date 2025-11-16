@@ -372,8 +372,9 @@ class _MainScreenState extends State<MainScreen>
     model.onWelcomeComplete ??= () => _handleWelcomeComplete();
 
     final timerModel = model.timerModel;
-    timerModel.onPlayPause ??= () => _handleTimerPlayPause();
-    timerModel.onReset ??= () => playClickSound();
+    timerModel.playPauseNotifier.addListener(_handleTimerPlayPause);
+    timerModel.resetNotifier.addListener(playClickSound);
+    
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());

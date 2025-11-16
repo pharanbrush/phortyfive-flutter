@@ -99,7 +99,8 @@ class PfsAppModel
     _notifyImageChange();
   }
 
-  void _handleTimerElapsed() {
+  @override
+  void handleTimerElapse() {
     nextImageNewTimer();
     onImageDurationElapse?.call();
     tryStartCountdown();
@@ -139,7 +140,6 @@ class PfsAppModel
 
   void reinitializeTimer() {
     timerModel.tryInitialize();
-    timerModel.onElapse ??= () => _handleTimerElapsed();
     timerModel.resetTimer();
   }
 
@@ -184,7 +184,11 @@ mixin PfsCirculator {
 }
 
 mixin PfsModelTimer {
-  final PhtimerModel timerModel = PhtimerModel();
+  late final PhtimerModel timerModel = PhtimerModel(
+    onElapse: handleTimerElapse,
+  );
+
+  void handleTimerElapse();
 
   void Function()? onImageDurationElapse;
 }

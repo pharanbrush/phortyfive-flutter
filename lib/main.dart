@@ -10,7 +10,6 @@ import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
 import 'package:pfs2/models/preferences.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:window_manager/window_manager.dart';
 
 const pfsAppTitle = 'Phorty-Five Seconds';
@@ -54,31 +53,28 @@ class MyApp extends StatelessWidget {
       model: appModel,
       child: ModelScope<PhtimerModel>(
         model: appModel.timerModel,
-        child: ScopedModel<PhtimerModel>(
-          model: appModel.timerModel,
-          child: ValueListenableBuilder(
-            valueListenable: theme,
-            builder: (themeContext, __, ___) {
-              return MaterialApp(
-                navigatorKey: navigatorKey,
-                debugShowCheckedModeBanner: false,
-                title: pfsAppTitle,
-                theme: PfsTheme.getTheme(theme.value),
-                home: Scaffold(
-                  body: WindowWrapper(
-                    windowState: windowState,
-                    child: EscapeNavigator(
-                      child: MainScreen(
-                        model: appModel,
-                        theme: theme,
-                        windowState: windowState,
-                      ),
+        child: ValueListenableBuilder(
+          valueListenable: theme,
+          builder: (themeContext, __, ___) {
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              title: pfsAppTitle,
+              theme: PfsTheme.getTheme(theme.value),
+              home: Scaffold(
+                body: WindowWrapper(
+                  windowState: windowState,
+                  child: EscapeNavigator(
+                    child: MainScreen(
+                      model: appModel,
+                      theme: theme,
+                      windowState: windowState,
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
