@@ -100,7 +100,7 @@ class WindowWrapper extends StatelessWidget {
     Widget titlebar() {
       final theme = Theme.of(context);
       final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
-      final Color titleBarColor =
+      final titleBarColor =
           borderSide == null ? Colors.transparent : borderSide.color;
 
       return WindowTitleBarBox(
