@@ -1,12 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:pfs2/core/phtimer.dart';
+import 'package:pfs2/phlutter/model_scope.dart';
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class PhtimerModel extends Model {
   static ScopedModelDescendant<PhtimerModel> scope(
           ScopedModelDescendantBuilder<PhtimerModel> builder) =>
       ScopedModelDescendant<PhtimerModel>(builder: builder);
+
+  static PhtimerModel of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<ModelScope<PhtimerModel>>()!
+        .model;
+  }
 
   final Phtimer timer = Phtimer();
   Timer? ticker;
@@ -23,6 +32,7 @@ class PhtimerModel extends Model {
   void Function()? onReset;
   void Function()? onPlayPause;
   void Function()? onDurationChangeSuccess;
+  final durationChangeNotifier = SimpleNotifier();
 
   void trySetDurationSecondsInput(String secondsString) {
     final int? seconds = int.tryParse(secondsString);
@@ -36,6 +46,7 @@ class PhtimerModel extends Model {
 
     timer.setDuration(Duration(seconds: seconds));
     onDurationChangeSuccess?.call();
+    durationChangeNotifier.notify();
     resetTimer();
   }
 

@@ -52,30 +52,33 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModelScope<PfsAppModel>(
       model: appModel,
-      child: ScopedModel<PhtimerModel>(
+      child: ModelScope<PhtimerModel>(
         model: appModel.timerModel,
-        child: ValueListenableBuilder(
-          valueListenable: theme,
-          builder: (themeContext, __, ___) {
-            return MaterialApp(
-              navigatorKey: navigatorKey,
-              debugShowCheckedModeBanner: false,
-              title: pfsAppTitle,
-              theme: PfsTheme.getTheme(theme.value),
-              home: Scaffold(
-                body: WindowWrapper(
-                  windowState: windowState,
-                  child: EscapeNavigator(
-                    child: MainScreen(
-                      model: appModel,
-                      theme: theme,
-                      windowState: windowState,
+        child: ScopedModel<PhtimerModel>(
+          model: appModel.timerModel,
+          child: ValueListenableBuilder(
+            valueListenable: theme,
+            builder: (themeContext, __, ___) {
+              return MaterialApp(
+                navigatorKey: navigatorKey,
+                debugShowCheckedModeBanner: false,
+                title: pfsAppTitle,
+                theme: PfsTheme.getTheme(theme.value),
+                home: Scaffold(
+                  body: WindowWrapper(
+                    windowState: windowState,
+                    child: EscapeNavigator(
+                      child: MainScreen(
+                        model: appModel,
+                        theme: theme,
+                        windowState: windowState,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

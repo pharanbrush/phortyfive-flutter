@@ -68,113 +68,110 @@ class TimerDurationPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
+    final timerModel = PhtimerModel.of(context);
 
-    return PhtimerModel.scope((context, __, model) {
-      final windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.of(context).size;
 
-      const double widestNarrowWidth = 600;
-      const double narrowestNarrowWidth = 450;
-      const double rightMarginNormal = 160;
-      const double squeezeOffset = 5;
-      const double rightMarginNarrow = rightMarginNormal -
-          (widestNarrowWidth - narrowestNarrowWidth) +
-          squeezeOffset;
+    const double widestNarrowWidth = 600;
+    const double narrowestNarrowWidth = 450;
+    const double rightMarginNormal = 160;
+    const double squeezeOffset = 5;
+    const double rightMarginNarrow = rightMarginNormal -
+        (widestNarrowWidth - narrowestNarrowWidth) +
+        squeezeOffset;
 
-      final double rightOffset = Phbuttons.squeezeRemap(
-        inputValue: windowSize.width,
-        iMin: narrowestNarrowWidth,
-        iThreshold: widestNarrowWidth,
-        oMin: rightMarginNarrow,
-        oRegular: rightMarginNormal,
+    final double rightOffset = Phbuttons.squeezeRemap(
+      inputValue: windowSize.width,
+      iMin: narrowestNarrowWidth,
+      iThreshold: widestNarrowWidth,
+      oMin: rightMarginNarrow,
+      oRegular: rightMarginNormal,
+    );
+
+    final textFieldBuilder = PfsAppTheme.giantTextFieldFrom(Theme.of(context));
+    final secondsTextField = textFieldBuilder(
+      focusNode: timerTextEditorFocusNode,
+      controller: timerTextEditorController,
+      onSubmitted: (value) {
+        timerModel.trySetDurationSecondsInput(value);
+        onDismiss.call();
+      },
+    );
+
+    Widget tapToDismiss({Widget? child}) {
+      return GestureDetector(
+        onTap: () => onDismiss.call(),
+        behavior: HitTestBehavior.translucent,
+        child: child,
       );
+    }
 
-      final textFieldBuilder =
-          PfsAppTheme.giantTextFieldFrom(Theme.of(context));
-      final secondsTextField = textFieldBuilder(
-        focusNode: timerTextEditorFocusNode,
-        controller: timerTextEditorController,
-        onSubmitted: (value) {
-          model.trySetDurationSecondsInput(value);
-          onDismiss.call();
-        },
-      );
+    final labelStyle = TextStyle(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
 
-      Widget tapToDismiss({Widget? child}) {
-        return GestureDetector(
-          onTap: () => onDismiss.call(),
-          behavior: HitTestBehavior.translucent,
-          child: child,
-        );
-      }
+    final bigLabelStyle = Theme.of(context)
+        .textTheme
+        .headlineSmall
+        ?.copyWith(color: labelStyle.color);
 
-      final labelStyle = TextStyle(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      );
+    final panelMaterial = PfsAppTheme.pawPanelFrom(Theme.of(context));
 
-      final bigLabelStyle = Theme.of(context)
-          .textTheme
-          .headlineSmall
-          ?.copyWith(color: labelStyle.color);
-
-      final panelMaterial = PfsAppTheme.pawPanelFrom(Theme.of(context));
-
-      return Stack(
-        children: [
-          Positioned(
-            right: rightOffset,
-            bottom: (-radius) + bottomOffset,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                tapToDismiss(
-                  child: panelMaterial(
-                    child: SizedBox(
-                      width: diameter,
-                      height: diameter,
-                      child: DefaultTextStyle(
-                        style: labelStyle,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child:
-                                  Text('Timer duration', style: bigLabelStyle),
-                            ),
-                            secondsTextField,
-                            const SizedBox(height: 3),
-                            const Text('seconds'),
-                          ],
-                        ),
+    return Stack(
+      children: [
+        Positioned(
+          right: rightOffset,
+          bottom: (-radius) + bottomOffset,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              tapToDismiss(
+                child: panelMaterial(
+                  child: SizedBox(
+                    width: diameter,
+                    height: diameter,
+                    child: DefaultTextStyle(
+                      style: labelStyle,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('Timer duration', style: bigLabelStyle),
+                          ),
+                          secondsTextField,
+                          const SizedBox(height: 3),
+                          const Text('seconds'),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 500,
-                  width: 500,
-                  child: Stack(
-                    children: presetButtons().toList().animate(
-                      interval: const Duration(milliseconds: 30),
-                      delay: const Duration(milliseconds: 100),
-                      effects: const [
-                        Phanimations.slideUpEffect,
-                        Phanimations.fadeInEffect,
-                      ],
-                    ),
+              ),
+              SizedBox(
+                height: 500,
+                width: 500,
+                child: Stack(
+                  children: presetButtons().toList().animate(
+                    interval: const Duration(milliseconds: 30),
+                    delay: const Duration(milliseconds: 100),
+                    effects: const [
+                      Phanimations.slideUpEffect,
+                      Phanimations.fadeInEffect,
+                    ],
                   ),
                 ),
-              ],
-            ).animate(
-              effects: const [
-                Phanimations.growBottomEffect,
-              ],
-            ),
+              ),
+            ],
+          ).animate(
+            effects: const [
+              Phanimations.growBottomEffect,
+            ],
           ),
-        ],
-      );
-    });
+        ),
+      ],
+    );
   }
 }
 

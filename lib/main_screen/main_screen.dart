@@ -623,7 +623,9 @@ class _MainScreenState extends State<MainScreen>
           FiltersButton(imageFilters: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,
           Phbuttons.timerSettingsButton(
-              onPressed: () => timerDurationMenu.open()),
+            onPressed: () => timerDurationMenu.open(),
+            timerModel: widget.model.timerModel,
+          ),
           spacingBox,
           TimerControls(playPauseIconController: _playPauseIconStateAnimator),
           SizedBox(width: spacing + 3),

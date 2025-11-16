@@ -49,10 +49,14 @@ class Phbuttons {
     );
   }
 
-  static Widget timerSettingsButton({required Function() onPressed}) {
-    return PhtimerModel.scope(
-      (_, __, model) {
-        final currentTimerSeconds = model.currentDurationSeconds;
+  static Widget timerSettingsButton({
+    required Function() onPressed,
+    required PhtimerModel timerModel,
+  }) {
+    return ListenableBuilder(
+      listenable: timerModel.durationChangeNotifier,
+      builder: (_, __) {
+        final currentTimerSeconds = timerModel.currentDurationSeconds;
         const iconSize = PfsTheme.timerButtonIconSize;
 
         return Tooltip(
