@@ -144,6 +144,7 @@ class PfsTheme {
           onSecondary: Colors.white,
           outline: outline,
           surface: cardColor,
+          surfaceContainer: cardColor, // cards and popup colors
           onSurfaceVariant: primary.withAlpha(0xAA),
           scrim: scrim,
           // Most text
@@ -294,6 +295,7 @@ class PfsTheme {
           onSecondary: Colors.white,
           outline: outline,
           surface: cardColor,
+          surfaceContainer: cardColor, // cards and popup colors
           onSurfaceVariant: textColor.withAlpha(0xAA),
           secondary: secondary,
           scrim: const Color(0xB7FFFFFF),
@@ -497,6 +499,7 @@ class PfsTheme {
       final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
+        cardColor: appBackground,
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
@@ -509,6 +512,7 @@ class PfsTheme {
           onSurfaceVariant: textColor.withAlpha(0xAA),
           outline: outline,
           surface: cardColor,
+          surfaceContainer: cardColor, // cards and popup colors
           scrim: const Color(0xB7000000),
 
           // Most text
@@ -720,6 +724,7 @@ class PfsTheme {
           onSecondary: Colors.white,
           outline: outline,
           surface: cardColor,
+          surfaceContainer: cardColor, // cards and popup colors
           onSurfaceVariant: cspTextColor.withAlpha(0xAA),
           secondary: secondary,
           scrim: Colors.black38,
@@ -903,6 +908,7 @@ class PfsTheme {
           onSecondary: Colors.white,
           outline: outline,
           surface: cardColor,
+          surfaceContainer: cardColor, // cards and popup colors
           onSurfaceVariant: primary.withAlpha(0xAA),
           scrim: Colors.white60,
         ),
@@ -928,6 +934,7 @@ class PfsTheme {
         ),
         cardTheme: const CardThemeData(
           elevation: 0,
+          color: cardColor,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
