@@ -284,6 +284,7 @@ class PfsTheme {
       final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
+        splashFactory: NoSplash.splashFactory,
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
@@ -709,6 +710,7 @@ class PfsTheme {
       final newData = ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: appBackground,
+        splashFactory: NoSplash.splashFactory,
         colorScheme: ColorScheme.fromSeed(
           brightness: themeBrightness,
           seedColor: seedColor,
