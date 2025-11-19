@@ -291,6 +291,40 @@ class MinorWindowControlButton extends StatelessWidget {
   }
 }
 
+class IconAndText extends StatelessWidget {
+  const IconAndText({
+    super.key,
+    required this.text,
+    required this.icon,
+    this.iconSize,
+    this.gap,
+  });
+
+  final String text;
+  final IconData icon;
+  final double? iconSize;
+  final double? gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final double usedFontSize = (theme.textTheme.labelLarge?.fontSize ?? 12);
+    final usedIconSize = iconSize ?? usedFontSize * 1.8;
+    final usedGap = gap ?? usedFontSize * 0.6;
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: usedIconSize,
+        ),
+        SizedBox(width: usedGap),
+        Text(text),
+      ],
+    );
+  }
+}
+
 class CollapseBottomBarButton extends StatelessWidget {
   const CollapseBottomBarButton({
     super.key,
