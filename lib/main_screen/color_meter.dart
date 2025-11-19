@@ -415,14 +415,14 @@ This color change meter calculates values in """),
                 TextSpan(text: """.
 This reflects how painting apps show their color pickers, and how they
 blend layers using modes like "Normal", "Multiply", and "Screen".
+Operating in gamma space is the standard way most current systems, everyday apps,
+like browsers and painting apps, encode and use colors.
 
-Gamma encoding is the standard way most modern systems, everyday apps,
-including browsers and painting apps, encode and use colors. This encoding
-uses numbers that are stretched to give space for a larger range of dark colors.
-
-The stretched numbers mean a color having half the lightness number
+This uses numbers that are stretched to give space for a larger range of dark colors.
+However, having stretched numbers means a color having half the lightness number
 isn't equivalent to having half the physical amount of light in real life.
 
+Operations done in gamma space deviates significantly from real behavior of light.
 For more accurate and pleasing results, applications like modern games and 3D software
 take color values out of gamma space before doing color calculations.""")
               ],
