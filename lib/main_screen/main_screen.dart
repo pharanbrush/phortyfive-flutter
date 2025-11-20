@@ -175,7 +175,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
         valueListenable: currentAppControlsMode,
         builder: (_, currentAppControlsModeValue, ___) {
-          if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+          if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
             return SizedBox.shrink();
           }
 
@@ -382,9 +382,9 @@ class _MainScreenState extends State<MainScreen>
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
-    onColorMeterExit = () {
-      setAppMode(PfsAppControlsMode.imageBrowse);
-    };
+    // onColorMeterExit = () {
+    //   setAppMode(PfsAppControlsMode.imageBrowse);
+    // };
   }
 
   void _handleDisposeCallbacks() {
@@ -520,7 +520,10 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleAppControlsChanged() {
-    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
+
+    final newAppMode = currentAppControlsMode.value;
+
+    if (newAppMode == PfsAppControlsMode.colorMeter) {
       final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
       if (imageWidgetContext != null) {
         colorMeterPanel.open();
@@ -529,9 +532,6 @@ class _MainScreenState extends State<MainScreen>
             "image widget not found. canceled opening color meter panel");
         setAppMode(PfsAppControlsMode.imageBrowse);
       }
-    } else {
-      colorMeterPanel.close();
-      colorMeterModel.endColorMeter();
     }
   }
 
@@ -630,11 +630,22 @@ class _MainScreenState extends State<MainScreen>
                 value: () => setAppMode(PfsAppControlsMode.colorMeter),
               ),
               PfsPopupMenuItem(
-                enabled: false,
                 child: IconAndText(
                   icon: Icons.edit_outlined,
                   text: "Annotate",
                 ),
+                value: () {
+                  debugPrint("Trying to switch to annotate mode");
+                  setAppMode(PfsAppControlsMode.annotation);
+                  EscapeNavigator.of(context)?.push(
+                    EscapeRoute(
+                      name: "Annotation",
+                      onEscape: () =>
+                          setAppMode(PfsAppControlsMode.imageBrowse),
+                      willPopOnEscape: true,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -718,7 +729,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
       builder: (_, currentAppControlsModeValue, __) {
-        if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+        if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
           return SizedBox.shrink();
         }
 
@@ -833,6 +844,8 @@ mixin MainScreenModels on State<MainScreen> {
     if (oldValue == PfsAppControlsMode.imageBrowse) {
       widget.model.tryPauseTimer();
     }
+
+    if (oldValue == newMode) return;
 
     currentAppControlsMode.value = newMode;
     onAppModeChange();
