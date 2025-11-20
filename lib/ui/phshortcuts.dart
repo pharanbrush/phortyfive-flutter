@@ -73,6 +73,14 @@ class Phshortcuts {
     return isSpacePressed && isShiftPressed;
   }
 
+  static bool isPanModifierPressed() {
+    final keyboard = HardwareKeyboard.instance;
+    final isSpacePressed =
+        keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
+
+    return isSpacePressed;
+  }
+
   static const intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
