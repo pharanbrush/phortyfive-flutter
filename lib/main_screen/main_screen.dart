@@ -202,17 +202,17 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    final loadingSheetLayer = ValueListenableBuilder(
-      valueListenable: widget.model.isLoadingImages,
-      builder: (_, isLoading, __) {
-        return Visibility(
-          visible: isLoading,
-          child: LoadingSheet(
-            loadedFileCountListenable: widget.model.currentlyLoadingImages,
-          ),
+    Widget loadingSheetLayer() => ValueListenableBuilder(
+          valueListenable: widget.model.isLoadingImages,
+          builder: (_, isLoading, __) {
+            return Visibility(
+              visible: isLoading,
+              child: LoadingSheet(
+                loadedFileCountListenable: widget.model.currentlyLoadingImages,
+              ),
+            );
+          },
         );
-      },
-    );
 
     if (!widget.model.hasImagesLoaded) {
       final firstActionApp = Stack(
@@ -230,7 +230,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           _fileDropZone(),
           ...modalPanelWidgets,
-          loadingSheetLayer,
+          loadingSheetLayer(),
         ],
       );
 
@@ -266,7 +266,7 @@ class _MainScreenState extends State<MainScreen>
             settingsMenu: settingsMenu,
           ),
           ...modalPanelWidgets,
-          loadingSheetLayer,
+          loadingSheetLayer(),
         ],
       );
 
@@ -338,7 +338,7 @@ class _MainScreenState extends State<MainScreen>
             ),
             colorMeterPanel.widget(),
             ...modalPanelWidgets,
-            loadingSheetLayer,
+            loadingSheetLayer(),
           ],
         ),
       ),
@@ -374,7 +374,7 @@ class _MainScreenState extends State<MainScreen>
     final timerModel = model.timerModel;
     timerModel.playPauseNotifier.addListener(_handleTimerPlayPause);
     timerModel.resetNotifier.addListener(playClickSound);
-    
+
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
