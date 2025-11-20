@@ -152,11 +152,6 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
-  @override
-  void onAppModeChange() {
-    //setState(() {});
-  }
-
   void tryPaste() async {
     if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
     for (final panel in modalPanels) {
@@ -848,10 +843,7 @@ mixin MainScreenModels on State<MainScreen> {
     if (oldValue == newMode) return;
 
     currentAppControlsMode.value = newMode;
-    onAppModeChange();
   }
-
-  void onAppModeChange();
 
   late ImagePhviewer imagePhviewer = ImagePhviewer(
     appControlsMode: currentAppControlsMode,
