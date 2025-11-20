@@ -119,6 +119,7 @@ class _MainScreenState extends State<MainScreen>
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
     (PasteIntent, (_) => tryPaste()),
+    (UndoIntent, (_) => tryUndo()),
   ];
 
   final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
@@ -731,6 +732,10 @@ class _MainScreenState extends State<MainScreen>
         return imageBrowseBottomBar();
       },
     );
+  }
+
+  void tryUndo() {
+    debugPrint("Undo!");
   }
 }
 
