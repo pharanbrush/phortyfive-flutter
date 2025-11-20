@@ -26,7 +26,9 @@ class Phshortcuts {
   static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
 
   static const toggleAnnotation = SingleActivator(LogicalKeyboardKey.keyN);
-  static const clearAnnotations = SingleActivator(LogicalKeyboardKey.backspace);
+  static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
+  static const backspaceAnnotation =
+      SingleActivator(LogicalKeyboardKey.backspace);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);

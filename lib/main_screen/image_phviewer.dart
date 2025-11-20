@@ -484,14 +484,12 @@ class ImageViewerStackWidget extends StatelessWidget {
               switch (mode) {
                 case PfsAppControlsMode.annotation:
                   final annotatedImageWidget = AnnotationOverlay(
+                    zoomPanner: zoomPanner,
                     image: imageWidget,
                     annotationType: AnnotationType.line,
                     child: imageWidget,
                   );
                   return annotatedImageWidget;
-
-                // case PfsAppControlsMode.eyedrop:
-                //   return EyeDrop(child: imageWidget);
 
                 default:
                   return imageWidget;
@@ -704,28 +702,41 @@ class ImagePhviewerPanListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanUpdate: (details) {
-        final pointerDelta = details.delta;
-
-        if (Phshortcuts.isDragZoomModifierPressed()) {
-          zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
-          zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
-          return;
-        }
-
-        if (!zoomPanner.isZoomedIn) return;
-
-        zoomPanner.panImage(pointerDelta);
-      },
-      onPanEnd: (details) {
-        zoomPanner.resetZoomAccumulator();
-
-        if (!zoomPanner.isZoomedIn) return;
-
-        zoomPanner.panRelease();
-      },
+      onPanUpdate: (details) =>
+          handlePanUpdate(details: details, zoomPanner: zoomPanner),
+      onPanEnd: (details) =>
+          handlePanEnd(details: details, zoomPanner: zoomPanner),
       child: child,
     );
+  }
+
+  static void handlePanEnd({
+    required DragEndDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    zoomPanner.resetZoomAccumulator();
+
+    if (!zoomPanner.isZoomedIn) return;
+    zoomPanner.panRelease();
+  }
+
+  static void handlePanUpdate({
+    required DragUpdateDetails details,
+    required ImageZoomPanner zoomPanner,
+    bool useZoomPannerScale = false,
+  }) {
+    final pointerDelta = details.delta;
+
+    if (Phshortcuts.isDragZoomModifierPressed()) {
+      zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
+      zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
+      return;
+    }
+
+    //if (!zoomPanner.isZoomedIn) return;
+
+    final deltaScale = (useZoomPannerScale ? zoomPanner.currentZoomScale : 1.0);
+    zoomPanner.panImage(pointerDelta * deltaScale);
   }
 }
 

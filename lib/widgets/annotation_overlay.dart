@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:pfs2/main_screen/image_phviewer.dart';
+import 'package:pfs2/models/annotations_tool.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 
 // Based on image_annotation by Mikita Drazdou
 
@@ -17,22 +21,24 @@ class AnnotationOverlay extends StatefulWidget {
     required this.child,
     required this.image,
     required this.annotationType,
+    required this.zoomPanner,
   });
 
   final Image image;
   final Widget child;
   final AnnotationType annotationType;
+  final ImageZoomPanner zoomPanner;
 
   @override
   State<AnnotationOverlay> createState() => _AnnotationOverlayState();
 }
 
 class _AnnotationOverlayState extends State<AnnotationOverlay> {
-  List<List<Offset>> annotations = [];
-  List<Offset> currentAnnotation = []; // Current annotation points
-
   Size? imageSize; // Size of the image
   Offset? imageOffset; // Offset of the image on the screen
+  late final AnnotationsModel model;
+
+  bool initialized = false;
 
   @override
   void initState() {
@@ -42,11 +48,20 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    if (!initialized) {
+      model = AnnotationsModel.of(context);
+      model.color.addListener(() => setState(() {}));
+      model.strokeWidth.addListener(() => setState(() {}));
+      initialized = true;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       calculateImageOffset();
     });
 
-    if (imageSize == null || imageOffset == null) {
+    final usableImageSize = imageSize;
+
+    if (usableImageSize == null || imageOffset == null) {
       return const CircularProgressIndicator(); // Placeholder or loading indicator while the image size and offset are being retrieved
     }
 
@@ -54,6 +69,10 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       // onLongPress: clearAllAnnotations,
       // onDoubleTap: clearLastAnnotation,
       onPanDown: (details) {
+        if (Phshortcuts.isPanModifierPressed()) {
+          return;
+        }
+
         startNewAnnotation();
         //print("starting annotation");
         // if (widget.annotationType == 'text') {
@@ -62,26 +81,62 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
         // }
       },
+      onSecondaryTap: () {
+        EscapeNavigator.of(context)?.tryEscape();
+      },
       child: RepaintBoundary(
         child: Stack(
           children: [
-            Opacity(
-              opacity: 0.3,
-              child: widget.child,
-            ),
-            Positioned(
-              left: imageOffset!.dx,
-              top: imageOffset!.dy,
-              child: GestureDetector(
-                onPanUpdate: (details) {
-                  drawShape(details.localPosition);
+            Center(
+              child: ValueListenableBuilder(
+                valueListenable: model.opacity,
+                builder: (_, opacityValue, __) {
+                  return Opacity(
+                    opacity: opacityValue,
+                    child: widget.child,
+                  );
                 },
-                child: CustomPaint(
-                  painter: AnnotationPainter(
-                    annotations: annotations,
-                    annotationType: widget.annotationType,
+              ),
+            ),
+            Center(
+              // left: imageOffset!.dx,
+              // top: imageOffset!.dy,
+              child: ImagePhviewerZoomOnScrollListener(
+                zoomPanner: widget.zoomPanner,
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    //debugPrint("onPanUpdate");
+                    if (Phshortcuts.isPanModifierPressed()) {
+                      debugPrint("trying to pan");
+                      ImagePhviewerPanListener.handlePanUpdate(
+                        details: details,
+                        zoomPanner: widget.zoomPanner,
+                        useZoomPannerScale: true,
+                      );
+
+                      return;
+                    }
+
+                    drawShape(details.localPosition);
+                  },
+                  onPanEnd: (details) {
+                    if (Phshortcuts.isPanModifierPressed()) {
+                      ImagePhviewerPanListener.handlePanEnd(
+                        details: details,
+                        zoomPanner: widget.zoomPanner,
+                      );
+                      return;
+                    }
+                  },
+                  child: CustomPaint(
+                    painter: AnnotationPainter(
+                      strokeWidth: model.strokeWidth.value,
+                      annotations: model.annotations,
+                      annotationType: widget.annotationType,
+                      color: model.color.value,
+                    ),
+                    size: usableImageSize,
                   ),
-                  size: imageSize!,
                 ),
               ),
             ),
@@ -93,7 +148,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   // Load image size asynchronously and set imageSize state
   void loadImageSize() async {
-    //final image = Image.asset(widget.imagePath);
     final image = widget.image;
     final completer = Completer<ui.Image>();
 
@@ -104,11 +158,9 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     );
 
     final loadedImage = await completer.future;
-    if (mounted) { //Prevents unmounted widget error from async call.
-      setState(() {
-        imageSize = calculateImageSize(loadedImage);
-      });
-    }
+    if (!mounted) return; //Prevents unmounted widget error from async call.
+
+    setState(() => imageSize = calculateImageSize(loadedImage));
   }
 
   // Calculate the image size to fit the screen while maintaining the aspect ratio
@@ -155,43 +207,31 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   void startNewAnnotation() {
     setState(() {
       //print("startNewAnnotation");
-      currentAnnotation = [];
-      annotations.add(currentAnnotation);
+      model.startNewAnnotation();
+      model.commitCurrentAnnotation();
     });
   }
 
   // Draw shape based on the current position
   void drawShape(Offset position) {
-    //print("drawShape");
-    if (position.dx >= 0 &&
-        position.dy >= 0 &&
-        position.dx <= imageSize!.width &&
-        position.dy <= imageSize!.height) {
-      setState(() {
-        currentAnnotation.add(position);
-      });
-    }
+    //debugPrint("drawShape");
+    // final isWithinImageBounds = (position.dx >= 0 &&
+    //     position.dy >= 0 &&
+    //     position.dx <= imageSize!.width &&
+    //     position.dy <= imageSize!.height);
+    // if (isWithinImageBounds) {}
+
+    setState(() => model.addPoint(position));
   }
 
   // Clear the last added annotation
   void clearLastAnnotation() {
-    setState(() {
-      if (annotations.isNotEmpty) {
-        annotations.removeLast();
-      }
-      // if (textAnnotations.isNotEmpty) {
-      //   textAnnotations.removeLast();
-      // }
-    });
+    setState(() => model.removeLastAnnotation());
   }
 
   // Clear all annotations
   void clearAllAnnotations() {
-    setState(() {
-      annotations.clear();
-      // textAnnotations.clear();
-      currentAnnotation = [];
-    });
+    setState(() => model.clearAllAnnotations());
   }
 
   //
@@ -206,17 +246,23 @@ class AnnotationPainter extends CustomPainter {
   AnnotationPainter({
     required this.annotations,
     required this.annotationType,
+    required this.color,
+    required this.strokeWidth,
   });
 
   final List<List<Offset>> annotations;
   final AnnotationType annotationType;
+  final Color color;
+  final double strokeWidth;
 
   // Paint annotations and text on the canvas
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 2.0
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     for (final annotation in annotations) {

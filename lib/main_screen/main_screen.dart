@@ -22,6 +22,7 @@ import 'package:pfs2/main_screen/sheets/first_action_sheet.dart';
 import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
+import 'package:pfs2/models/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
@@ -67,6 +68,7 @@ class _MainScreenState extends State<MainScreen>
         MainScreenWindow,
         MainScreenPanels,
         MainScreenColorMeter,
+        MainScreenAnnotations,
         MainScreenSound,
         MainScreenToaster,
         MainScreenImageViewedCounter,
@@ -333,6 +335,7 @@ class _MainScreenState extends State<MainScreen>
               },
             ),
             colorMeterPanel.widget(),
+            annotationPanel.widget(),
             ...modalPanelWidgets,
             loadingSheetLayer(),
           ],
@@ -378,9 +381,9 @@ class _MainScreenState extends State<MainScreen>
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
-    // onColorMeterExit = () {
-    //   setAppMode(PfsAppControlsMode.imageBrowse);
-    // };
+    onColorMeterExit = () {
+      setAppMode(PfsAppControlsMode.imageBrowse);
+    };
   }
 
   void _handleDisposeCallbacks() {
@@ -519,15 +522,23 @@ class _MainScreenState extends State<MainScreen>
 
     final newAppMode = currentAppControlsMode.value;
 
-    if (newAppMode == PfsAppControlsMode.colorMeter) {
-      final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
-      if (imageWidgetContext != null) {
-        colorMeterPanel.open();
-      } else {
-        debugPrint(
-            "image widget not found. canceled opening color meter panel");
-        setAppMode(PfsAppControlsMode.imageBrowse);
-      }
+    switch (newAppMode) {
+      case PfsAppControlsMode.colorMeter:
+        final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
+        if (imageWidgetContext != null) {
+          colorMeterPanel.open();
+        } else {
+          debugPrint(
+              "image widget not found. canceled opening color meter panel");
+          setAppMode(PfsAppControlsMode.imageBrowse);
+        }
+
+      case PfsAppControlsMode.annotation:
+        debugPrint("now trying to open annotation panel");
+        annotationPanel.open();
+
+      default:
+        return;
     }
   }
 
@@ -636,8 +647,10 @@ class _MainScreenState extends State<MainScreen>
                   EscapeNavigator.of(context)?.push(
                     EscapeRoute(
                       name: "Annotation",
-                      onEscape: () =>
-                          setAppMode(PfsAppControlsMode.imageBrowse),
+                      onEscape: () {
+                        annotationPanel.close();
+                        setAppMode(PfsAppControlsMode.imageBrowse);
+                      },
                       willPopOnEscape: true,
                     ),
                   );
