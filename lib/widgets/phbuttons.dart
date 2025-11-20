@@ -309,7 +309,7 @@ class IconAndText extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final double usedFontSize = (theme.textTheme.labelLarge?.fontSize ?? 12);
-    final usedIconSize = iconSize ?? usedFontSize * 1.8;
+    final usedIconSize = iconSize ?? usedFontSize * 1.55;
     final usedGap = gap ?? usedFontSize * 0.6;
 
     return Row(
