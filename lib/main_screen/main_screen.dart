@@ -617,9 +617,27 @@ class _MainScreenState extends State<MainScreen>
 
       if (widget.model.hasImagesLoaded) {
         return [
-          colorMeterModeButton(onPressed: () {
-            setAppMode(PfsAppControlsMode.colorMeter);
-          }),
+          PfsPopupMenuButton<VoidCallback?>(
+            tooltip: "Tools",
+            icon: const Icon(Icons.pageview_outlined),
+            onSelected: (value) => value?.call(),
+            itemBuilder: (context) => [
+              PfsPopupMenuItem(
+                child: IconAndText(
+                  icon: Icons.colorize,
+                  text: PfsLocalization.colorChangeMeter,
+                ),
+                value: () => setAppMode(PfsAppControlsMode.colorMeter),
+              ),
+              PfsPopupMenuItem(
+                enabled: false,
+                child: IconAndText(
+                  icon: Icons.edit_outlined,
+                  text: "Annotate",
+                ),
+              ),
+            ],
+          ),
           ResetZoomButton(zoomPanner: imagePhviewer),
           FiltersButton(imageFilters: imagePhviewer, filtersMenu: filtersMenu),
           spacingBox,

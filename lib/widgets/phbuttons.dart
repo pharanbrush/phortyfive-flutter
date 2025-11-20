@@ -358,3 +358,52 @@ class CollapseBottomBarButton extends StatelessWidget {
     }
   }
 }
+
+class PfsPopupMenuButton<T> extends PopupMenuButton<T> {
+  const PfsPopupMenuButton({
+    required super.itemBuilder,
+    super.key,
+    super.borderRadius,
+    super.child,
+    super.clipBehavior,
+    super.color,
+    super.constraints,
+    super.elevation,
+    super.enableFeedback,
+    super.enabled,
+    super.icon,
+    super.iconColor,
+    super.iconSize,
+    super.initialValue,
+    super.menuPadding,
+    super.offset,
+    super.onCanceled,
+    super.onOpened,
+    super.onSelected,
+    super.padding,
+    super.position,
+    super.requestFocus,
+    super.routeSettings,
+    super.tooltip,
+    super.useRootNavigator,
+    super.popUpAnimationStyle = const AnimationStyle(
+      curve: Curves.easeOutCirc,
+      reverseCurve: Curves.easeInCirc,
+    ),
+  });
+}
+
+class PfsPopupMenuItem<T> extends PopupMenuItem<T> {
+  const PfsPopupMenuItem({
+    required super.child,
+    super.key,
+    super.enabled,
+    super.labelTextStyle,
+    super.mouseCursor,
+    super.onTap,
+    super.height = kMinInteractiveDimension * 0.75,
+    super.padding = const EdgeInsets.only(right: 20, left: 16),
+    super.textStyle,
+    super.value,
+  });
+}
