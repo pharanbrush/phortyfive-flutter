@@ -66,8 +66,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     }
 
     return GestureDetector(
-      // onLongPress: clearAllAnnotations,
-      // onDoubleTap: clearLastAnnotation,
       onPanDown: (details) {
         if (Phshortcuts.isPanModifierPressed()) {
           return;
