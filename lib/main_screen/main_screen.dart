@@ -542,7 +542,10 @@ class _MainScreenState extends State<MainScreen>
       case PfsAppControlsMode.annotation:
         debugPrint("now trying to open annotation panel");
         annotationPanel.open();
-        AnnotationsModel.of(context).annotationsFocus.requestFocus();
+        final annotationsModel = AnnotationsModel.of(context);
+        annotationsModel.annotationsFocus.requestFocus();
+        annotationsModel.setTool(AnnotationTool.draw);
+
         EscapeNavigator.of(context)?.push(
           EscapeRoute(
             name: "Annotation",
