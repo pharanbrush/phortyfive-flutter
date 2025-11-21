@@ -504,6 +504,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   void returnToHomeMode() {
     setAppMode(PfsAppControlsMode.imageBrowse);
+    mainWindowFocus.requestFocus();
   }
 
   void _handleSoundChanged() {
@@ -541,6 +542,7 @@ class _MainScreenState extends State<MainScreen>
       case PfsAppControlsMode.annotation:
         debugPrint("now trying to open annotation panel");
         annotationPanel.open();
+        AnnotationsModel.of(context).annotationsFocus.requestFocus();
         EscapeNavigator.of(context)?.push(
           EscapeRoute(
             name: "Annotation",

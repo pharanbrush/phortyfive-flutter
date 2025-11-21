@@ -50,7 +50,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   void dispose() {
     model.color.removeListener(_handleUpdateState);
     model.strokeWidth.removeListener(_handleUpdateState);
-    model.removeListener(_handleUpdateState);
+    model.undoRedoListenable.removeListener(_handleUpdateState);
     super.dispose();
   }
 
@@ -62,7 +62,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       model = AnnotationsModel.of(context);
       model.color.addListener(_handleUpdateState);
       model.strokeWidth.addListener(_handleUpdateState);
-      model.addListener(_handleUpdateState);
+      model.undoRedoListenable.addListener(_handleUpdateState);
       initialized = true;
     }
 

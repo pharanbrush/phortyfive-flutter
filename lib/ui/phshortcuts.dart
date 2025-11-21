@@ -32,6 +32,8 @@ class Phshortcuts {
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
+  static const redo =
+      SingleActivator(LogicalKeyboardKey.keyZ, control: true, shift: true);
   static const copyFile =
       SingleActivator(LogicalKeyboardKey.keyC, control: true);
 

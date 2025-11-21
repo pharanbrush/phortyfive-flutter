@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
+import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:undo/undo.dart';
@@ -23,7 +25,8 @@ class Stroke {
   //Paint paint;
 }
 
-class AnnotationsModel with ChangeNotifier {
+class AnnotationsModel {
+  final annotationsFocus = FocusNode();
   final List<Stroke> strokes = [];
   Path currentStrokePath = Path();
   final changes = ChangeStack(limit: 30);
@@ -33,6 +36,7 @@ class AnnotationsModel with ChangeNotifier {
   late final color = ValueNotifier<Color>(Colors.red);
   final opacity = ValueNotifier<double>(0.2);
   final strokeWidth = ValueNotifier<double>(1.0);
+  final undoRedoListenable = SimpleNotifier();
 
   static const colorChoices = <Color>[
     Colors.red,
@@ -90,7 +94,7 @@ class AnnotationsModel with ChangeNotifier {
         },
       ),
     );
-    notifyListeners();
+    undoRedoListenable.notify();
   }
 
   void commitCurrentEraseStroke() {
@@ -113,20 +117,20 @@ class AnnotationsModel with ChangeNotifier {
     );
 
     lastErasedStrokes.clear();
-    notifyListeners();
+    undoRedoListenable.notify();
   }
 
   void undo() {
     if (changes.canUndo) {
       changes.undo();
-      notifyListeners();
+      undoRedoListenable.notify();
     }
   }
 
   void redo() {
     if (changes.canRedo) {
       changes.redo();
-      notifyListeners();
+      undoRedoListenable.notify();
     }
   }
 
@@ -216,6 +220,16 @@ class AnnotationsBottomBar extends StatelessWidget {
 
     return Stack(
       children: [
+        CallbackShortcuts(
+          bindings: {
+            Phshortcuts.redo: model.redo,
+            Phshortcuts.undo: model.undo,
+          },
+          child: Focus(
+            focusNode: model.annotationsFocus,
+            child: Text(""),
+          ),
+        ),
         Align(
           alignment: AlignmentGeometry.centerLeft,
           child: panelMaterial(
@@ -299,7 +313,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                           style: theme.textTheme.labelLarge,
                         ),
                         ListenableBuilder(
-                          listenable: model,
+                          listenable: model.undoRedoListenable,
                           builder: (_, __) {
                             return Flex(
                               direction: Axis.horizontal,
