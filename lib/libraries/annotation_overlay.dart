@@ -50,6 +50,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   void dispose() {
     model.color.removeListener(_handleUpdateState);
     model.strokeWidth.removeListener(_handleUpdateState);
+    model.removeListener(_handleUpdateState);
     super.dispose();
   }
 
@@ -61,6 +62,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       model = AnnotationsModel.of(context);
       model.color.addListener(_handleUpdateState);
       model.strokeWidth.addListener(_handleUpdateState);
+      model.addListener(_handleUpdateState);
       initialized = true;
     }
 
@@ -128,6 +130,8 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       );
                       return;
                     }
+
+                    toolPointerUp(details.localPosition);
                   },
                   child: CustomPaint(
                     painter: AnnotationPainter(
@@ -218,6 +222,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   // Draw shape based on the current position
   void toolPointerUpdate(Offset position) {
     //TODO have a tool callbacks class to encapsulate this.
+
     switch (model.currentTool.value) {
       case AnnotationTool.draw:
         setState(() => model.addPointToStroke(position));
@@ -228,9 +233,15 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     }
   }
 
-  // Clear the last added annotation
-  void clearLastAnnotation() {
-    setState(() => model.removeLastStroke());
+  void toolPointerUp(Offset position) {
+    switch (model.currentTool.value) {
+      case AnnotationTool.draw:
+        model.commitCurrentStroke();
+      case AnnotationTool.erase:
+        model.commitCurrentEraseStroke();
+      default:
+        return;
+    }
   }
 
   // Clear all annotations

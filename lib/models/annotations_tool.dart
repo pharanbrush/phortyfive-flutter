@@ -6,6 +6,7 @@ import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+import 'package:undo/undo.dart';
 
 enum AnnotationTool {
   none,
@@ -22,9 +23,11 @@ class Stroke {
   //Paint paint;
 }
 
-class AnnotationsModel {
+class AnnotationsModel with ChangeNotifier {
   final List<Stroke> strokes = [];
   Path currentStrokePath = Path();
+  final changes = ChangeStack(limit: 30);
+  final lastErasedStrokes = <Stroke>[];
 
   final currentTool = ValueNotifier<AnnotationTool>(AnnotationTool.draw);
   late final color = ValueNotifier<Color>(Colors.red);
@@ -71,8 +74,74 @@ class AnnotationsModel {
     currentStrokePath.lineTo(point.dx, point.dy);
   }
 
+  void commitCurrentStroke() {
+    if (strokes.isEmpty) return;
+    final lastStroke = strokes.last;
+
+    changes.add(
+      Change(
+        lastStroke,
+        () {
+          strokes.remove(lastStroke);
+          strokes.add(lastStroke);
+        },
+        (oldValue) {
+          strokes.remove(oldValue);
+        },
+      ),
+    );
+    notifyListeners();
+  }
+
+  void commitCurrentEraseStroke() {
+    if (lastErasedStrokes.isEmpty) return;
+
+    final undoableStrokes = [...lastErasedStrokes];
+
+    changes.add(
+      Change(
+        undoableStrokes,
+        () {
+          for (final stroke in undoableStrokes) {
+            strokes.remove(stroke);
+          }
+        },
+        (oldValue) {
+          strokes.addAll(oldValue);
+        },
+      ),
+    );
+
+    lastErasedStrokes.clear();
+    notifyListeners();
+  }
+
+  void undo() {
+    if (changes.canUndo) {
+      changes.undo();
+      notifyListeners();
+    }
+  }
+
+  void redo() {
+    if (changes.canRedo) {
+      changes.redo();
+      notifyListeners();
+    }
+  }
+
   void tryEraseAt(Offset point) {
-    strokes.removeWhere((stroke) => hitTestStroke(stroke, point, 3.0));
+    const eraserSize = 3.0;
+    final eraseableStrokes =
+        strokes.where((stroke) => hitTestStroke(stroke, point, eraserSize));
+
+    final toEraseStrokes = eraseableStrokes.toList(growable: false);
+    if (toEraseStrokes.isEmpty) return;
+
+    for (final stroke in toEraseStrokes) {
+      lastErasedStrokes.add(stroke);
+      strokes.remove(stroke);
+    }
   }
 
   static bool hitTestStroke(Stroke stroke, Offset point, double tolerance) {
@@ -87,14 +156,20 @@ class AnnotationsModel {
     return false;
   }
 
-  void removeLastStroke() {
-    if (strokes.isEmpty) return;
-
-    strokes.removeLast();
-  }
-
   void clearAllStrokes() {
-    strokes.clear();
+    final historyStrokes = [...strokes];
+    changes.add(
+      Change(
+        historyStrokes,
+        () {
+          strokes.clear();
+        },
+        (oldValue) {
+          strokes.clear();
+          strokes.addAll(oldValue);
+        },
+      ),
+    );
   }
 }
 
@@ -223,12 +298,27 @@ class AnnotationsBottomBar extends StatelessWidget {
                           "Annotations",
                           style: theme.textTheme.labelLarge,
                         ),
-                        IconButton(
-                          tooltip: "Undo",
-                          onPressed: () {
-                            model.removeLastStroke();
+                        ListenableBuilder(
+                          listenable: model,
+                          builder: (_, __) {
+                            return Flex(
+                              direction: Axis.horizontal,
+                              children: [
+                                IconButton(
+                                  tooltip: "Undo",
+                                  onPressed:
+                                      model.changes.canUndo ? model.undo : null,
+                                  icon: Icon(Icons.undo),
+                                ),
+                                IconButton(
+                                  tooltip: "Redo",
+                                  onPressed:
+                                      model.changes.canRedo ? model.redo : null,
+                                  icon: Icon(Icons.redo),
+                                ),
+                              ],
+                            );
                           },
-                          icon: Icon(Icons.undo),
                         ),
                         IconButton(
                           tooltip: "Clear all strokes",
