@@ -122,6 +122,17 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       child: RepaintBoundary(
         child: Stack(
           children: [
+            Positioned.fill(
+              child: ValueListenableBuilder(
+                valueListenable: model.underlayColor,
+                builder: (_, modelUnderlayColor, __) {
+                  return AnimatedContainer(
+                    color: modelUnderlayColor,
+                    duration: Durations.medium1,
+                  );
+                },
+              ),
+            ),
             Center(
               child: ValueListenableBuilder(
                 valueListenable: model.opacity,

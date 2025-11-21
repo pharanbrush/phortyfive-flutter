@@ -25,6 +25,20 @@ class Stroke {
   //Paint paint;
 }
 
+Color _cycleColorFrom({
+  required Color currentColor,
+  required List<Color> list,
+}) {
+  int index = list.indexOf(currentColor);
+  if (index < 0) {
+    debugPrint("color not found");
+    index = -1;
+  }
+  index++;
+  if (index >= list.length) index = 0;
+  return list[index];
+}
+
 class AnnotationsModel {
   final annotationsFocus = FocusNode();
   final List<Stroke> strokes = [];
@@ -33,7 +47,8 @@ class AnnotationsModel {
   final lastErasedStrokes = <Stroke>[];
 
   final currentTool = ValueNotifier<AnnotationTool>(AnnotationTool.draw);
-  late final color = ValueNotifier<Color>(Colors.red);
+  late final color = ValueNotifier<Color>(colorChoices.first);
+  late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
   final opacity = ValueNotifier<double>(0.2);
   final strokeWidth = ValueNotifier<double>(3.0);
   final undoRedoListenable = SimpleNotifier();
@@ -47,6 +62,14 @@ class AnnotationsModel {
     Colors.black,
   ];
 
+  static const underlayColorChoices = <Color>[
+    Colors.transparent,
+    Colors.black,
+    Colors.white,
+    Colors.blueGrey,
+    Color(0xFFDEC4A5),
+  ];
+
   static AnnotationsModel of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<ModelScope<AnnotationsModel>>()!
@@ -57,15 +80,18 @@ class AnnotationsModel {
     currentTool.value = newTool;
   }
 
+  void cycleUnderlayColor() {
+    underlayColor.value = _cycleColorFrom(
+      currentColor: underlayColor.value,
+      list: underlayColorChoices,
+    );
+  }
+
   void cycleColor() {
-    int index = colorChoices.indexOf(color.value);
-    if (index < 0) {
-      debugPrint("color not found");
-      index = -1;
-    }
-    index++;
-    if (index >= colorChoices.length) index = 0;
-    color.value = colorChoices[index];
+    color.value = _cycleColorFrom(
+      currentColor: color.value,
+      list: colorChoices,
+    );
   }
 
   void startNewStroke(Offset position) {
@@ -311,21 +337,39 @@ class AnnotationsBottomBar extends StatelessWidget {
           alignment: AlignmentGeometry.centerRight,
           child: panelMaterial(
             child: SizedBox(
-              height: 220,
+              height: 275,
               width: 60,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Tooltip(
-                  waitDuration: Duration(seconds: 1),
-                  message: "Image Opacity",
-                  child: ListenableSlider(
-                    listenable: model.opacity,
-                    min: 0.0,
-                    max: 1.0,
-                    divisions: 10,
-                    icon: Icons.copy_all,
-                    direction: Axis.vertical,
-                  ),
+                child: Flex(
+                  direction: Axis.vertical,
+                  children: [
+                    Tooltip(
+                      waitDuration: Duration(seconds: 1),
+                      message: "Image Opacity",
+                      child: ListenableSlider(
+                        listenable: model.opacity,
+                        min: 0.0,
+                        max: 1.0,
+                        divisions: 10,
+                        icon: Icons.copy_all,
+                        direction: Axis.vertical,
+                      ),
+                    ),
+                    Divider(),
+                    ValueListenableBuilder(
+                      valueListenable: model.underlayColor,
+                      builder: (_, underlayColorValue, __) {
+                        return IconButton.filledTonal(
+                          tooltip: "Cycle underlay color",
+                          onPressed: () {
+                            model.cycleUnderlayColor();
+                          },
+                          icon: Icon(Icons.square),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
