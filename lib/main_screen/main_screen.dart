@@ -1210,7 +1210,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
                 model.allowCirculatorControl
                     ? nextPreviousGestureButton(
                         width: beforeButtonWidth,
-                        onPressed: () => model.nextImageNewTimer(),
+                        onPressed: () => model.previousImageNewTimer(),
                         child: PfsTheme.beforeGestureIcon,
                       )
                     : SizedBox(width: beforeButtonWidth),
