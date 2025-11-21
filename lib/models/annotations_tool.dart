@@ -224,6 +224,12 @@ class AnnotationsBottomBar extends StatelessWidget {
           bindings: {
             Phshortcuts.redo: model.redo,
             Phshortcuts.undo: model.undo,
+            Phshortcuts.drawToolAnnotations: () =>
+                model.setTool(AnnotationTool.draw),
+            Phshortcuts.eraserToolAnnotations: () =>
+                model.setTool(AnnotationTool.erase),
+            Phshortcuts.cycleAnnotationColors: model.cycleColor,
+            Phshortcuts.clearAnnotations: model.clearAllStrokes,
           },
           child: Focus(
             focusNode: model.annotationsFocus,

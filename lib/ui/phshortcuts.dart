@@ -25,10 +25,12 @@ class Phshortcuts {
   static const zoomOut = SingleActivator(LogicalKeyboardKey.minus);
   static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
 
-  static const toggleAnnotation = SingleActivator(LogicalKeyboardKey.keyN);
+  static const colorMeterMode = SingleActivator(LogicalKeyboardKey.keyI);
+  static const annotationMode = SingleActivator(LogicalKeyboardKey.keyN);
+
+  static const drawToolAnnotations = SingleActivator(LogicalKeyboardKey.keyB);
+  static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
   static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
-  static const backspaceAnnotation =
-      SingleActivator(LogicalKeyboardKey.backspace);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
@@ -119,7 +121,8 @@ class Phshortcuts {
     Phshortcuts.zoomResetNav: ZoomResetIntent(),
     Phshortcuts.copyFile: CopyFileIntent(),
     Phshortcuts.undo: UndoIntent(),
-    Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
+    Phshortcuts.colorMeterMode: ColorMeterOpenIntent(),
+    Phshortcuts.annotationMode: AnnotationToggleIntent(),
     Phshortcuts.clearAnnotations: AnnotationClearIntent(),
     Phshortcuts.cycleAnnotationColors: AnnotationCycleColorsIntent(),
     Phshortcuts.paste: PasteIntent(),
@@ -220,4 +223,8 @@ class CopyFileIntent extends Intent {
 
 class PasteIntent extends Intent {
   const PasteIntent();
+}
+
+class ColorMeterOpenIntent extends Intent {
+  const ColorMeterOpenIntent();
 }
