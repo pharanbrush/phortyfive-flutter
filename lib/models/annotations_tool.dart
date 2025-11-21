@@ -340,8 +340,8 @@ class AnnotationsBottomBar extends StatelessWidget {
                                         model.setTool(AnnotationTool.draw),
                                     icon:
                                         currentToolValue == AnnotationTool.draw
-                                            ? Icon(FluentIcons.edit_12_filled)
-                                            : Icon(FluentIcons.edit_12_regular),
+                                            ? Icon(FluentIcons.edit_20_filled)
+                                            : Icon(FluentIcons.edit_20_regular),
                                   ),
                                   IconButton.filled(
                                     isSelected: currentToolValue ==
