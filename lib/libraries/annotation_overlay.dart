@@ -15,6 +15,20 @@ enum AnnotationType {
   oval,
 }
 
+class PointerToolCallbacks {
+  const PointerToolCallbacks({
+    this.onPointerDown,
+    this.onPointerUpdate,
+    this.onPointerUp,
+  });
+
+  final void Function(Offset position)? onPointerDown;
+  final void Function(Offset position)? onPointerUp;
+  final void Function(Offset position)? onPointerUpdate;
+
+  static const none = PointerToolCallbacks();
+}
+
 class AnnotationOverlay extends StatefulWidget {
   const AnnotationOverlay({
     super.key,
@@ -40,6 +54,20 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   bool initialized = false;
 
+  late final drawTool = PointerToolCallbacks(
+    onPointerDown: (position) => setState(() => model.startNewStroke(position)),
+    onPointerUpdate: (position) =>
+        setState(() => model.addPointToStroke(position)),
+    onPointerUp: (position) => model.commitCurrentStroke(),
+  );
+
+  late final eraseTool = PointerToolCallbacks(
+    onPointerUpdate: (position) => setState(() => model.tryEraseAt(position)),
+    onPointerUp: (position) => model.commitCurrentEraseStroke(),
+  );
+
+  PointerToolCallbacks currentToolCallbacks = PointerToolCallbacks.none;
+
   @override
   void initState() {
     super.initState();
@@ -51,18 +79,29 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     model.color.removeListener(_handleUpdateState);
     model.strokeWidth.removeListener(_handleUpdateState);
     model.undoRedoListenable.removeListener(_handleUpdateState);
+    model.currentTool.removeListener(_handleToolSwitch);
     super.dispose();
   }
 
   void _handleUpdateState() => setState(() {});
+
+  void _handleToolSwitch() {
+    currentToolCallbacks = switch (model.currentTool.value) {
+      AnnotationTool.draw => drawTool,
+      AnnotationTool.erase => eraseTool,
+      _ => PointerToolCallbacks.none,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!initialized) {
       model = AnnotationsModel.of(context);
       model.color.addListener(_handleUpdateState);
+      model.currentTool.addListener(_handleToolSwitch);
       model.strokeWidth.addListener(_handleUpdateState);
       model.undoRedoListenable.addListener(_handleUpdateState);
+      _handleToolSwitch();
       initialized = true;
     }
 
@@ -105,7 +144,8 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    toolPointerDown(details.localPosition);
+                    currentToolCallbacks.onPointerDown
+                        ?.call(details.localPosition);
                   },
                   onPanUpdate: (details) {
                     //debugPrint("onPanUpdate");
@@ -120,7 +160,8 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    toolPointerUpdate(details.localPosition);
+                    currentToolCallbacks.onPointerUpdate
+                        ?.call(details.localPosition);
                   },
                   onPanEnd: (details) {
                     if (Phshortcuts.isPanModifierPressed()) {
@@ -131,7 +172,8 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    toolPointerUp(details.localPosition);
+                    currentToolCallbacks.onPointerUp
+                        ?.call(details.localPosition);
                   },
                   child: CustomPaint(
                     painter: AnnotationPainter(
@@ -207,44 +249,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     }
   }
 
-  // Start a new annotation
-  void toolPointerDown(Offset position) {
-    switch (model.currentTool.value) {
-      case AnnotationTool.draw:
-        setState(() => model.startNewStroke(position));
-      // case AnnotationTool.erase:
-      //   debugPrint("erase down");
-      default:
-        return;
-    }
-  }
-
-  // Draw shape based on the current position
-  void toolPointerUpdate(Offset position) {
-    //TODO have a tool callbacks class to encapsulate this.
-
-    switch (model.currentTool.value) {
-      case AnnotationTool.draw:
-        setState(() => model.addPointToStroke(position));
-      case AnnotationTool.erase:
-        setState(() => model.tryEraseAt(position));
-      default:
-        return;
-    }
-  }
-
-  void toolPointerUp(Offset position) {
-    switch (model.currentTool.value) {
-      case AnnotationTool.draw:
-        model.commitCurrentStroke();
-      case AnnotationTool.erase:
-        model.commitCurrentEraseStroke();
-      default:
-        return;
-    }
-  }
-
-  // Clear all annotations
   void clearAllAnnotations() {
     setState(() => model.clearAllStrokes());
   }
