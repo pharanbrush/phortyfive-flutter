@@ -426,52 +426,51 @@ class ListenableSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
+    //final theme = Theme.of(context);
+    //final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
     final padding = direction == Axis.horizontal
         ? const EdgeInsets.symmetric(horizontal: 10, vertical: 0)
         : const EdgeInsets.symmetric(horizontal: 0, vertical: 10);
 
-    return panelMaterial(
-      child: Padding(
-        padding: padding,
-        child: Flex(
-          spacing: 0,
-          direction: direction,
-          children: [
-            Icon(icon),
-            ValueListenableBuilder(
-                valueListenable: listenable,
-                builder: (___, listenableValue, __) {
-                  final label = switch (labelType) {
-                    PfsSliderLabelType.percent =>
-                      "${(listenableValue * 100).toStringAsFixed(0)}%",
-                    PfsSliderLabelType.fixedOneDecimal =>
-                      listenableValue.toStringAsFixed(1),
-                    _ => null
-                  };
+    return Padding(
+      padding: padding,
+      child: Flex(
+        spacing: 0,
+        direction: direction,
+        children: [
+          Icon(icon, size: 20),
+          ValueListenableBuilder(
+            valueListenable: listenable,
+            builder: (___, listenableValue, __) {
+              final label = switch (labelType) {
+                PfsSliderLabelType.percent =>
+                  "${(listenableValue * 100).toStringAsFixed(0)}%",
+                PfsSliderLabelType.fixedOneDecimal =>
+                  listenableValue.toStringAsFixed(1),
+                _ => null
+              };
 
-                  return RotatedBox(
-                    quarterTurns: direction == Axis.horizontal ? 0 : 3,
-                    child: SizedBox(
-                      height: 15,
-                      width: 150,
-                      child: Slider(
-                        value: listenableValue,
-                        divisions: divisions,
-                        label: label,
-                        min: min,
-                        max: max,
-                        onChanged: (newValue) {
-                          listenable.value = newValue;
-                        },
-                      ),
-                    ),
-                  );
-                }),
-          ],
-        ),
+              return RotatedBox(
+                quarterTurns: direction == Axis.horizontal ? 0 : 3,
+                child: SizedBox(
+                  height: 15,
+                  width: 150,
+                  child: Slider(
+                    value: listenableValue,
+                    divisions: divisions,
+                    label: label,
+                    min: min,
+                    max: max,
+                    onChanged: (newValue) {
+                      listenable.value = newValue;
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
