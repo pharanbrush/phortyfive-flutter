@@ -7,7 +7,7 @@ import 'package:pfs2/models/annotations_tool.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 
-// Based on image_annotation by Mikita Drazdou
+// Heavily modified code from image_annotation by Mikita Drazdou
 
 enum AnnotationType {
   line,
@@ -66,19 +66,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     }
 
     return GestureDetector(
-      onPanDown: (details) {
-        if (Phshortcuts.isPanModifierPressed()) {
-          return;
-        }
-
-        startNewAnnotation();
-        //print("starting annotation");
-        // if (widget.annotationType == 'text') {
-        //   _showTextAnnotationDialog(context, details.localPosition);
-        // } else {
-
-        // }
-      },
       onSecondaryTap: () {
         EscapeNavigator.of(context)?.tryEscape();
       },
@@ -102,6 +89,13 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
               child: ImagePhviewerZoomOnScrollListener(
                 zoomPanner: widget.zoomPanner,
                 child: GestureDetector(
+                  onPanDown: (details) {
+                    if (Phshortcuts.isPanModifierPressed()) {
+                      return;
+                    }
+
+                    startNewStroke(details.localPosition);
+                  },
                   onPanUpdate: (details) {
                     //debugPrint("onPanUpdate");
                     if (Phshortcuts.isPanModifierPressed()) {
@@ -115,7 +109,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    drawShape(details.localPosition);
+                    continueStroke(details.localPosition);
                   },
                   onPanEnd: (details) {
                     if (Phshortcuts.isPanModifierPressed()) {
@@ -129,8 +123,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                   child: CustomPaint(
                     painter: AnnotationPainter(
                       strokeWidth: model.strokeWidth.value,
-                      annotations: model.annotations,
-                      annotationType: widget.annotationType,
+                      strokes: model.strokes,
                       color: model.color.value,
                     ),
                     size: usableImageSize,
@@ -202,34 +195,23 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   }
 
   // Start a new annotation
-  void startNewAnnotation() {
-    setState(() {
-      //print("startNewAnnotation");
-      model.startNewAnnotation();
-      model.commitCurrentAnnotation();
-    });
+  void startNewStroke(Offset position) {
+    setState(() => model.startNewStroke(position));
   }
 
   // Draw shape based on the current position
-  void drawShape(Offset position) {
-    //debugPrint("drawShape");
-    // final isWithinImageBounds = (position.dx >= 0 &&
-    //     position.dy >= 0 &&
-    //     position.dx <= imageSize!.width &&
-    //     position.dy <= imageSize!.height);
-    // if (isWithinImageBounds) {}
-
-    setState(() => model.addPoint(position));
+  void continueStroke(Offset position) {
+    setState(() => model.addPointToStroke(position));
   }
 
   // Clear the last added annotation
   void clearLastAnnotation() {
-    setState(() => model.removeLastAnnotation());
+    setState(() => model.removeLastStroke());
   }
 
   // Clear all annotations
   void clearAllAnnotations() {
-    setState(() => model.clearAllAnnotations());
+    setState(() => model.clearAllStrokes());
   }
 
   //
@@ -242,14 +224,12 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
 class AnnotationPainter extends CustomPainter {
   AnnotationPainter({
-    required this.annotations,
-    required this.annotationType,
+    required this.strokes,
     required this.color,
     required this.strokeWidth,
   });
 
-  final List<List<Offset>> annotations;
-  final AnnotationType annotationType;
+  final List<Stroke> strokes;
   final Color color;
   final double strokeWidth;
 
@@ -263,45 +243,10 @@ class AnnotationPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    for (final annotation in annotations) {
-      if (annotation.isNotEmpty) {
-        if (annotationType == AnnotationType.line) {
-          for (var i = 0; i < annotation.length - 1; i++) {
-            canvas.drawLine(annotation[i], annotation[i + 1], paint);
-          }
-        } else if (annotationType == AnnotationType.rect) {
-          final rect = Rect.fromPoints(annotation.first, annotation.last);
-          canvas.drawRect(rect, paint);
-        } else if (annotationType == AnnotationType.oval) {
-          final oval = Rect.fromPoints(annotation.first, annotation.last);
-          canvas.drawOval(oval, paint);
-        }
-      }
+    for (final stroke in strokes) {
+      canvas.drawPath(stroke.path, paint);
     }
-
-    // drawTextAnnotations(canvas); // Draw text annotations
   }
-
-  // // Draw text annotations on the canvas
-  // void drawTextAnnotations(Canvas canvas) {
-  //   for (var annotation in textAnnotations) {
-  //     final textSpan = TextSpan(
-  //       text: annotation.text,
-  //       style: TextStyle(
-  //           color: annotation.textColor, fontSize: annotation.fontSize),
-  //     );
-  //     final textPainter = TextPainter(
-  //       text: textSpan,
-  //       textDirection: TextDirection.ltr,
-  //     );
-  //     textPainter.layout();
-  //     final textPosition = Offset(
-  //       annotation.position.dx - textPainter.width / 2,
-  //       annotation.position.dy - textPainter.height / 2,
-  //     );
-  //     textPainter.paint(canvas, textPosition);
-  //   }
-  // }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {

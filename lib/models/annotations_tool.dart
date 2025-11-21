@@ -4,10 +4,20 @@ import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
+
+class Stroke {
+  Stroke({
+    //required this.paint,
+    required this.path,
+  });
+  Path path;
+  //Paint paint;
+}
 
 class AnnotationsModel {
-  final List<List<Offset>> annotations = [];
-  List<Offset> currentAnnotation = [];
+  final List<Stroke> strokes = [];
+  Path currentStrokePath = Path();
 
   late final color = ValueNotifier<Color>(Colors.red);
   final opacity = ValueNotifier<double>(0.2);
@@ -38,29 +48,24 @@ class AnnotationsModel {
         .model;
   }
 
-  void startNewAnnotation() {
-    //debugPrint(annotations.length.toString());
-    currentAnnotation = [];
+  void startNewStroke(Offset position) {
+    debugPrint(strokes.length.toString());
+    currentStrokePath = Path()..moveTo(position.dx, position.dy);
+    strokes.add(Stroke(path: currentStrokePath));
   }
 
-  void addPoint(Offset point) {
-    currentAnnotation.add(point);
+  void addPointToStroke(Offset point) {
+    currentStrokePath.lineTo(point.dx, point.dy);
   }
 
-  void commitCurrentAnnotation() {
-    //debugPrint(annotations.length.toString());
-    annotations.add(currentAnnotation);
+  void removeLastStroke() {
+    if (strokes.isEmpty) return;
+
+    strokes.removeLast();
   }
 
-  void removeLastAnnotation() {
-    if (annotations.isEmpty) return;
-
-    annotations.removeLast();
-  }
-
-  void clearAllAnnotations() {
-    annotations.clear();
-    startNewAnnotation();
+  void clearAllStrokes() {
+    strokes.clear();
   }
 }
 
