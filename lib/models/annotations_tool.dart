@@ -35,7 +35,7 @@ class AnnotationsModel {
   final currentTool = ValueNotifier<AnnotationTool>(AnnotationTool.draw);
   late final color = ValueNotifier<Color>(Colors.red);
   final opacity = ValueNotifier<double>(0.2);
-  final strokeWidth = ValueNotifier<double>(1.0);
+  final strokeWidth = ValueNotifier<double>(3.0);
   final undoRedoListenable = SimpleNotifier();
 
   static const colorChoices = <Color>[
@@ -215,7 +215,7 @@ class AnnotationsBottomBar extends StatelessWidget {
 
     const double brushSizeMin = 0.5;
     const double brushSizeIntervals = brushSizeMin;
-    const double brushSizeMax = 6;
+    const double brushSizeMax = 8;
     final int brushSizeDivisions = (brushSizeMax / brushSizeIntervals).floor();
 
     return Stack(
@@ -240,13 +240,45 @@ class AnnotationsBottomBar extends StatelessWidget {
           alignment: AlignmentGeometry.centerLeft,
           child: panelMaterial(
             child: SizedBox(
-              height: 250,
+              height: 350,
               width: 50,
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Flex(
                   direction: Axis.vertical,
                   children: [
+                    ValueListenableBuilder(
+                      valueListenable: model.currentTool,
+                      builder: (_, currentToolValue, __) {
+                        return Flex(
+                          direction: Axis.vertical,
+                          children: [
+                            IconButton.filled(
+                              tooltip: "Draw",
+                              isSelected:
+                                  currentToolValue == AnnotationTool.draw,
+                              onPressed: () =>
+                                  model.setTool(AnnotationTool.draw),
+                              icon: currentToolValue == AnnotationTool.draw
+                                  ? Icon(FluentIcons.edit_20_filled)
+                                  : Icon(FluentIcons.edit_20_regular),
+                            ),
+                            IconButton.filled(
+                              tooltip: "Erase",
+                              isSelected:
+                                  currentToolValue == AnnotationTool.erase,
+                              onPressed: () =>
+                                  model.setTool(AnnotationTool.erase),
+                              icon: currentToolValue == AnnotationTool.erase
+                                  ? Icon(FluentIcons.eraser_20_filled)
+                                  : Icon(FluentIcons.eraser_20_regular),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    //SizedBox(height: 8),
+                    Divider(),
                     ListenableSlider(
                       listenable: model.strokeWidth,
                       min: brushSizeMin,
@@ -255,6 +287,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                       icon: Icons.brush,
                       direction: Axis.vertical,
                     ),
+                    Divider(),
                     ValueListenableBuilder(
                       valueListenable: model.color,
                       builder: (_, modelColorValue, __) {
@@ -278,18 +311,21 @@ class AnnotationsBottomBar extends StatelessWidget {
           alignment: AlignmentGeometry.centerRight,
           child: panelMaterial(
             child: SizedBox(
-              height: 200,
-              width: 50,
-              child: Tooltip(
-                waitDuration: Duration(seconds: 1),
-                message: "Image Opacity",
-                child: ListenableSlider(
-                  listenable: model.opacity,
-                  min: 0.0,
-                  max: 1.0,
-                  divisions: 10,
-                  icon: Icons.copy_all,
-                  direction: Axis.vertical,
+              height: 220,
+              width: 60,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Tooltip(
+                  waitDuration: Duration(seconds: 1),
+                  message: "Image Opacity",
+                  child: ListenableSlider(
+                    listenable: model.opacity,
+                    min: 0.0,
+                    max: 1.0,
+                    divisions: 10,
+                    icon: Icons.copy_all,
+                    direction: Axis.vertical,
+                  ),
                 ),
               ),
             ),
@@ -347,35 +383,6 @@ class AnnotationsBottomBar extends StatelessWidget {
                             Icons.delete,
                           ),
                         ),
-                        ValueListenableBuilder(
-                            valueListenable: model.currentTool,
-                            builder: (_, currentToolValue, __) {
-                              return Flex(
-                                direction: Axis.horizontal,
-                                children: [
-                                  IconButton.filled(
-                                    isSelected:
-                                        currentToolValue == AnnotationTool.draw,
-                                    onPressed: () =>
-                                        model.setTool(AnnotationTool.draw),
-                                    icon:
-                                        currentToolValue == AnnotationTool.draw
-                                            ? Icon(FluentIcons.edit_20_filled)
-                                            : Icon(FluentIcons.edit_20_regular),
-                                  ),
-                                  IconButton.filled(
-                                    isSelected: currentToolValue ==
-                                        AnnotationTool.erase,
-                                    onPressed: () =>
-                                        model.setTool(AnnotationTool.erase),
-                                    icon: currentToolValue ==
-                                            AnnotationTool.erase
-                                        ? Icon(FluentIcons.eraser_20_filled)
-                                        : Icon(FluentIcons.eraser_20_regular),
-                                  ),
-                                ],
-                              );
-                            })
                       ],
                     ),
                   ),
