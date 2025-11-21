@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
+import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -242,7 +245,6 @@ class AnnotationsBottomBar extends StatelessWidget {
     const double brushSizeMin = 0.5;
     const double brushSizeIntervals = brushSizeMin;
     const double brushSizeMax = 8;
-    final int brushSizeDivisions = (brushSizeMax / brushSizeIntervals).floor();
 
     return Stack(
       children: [
@@ -309,7 +311,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                       listenable: model.strokeWidth,
                       min: brushSizeMin,
                       max: brushSizeMax,
-                      divisions: brushSizeDivisions,
+                      interval: brushSizeIntervals,
                       icon: Icons.brush,
                       direction: Axis.vertical,
                     ),
@@ -351,7 +353,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                         listenable: model.opacity,
                         min: 0.0,
                         max: 1.0,
-                        divisions: 10,
+                        interval: 0.1,
                         icon: Icons.copy_all,
                         direction: Axis.vertical,
                       ),
@@ -461,7 +463,7 @@ class ListenableSlider extends StatelessWidget {
     required this.listenable,
     required this.min,
     required this.max,
-    required this.divisions,
+    required this.interval,
     required this.icon,
     this.direction = Axis.horizontal,
     this.labelType = PfsSliderLabelType.none,
@@ -471,7 +473,7 @@ class ListenableSlider extends StatelessWidget {
   final ValueNotifier<double> listenable;
   final double min;
   final double max;
-  final int divisions;
+  final double interval;
   final IconData icon;
   final PfsSliderLabelType labelType;
 
@@ -484,44 +486,55 @@ class ListenableSlider extends StatelessWidget {
         ? const EdgeInsets.symmetric(horizontal: 10, vertical: 0)
         : const EdgeInsets.symmetric(horizontal: 0, vertical: 10);
 
-    return Padding(
-      padding: padding,
-      child: Flex(
-        spacing: 0,
-        direction: direction,
-        children: [
-          Icon(icon, size: 20),
-          ValueListenableBuilder(
-            valueListenable: listenable,
-            builder: (___, listenableValue, __) {
-              final label = switch (labelType) {
-                PfsSliderLabelType.percent =>
-                  "${(listenableValue * 100).toStringAsFixed(0)}%",
-                PfsSliderLabelType.fixedOneDecimal =>
-                  listenableValue.toStringAsFixed(1),
-                _ => null
-              };
+    final int divisions = ((max - min) / interval).floor();
 
-              return RotatedBox(
-                quarterTurns: direction == Axis.horizontal ? 0 : 3,
-                child: SizedBox(
-                  height: 15,
-                  width: 150,
-                  child: Slider(
-                    value: listenableValue,
-                    divisions: divisions,
-                    label: label,
-                    min: min,
-                    max: max,
-                    onChanged: (newValue) {
-                      listenable.value = newValue;
-                    },
+    void setListenableValueClamped(double newValue) {
+      listenable.value = math.min(max, math.max(min, newValue));
+    }
+
+    return ScrollListener(
+      onScrollDown: () =>
+          setListenableValueClamped(listenable.value - interval),
+      onScrollUp: () => setListenableValueClamped(listenable.value + interval),
+      child: Padding(
+        padding: padding,
+        child: Flex(
+          spacing: 0,
+          direction: direction,
+          children: [
+            Icon(icon, size: 20),
+            ValueListenableBuilder(
+              valueListenable: listenable,
+              builder: (___, listenableValue, __) {
+                final label = switch (labelType) {
+                  PfsSliderLabelType.percent =>
+                    "${(listenableValue * 100).toStringAsFixed(0)}%",
+                  PfsSliderLabelType.fixedOneDecimal =>
+                    listenableValue.toStringAsFixed(1),
+                  _ => null
+                };
+
+                return RotatedBox(
+                  quarterTurns: direction == Axis.horizontal ? 0 : 3,
+                  child: SizedBox(
+                    height: 15,
+                    width: 150,
+                    child: Slider(
+                      value: listenableValue,
+                      divisions: divisions,
+                      label: label,
+                      min: min,
+                      max: max,
+                      onChanged: (newValue) {
+                        listenable.value = newValue;
+                      },
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
