@@ -42,6 +42,7 @@ mixin MainScreenColorMeter on MainScreenPanels {
     onClosed: () {
       colorMeterModel.endColorMeter();
       onColorMeterExit?.call();
+      returnToHomeMode();
     },
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,

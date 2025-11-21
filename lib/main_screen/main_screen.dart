@@ -501,6 +501,11 @@ class _MainScreenState extends State<MainScreen>
     showAlwaysOnTopToast();
   }
 
+  @override
+  void returnToHomeMode() {
+    setAppMode(PfsAppControlsMode.imageBrowse);
+  }
+
   void _handleSoundChanged() {
     void showSoundToggleToast() {
       final bool wasEnabled = windowState.isSoundsEnabled.value;
@@ -536,6 +541,16 @@ class _MainScreenState extends State<MainScreen>
       case PfsAppControlsMode.annotation:
         debugPrint("now trying to open annotation panel");
         annotationPanel.open();
+        EscapeNavigator.of(context)?.push(
+          EscapeRoute(
+            name: "Annotation",
+            onEscape: () {
+              annotationPanel.close();
+              setAppMode(PfsAppControlsMode.imageBrowse);
+            },
+            willPopOnEscape: true,
+          ),
+        );
 
       default:
         return;
@@ -644,16 +659,6 @@ class _MainScreenState extends State<MainScreen>
                 value: () {
                   debugPrint("Trying to switch to annotate mode");
                   setAppMode(PfsAppControlsMode.annotation);
-                  EscapeNavigator.of(context)?.push(
-                    EscapeRoute(
-                      name: "Annotation",
-                      onEscape: () {
-                        annotationPanel.close();
-                        setAppMode(PfsAppControlsMode.imageBrowse);
-                      },
-                      willPopOnEscape: true,
-                    ),
-                  );
                 },
               ),
             ],
@@ -931,6 +936,8 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
 mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<String> getThemeNotifier();
+
+  void returnToHomeMode();
 
   late final ModalPanel filtersMenu = ModalPanel(
     onBeforeOpen: () {

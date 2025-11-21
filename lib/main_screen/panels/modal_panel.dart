@@ -48,12 +48,14 @@ class ModalPanel {
   ValueListenable<bool> get openStateListenable => _isOpen;
 
   void open() {
+    if (isOpen) return;
     onBeforeOpen?.call();
     _isOpen.value = true;
     onOpened?.call();
   }
 
   void close() {
+    if (!isOpen) return;
     _isOpen.value = false;
     onClosed?.call();
   }

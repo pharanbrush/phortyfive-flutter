@@ -71,13 +71,15 @@ class AnnotationsModel {
 
 mixin MainScreenAnnotations on MainScreenPanels {
   void Function()? onAnnotationToolExit;
+  static const annotationPanelId = "annotation panel";
 
   late final ModalPanel annotationPanel = ModalPanel(
-    onBeforeOpen: () => closeAllPanels(except: annotationPanel),
+    onBeforeOpen: () {
+      closeAllPanels(except: annotationPanel);
+    },
     onClosed: () {
-      //colorMeterModel.endColorMeter();
-      //onColorMeterExit?.call();
       onAnnotationToolExit?.call();
+      returnToHomeMode();
     },
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,
