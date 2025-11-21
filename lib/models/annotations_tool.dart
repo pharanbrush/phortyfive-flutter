@@ -1,3 +1,4 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
@@ -5,6 +6,12 @@ import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
+
+enum AnnotationTool {
+  none,
+  draw,
+  erase,
+}
 
 class Stroke {
   Stroke({
@@ -19,6 +26,7 @@ class AnnotationsModel {
   final List<Stroke> strokes = [];
   Path currentStrokePath = Path();
 
+  final currentTool = ValueNotifier<AnnotationTool>(AnnotationTool.draw);
   late final color = ValueNotifier<Color>(Colors.red);
   final opacity = ValueNotifier<double>(0.2);
   final strokeWidth = ValueNotifier<double>(1.0);
@@ -32,31 +40,51 @@ class AnnotationsModel {
     Colors.black,
   ];
 
-  void cycleColor() {
-    int index = colorChoices.indexOf(color.value);
-    if (index < 0) {
-      debugPrint("color not found");
-      return;
-    }
-    index++;
-    if (index >= colorChoices.length) index = 0;
-    color.value = colorChoices[index];
-  }
-
   static AnnotationsModel of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<ModelScope<AnnotationsModel>>()!
         .model;
   }
 
+  void setTool(AnnotationTool newTool) {
+    currentTool.value = newTool;
+  }
+
+  void cycleColor() {
+    int index = colorChoices.indexOf(color.value);
+    if (index < 0) {
+      debugPrint("color not found");
+      index = -1;
+    }
+    index++;
+    if (index >= colorChoices.length) index = 0;
+    color.value = colorChoices[index];
+  }
+
   void startNewStroke(Offset position) {
-    debugPrint(strokes.length.toString());
+    // debugPrint(strokes.length.toString());
     currentStrokePath = Path()..moveTo(position.dx, position.dy);
     strokes.add(Stroke(path: currentStrokePath));
   }
 
   void addPointToStroke(Offset point) {
     currentStrokePath.lineTo(point.dx, point.dy);
+  }
+
+  void tryEraseAt(Offset point) {
+    strokes.removeWhere((stroke) => hitTestStroke(stroke, point, 3.0));
+  }
+
+  static bool hitTestStroke(Stroke stroke, Offset point, double tolerance) {
+    for (final metric in stroke.path.computeMetrics()) {
+      for (double d = 0; d < metric.length; d += tolerance) {
+        final pos = metric.getTangentForOffset(d)!.position;
+        if ((pos - point).distance <= tolerance) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   void removeLastStroke() {
@@ -209,6 +237,35 @@ class AnnotationsBottomBar extends StatelessWidget {
                             Icons.delete,
                           ),
                         ),
+                        ValueListenableBuilder(
+                            valueListenable: model.currentTool,
+                            builder: (_, currentToolValue, __) {
+                              return Flex(
+                                direction: Axis.horizontal,
+                                children: [
+                                  IconButton.filled(
+                                    isSelected:
+                                        currentToolValue == AnnotationTool.draw,
+                                    onPressed: () =>
+                                        model.setTool(AnnotationTool.draw),
+                                    icon:
+                                        currentToolValue == AnnotationTool.draw
+                                            ? Icon(FluentIcons.edit_12_filled)
+                                            : Icon(FluentIcons.edit_12_regular),
+                                  ),
+                                  IconButton.filled(
+                                    isSelected: currentToolValue ==
+                                        AnnotationTool.erase,
+                                    onPressed: () =>
+                                        model.setTool(AnnotationTool.erase),
+                                    icon: currentToolValue ==
+                                            AnnotationTool.erase
+                                        ? Icon(FluentIcons.eraser_20_filled)
+                                        : Icon(FluentIcons.eraser_20_regular),
+                                  ),
+                                ],
+                              );
+                            })
                       ],
                     ),
                   ),

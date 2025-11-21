@@ -103,12 +103,12 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    startNewStroke(details.localPosition);
+                    toolPointerDown(details.localPosition);
                   },
                   onPanUpdate: (details) {
                     //debugPrint("onPanUpdate");
                     if (Phshortcuts.isPanModifierPressed()) {
-                      debugPrint("trying to pan");
+                      // debugPrint("trying to pan");
                       ImagePhviewerPanListener.handlePanUpdate(
                         details: details,
                         zoomPanner: widget.zoomPanner,
@@ -118,7 +118,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                       return;
                     }
 
-                    continueStroke(details.localPosition);
+                    toolPointerUpdate(details.localPosition);
                   },
                   onPanEnd: (details) {
                     if (Phshortcuts.isPanModifierPressed()) {
@@ -204,13 +204,28 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   }
 
   // Start a new annotation
-  void startNewStroke(Offset position) {
-    setState(() => model.startNewStroke(position));
+  void toolPointerDown(Offset position) {
+    switch (model.currentTool.value) {
+      case AnnotationTool.draw:
+        setState(() => model.startNewStroke(position));
+      // case AnnotationTool.erase:
+      //   debugPrint("erase down");
+      default:
+        return;
+    }
   }
 
   // Draw shape based on the current position
-  void continueStroke(Offset position) {
-    setState(() => model.addPointToStroke(position));
+  void toolPointerUpdate(Offset position) {
+    //TODO have a tool callbacks class to encapsulate this.
+    switch (model.currentTool.value) {
+      case AnnotationTool.draw:
+        setState(() => model.addPointToStroke(position));
+      case AnnotationTool.erase:
+        setState(() => model.tryEraseAt(position));
+      default:
+        return;
+    }
   }
 
   // Clear the last added annotation
@@ -250,6 +265,7 @@ class AnnotationPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..isAntiAlias = true
       ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
 
     for (final stroke in strokes) {
