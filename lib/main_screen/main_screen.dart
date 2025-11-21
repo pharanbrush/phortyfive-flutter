@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -646,19 +647,19 @@ class _MainScreenState extends State<MainScreen>
         return [
           PfsPopupMenuButton<VoidCallback?>(
             tooltip: "Tools",
-            icon: const Icon(Icons.pageview_outlined),
+            //icon: const Icon(Icons.pageview_outlined),
             onSelected: (value) => value?.call(),
             itemBuilder: (context) => [
               PfsPopupMenuItem(
                 child: IconAndText(
-                  icon: Icons.colorize,
+                  icon: FluentIcons.eyedropper_16_filled,
                   text: PfsLocalization.colorChangeMeter,
                 ),
                 value: () => setAppMode(PfsAppControlsMode.colorMeter),
               ),
               PfsPopupMenuItem(
                 child: IconAndText(
-                  icon: Icons.edit_outlined,
+                  icon: FluentIcons.whiteboard_16_filled,
                   text: "Annotate",
                 ),
                 value: () {

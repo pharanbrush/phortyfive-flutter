@@ -292,14 +292,14 @@ class AnnotationsBottomBar extends StatelessWidget {
                                   : Icon(FluentIcons.edit_20_regular),
                             ),
                             IconButton.filled(
-                              tooltip: "Erase",
+                              tooltip: "Stroke Eraser",
                               isSelected:
                                   currentToolValue == AnnotationTool.erase,
                               onPressed: () =>
                                   model.setTool(AnnotationTool.erase),
                               icon: currentToolValue == AnnotationTool.erase
-                                  ? Icon(FluentIcons.eraser_20_filled)
-                                  : Icon(FluentIcons.eraser_20_regular),
+                                  ? Icon(FluentIcons.eraser_segment_20_filled)
+                                  : Icon(FluentIcons.eraser_segment_20_regular),
                             ),
                           ],
                         );
