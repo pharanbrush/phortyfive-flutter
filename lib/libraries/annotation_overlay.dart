@@ -47,11 +47,20 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   }
 
   @override
+  void dispose() {
+    model.color.removeListener(_handleUpdateState);
+    model.strokeWidth.removeListener(_handleUpdateState);
+    super.dispose();
+  }
+
+  void _handleUpdateState() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
     if (!initialized) {
       model = AnnotationsModel.of(context);
-      model.color.addListener(() => setState(() {}));
-      model.strokeWidth.addListener(() => setState(() {}));
+      model.color.addListener(_handleUpdateState);
+      model.strokeWidth.addListener(_handleUpdateState);
       initialized = true;
     }
 
