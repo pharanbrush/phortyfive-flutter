@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/models/annotations_tool.dart';
-import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 
 // Heavily modified code from image_annotation by Mikita Drazdou
@@ -115,90 +114,80 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       return const CircularProgressIndicator(); // Placeholder or loading indicator while the image size and offset are being retrieved
     }
 
-    return GestureDetector(
-      onSecondaryTap: () {
-        EscapeNavigator.of(context)?.tryEscape();
-      },
-      child: RepaintBoundary(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ValueListenableBuilder(
-                valueListenable: model.underlayColor,
-                builder: (_, modelUnderlayColor, __) {
-                  return AnimatedContainer(
-                    color: modelUnderlayColor,
-                    duration: Durations.medium1,
-                  );
-                },
-              ),
+    return RepaintBoundary(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ValueListenableBuilder(
+              valueListenable: model.underlayColor,
+              builder: (_, modelUnderlayColor, __) {
+                return AnimatedContainer(
+                  color: modelUnderlayColor,
+                  duration: Durations.medium1,
+                );
+              },
             ),
-            Center(
-              child: ValueListenableBuilder(
-                valueListenable: model.opacity,
-                builder: (_, opacityValue, __) {
-                  return Opacity(
-                    opacity: opacityValue,
-                    child: widget.child,
-                  );
-                },
-              ),
+          ),
+          Center(
+            child: ValueListenableBuilder(
+              valueListenable: model.opacity,
+              builder: (_, opacityValue, __) {
+                return Opacity(
+                  opacity: opacityValue,
+                  child: widget.child,
+                );
+              },
             ),
-            Center(
-              // left: imageOffset!.dx,
-              // top: imageOffset!.dy,
-              child: ImagePhviewerZoomOnScrollListener(
-                zoomPanner: widget.zoomPanner,
-                child: GestureDetector(
-                  onPanDown: (details) {
-                    if (Phshortcuts.isPanModifierPressed()) {
-                      return;
-                    }
+          ),
+          Center(
+            // left: imageOffset!.dx,
+            // top: imageOffset!.dy,
+            child: GestureDetector(
+              onPanDown: (details) {
+                if (Phshortcuts.isPanModifierPressed()) {
+                  return;
+                }
 
-                    currentToolCallbacks.onPointerDown
-                        ?.call(details.localPosition);
-                  },
-                  onPanUpdate: (details) {
-                    //debugPrint("onPanUpdate");
-                    if (Phshortcuts.isPanModifierPressed()) {
-                      // debugPrint("trying to pan");
-                      ImagePhviewerPanListener.handlePanUpdate(
-                        details: details,
-                        zoomPanner: widget.zoomPanner,
-                        useZoomPannerScale: true,
-                      );
+                currentToolCallbacks.onPointerDown?.call(details.localPosition);
+              },
+              onPanUpdate: (details) {
+                //debugPrint("onPanUpdate");
+                if (Phshortcuts.isPanModifierPressed()) {
+                  // debugPrint("trying to pan");
+                  ImagePhviewerPanListener.handlePanUpdate(
+                    details: details,
+                    zoomPanner: widget.zoomPanner,
+                    useZoomPannerScale: true,
+                  );
 
-                      return;
-                    }
+                  return;
+                }
 
-                    currentToolCallbacks.onPointerUpdate
-                        ?.call(details.localPosition);
-                  },
-                  onPanEnd: (details) {
-                    if (Phshortcuts.isPanModifierPressed()) {
-                      ImagePhviewerPanListener.handlePanEnd(
-                        details: details,
-                        zoomPanner: widget.zoomPanner,
-                      );
-                      return;
-                    }
+                currentToolCallbacks.onPointerUpdate
+                    ?.call(details.localPosition);
+              },
+              onPanEnd: (details) {
+                if (Phshortcuts.isPanModifierPressed()) {
+                  ImagePhviewerPanListener.handlePanEnd(
+                    details: details,
+                    zoomPanner: widget.zoomPanner,
+                  );
+                  return;
+                }
 
-                    currentToolCallbacks.onPointerUp
-                        ?.call(details.localPosition);
-                  },
-                  child: CustomPaint(
-                    painter: AnnotationPainter(
-                      strokeWidth: model.strokeWidth.value,
-                      strokes: model.strokes,
-                      color: model.color.value,
-                    ),
-                    size: usableImageSize,
-                  ),
+                currentToolCallbacks.onPointerUp?.call(details.localPosition);
+              },
+              child: CustomPaint(
+                painter: AnnotationPainter(
+                  strokeWidth: model.strokeWidth.value,
+                  strokes: model.strokes,
+                  color: model.color.value,
                 ),
+                size: usableImageSize,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
