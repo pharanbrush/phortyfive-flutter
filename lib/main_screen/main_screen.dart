@@ -526,6 +526,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleAppControlsChanged() {
+    debugPrint("app controls is now: (${currentAppControlsMode.value})");
 
     final newAppMode = currentAppControlsMode.value;
 
@@ -863,6 +864,8 @@ mixin MainScreenModels on State<MainScreen> {
       ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
 
   void setAppMode(PfsAppControlsMode newMode) {
+    debugPrint("setAppMode called with ($newMode)");
+
     final oldValue = currentAppControlsMode.value;
 
     if (oldValue == PfsAppControlsMode.imageBrowse) {
