@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart';
