@@ -7,14 +7,20 @@ class ScrollListener extends StatelessWidget {
     this.onScrollDown,
     this.onScrollUp,
     required this.child,
+    this.behavior = HitTestBehavior.deferToChild,
   });
 
   final Function()? onScrollUp, onScrollDown;
   final Widget? child;
+  final HitTestBehavior behavior;
 
   @override
   Widget build(BuildContext context) {
-    return Listener(onPointerSignal: _handlePointerSignal, child: child);
+    return Listener(
+      behavior: behavior,
+      onPointerSignal: _handlePointerSignal,
+      child: child,
+    );
   }
 
   void _handlePointerSignal(PointerSignalEvent pointerEvent) {
