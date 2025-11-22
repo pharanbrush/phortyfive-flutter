@@ -387,16 +387,22 @@ class AnnotationsBottomBar extends StatelessWidget {
                         builder: (context, underlayColorValue, __) {
                           final theme = Theme.of(context);
 
-                          return Material(
-                            color: underlayColorValue,
-                            shape: theme.buttonTheme.shape,
-                            child: IconButton.filledTonal(
-                              tooltip: "Cycle underlay color",
-                              onPressed: () {
-                                model.cycleUnderlayColor();
-                              },
-                              color: theme.colorScheme.primary,
-                              icon: Icon(Icons.crop_square),
+                          return IconButton(
+                            tooltip: "Cycle underlay color",
+                            onPressed: () {
+                              model.cycleUnderlayColor();
+                            },
+                            icon: Stack(
+                              children: [
+                                Icon(
+                                  FluentIcons.square_16_filled,
+                                  color: underlayColorValue,
+                                ),
+                                Icon(
+                                  FluentIcons.square_16_regular,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ],
                             ),
                           );
                         },
