@@ -745,14 +745,17 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
     super.key,
     required this.child,
     required this.zoomPanner,
+    this.behavior = HitTestBehavior.deferToChild,
   });
 
   final Widget child;
   final ImageZoomPanner zoomPanner;
+  final HitTestBehavior behavior;
 
   @override
   Widget build(BuildContext context) {
     return ScrollListener(
+      behavior: behavior,
       onScrollDown: () => zoomPanner.incrementZoomLevel(-1),
       onScrollUp: () => zoomPanner.incrementZoomLevel(1),
       child: child,
