@@ -61,7 +61,7 @@ class AnnotationsModel {
     Colors.red,
     Colors.orange,
     Colors.blue,
-    Colors.deepPurpleAccent,
+    Color(0xFF5644B3),
     Colors.white,
     Colors.black,
   ];
