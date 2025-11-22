@@ -177,13 +177,19 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
                 currentToolCallbacks.onPointerUp?.call(details.localPosition);
               },
-              child: CustomPaint(
-                painter: AnnotationPainter(
-                  strokeWidth: model.strokeWidth.value,
-                  strokes: model.strokes,
-                  color: model.color.value,
-                ),
-                size: usableImageSize,
+              child: ValueListenableBuilder(
+                valueListenable: model.isStrokesVisible,
+                builder: (_, isStrokesVisibleValue, ___) {
+                  return CustomPaint(
+                    painter: AnnotationPainter(
+                      strokeWidth: model.strokeWidth.value,
+                      strokes: model.strokes,
+                      color: model.color.value,
+                      isStrokesVisible: isStrokesVisibleValue,
+                    ),
+                    size: usableImageSize,
+                  );
+                },
               ),
             ),
           ),
@@ -266,15 +272,19 @@ class AnnotationPainter extends CustomPainter {
     required this.strokes,
     required this.color,
     required this.strokeWidth,
+    required this.isStrokesVisible,
   });
 
   final List<Stroke> strokes;
   final Color color;
   final double strokeWidth;
+  final bool isStrokesVisible;
 
   // Paint annotations and text on the canvas
   @override
   void paint(Canvas canvas, Size size) {
+    if (!isStrokesVisible) return;
+
     final paint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth

@@ -55,6 +55,7 @@ class AnnotationsModel {
   late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
   final opacity = ValueNotifier<double>(0.2);
   final strokeWidth = ValueNotifier<double>(3.0);
+  final isStrokesVisible = ValueNotifier(true);
   final undoRedoListenable = SimpleNotifier();
 
   static const colorChoices = <Color>[
