@@ -141,7 +141,7 @@ class _MainScreenState extends State<MainScreen>
       EscapeRoute(
         name: "home",
         onEscape: () {
-          setAppMode(PfsAppControlsMode.imageBrowse);
+          returnToHomeMode();
           closeAllPanels();
         },
         willPopOnEscape: false,
@@ -383,7 +383,7 @@ class _MainScreenState extends State<MainScreen>
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
     onColorMeterExit = () {
-      setAppMode(PfsAppControlsMode.imageBrowse);
+      returnToHomeMode();
     };
   }
 
@@ -537,7 +537,7 @@ class _MainScreenState extends State<MainScreen>
         } else {
           debugPrint(
               "image widget not found. canceled opening color meter panel");
-          setAppMode(PfsAppControlsMode.imageBrowse);
+          returnToHomeMode();
         }
 
       case PfsAppControlsMode.annotation:
@@ -552,7 +552,7 @@ class _MainScreenState extends State<MainScreen>
             name: "Annotation",
             onEscape: () {
               annotationPanel.close();
-              setAppMode(PfsAppControlsMode.imageBrowse);
+              returnToHomeMode();
             },
             willPopOnEscape: true,
           ),
