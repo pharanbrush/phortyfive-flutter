@@ -11,6 +11,7 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -559,6 +560,28 @@ class ImageViewerStackWidget extends StatelessWidget {
                     },
                   ),
                 ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: currentAppControlsMode,
+                builder: (_, appControlsModeValue, __) {
+                  if (appControlsModeValue != PfsAppControlsMode.annotation) {
+                    return SizedBox.shrink();
+                  }
+
+                  final translucent = HitTestBehavior.translucent;
+
+                  return GestureDetector(
+                    behavior: translucent,
+                    onSecondaryTap: () {
+                      EscapeNavigator.of(context)?.tryEscape();
+                    },
+                    child: ImagePhviewerZoomOnScrollListener(
+                      behavior: translucent,
+                      zoomPanner: zoomPanner,
+                      child: SizedBox.expand(),
+                    ),
+                  );
+                },
               ),
               ValueListenableBuilder(
                 valueListenable: filters.blurLevelListenable,
