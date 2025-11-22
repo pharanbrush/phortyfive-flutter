@@ -61,6 +61,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   );
 
   late final eraseTool = PointerToolCallbacks(
+    onPointerDown: (position) => model.startEraseStrokeDoNothing(position),
     onPointerUpdate: (position) => setState(() => model.tryEraseAt(position)),
     onPointerUp: (position) => model.commitCurrentEraseStroke(),
   );

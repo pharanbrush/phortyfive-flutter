@@ -58,6 +58,9 @@ class AnnotationsModel {
   final isStrokesVisible = ValueNotifier(true);
   final undoRedoListenable = SimpleNotifier();
 
+  final visibilityPulseListenable = SimpleNotifier();
+  final eraserPulseListenable = SimpleNotifier();
+
   static const colorChoices = <Color>[
     Colors.red,
     Colors.orange,
@@ -85,6 +88,10 @@ class AnnotationsModel {
         .model;
   }
 
+  void showVisibilityUnusualHint() {
+    visibilityPulseListenable.notify();
+  }
+
   void toggleStrokesVisibility() {
     isStrokesVisible.value = !isStrokesVisible.value;
   }
@@ -107,8 +114,15 @@ class AnnotationsModel {
     );
   }
 
+  void showStrokesLockedHint() {
+    if (!isStrokesVisible.value) showVisibilityUnusualHint();
+  }
+
   void startNewStroke(Offset position) {
-    if (isStrokesLocked) return;
+    if (isStrokesLocked) {
+      showStrokesLockedHint();
+      return;
+    }
     // debugPrint(strokes.length.toString());
     currentStrokePath = Path()..moveTo(position.dx, position.dy);
     strokes.add(Stroke(path: currentStrokePath));
@@ -117,6 +131,18 @@ class AnnotationsModel {
   void addPointToStroke(Offset point) {
     if (isStrokesLocked) return;
     currentStrokePath.lineTo(point.dx, point.dy);
+  }
+
+  void startEraseStrokeDoNothing(Offset point) {
+    if (isStrokesLocked) {
+      showStrokesLockedHint();
+      return;
+    }
+
+    if (strokes.isEmpty) {
+      eraserPulseListenable.notify();
+      return;
+    }
   }
 
   void commitCurrentStroke() {
@@ -327,9 +353,13 @@ class AnnotationsBottomBar extends StatelessWidget {
                                 currentToolValue == AnnotationTool.erase,
                             onPressed: () =>
                                 model.setTool(AnnotationTool.erase),
-                            icon: currentToolValue == AnnotationTool.erase
-                                ? Icon(FluentIcons.eraser_segment_20_filled)
-                                : Icon(FluentIcons.eraser_segment_20_regular),
+                            icon: AnimateOnListenable(
+                              listenable: model.eraserPulseListenable,
+                              effects: [Phanimations.toolPulseEffect],
+                              child: currentToolValue == AnnotationTool.erase
+                                  ? Icon(FluentIcons.eraser_segment_20_filled)
+                                  : Icon(FluentIcons.eraser_segment_20_regular),
+                            ),
                           ),
                         ],
                       );
@@ -430,16 +460,20 @@ class AnnotationsBottomBar extends StatelessWidget {
                       return IconButton(
                         tooltip: "Toggle strokes visibility",
                         onPressed: () => model.toggleStrokesVisibility(),
-                        icon: isStrokesVisibleValue
-                            ? Icon(
-                                Icons.visibility_outlined,
-                                size: visibilityIconSize,
-                              )
-                            : Icon(
-                                size: visibilityIconSize,
-                                Icons.visibility_off,
-                                color: Colors.red,
-                              ),
+                        icon: AnimateOnListenable(
+                          listenable: model.visibilityPulseListenable,
+                          effects: [Phanimations.toolPulseEffect],
+                          child: isStrokesVisibleValue
+                              ? Icon(
+                                  Icons.visibility_outlined,
+                                  size: visibilityIconSize,
+                                )
+                              : Icon(
+                                  size: visibilityIconSize,
+                                  Icons.visibility_off,
+                                  color: Colors.red,
+                                ),
+                        ),
                       );
                     },
                   ),
