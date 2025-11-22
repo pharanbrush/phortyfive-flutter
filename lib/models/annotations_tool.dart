@@ -237,6 +237,9 @@ class AnnotationsBottomBar extends StatelessWidget {
     final theme = Theme.of(context);
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
+    final smallNumberLabelStyle =
+        theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.outline);
+
     final model = AnnotationsModel.of(context);
 
     const double edgeOverflow = 10;
@@ -319,31 +322,62 @@ class AnnotationsBottomBar extends StatelessWidget {
                           );
                         },
                       ),
-                      //SizedBox(height: 8),
                       Divider(),
+                      ValueListenableBuilder(
+                        valueListenable: model.color,
+                        builder: (_, modelColorValue, __) {
+                          return ValueListenableBuilder(
+                            valueListenable: model.strokeWidth,
+                            builder: (_, modelStrokeWidthValue, __) {
+                              const double minScale = 0.2;
+                              const double maxScale = 1.5;
+
+                              double remap(double value, double iMin,
+                                  double iMax, double oMin, double oMax) {
+                                return (value - iMin) /
+                                        (iMax - iMin) *
+                                        (oMax - oMin) +
+                                    oMin;
+                              }
+
+                              return IconButton(
+                                tooltip: "Cycle stroke color",
+                                onPressed: () {
+                                  model.cycleColor();
+                                },
+                                icon: Transform.scale(
+                                  scale: remap(
+                                    modelStrokeWidthValue,
+                                    brushSizeMin,
+                                    brushSizeMax,
+                                    minScale,
+                                    maxScale,
+                                  ),
+                                  child: Icon(Icons.circle),
+                                ),
+                                color: modelColorValue,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: model.strokeWidth,
+                        builder: (_, modelStrokeWidthValue, __) {
+                          return Text(
+                            modelStrokeWidthValue.toStringAsFixed(1),
+                            style: smallNumberLabelStyle,
+                          );
+                        },
+                      ),
                       ListenableSlider(
                         listenable: model.strokeWidth,
                         min: brushSizeMin,
                         max: brushSizeMax,
                         interval: brushSizeIntervals,
-                        icon: Icons.brush,
                         direction: Axis.vertical,
                       ),
-                      Divider(),
-                      ValueListenableBuilder(
-                        valueListenable: model.color,
-                        builder: (_, modelColorValue, __) {
-                          return IconButton.filled(
-                            tooltip: "Cycle stroke color",
-                            onPressed: () {
-                              model.cycleColor();
-                            },
-                            icon: Icon(Icons.circle),
-                            color: model.color.value,
-                          );
-                        },
-                      ),
-                      SizedBox(height: 5),
+                      SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -369,19 +403,14 @@ class AnnotationsBottomBar extends StatelessWidget {
                   child: Flex(
                     direction: Axis.vertical,
                     children: [
-                      Tooltip(
-                        waitDuration: Duration(seconds: 1),
-                        message: "Image Opacity",
-                        child: ListenableSlider(
-                          listenable: model.opacity,
-                          min: 0.0,
-                          max: 1.0,
-                          interval: 0.1,
-                          icon: Icons.copy_all,
-                          direction: Axis.vertical,
-                        ),
+                      ListenableSlider(
+                        listenable: model.opacity,
+                        min: 0.0,
+                        max: 1.0,
+                        interval: 0.1,
+                        icon: Icons.image,
+                        direction: Axis.vertical,
                       ),
-                      Divider(),
                       ValueListenableBuilder(
                         valueListenable: model.underlayColor,
                         builder: (context, underlayColorValue, __) {
@@ -407,6 +436,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                           );
                         },
                       ),
+                      //SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -501,7 +531,7 @@ class ListenableSlider extends StatelessWidget {
     required this.min,
     required this.max,
     required this.interval,
-    required this.icon,
+    this.icon,
     this.direction = Axis.horizontal,
     this.labelType = PfsSliderLabelType.none,
   });
@@ -511,7 +541,7 @@ class ListenableSlider extends StatelessWidget {
   final double min;
   final double max;
   final double interval;
-  final IconData icon;
+  final IconData? icon;
   final PfsSliderLabelType labelType;
 
   @override
@@ -519,9 +549,13 @@ class ListenableSlider extends StatelessWidget {
     //final theme = Theme.of(context);
     //final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
-    final padding = direction == Axis.horizontal
-        ? const EdgeInsets.symmetric(horizontal: 10, vertical: 0)
-        : const EdgeInsets.symmetric(horizontal: 0, vertical: 10);
+    const double outerPadding = 10;
+
+    final padding = icon == null
+        ? const EdgeInsets.all(0)
+        : direction == Axis.horizontal
+            ? const EdgeInsets.only(left: outerPadding)
+            : const EdgeInsets.only(top: outerPadding);
 
     final int divisions = ((max - min) / interval).floor();
 
@@ -539,7 +573,7 @@ class ListenableSlider extends StatelessWidget {
           spacing: 0,
           direction: direction,
           children: [
-            Icon(icon, size: 20),
+            icon == null ? const SizedBox.shrink() : Icon(icon, size: 20),
             ValueListenableBuilder(
               valueListenable: listenable,
               builder: (___, listenableValue, __) {
@@ -558,6 +592,7 @@ class ListenableSlider extends StatelessWidget {
                     width: 160,
                     child: Slider(
                       value: listenableValue,
+                      padding: const EdgeInsets.only(right: 15, left: 10),
                       divisions: divisions,
                       label: label,
                       min: min,
