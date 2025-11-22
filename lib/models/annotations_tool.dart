@@ -75,10 +75,18 @@ class AnnotationsModel {
     Color(0xFFDEC4A5),
   ];
 
+  bool get isStrokesLocked {
+    return !isStrokesVisible.value;
+  }
+
   static AnnotationsModel of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<ModelScope<AnnotationsModel>>()!
         .model;
+  }
+
+  void toggleStrokesVisibility() {
+    isStrokesVisible.value = !isStrokesVisible.value;
   }
 
   void setTool(AnnotationTool newTool) {
@@ -100,16 +108,19 @@ class AnnotationsModel {
   }
 
   void startNewStroke(Offset position) {
+    if (isStrokesLocked) return;
     // debugPrint(strokes.length.toString());
     currentStrokePath = Path()..moveTo(position.dx, position.dy);
     strokes.add(Stroke(path: currentStrokePath));
   }
 
   void addPointToStroke(Offset point) {
+    if (isStrokesLocked) return;
     currentStrokePath.lineTo(point.dx, point.dy);
   }
 
   void commitCurrentStroke() {
+    if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
     final lastStroke = strokes.last;
 
@@ -129,6 +140,7 @@ class AnnotationsModel {
   }
 
   void commitCurrentEraseStroke() {
+    if (isStrokesLocked) return;
     if (lastErasedStrokes.isEmpty) return;
 
     final undoableStrokes = [...lastErasedStrokes];
@@ -166,6 +178,8 @@ class AnnotationsModel {
   }
 
   void tryEraseAt(Offset point) {
+    if (isStrokesLocked) return;
+
     const eraserSize = 3.0;
     final eraseableStrokes =
         strokes.where((stroke) => hitTestStroke(stroke, point, eraserSize));
@@ -192,6 +206,8 @@ class AnnotationsModel {
   }
 
   void clearAllStrokes() {
+    if (isStrokesLocked) return;
+
     final historyStrokes = [...strokes];
     changes.add(
       Change(
@@ -401,6 +417,33 @@ class AnnotationsBottomBar extends StatelessWidget {
               child: Flex(
                 direction: Axis.vertical,
                 children: [
+                  SizedBox(height: 10),
+                  Icon(
+                    FluentIcons.ink_stroke_20_regular,
+                    size: 15,
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: model.isStrokesVisible,
+                    builder: (_, isStrokesVisibleValue, __) {
+                      const double visibilityIconSize = 20;
+
+                      return IconButton(
+                        tooltip: "Toggle strokes visibility",
+                        onPressed: () => model.toggleStrokesVisibility(),
+                        icon: isStrokesVisibleValue
+                            ? Icon(
+                                Icons.visibility_outlined,
+                                size: visibilityIconSize,
+                              )
+                            : Icon(
+                                size: visibilityIconSize,
+                                Icons.visibility_off,
+                                color: Colors.red,
+                              ),
+                      );
+                    },
+                  ),
+                  Divider(),
                   ListenableSlider(
                     listenable: model.opacity,
                     min: 0.0,
