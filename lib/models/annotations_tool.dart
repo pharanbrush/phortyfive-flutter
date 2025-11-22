@@ -62,9 +62,9 @@ class AnnotationsModel {
   final eraserPulseListenable = SimpleNotifier();
 
   static const colorChoices = <Color>[
-    Colors.red,
     Colors.orange,
     Colors.blue,
+    Colors.red,
     Color(0xFF5644B3),
     Colors.white,
     Colors.black,
