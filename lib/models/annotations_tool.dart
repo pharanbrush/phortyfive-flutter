@@ -4,6 +4,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
+import 'package:pfs2/phlutter/centered_vertically.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
@@ -238,7 +239,7 @@ class AnnotationsBottomBar extends StatelessWidget {
 
     final model = AnnotationsModel.of(context);
 
-    const double bottomOverflow = 10;
+    const double edgeOverflow = 10;
     const double barHeight = 60;
     const double barItemSpacing = 3;
 
@@ -246,151 +247,181 @@ class AnnotationsBottomBar extends StatelessWidget {
     const double brushSizeIntervals = brushSizeMin;
     const double brushSizeMax = 8;
 
+    const double panelPadding = 4;
+    const double sidePanelWidth = 52;
+
     return Stack(
       children: [
-        CallbackShortcuts(
-          bindings: {
-            Phshortcuts.redo: model.redo,
-            Phshortcuts.undo: model.undo,
-            Phshortcuts.drawToolAnnotations: () =>
-                model.setTool(AnnotationTool.draw),
-            Phshortcuts.eraserToolAnnotations: () =>
-                model.setTool(AnnotationTool.erase),
-            Phshortcuts.cycleAnnotationColors: model.cycleColor,
-            Phshortcuts.clearAnnotations: model.clearAllStrokes,
-          },
-          child: Focus(
-            focusNode: model.annotationsFocus,
-            child: Text(""),
-          ),
-        ),
-        Align(
-          alignment: AlignmentGeometry.centerLeft,
-          child: panelMaterial(
-            child: SizedBox(
-              height: 350,
-              width: 50,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Flex(
-                  direction: Axis.vertical,
-                  children: [
-                    ValueListenableBuilder(
-                      valueListenable: model.currentTool,
-                      builder: (_, currentToolValue, __) {
-                        return Flex(
-                          direction: Axis.vertical,
-                          children: [
-                            IconButton.filled(
-                              tooltip: "Draw",
-                              isSelected:
-                                  currentToolValue == AnnotationTool.draw,
-                              onPressed: () =>
-                                  model.setTool(AnnotationTool.draw),
-                              icon: currentToolValue == AnnotationTool.draw
-                                  ? Icon(FluentIcons.edit_20_filled)
-                                  : Icon(FluentIcons.edit_20_regular),
-                            ),
-                            IconButton.filled(
-                              tooltip: "Stroke Eraser",
-                              isSelected:
-                                  currentToolValue == AnnotationTool.erase,
-                              onPressed: () =>
-                                  model.setTool(AnnotationTool.erase),
-                              icon: currentToolValue == AnnotationTool.erase
-                                  ? Icon(FluentIcons.eraser_segment_20_filled)
-                                  : Icon(FluentIcons.eraser_segment_20_regular),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    //SizedBox(height: 8),
-                    Divider(),
-                    ListenableSlider(
-                      listenable: model.strokeWidth,
-                      min: brushSizeMin,
-                      max: brushSizeMax,
-                      interval: brushSizeIntervals,
-                      icon: Icons.brush,
-                      direction: Axis.vertical,
-                    ),
-                    Divider(),
-                    ValueListenableBuilder(
-                      valueListenable: model.color,
-                      builder: (_, modelColorValue, __) {
-                        return IconButton.filled(
-                          tooltip: "Cycle stroke color",
-                          onPressed: () {
-                            model.cycleColor();
-                          },
-                          icon: Icon(Icons.circle),
-                          color: model.color.value,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+        Center(
+          child: CallbackShortcuts(
+            bindings: {
+              Phshortcuts.redo: model.redo,
+              Phshortcuts.undo: model.undo,
+              Phshortcuts.drawToolAnnotations: () =>
+                  model.setTool(AnnotationTool.draw),
+              Phshortcuts.eraserToolAnnotations: () =>
+                  model.setTool(AnnotationTool.erase),
+              Phshortcuts.cycleAnnotationColors: model.cycleColor,
+              Phshortcuts.clearAnnotations: model.clearAllStrokes,
+            },
+            child: Focus(
+              focusNode: model.annotationsFocus,
+              child: Text(""),
             ),
           ),
         ),
-        Align(
-          alignment: AlignmentGeometry.centerRight,
-          child: panelMaterial(
-            child: SizedBox(
-              height: 275,
-              width: 60,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Flex(
-                  direction: Axis.vertical,
-                  children: [
-                    Tooltip(
-                      waitDuration: Duration(seconds: 1),
-                      message: "Image Opacity",
-                      child: ListenableSlider(
-                        listenable: model.opacity,
-                        min: 0.0,
-                        max: 1.0,
-                        interval: 0.1,
-                        icon: Icons.copy_all,
+        Positioned(
+          left: -edgeOverflow,
+          top: 0,
+          bottom: 0,
+          child: CenteredVertically(
+            child: panelMaterial(
+              child: SizedBox(
+                width: sidePanelWidth + edgeOverflow,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: edgeOverflow + panelPadding,
+                    right: panelPadding,
+                    top: panelPadding,
+                    bottom: panelPadding,
+                  ),
+                  child: Flex(
+                    direction: Axis.vertical,
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: model.currentTool,
+                        builder: (_, currentToolValue, __) {
+                          return Flex(
+                            direction: Axis.vertical,
+                            children: [
+                              IconButton.filled(
+                                tooltip: "Draw",
+                                isSelected:
+                                    currentToolValue == AnnotationTool.draw,
+                                onPressed: () =>
+                                    model.setTool(AnnotationTool.draw),
+                                icon: currentToolValue == AnnotationTool.draw
+                                    ? Icon(FluentIcons.edit_20_filled)
+                                    : Icon(FluentIcons.edit_20_regular),
+                              ),
+                              IconButton.filled(
+                                tooltip: "Stroke Eraser",
+                                isSelected:
+                                    currentToolValue == AnnotationTool.erase,
+                                onPressed: () =>
+                                    model.setTool(AnnotationTool.erase),
+                                icon: currentToolValue == AnnotationTool.erase
+                                    ? Icon(FluentIcons.eraser_segment_20_filled)
+                                    : Icon(
+                                        FluentIcons.eraser_segment_20_regular),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      //SizedBox(height: 8),
+                      Divider(),
+                      ListenableSlider(
+                        listenable: model.strokeWidth,
+                        min: brushSizeMin,
+                        max: brushSizeMax,
+                        interval: brushSizeIntervals,
+                        icon: Icons.brush,
                         direction: Axis.vertical,
                       ),
-                    ),
-                    Divider(),
-                    ValueListenableBuilder(
-                      valueListenable: model.underlayColor,
-                      builder: (_, underlayColorValue, __) {
-                        return IconButton.filledTonal(
-                          tooltip: "Cycle underlay color",
-                          onPressed: () {
-                            model.cycleUnderlayColor();
-                          },
-                          icon: Icon(Icons.square),
-                        );
-                      },
-                    ),
-                  ],
+                      Divider(),
+                      ValueListenableBuilder(
+                        valueListenable: model.color,
+                        builder: (_, modelColorValue, __) {
+                          return IconButton.filled(
+                            tooltip: "Cycle stroke color",
+                            onPressed: () {
+                              model.cycleColor();
+                            },
+                            icon: Icon(Icons.circle),
+                            color: model.color.value,
+                          );
+                        },
+                      ),
+                      SizedBox(height: 5),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
         Positioned(
-          bottom: -bottomOverflow,
+          top: 0,
+          bottom: 0,
+          right: -edgeOverflow,
+          child: CenteredVertically(
+            child: panelMaterial(
+              child: SizedBox(
+                width: sidePanelWidth + edgeOverflow,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    right: edgeOverflow + panelPadding,
+                    left: panelPadding,
+                    top: panelPadding,
+                    bottom: panelPadding,
+                  ),
+                  child: Flex(
+                    direction: Axis.vertical,
+                    children: [
+                      Tooltip(
+                        waitDuration: Duration(seconds: 1),
+                        message: "Image Opacity",
+                        child: ListenableSlider(
+                          listenable: model.opacity,
+                          min: 0.0,
+                          max: 1.0,
+                          interval: 0.1,
+                          icon: Icons.copy_all,
+                          direction: Axis.vertical,
+                        ),
+                      ),
+                      Divider(),
+                      ValueListenableBuilder(
+                        valueListenable: model.underlayColor,
+                        builder: (context, underlayColorValue, __) {
+                          final theme = Theme.of(context);
+
+                          return Material(
+                            color: underlayColorValue,
+                            shape: theme.buttonTheme.shape,
+                            child: IconButton.filledTonal(
+                              tooltip: "Cycle underlay color",
+                              onPressed: () {
+                                model.cycleUnderlayColor();
+                              },
+                              color: theme.colorScheme.primary,
+                              icon: Icon(Icons.crop_square),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: -edgeOverflow,
           left: 10,
           right: 10,
           child: panelMaterial(
             child: SizedBox(
-              height: barHeight + bottomOverflow,
+              height: barHeight + edgeOverflow,
               child: Stack(
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(
                       left: 8,
                       right: 8,
-                      bottom: 8 + bottomOverflow,
+                      bottom: 8 + edgeOverflow,
                       top: 8,
                     ),
                     child: Row(
@@ -518,7 +549,7 @@ class ListenableSlider extends StatelessWidget {
                   quarterTurns: direction == Axis.horizontal ? 0 : 3,
                   child: SizedBox(
                     height: 15,
-                    width: 150,
+                    width: 160,
                     child: Slider(
                       value: listenableValue,
                       divisions: divisions,
