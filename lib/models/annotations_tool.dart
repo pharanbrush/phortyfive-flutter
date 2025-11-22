@@ -298,7 +298,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                             direction: Axis.vertical,
                             children: [
                               IconButton.filled(
-                                tooltip: "Draw",
+                                tooltip: "Draw  (B)",
                                 isSelected:
                                     currentToolValue == AnnotationTool.draw,
                                 onPressed: () =>
@@ -308,7 +308,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                                     : Icon(FluentIcons.edit_20_regular),
                               ),
                               IconButton.filled(
-                                tooltip: "Stroke Eraser",
+                                tooltip: "Stroke Eraser  (E)",
                                 isSelected:
                                     currentToolValue == AnnotationTool.erase,
                                 onPressed: () =>
@@ -341,7 +341,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                               }
 
                               return IconButton(
-                                tooltip: "Cycle stroke color",
+                                tooltip: "Cycle stroke color  (C)",
                                 onPressed: () {
                                   model.cycleColor();
                                 },
@@ -490,7 +490,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                           },
                         ),
                         IconButton(
-                          tooltip: "Clear all strokes",
+                          tooltip: "Clear all strokes  (Del)",
                           onPressed: () => model.clearAllStrokes(),
                           icon: Icon(
                             Icons.delete,
