@@ -719,7 +719,7 @@ class AnnotationsInterface extends StatelessWidget {
                                 : Icon(FluentIcons.edit_20_regular),
                           ),
                           IconButton.filled(
-                            tooltip: "Straight line  (B again)",
+                            tooltip: "Straight line\n(B to cycle)",
                             isSelected: currentToolValue == AnnotationTool.line,
                             onPressed: () => model.setTool(AnnotationTool.line),
                             icon: currentToolValue == AnnotationTool.line
@@ -727,7 +727,7 @@ class AnnotationsInterface extends StatelessWidget {
                                 : Icon(FluentIcons.line_20_regular),
                           ),
                           IconButton.filled(
-                            tooltip: "Proportion rulers  (R)",
+                            tooltip: "Proportion rulers\n(R to cycle)",
                             isSelected:
                                 currentToolValue == AnnotationTool.rulers,
                             onPressed: () => model.setToolRuler(),
@@ -939,13 +939,13 @@ class AnnotationsInterface extends StatelessWidget {
                               tooltip: "Undo",
                               onPressed:
                                   model.changes.canUndo ? model.undo : null,
-                              icon: Icon(Icons.undo),
+                              icon: Icon(Icons.undo, size: 18),
                             ),
                             IconButton(
                               tooltip: "Redo",
                               onPressed:
                                   model.changes.canRedo ? model.redo : null,
-                              icon: Icon(Icons.redo),
+                              icon: Icon(Icons.redo, size: 18),
                             ),
                           ],
                         );
@@ -954,9 +954,7 @@ class AnnotationsInterface extends StatelessWidget {
                     IconButton(
                       tooltip: "Clear all strokes  (Del)",
                       onPressed: () => model.clearAllStrokes(),
-                      icon: Icon(
-                        Icons.delete,
-                      ),
+                      icon: Icon(Icons.delete, size: 20),
                     ),
                     VerticalDivider(),
                     ValueListenableBuilder(
@@ -977,45 +975,54 @@ class AnnotationsInterface extends StatelessWidget {
                                 );
                                 return Row(
                                   children: [
-                                    TextButton(
-                                      onPressed: null,
-                                      child: label,
-                                    ),
-                                    SegmentedButton(
-                                      emptySelectionAllowed: false,
-                                      multiSelectionEnabled: false,
-                                      showSelectedIcon: false,
-                                      style: const ButtonStyle(
-                                        visualDensity: VisualDensity.compact,
+                                    Tooltip(
+                                      message:
+                                          "Press R to cycle between rulers",
+                                      child: TextButton(
+                                        onPressed: null,
+                                        child: label,
                                       ),
-                                      segments: const [
-                                        ButtonSegment(
-                                            value: RulerType.line,
-                                            tooltip: "Line",
-                                            icon: Icon(
-                                                FluentIcons.line_20_regular)),
-                                        ButtonSegment(
-                                            value: RulerType.box,
-                                            tooltip: "Box",
-                                            icon: Icon(FluentIcons
-                                                .border_all_16_regular)),
-                                        ButtonSegment(
-                                          value: RulerType.circle,
-                                          tooltip: "Circle",
-                                          icon: Stack(
-                                            children: [
-                                              Icon(Icons.circle_outlined),
-                                              Icon(Icons.add),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                      selected: {rulerTypeValue},
-                                      onSelectionChanged: (newSelection) {
-                                        model.currentRulerType.value =
-                                            newSelection.first;
-                                      },
                                     ),
+                                    SizedBox(
+                                      width: 42 * 3,
+                                      child: SegmentedButton(
+                                        expandedInsets: EdgeInsets.all(0),
+                                        emptySelectionAllowed: false,
+                                        multiSelectionEnabled: false,
+                                        showSelectedIcon: false,
+                                        style: const ButtonStyle(
+                                          visualDensity: VisualDensity.compact,
+                                        ),
+                                        segments: const [
+                                          ButtonSegment(
+                                              value: RulerType.line,
+                                              tooltip: "Line",
+                                              icon: Icon(
+                                                  FluentIcons.line_20_regular)),
+                                          ButtonSegment(
+                                              value: RulerType.box,
+                                              tooltip: "Box",
+                                              icon: Icon(FluentIcons
+                                                  .border_all_16_regular)),
+                                          ButtonSegment(
+                                            value: RulerType.circle,
+                                            tooltip: "Circle",
+                                            icon: Stack(
+                                              children: [
+                                                Icon(Icons.circle_outlined),
+                                                Icon(Icons.add),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                        selected: {rulerTypeValue},
+                                        onSelectionChanged: (newSelection) {
+                                          model.currentRulerType.value =
+                                              newSelection.first;
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
                                   ],
                                 );
                               },
@@ -1097,9 +1104,14 @@ class AnnotationsInterface extends StatelessWidget {
                                     child: Flex(
                                       direction: Axis.horizontal,
                                       children: [
-                                        Icon(
-                                          Icons.splitscreen,
-                                          size: 20,
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6.0,
+                                          ),
+                                          child: Icon(
+                                            Icons.splitscreen,
+                                            size: 20,
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 20,
