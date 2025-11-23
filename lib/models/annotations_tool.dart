@@ -39,6 +39,10 @@ class MeasurementStroke extends Stroke {
   MeausurementType type = MeausurementType.line;
   int division = 2;
 
+  bool get isInvalid {
+    return start == end || !start.isFinite || !end.isFinite;
+  }
+
   /// Path is used to determine how the ruler is erased. Not for drawing.
   void updatePath() {
     super.path
@@ -51,6 +55,8 @@ class MeasurementStroke extends Stroke {
   }
 
   void draw(Canvas canvas, Paint paint) {
+    if (isInvalid) return;
+
     const double tickMarkHalfLength = 7;
 
     final measurePaint = Paint.from(paint)
@@ -274,6 +280,11 @@ class AnnotationsModel {
   void commitCurrentMeasurement() {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
+    if (currentMeasurementStroke.isInvalid) {
+      strokes.remove(currentMeasurementStroke);
+      return;
+    }
+
     currentMeasurementStroke.updatePath();
 
     final latestStroke =
