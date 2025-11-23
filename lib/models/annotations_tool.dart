@@ -39,6 +39,8 @@ class RulerStroke extends Stroke {
   RulerType type = RulerType.line;
   int division = 2;
   bool isCentered = false;
+  RulerStroke? comparisonRuler;
+  double? comparisonLength;
 
   List<(Offset p1, Offset p2, bool thin)>? lineCache;
 
@@ -46,9 +48,28 @@ class RulerStroke extends Stroke {
     return start == end || !start.isFinite || !end.isFinite;
   }
 
+  void setComparisonRulerFrom(RulerStroke source) {
+    if (source == this) return;
+    if (source.isInvalid) return;
+
+    comparisonRuler = RulerStroke()
+      ..start = source.start
+      ..end = source.end
+      ..type = source.type
+      ..division = source.division
+      ..comparisonRuler = null;
+    comparisonLength = (source.end - source.start).distance;
+
+    if (source.isCentered && source.type == RulerType.circle) {
+      comparisonLength = comparisonLength! * 2;
+    }
+  }
+
   /// Path is used to determine how the ruler is erased. Not for drawing.
   void updatePath() {
     super.path.reset();
+    //comparisonRuler?.updatePath();
+
     lineCache = null;
 
     switch (type) {
@@ -101,8 +122,30 @@ class RulerStroke extends Stroke {
     }
   }
 
+  void updateComparisonRuler() {
+    if (isInvalid) return;
+
+    final cr = comparisonRuler;
+    final cLength = comparisonLength;
+
+    if (cr == null) return;
+    if (cLength == null) return;
+
+    cr.start = start;
+    final delta = end - start;
+    final length = delta.distance;
+    final originalLengthInUpdatedDirection = (delta / length) * cLength;
+    cr.end = start + originalLengthInUpdatedDirection;
+  }
+
   void draw(Canvas canvas, Paint paint) {
     if (isInvalid) return;
+
+    if (comparisonRuler != null) {
+      final comparisonPaint = Paint.from(paint)
+        ..color = paint.color.withValues(alpha: 0.25);
+      comparisonRuler!.draw(canvas, comparisonPaint);
+    }
 
     const double tickMarkHalfLength = 7;
 
@@ -265,6 +308,9 @@ class AnnotationsModel {
   final isStrokesVisible = ValueNotifier(true);
   final undoRedoListenable = SimpleNotifier();
 
+  final isAddComparisonRulerEnabled = ValueNotifier(true);
+
+  final comparisonAddedPulseListenable = SimpleNotifier();
   final visibilityPulseListenable = SimpleNotifier();
   final eraserPulseListenable = SimpleNotifier();
 
@@ -374,12 +420,25 @@ class AnnotationsModel {
       currentRulerStroke.isCentered = true;
     }
 
+    if (isAddComparisonRulerEnabled.value) {
+      for (int i = strokes.length - 1; i >= 0; i--) {
+        final top = strokes[i];
+        if (top is RulerStroke) {
+          currentRulerStroke.setComparisonRulerFrom(top);
+          comparisonAddedPulseListenable.notify();
+          break;
+        }
+      }
+    }
+
     strokes.add(currentRulerStroke);
   }
 
   void updateRulerEnd(Offset position) {
     if (isStrokesLocked) return;
     currentRulerStroke.end = position;
+
+    currentRulerStroke.updateComparisonRuler();
   }
 
   void resetCurrentStrokeWithSecondPoint(Offset point) {
@@ -997,6 +1056,47 @@ class AnnotationsInterface extends StatelessWidget {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                );
+                              },
+                            ),
+                            VerticalDivider(),
+                            ValueListenableBuilder(
+                              valueListenable:
+                                  model.isAddComparisonRulerEnabled,
+                              builder:
+                                  (context, addComparisonRulerValue, child) {
+                                return Tooltip(
+                                  message:
+                                      "Toggle to compare previous and current rulers",
+                                  child: AnimateOnListenable(
+                                    listenable:
+                                        model.comparisonAddedPulseListenable,
+                                    effects: [Phanimations.toolPulseEffect],
+                                    child: Flex(
+                                      direction: Axis.horizontal,
+                                      children: [
+                                        Icon(
+                                          Icons.splitscreen,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                          child: FittedBox(
+                                            child: Switch(
+                                              activeThumbColor:
+                                                  theme.colorScheme.tertiary,
+                                              value: addComparisonRulerValue,
+                                              onChanged: (value) {
+                                                model
+                                                    .isAddComparisonRulerEnabled
+                                                    .value = value;
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
