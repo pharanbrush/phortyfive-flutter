@@ -148,8 +148,8 @@ class MeasurementStroke extends Stroke {
         canvas.drawCircle(center, radius, measurePaint);
 
       case MeausurementType.box:
-        lineCache ??= [...getBoxLines(start, end, division)];
-        for (final (p1, p2, thin) in lineCache!) {
+        final lines = lineCache ?? getBoxLines(start, end, division);
+        for (final (p1, p2, thin) in lines) {
           canvas.drawLine(p1, p2, thin ? thinnerPaint : measurePaint);
         }
 
