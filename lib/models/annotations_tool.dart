@@ -356,13 +356,13 @@ mixin MainScreenAnnotations on MainScreenPanels {
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,
     builder: () {
-      return AnnotationsBottomBar();
+      return AnnotationsInterface();
     },
   );
 }
 
-class AnnotationsBottomBar extends StatelessWidget {
-  const AnnotationsBottomBar({
+class AnnotationsInterface extends StatelessWidget {
+  const AnnotationsInterface({
     super.key,
   });
 
