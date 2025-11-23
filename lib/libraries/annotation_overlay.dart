@@ -320,7 +320,7 @@ class AnnotationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(AnnotationPainter old) {
     return true;
   }
 }
