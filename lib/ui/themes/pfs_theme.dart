@@ -639,7 +639,7 @@ class PfsTheme {
 
     const Color primary = Color(0xFF707A90);
     const Color secondary = Color(0xFF707A90);
-    const Color tertiary = Color(0xFF5F687D);
+    const Color tertiary = Color(0xFF899BBD);
     const Color buttonContentColor = Color(0x6D9E9E9E);
     const Color buttonActiveColor = Color(0x9F6581C4);
     const Color buttonHoverColor = Color(0xDCD8D8D8);
