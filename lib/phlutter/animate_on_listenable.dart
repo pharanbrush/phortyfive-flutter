@@ -23,6 +23,7 @@ class _AnimateOnListenableState extends State<AnimateOnListenable> {
   final keyRng = math.Random();
   late String prefix = keyRng.nextInt(100).toString();
   late Key animateKey = Key("{prefix}${keyRng.nextInt(1000)}");
+  bool animate = false;
 
   @override
   void initState() {
@@ -40,12 +41,13 @@ class _AnimateOnListenableState extends State<AnimateOnListenable> {
   Widget build(BuildContext context) {
     return Animate(
       key: animateKey,
-      effects: widget.effects,
+      effects: animate ? widget.effects : null,
       child: widget.child,
     );
   }
 
   void handleChange() {
+    animate = true;
     setState(() => animateKey = Key("{prefix}${keyRng.nextInt(1000)}"));
   }
 }
