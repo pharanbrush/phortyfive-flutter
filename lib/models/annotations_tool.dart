@@ -39,19 +39,63 @@ class MeasurementStroke extends Stroke {
   MeausurementType type = MeausurementType.line;
   int division = 2;
 
+  List<(Offset p1, Offset p2, bool thin)>? lineCache;
+
   bool get isInvalid {
     return start == end || !start.isFinite || !end.isFinite;
   }
 
   /// Path is used to determine how the ruler is erased. Not for drawing.
   void updatePath() {
-    super.path
-      ..reset()
-      ..moveTo(start.dx, start.dy)
-      ..lineTo(end.dx, end.dy);
+    super.path.reset();
+    lineCache = null;
 
-    //TODO: Add extra path shapes based on measurement type.
-    //if (type == MeausurementType.line) {}
+    switch (type) {
+      case MeausurementType.box:
+        lineCache = [...getBoxLines(start, end, division)];
+
+        for (final (p1, p2, _) in lineCache!) {
+          path.addPath(
+            Path()
+              ..reset()
+              ..moveTo(p1.dx, p1.dy)
+              ..lineTo(p2.dx, p2.dy),
+            Offset.zero,
+          );
+        }
+
+      case MeausurementType.circle:
+        final center = (start + end) * 0.5;
+        final delta = (end - start);
+        final distance = delta.distance;
+        final halfDeltaPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
+        final rect = Rect.fromCircle(center: center, radius: distance * 0.5);
+        super.path
+          ..addArc(rect, 0, 2 * math.pi)
+          ..addPath(
+            Path()
+              ..moveTo(start.dx, start.dy)
+              ..lineTo(end.dx, end.dy),
+            Offset.zero,
+          )
+          ..addPath(
+            Path()
+              ..moveTo(
+                center.dx + halfDeltaPerpendicular.dx,
+                center.dy + halfDeltaPerpendicular.dy,
+              )
+              ..lineTo(
+                center.dx - halfDeltaPerpendicular.dx,
+                center.dy - halfDeltaPerpendicular.dy,
+              ),
+            Offset.zero,
+          );
+
+      default:
+        super.path
+          ..moveTo(start.dx, start.dy)
+          ..lineTo(end.dx, end.dy);
+    }
   }
 
   void draw(Canvas canvas, Paint paint) {
@@ -104,28 +148,42 @@ class MeasurementStroke extends Stroke {
         canvas.drawCircle(center, radius, measurePaint);
 
       case MeausurementType.box:
-        final deltaPerpendicular = Offset(delta.dy, -delta.dx);
-        final halfDeltaPerpendicular = deltaPerpendicular * 0.5;
-        final p0 = start - halfDeltaPerpendicular;
-        final p1 = start + halfDeltaPerpendicular;
-        final p2 = end + halfDeltaPerpendicular;
-        final p3 = end - halfDeltaPerpendicular;
-
-        canvas
-          ..drawLine(p0, p1, measurePaint)
-          ..drawLine(p1, p2, measurePaint)
-          ..drawLine(p2, p3, measurePaint)
-          ..drawLine(p3, p0, measurePaint);
-
-        for (int i = 1; i < division; i++) {
-          final pos = Offset.lerp(p1, p2, i * lerpIncrement) ?? start;
-          canvas.drawLine(pos, pos - deltaPerpendicular, thinnerPaint);
-          final pos2 = Offset.lerp(p1, p0, i * lerpIncrement) ?? start;
-          canvas.drawLine(pos2, pos2 + delta, thinnerPaint);
+        lineCache ??= [...getBoxLines(start, end, division)];
+        for (final (p1, p2, thin) in lineCache!) {
+          canvas.drawLine(p1, p2, thin ? thinnerPaint : measurePaint);
         }
 
       // default:
       //   canvas.drawLine(start, end, measurePaint);
+    }
+  }
+
+  static Iterable<(Offset a, Offset b, bool thin)> getBoxLines(
+    Offset start,
+    Offset end,
+    int divisions,
+  ) sync* {
+    final delta = end - start;
+    final deltaPerpendicular = Offset(delta.dy, -delta.dx);
+    final halfDeltaPerpendicular = deltaPerpendicular * 0.5;
+
+    final double lerpIncrement = 1.0 / divisions;
+
+    final p0 = start - halfDeltaPerpendicular;
+    final p1 = start + halfDeltaPerpendicular;
+    final p2 = end + halfDeltaPerpendicular;
+    final p3 = end - halfDeltaPerpendicular;
+    yield (p0, p1, false);
+    yield (p1, p2, false);
+    yield (p2, p3, false);
+    yield (p3, p0, false);
+
+    for (int i = 1; i < divisions; i++) {
+      final pos = Offset.lerp(p1, p2, i * lerpIncrement) ?? start;
+      final pos2 = Offset.lerp(p1, p0, i * lerpIncrement) ?? start;
+
+      yield (pos, pos - deltaPerpendicular, true);
+      yield (pos2, pos2 + delta, true);
     }
   }
 }
