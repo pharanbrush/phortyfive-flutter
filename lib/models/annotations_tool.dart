@@ -343,6 +343,27 @@ class AnnotationsModel {
         .model;
   }
 
+  /// Returns true if modes were restored to their default.
+  bool tryRestoreBaselineMode() {
+    bool didRestoreMode = false;
+    if (!isStrokesVisible.value) {
+      isStrokesVisible.value = true;
+      didRestoreMode = true;
+    }
+
+    if (isAddComparisonRulerEnabled.value) {
+      isAddComparisonRulerEnabled.value = false;
+      didRestoreMode = true;
+    }
+
+    if (opacity.value == 0) {
+      opacity.value = 0.2;
+      didRestoreMode = true;
+    }
+
+    return didRestoreMode;
+  }
+
   void showVisibilityUnusualHint() {
     visibilityPulseListenable.notify();
   }
