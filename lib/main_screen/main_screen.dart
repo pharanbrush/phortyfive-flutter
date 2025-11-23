@@ -1186,7 +1186,6 @@ class ImageBrowseGestureControls extends StatelessWidget {
             child: ImageRightClick(
               revealInExplorerHandler: revealInExplorerHandler,
               resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-              colorChangeModeHandler: colorMeterMenuItemHandler,
               child: ValueListenableBuilder(
                 valueListenable: imagePhviewer.zoomLevelListenable,
                 builder: (_, __, ___) {

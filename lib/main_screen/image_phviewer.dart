@@ -296,13 +296,11 @@ class ImageRightClick extends StatelessWidget {
     required this.child,
     required this.resetZoomLevelHandler,
     required this.revealInExplorerHandler,
-    required this.colorChangeModeHandler,
   });
 
   final Widget child;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
-  final VoidCallback colorChangeModeHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -359,18 +357,11 @@ class ImageRightClick extends StatelessWidget {
       disabled: !isFile,
     );
 
-    final colorChangeModeItem = MenuItem(
-      label: PfsLocalization.openColorChangeMeter,
-      onClick: (menuItem) => colorChangeModeHandler(),
-    );
-
     final contextMenu = Menu(
       items: [
         copyImageItem,
         copyFilePathItem,
         copyFilename,
-        MenuItem.separator(),
-        colorChangeModeItem,
         MenuItem.separator(),
         revealInExplorerItem,
       ],
