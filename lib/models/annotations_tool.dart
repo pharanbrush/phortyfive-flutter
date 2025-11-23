@@ -443,8 +443,8 @@ class AnnotationsInterface extends StatelessWidget {
                             isSelected: currentToolValue == AnnotationTool.line,
                             onPressed: () => model.setTool(AnnotationTool.line),
                             icon: currentToolValue == AnnotationTool.line
-                                ? Icon(FluentIcons.data_line_20_regular)
-                                : Icon(FluentIcons.data_line_20_filled),
+                                ? Icon(FluentIcons.line_20_filled)
+                                : Icon(FluentIcons.line_20_regular),
                           ),
                           IconButton.filled(
                             tooltip: "Measure  (R)",
@@ -453,8 +453,8 @@ class AnnotationsInterface extends StatelessWidget {
                             onPressed: () =>
                                 model.setTool(AnnotationTool.measure),
                             icon: currentToolValue == AnnotationTool.measure
-                                ? Icon(FluentIcons.border_all_20_regular)
-                                : Icon(FluentIcons.border_all_20_filled),
+                                ? Icon(FluentIcons.border_all_20_filled)
+                                : Icon(FluentIcons.border_all_20_regular),
                           ),
                           IconButton.filled(
                             tooltip: "Stroke Eraser  (E)",
