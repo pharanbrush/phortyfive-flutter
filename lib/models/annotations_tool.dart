@@ -17,6 +17,7 @@ import 'package:undo/undo.dart';
 enum AnnotationTool {
   none,
   draw,
+  line,
   erase,
 }
 
@@ -61,6 +62,8 @@ class AnnotationsModel {
   final visibilityPulseListenable = SimpleNotifier();
   final eraserPulseListenable = SimpleNotifier();
 
+  Offset currentStrokeStartPosition = Offset.zero;
+
   static const colorChoices = <Color>[
     Colors.orange,
     Colors.blue,
@@ -100,6 +103,13 @@ class AnnotationsModel {
     currentTool.value = newTool;
   }
 
+  void setToolDraw() {
+    currentTool.value = switch (currentTool.value) {
+      AnnotationTool.draw => AnnotationTool.line,
+      _ => AnnotationTool.draw,
+    };
+  }
+
   void cycleUnderlayColor() {
     underlayColor.value = _cycleColorFrom(
       currentColor: underlayColor.value,
@@ -123,9 +133,17 @@ class AnnotationsModel {
       showStrokesLockedHint();
       return;
     }
-    // debugPrint(strokes.length.toString());
     currentStrokePath = Path()..moveTo(position.dx, position.dy);
     strokes.add(Stroke(path: currentStrokePath));
+    currentStrokeStartPosition = position;
+  }
+
+  void resetCurrentStrokeWithSecondPoint(Offset point) {
+    if (isStrokesLocked) return;
+    currentStrokePath
+      ..reset()
+      ..moveTo(currentStrokeStartPosition.dx, currentStrokeStartPosition.dy)
+      ..lineTo(point.dx, point.dy);
   }
 
   void addPointToStroke(Offset point) {
@@ -301,8 +319,7 @@ class AnnotationsBottomBar extends StatelessWidget {
         bindings: {
           Phshortcuts.redo: model.redo,
           Phshortcuts.undo: model.undo,
-          Phshortcuts.drawToolAnnotations: () =>
-              model.setTool(AnnotationTool.draw),
+          Phshortcuts.drawToolAnnotations: () => model.setToolDraw(),
           Phshortcuts.eraserToolAnnotations: () =>
               model.setTool(AnnotationTool.erase),
           Phshortcuts.cycleAnnotationColors: model.cycleColor,
@@ -346,6 +363,14 @@ class AnnotationsBottomBar extends StatelessWidget {
                             icon: currentToolValue == AnnotationTool.draw
                                 ? Icon(FluentIcons.edit_20_filled)
                                 : Icon(FluentIcons.edit_20_regular),
+                          ),
+                          IconButton.filled(
+                            tooltip: "Straight line  (B again)",
+                            isSelected: currentToolValue == AnnotationTool.line,
+                            onPressed: () => model.setTool(AnnotationTool.line),
+                            icon: currentToolValue == AnnotationTool.draw
+                                ? Icon(FluentIcons.data_line_20_regular)
+                                : Icon(FluentIcons.data_line_20_filled),
                           ),
                           IconButton.filled(
                             tooltip: "Stroke Eraser  (E)",

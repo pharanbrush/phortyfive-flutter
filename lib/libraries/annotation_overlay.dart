@@ -60,6 +60,13 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     onPointerUp: (position) => model.commitCurrentStroke(),
   );
 
+  late final lineTool = PointerToolCallbacks(
+    onPointerDown: (position) => setState(() => model.startNewStroke(position)),
+    onPointerUpdate: (position) =>
+        setState(() => model.resetCurrentStrokeWithSecondPoint(position)),
+    onPointerUp: (position) => model.commitCurrentStroke(),
+  );
+
   late final eraseTool = PointerToolCallbacks(
     onPointerDown: (position) => model.startEraseStrokeDoNothing(position),
     onPointerUpdate: (position) => setState(() => model.tryEraseAt(position)),
@@ -88,6 +95,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   void _handleToolSwitch() {
     currentToolCallbacks = switch (model.currentTool.value) {
       AnnotationTool.draw => drawTool,
+      AnnotationTool.line => lineTool,
       AnnotationTool.erase => eraseTool,
       _ => PointerToolCallbacks.none,
     };
