@@ -132,8 +132,8 @@ class Phanimations {
     );
   }
 
-  static const double _imageSlideOriginX = 0.05;
-  static const _imageSwapDuration = Duration(milliseconds: 300);
+  static const double _imageSlideOriginX = 0.035;
+  static const _imageSwapDuration = Duration(milliseconds: 400);
   static const _imageSwapCurve = Curves.easeOutQuint;
   static const imageNext = <Effect>[
     SlideEffect(
