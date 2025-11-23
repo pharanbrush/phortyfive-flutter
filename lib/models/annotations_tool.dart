@@ -103,8 +103,29 @@ class MeasurementStroke extends Stroke {
         drawTickmarksForLine();
         canvas.drawCircle(center, radius, measurePaint);
 
-      default:
-        canvas.drawLine(start, end, measurePaint);
+      case MeausurementType.box:
+        final deltaPerpendicular = Offset(delta.dy, -delta.dx);
+        final halfDeltaPerpendicular = deltaPerpendicular * 0.5;
+        final p0 = start - halfDeltaPerpendicular;
+        final p1 = start + halfDeltaPerpendicular;
+        final p2 = end + halfDeltaPerpendicular;
+        final p3 = end - halfDeltaPerpendicular;
+
+        canvas
+          ..drawLine(p0, p1, measurePaint)
+          ..drawLine(p1, p2, measurePaint)
+          ..drawLine(p2, p3, measurePaint)
+          ..drawLine(p3, p0, measurePaint);
+
+        for (int i = 1; i < division; i++) {
+          final pos = Offset.lerp(p1, p2, i * lerpIncrement) ?? start;
+          canvas.drawLine(pos, pos - deltaPerpendicular, thinnerPaint);
+          final pos2 = Offset.lerp(p1, p0, i * lerpIncrement) ?? start;
+          canvas.drawLine(pos2, pos2 + delta, thinnerPaint);
+        }
+
+      // default:
+      //   canvas.drawLine(start, end, measurePaint);
     }
   }
 }
