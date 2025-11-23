@@ -8,6 +8,7 @@ import 'package:pfs2/phlutter/centered_vertically.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
+import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -40,19 +41,65 @@ class MeasurementStroke extends Stroke {
 
   /// Path is used to determine how the ruler is erased. Not for drawing.
   void updatePath() {
-    if (type == MeausurementType.line) {
-      super.path
-        ..reset()
-        ..moveTo(start.dx, start.dy)
-        ..lineTo(end.dx, end.dy);
-    }
+    super.path
+      ..reset()
+      ..moveTo(start.dx, start.dy)
+      ..lineTo(end.dx, end.dy);
+
+    //TODO: Add extra path shapes based on measurement type.
+    //if (type == MeausurementType.line) {}
   }
 
   void draw(Canvas canvas, Paint paint) {
+    const double tickMarkHalfLength = 7;
+
     final measurePaint = Paint.from(paint)
       ..strokeWidth = paint.strokeWidth * 0.6;
+    final thinnerPaint = Paint.from(paint)
+      ..strokeWidth = paint.strokeWidth * 0.35;
 
-    canvas.drawLine(start, end, measurePaint);
+    final delta = end - start;
+    final distance = delta.distance;
+    final normalizedDelta = delta / distance;
+    final perpedicular = Offset(normalizedDelta.dy, -normalizedDelta.dx);
+
+    void drawTickMark(Offset position, double halfLength) {
+      final to = perpedicular * halfLength;
+      canvas.drawLine(position + to, position - to, thinnerPaint);
+    }
+
+    final double lerpIncrement = 1.0 / division;
+
+    void drawTickmarksForLine() {
+      for (int i = 1; i < division; i++) {
+        final tickPosition =
+            Offset.lerp(start, end, i * lerpIncrement) ?? start;
+        drawTickMark(tickPosition, tickMarkHalfLength);
+      }
+    }
+
+    switch (type) {
+      case MeausurementType.line:
+        canvas.drawLine(start, end, measurePaint);
+
+        drawTickMark(start, tickMarkHalfLength);
+        drawTickmarksForLine();
+        drawTickMark(end, tickMarkHalfLength);
+
+      case MeausurementType.circle:
+        final center = (start + end) * 0.5;
+        final radius = distance * 0.5;
+        final halfDeltaPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
+
+        canvas.drawLine(start, end, thinnerPaint);
+        canvas.drawLine(center + halfDeltaPerpendicular,
+            center - halfDeltaPerpendicular, thinnerPaint);
+        drawTickmarksForLine();
+        canvas.drawCircle(center, radius, measurePaint);
+
+      default:
+        canvas.drawLine(start, end, measurePaint);
+    }
   }
 }
 
@@ -80,6 +127,7 @@ class AnnotationsModel {
 
   final currentTool = ValueNotifier(AnnotationTool.draw);
   final currentMeasureType = ValueNotifier(MeausurementType.line);
+  final currentMeasureDivisions = ValueNotifier<int>(2);
   late final color = ValueNotifier<Color>(colorChoices.first);
   late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
   final opacity = ValueNotifier<double>(0.2);
@@ -139,6 +187,16 @@ class AnnotationsModel {
   }
 
   void setToolMeasure() {
+    if (currentTool.value == AnnotationTool.measure) {
+      currentMeasureType.value = switch (currentMeasureType.value) {
+        MeausurementType.line => MeausurementType.box,
+        MeausurementType.box => MeausurementType.circle,
+        _ => MeausurementType.line,
+      };
+
+      return;
+    }
+
     currentTool.value = AnnotationTool.measure;
   }
 
@@ -177,6 +235,7 @@ class AnnotationsModel {
     }
     currentMeasurementStroke = MeasurementStroke()
       ..type = currentMeasureType.value
+      ..division = currentMeasureDivisions.value
       ..start = position
       ..end = position;
     strokes.add(currentMeasurementStroke);
@@ -378,7 +437,7 @@ class AnnotationsInterface extends StatelessWidget {
 
     const double edgeOverflow = 10;
     const double barHeight = 60;
-    const double barItemSpacing = 3;
+    //const double barItemSpacing = 3;
 
     const double brushSizeMin = 0.5;
     const double brushSizeIntervals = brushSizeMin;
@@ -450,8 +509,7 @@ class AnnotationsInterface extends StatelessWidget {
                             tooltip: "Measure  (R)",
                             isSelected:
                                 currentToolValue == AnnotationTool.measure,
-                            onPressed: () =>
-                                model.setTool(AnnotationTool.measure),
+                            onPressed: () => model.setToolMeasure(),
                             icon: currentToolValue == AnnotationTool.measure
                                 ? Icon(FluentIcons.border_all_20_filled)
                                 : Icon(FluentIcons.border_all_20_regular),
@@ -645,13 +703,11 @@ class AnnotationsInterface extends StatelessWidget {
                   bottom: 8 + edgeOverflow,
                   top: 8,
                 ),
-                child: Row(
-                  spacing: barItemSpacing,
+                child: Flex(
+                  direction: Axis.horizontal,
+                  //spacing: barItemSpacing,
                   children: [
-                    Text(
-                      "Annotations",
-                      style: theme.textTheme.labelLarge,
-                    ),
+                    SizedBox(width: 5),
                     ListenableBuilder(
                       listenable: model.undoRedoListenable,
                       builder: (_, __) {
@@ -680,6 +736,139 @@ class AnnotationsInterface extends StatelessWidget {
                       icon: Icon(
                         Icons.delete,
                       ),
+                    ),
+                    VerticalDivider(),
+                    ValueListenableBuilder(
+                      valueListenable: model.currentTool,
+                      builder: (context, currentToolValue, _) {
+                        if (currentToolValue != AnnotationTool.measure) {
+                          return SizedBox.shrink();
+                        }
+
+                        return Row(
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: model.currentMeasureType,
+                              builder: (context, measureTypeValue, _) {
+                                final label = Text(
+                                  "Measure",
+                                  style: theme.textTheme.labelSmall,
+                                );
+                                return Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: null,
+                                      child: label,
+                                    ),
+                                    SegmentedButton(
+                                      emptySelectionAllowed: false,
+                                      multiSelectionEnabled: false,
+                                      showSelectedIcon: false,
+                                      style: const ButtonStyle(
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      segments: const [
+                                        ButtonSegment(
+                                            value: MeausurementType.line,
+                                            tooltip: "Line",
+                                            icon: Icon(
+                                                FluentIcons.line_20_regular)),
+                                        ButtonSegment(
+                                            value: MeausurementType.box,
+                                            tooltip: "Box",
+                                            icon: Icon(FluentIcons
+                                                .border_all_16_regular)),
+                                        ButtonSegment(
+                                          value: MeausurementType.circle,
+                                          tooltip: "Circle",
+                                          icon: Stack(
+                                            children: [
+                                              Icon(Icons.circle_outlined),
+                                              Icon(Icons.add),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      selected: {measureTypeValue},
+                                      onSelectionChanged: (newSelection) {
+                                        model.currentMeasureType.value =
+                                            newSelection.first;
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            VerticalDivider(),
+                            SizedBox(width: 10),
+                            ValueListenableBuilder(
+                              valueListenable: model.currentMeasureDivisions,
+                              builder: (context, divisionsValue, _) {
+                                const min = 2;
+                                const max = 8;
+
+                                final divisionsText =
+                                    divisionsValue.toStringAsFixed(0);
+
+                                return ScrollListener(
+                                  onScrollDown: () => model
+                                      .currentMeasureDivisions
+                                      .incrementClamped(-1, min, max),
+                                  onScrollUp: () => model
+                                      .currentMeasureDivisions
+                                      .incrementClamped(1, min, max),
+                                  child: Flex(
+                                    direction: Axis.horizontal,
+                                    children: [
+                                      Text(
+                                        "Divisions",
+                                        style: theme.textTheme.labelMedium,
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: SliderTheme(
+                                          data: theme.sliderTheme.copyWith(
+                                            trackHeight: 3,
+                                            thumbShape: RoundSliderThumbShape(
+                                              enabledThumbRadius: 8,
+                                            ),
+                                          ),
+                                          child: Slider(
+                                            padding: EdgeInsets.only(left: 22),
+                                            value: divisionsValue.toDouble(),
+                                            min: min.toDouble(),
+                                            max: max.toDouble(),
+                                            divisions: max - min,
+                                            onChanged: (newValue) {
+                                              model.currentMeasureDivisions
+                                                  .value = newValue.toInt();
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      IgnorePointer(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15.0),
+                                          child: Text(
+                                            divisionsText,
+                                            style: theme.textTheme.labelMedium,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ).animate(
+                          effects: const [
+                            Phanimations.slideRightWideEffect,
+                            Phanimations.fadeInEffect
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
