@@ -368,7 +368,7 @@ class AnnotationsBottomBar extends StatelessWidget {
                             tooltip: "Straight line  (B again)",
                             isSelected: currentToolValue == AnnotationTool.line,
                             onPressed: () => model.setTool(AnnotationTool.line),
-                            icon: currentToolValue == AnnotationTool.draw
+                            icon: currentToolValue == AnnotationTool.line
                                 ? Icon(FluentIcons.data_line_20_regular)
                                 : Icon(FluentIcons.data_line_20_filled),
                           ),
