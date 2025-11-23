@@ -29,6 +29,8 @@ class Phshortcuts {
   static const annotationMode = SingleActivator(LogicalKeyboardKey.keyN);
 
   static const drawToolAnnotations = SingleActivator(LogicalKeyboardKey.keyB);
+  static const measureToolAnnotations =
+      SingleActivator(LogicalKeyboardKey.keyR);
   static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
   static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);

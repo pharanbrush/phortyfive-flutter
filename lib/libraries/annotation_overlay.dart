@@ -67,6 +67,14 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     onPointerUp: (position) => model.commitCurrentStroke(),
   );
 
+  late final measureTool = PointerToolCallbacks(
+    onPointerDown: (position) =>
+        setState(() => model.startNewMeasurement(position)),
+    onPointerUpdate: (position) =>
+        setState(() => model.updateMeasurementEnd(position)),
+    onPointerUp: (position) => model.commitCurrentMeasurement(),
+  );
+
   late final eraseTool = PointerToolCallbacks(
     onPointerDown: (position) => model.startEraseStrokeDoNothing(position),
     onPointerUpdate: (position) => setState(() => model.tryEraseAt(position)),
@@ -96,6 +104,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     currentToolCallbacks = switch (model.currentTool.value) {
       AnnotationTool.draw => drawTool,
       AnnotationTool.line => lineTool,
+      AnnotationTool.measure => measureTool,
       AnnotationTool.erase => eraseTool,
       _ => PointerToolCallbacks.none,
     };
@@ -303,7 +312,11 @@ class AnnotationPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     for (final stroke in strokes) {
-      canvas.drawPath(stroke.path, paint);
+      if (stroke is MeasurementStroke) {
+        stroke.draw(canvas, paint);
+      } else {
+        canvas.drawPath(stroke.path, paint);
+      }
     }
   }
 

@@ -18,16 +18,42 @@ enum AnnotationTool {
   none,
   draw,
   line,
+  measure,
   erase,
 }
 
 class Stroke {
-  Stroke({
-    //required this.paint,
-    required this.path,
-  });
-  Path path;
-  //Paint paint;
+  Path path = Path();
+}
+
+enum MeausurementType {
+  line,
+  circle,
+  box,
+}
+
+class MeasurementStroke extends Stroke {
+  Offset start = Offset.zero;
+  Offset end = Offset.zero;
+  MeausurementType type = MeausurementType.line;
+  int division = 2;
+
+  /// Path is used to determine how the ruler is erased. Not for drawing.
+  void updatePath() {
+    if (type == MeausurementType.line) {
+      super.path
+        ..reset()
+        ..moveTo(start.dx, start.dy)
+        ..lineTo(end.dx, end.dy);
+    }
+  }
+
+  void draw(Canvas canvas, Paint paint) {
+    final measurePaint = Paint.from(paint)
+      ..strokeWidth = paint.strokeWidth * 0.6;
+
+    canvas.drawLine(start, end, measurePaint);
+  }
 }
 
 Color _cycleColorFrom({
@@ -48,10 +74,12 @@ class AnnotationsModel {
   final annotationsFocus = FocusNode();
   final List<Stroke> strokes = [];
   Path currentStrokePath = Path();
+  MeasurementStroke currentMeasurementStroke = MeasurementStroke();
   final changes = ChangeStack(limit: 30);
   final lastErasedStrokes = <Stroke>[];
 
-  final currentTool = ValueNotifier<AnnotationTool>(AnnotationTool.draw);
+  final currentTool = ValueNotifier(AnnotationTool.draw);
+  final currentMeasureType = ValueNotifier(MeausurementType.line);
   late final color = ValueNotifier<Color>(colorChoices.first);
   late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
   final opacity = ValueNotifier<double>(0.2);
@@ -110,6 +138,10 @@ class AnnotationsModel {
     };
   }
 
+  void setToolMeasure() {
+    currentTool.value = AnnotationTool.measure;
+  }
+
   void cycleUnderlayColor() {
     underlayColor.value = _cycleColorFrom(
       currentColor: underlayColor.value,
@@ -134,8 +166,25 @@ class AnnotationsModel {
       return;
     }
     currentStrokePath = Path()..moveTo(position.dx, position.dy);
-    strokes.add(Stroke(path: currentStrokePath));
+    strokes.add(Stroke()..path = currentStrokePath);
     currentStrokeStartPosition = position;
+  }
+
+  void startNewMeasurement(Offset position) {
+    if (isStrokesLocked) {
+      showStrokesLockedHint();
+      return;
+    }
+    currentMeasurementStroke = MeasurementStroke()
+      ..type = currentMeasureType.value
+      ..start = position
+      ..end = position;
+    strokes.add(currentMeasurementStroke);
+  }
+
+  void updateMeasurementEnd(Offset position) {
+    if (isStrokesLocked) return;
+    currentMeasurementStroke.end = position;
   }
 
   void resetCurrentStrokeWithSecondPoint(Offset point) {
@@ -161,6 +210,28 @@ class AnnotationsModel {
       eraserPulseListenable.notify();
       return;
     }
+  }
+
+  void commitCurrentMeasurement() {
+    if (isStrokesLocked) return;
+    if (strokes.isEmpty) return;
+    currentMeasurementStroke.updatePath();
+
+    final latestStroke =
+        currentMeasurementStroke; // This needs to be a local variable so the value can be captured by the undo closure.
+    changes.add(
+      Change(
+        latestStroke,
+        () {
+          strokes.remove(latestStroke);
+          strokes.add(latestStroke);
+        },
+        (oldValue) {
+          strokes.remove(oldValue);
+        },
+      ),
+    );
+    undoRedoListenable.notify();
   }
 
   void commitCurrentStroke() {
@@ -320,6 +391,7 @@ class AnnotationsBottomBar extends StatelessWidget {
           Phshortcuts.redo: model.redo,
           Phshortcuts.undo: model.undo,
           Phshortcuts.drawToolAnnotations: () => model.setToolDraw(),
+          Phshortcuts.measureToolAnnotations: () => model.setToolMeasure(),
           Phshortcuts.eraserToolAnnotations: () =>
               model.setTool(AnnotationTool.erase),
           Phshortcuts.cycleAnnotationColors: model.cycleColor,
@@ -371,6 +443,16 @@ class AnnotationsBottomBar extends StatelessWidget {
                             icon: currentToolValue == AnnotationTool.line
                                 ? Icon(FluentIcons.data_line_20_regular)
                                 : Icon(FluentIcons.data_line_20_filled),
+                          ),
+                          IconButton.filled(
+                            tooltip: "Measure  (R)",
+                            isSelected:
+                                currentToolValue == AnnotationTool.measure,
+                            onPressed: () =>
+                                model.setTool(AnnotationTool.measure),
+                            icon: currentToolValue == AnnotationTool.measure
+                                ? Icon(FluentIcons.border_all_20_regular)
+                                : Icon(FluentIcons.border_all_20_filled),
                           ),
                           IconButton.filled(
                             tooltip: "Stroke Eraser  (E)",
