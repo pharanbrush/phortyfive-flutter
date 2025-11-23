@@ -659,8 +659,8 @@ class _MainScreenState extends State<MainScreen>
               ),
               PfsPopupMenuItem(
                 child: IconAndText(
-                  icon: FluentIcons.whiteboard_16_filled,
-                  text: "Annotate",
+                  icon: FluentIcons.ruler_16_regular,
+                  text: "Annotate & Measure",
                 ),
                 value: () {
                   debugPrint("Trying to switch to annotate mode");
