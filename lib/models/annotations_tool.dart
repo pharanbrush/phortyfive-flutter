@@ -19,7 +19,7 @@ enum AnnotationTool {
   none,
   draw,
   line,
-  measure,
+  rulers,
   erase,
 }
 
@@ -27,17 +27,18 @@ class Stroke {
   Path path = Path();
 }
 
-enum MeausurementType {
+enum RulerType {
   line,
   circle,
   box,
 }
 
-class MeasurementStroke extends Stroke {
+class RulerStroke extends Stroke {
   Offset start = Offset.zero;
   Offset end = Offset.zero;
-  MeausurementType type = MeausurementType.line;
+  RulerType type = RulerType.line;
   int division = 2;
+  bool isCentered = false;
 
   List<(Offset p1, Offset p2, bool thin)>? lineCache;
 
@@ -51,7 +52,7 @@ class MeasurementStroke extends Stroke {
     lineCache = null;
 
     switch (type) {
-      case MeausurementType.box:
+      case RulerType.box:
         lineCache = [...getBoxLines(start, end, division)];
 
         for (final (p1, p2, _) in lineCache!) {
@@ -64,29 +65,31 @@ class MeasurementStroke extends Stroke {
           );
         }
 
-      case MeausurementType.circle:
-        final center = (start + end) * 0.5;
-        final delta = (end - start);
-        final distance = delta.distance;
-        final halfDeltaPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
-        final rect = Rect.fromCircle(center: center, radius: distance * 0.5);
+      case RulerType.circle:
+        final c = getCircleParams(
+          start: start,
+          end: end,
+          isCentered: isCentered,
+        );
+
+        final rect = Rect.fromCircle(center: c.center, radius: c.radius);
         super.path
           ..addArc(rect, 0, 2 * math.pi)
           ..addPath(
             Path()
-              ..moveTo(start.dx, start.dy)
+              ..moveTo(c.outputStart.dx, c.outputStart.dy)
               ..lineTo(end.dx, end.dy),
             Offset.zero,
           )
           ..addPath(
             Path()
               ..moveTo(
-                center.dx + halfDeltaPerpendicular.dx,
-                center.dy + halfDeltaPerpendicular.dy,
+                c.center.dx + c.radiusPerpendicular.dx,
+                c.center.dy + c.radiusPerpendicular.dy,
               )
               ..lineTo(
-                center.dx - halfDeltaPerpendicular.dx,
-                center.dy - halfDeltaPerpendicular.dy,
+                c.center.dx - c.radiusPerpendicular.dx,
+                c.center.dy - c.radiusPerpendicular.dy,
               ),
             Offset.zero,
           );
@@ -103,8 +106,7 @@ class MeasurementStroke extends Stroke {
 
     const double tickMarkHalfLength = 7;
 
-    final measurePaint = Paint.from(paint)
-      ..strokeWidth = paint.strokeWidth * 0.6;
+    final rulerPaint = Paint.from(paint)..strokeWidth = paint.strokeWidth * 0.6;
     final thinnerPaint = Paint.from(paint)
       ..strokeWidth = paint.strokeWidth * 0.35;
 
@@ -121,41 +123,84 @@ class MeasurementStroke extends Stroke {
     final double lerpIncrement = 1.0 / division;
 
     void drawTickmarksForLine() {
+      final usedStart = isCentered ? start - delta : start;
+
       for (int i = 1; i < division; i++) {
         final tickPosition =
-            Offset.lerp(start, end, i * lerpIncrement) ?? start;
+            Offset.lerp(usedStart, end, i * lerpIncrement) ?? start;
         drawTickMark(tickPosition, tickMarkHalfLength);
       }
     }
 
     switch (type) {
-      case MeausurementType.line:
-        canvas.drawLine(start, end, measurePaint);
+      case RulerType.line:
+        canvas.drawLine(start, end, rulerPaint);
 
         drawTickMark(start, tickMarkHalfLength);
         drawTickmarksForLine();
         drawTickMark(end, tickMarkHalfLength);
 
-      case MeausurementType.circle:
-        final center = (start + end) * 0.5;
-        final radius = distance * 0.5;
-        final halfDeltaPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
+      case RulerType.circle:
+        final c = getCircleParams(
+          start: start,
+          end: end,
+          isCentered: isCentered,
+        );
 
-        canvas.drawLine(start, end, thinnerPaint);
-        canvas.drawLine(center + halfDeltaPerpendicular,
-            center - halfDeltaPerpendicular, thinnerPaint);
+        canvas.drawLine(c.outputStart, c.outputEnd, thinnerPaint);
+        canvas.drawLine(c.center + c.radiusPerpendicular,
+            c.center - c.radiusPerpendicular, thinnerPaint);
         drawTickmarksForLine();
-        canvas.drawCircle(center, radius, measurePaint);
+        canvas.drawCircle(c.center, c.radius, rulerPaint);
 
-      case MeausurementType.box:
+      case RulerType.box:
         final lines = lineCache ?? getBoxLines(start, end, division);
         for (final (p1, p2, thin) in lines) {
-          canvas.drawLine(p1, p2, thin ? thinnerPaint : measurePaint);
+          canvas.drawLine(p1, p2, thin ? thinnerPaint : rulerPaint);
         }
 
       // default:
-      //   canvas.drawLine(start, end, measurePaint);
+      //   canvas.drawLine(start, end, rulerPaint);
     }
+  }
+
+  static ({
+    double radius,
+    Offset center,
+    Offset outputStart,
+    Offset outputEnd,
+    Offset delta,
+    Offset radiusPerpendicular,
+  }) getCircleParams({
+    required Offset start,
+    required Offset end,
+    required bool isCentered,
+  }) {
+    final delta = end - start;
+    final double radius;
+    final Offset center;
+    final Offset radiusPerpendicular;
+    final Offset usedStart;
+    if (isCentered) {
+      center = start;
+      usedStart = center - delta;
+      radius = delta.distance;
+      radiusPerpendicular = Offset(delta.dy, -delta.dx);
+    } else {
+      usedStart = start;
+      center = (start + end) * 0.5;
+      radius = delta.distance * 0.5;
+      radiusPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
+    }
+
+    return (
+      center: center,
+      delta: delta,
+      outputEnd: end,
+      outputStart: usedStart,
+      radius: radius,
+      radiusPerpendicular: radiusPerpendicular,
+    );
   }
 
   static Iterable<(Offset a, Offset b, bool thin)> getBoxLines(
@@ -206,13 +251,13 @@ class AnnotationsModel {
   final annotationsFocus = FocusNode();
   final List<Stroke> strokes = [];
   Path currentStrokePath = Path();
-  MeasurementStroke currentMeasurementStroke = MeasurementStroke();
+  RulerStroke currentRulerStroke = RulerStroke();
   final changes = ChangeStack(limit: 30);
   final lastErasedStrokes = <Stroke>[];
 
   final currentTool = ValueNotifier(AnnotationTool.draw);
-  final currentMeasureType = ValueNotifier(MeausurementType.line);
-  final currentMeasureDivisions = ValueNotifier<int>(2);
+  final currentRulerType = ValueNotifier(RulerType.line);
+  final currentRulerDivisions = ValueNotifier<int>(2);
   late final color = ValueNotifier<Color>(colorChoices.first);
   late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
   final opacity = ValueNotifier<double>(0.2);
@@ -271,18 +316,18 @@ class AnnotationsModel {
     };
   }
 
-  void setToolMeasure() {
-    if (currentTool.value == AnnotationTool.measure) {
-      currentMeasureType.value = switch (currentMeasureType.value) {
-        MeausurementType.line => MeausurementType.box,
-        MeausurementType.box => MeausurementType.circle,
-        _ => MeausurementType.line,
+  void setToolRuler() {
+    if (currentTool.value == AnnotationTool.rulers) {
+      currentRulerType.value = switch (currentRulerType.value) {
+        RulerType.line => RulerType.box,
+        RulerType.box => RulerType.circle,
+        _ => RulerType.line,
       };
 
       return;
     }
 
-    currentTool.value = AnnotationTool.measure;
+    currentTool.value = AnnotationTool.rulers;
   }
 
   void cycleUnderlayColor() {
@@ -313,22 +358,28 @@ class AnnotationsModel {
     currentStrokeStartPosition = position;
   }
 
-  void startNewMeasurement(Offset position) {
+  void startNewRuler(Offset position) {
     if (isStrokesLocked) {
       showStrokesLockedHint();
       return;
     }
-    currentMeasurementStroke = MeasurementStroke()
-      ..type = currentMeasureType.value
-      ..division = currentMeasureDivisions.value
+
+    currentRulerStroke = RulerStroke()
+      ..type = currentRulerType.value
+      ..division = currentRulerDivisions.value
       ..start = position
       ..end = position;
-    strokes.add(currentMeasurementStroke);
+
+    if (Phshortcuts.isCenteredModifierPressed()) {
+      currentRulerStroke.isCentered = true;
+    }
+
+    strokes.add(currentRulerStroke);
   }
 
-  void updateMeasurementEnd(Offset position) {
+  void updateRulerEnd(Offset position) {
     if (isStrokesLocked) return;
-    currentMeasurementStroke.end = position;
+    currentRulerStroke.end = position;
   }
 
   void resetCurrentStrokeWithSecondPoint(Offset point) {
@@ -356,18 +407,18 @@ class AnnotationsModel {
     }
   }
 
-  void commitCurrentMeasurement() {
+  void commitCurrentRuler() {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
-    if (currentMeasurementStroke.isInvalid) {
-      strokes.remove(currentMeasurementStroke);
+    if (currentRulerStroke.isInvalid) {
+      strokes.remove(currentRulerStroke);
       return;
     }
 
-    currentMeasurementStroke.updatePath();
+    currentRulerStroke.updatePath();
 
     final latestStroke =
-        currentMeasurementStroke; // This needs to be a local variable so the value can be captured by the undo closure.
+        currentRulerStroke; // This needs to be a local variable so the value can be captured by the undo closure.
     changes.add(
       Change(
         latestStroke,
@@ -542,7 +593,7 @@ class AnnotationsInterface extends StatelessWidget {
           Phshortcuts.redo: model.redo,
           Phshortcuts.undo: model.undo,
           Phshortcuts.drawToolAnnotations: () => model.setToolDraw(),
-          Phshortcuts.measureToolAnnotations: () => model.setToolMeasure(),
+          Phshortcuts.rulerToolAnnotations: () => model.setToolRuler(),
           Phshortcuts.eraserToolAnnotations: () =>
               model.setTool(AnnotationTool.erase),
           Phshortcuts.cycleAnnotationColors: model.cycleColor,
@@ -596,13 +647,13 @@ class AnnotationsInterface extends StatelessWidget {
                                 : Icon(FluentIcons.line_20_regular),
                           ),
                           IconButton.filled(
-                            tooltip: "Measure  (R)",
+                            tooltip: "Proportion rulers  (R)",
                             isSelected:
-                                currentToolValue == AnnotationTool.measure,
-                            onPressed: () => model.setToolMeasure(),
-                            icon: currentToolValue == AnnotationTool.measure
-                                ? Icon(FluentIcons.border_all_20_filled)
-                                : Icon(FluentIcons.border_all_20_regular),
+                                currentToolValue == AnnotationTool.rulers,
+                            onPressed: () => model.setToolRuler(),
+                            icon: currentToolValue == AnnotationTool.rulers
+                                ? Icon(FluentIcons.ruler_20_filled)
+                                : Icon(FluentIcons.ruler_20_regular),
                           ),
                           IconButton.filled(
                             tooltip: "Stroke Eraser  (E)",
@@ -831,17 +882,17 @@ class AnnotationsInterface extends StatelessWidget {
                     ValueListenableBuilder(
                       valueListenable: model.currentTool,
                       builder: (context, currentToolValue, _) {
-                        if (currentToolValue != AnnotationTool.measure) {
+                        if (currentToolValue != AnnotationTool.rulers) {
                           return SizedBox.shrink();
                         }
 
                         return Row(
                           children: [
                             ValueListenableBuilder(
-                              valueListenable: model.currentMeasureType,
-                              builder: (context, measureTypeValue, _) {
+                              valueListenable: model.currentRulerType,
+                              builder: (context, rulerTypeValue, _) {
                                 final label = Text(
-                                  "Measure",
+                                  "Rulers",
                                   style: theme.textTheme.labelSmall,
                                 );
                                 return Row(
@@ -859,17 +910,17 @@ class AnnotationsInterface extends StatelessWidget {
                                       ),
                                       segments: const [
                                         ButtonSegment(
-                                            value: MeausurementType.line,
+                                            value: RulerType.line,
                                             tooltip: "Line",
                                             icon: Icon(
                                                 FluentIcons.line_20_regular)),
                                         ButtonSegment(
-                                            value: MeausurementType.box,
+                                            value: RulerType.box,
                                             tooltip: "Box",
                                             icon: Icon(FluentIcons
                                                 .border_all_16_regular)),
                                         ButtonSegment(
-                                          value: MeausurementType.circle,
+                                          value: RulerType.circle,
                                           tooltip: "Circle",
                                           icon: Stack(
                                             children: [
@@ -879,9 +930,9 @@ class AnnotationsInterface extends StatelessWidget {
                                           ),
                                         ),
                                       ],
-                                      selected: {measureTypeValue},
+                                      selected: {rulerTypeValue},
                                       onSelectionChanged: (newSelection) {
-                                        model.currentMeasureType.value =
+                                        model.currentRulerType.value =
                                             newSelection.first;
                                       },
                                     ),
@@ -892,7 +943,7 @@ class AnnotationsInterface extends StatelessWidget {
                             VerticalDivider(),
                             SizedBox(width: 10),
                             ValueListenableBuilder(
-                              valueListenable: model.currentMeasureDivisions,
+                              valueListenable: model.currentRulerDivisions,
                               builder: (context, divisionsValue, _) {
                                 const min = 2;
                                 const max = 8;
@@ -902,10 +953,9 @@ class AnnotationsInterface extends StatelessWidget {
 
                                 return ScrollListener(
                                   onScrollDown: () => model
-                                      .currentMeasureDivisions
+                                      .currentRulerDivisions
                                       .incrementClamped(-1, min, max),
-                                  onScrollUp: () => model
-                                      .currentMeasureDivisions
+                                  onScrollUp: () => model.currentRulerDivisions
                                       .incrementClamped(1, min, max),
                                   child: Flex(
                                     direction: Axis.horizontal,
@@ -930,7 +980,7 @@ class AnnotationsInterface extends StatelessWidget {
                                             max: max.toDouble(),
                                             divisions: max - min,
                                             onChanged: (newValue) {
-                                              model.currentMeasureDivisions
+                                              model.currentRulerDivisions
                                                   .value = newValue.toInt();
                                             },
                                           ),

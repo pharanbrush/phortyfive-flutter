@@ -29,8 +29,7 @@ class Phshortcuts {
   static const annotationMode = SingleActivator(LogicalKeyboardKey.keyN);
 
   static const drawToolAnnotations = SingleActivator(LogicalKeyboardKey.keyB);
-  static const measureToolAnnotations =
-      SingleActivator(LogicalKeyboardKey.keyR);
+  static const rulerToolAnnotations = SingleActivator(LogicalKeyboardKey.keyR);
   static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
   static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
@@ -79,6 +78,13 @@ class Phshortcuts {
     final isShiftPressed = keyboard.isShiftPressed;
 
     return isSpacePressed && isShiftPressed;
+  }
+
+  static bool isCenteredModifierPressed() {
+    final keyboard = HardwareKeyboard.instance;
+    final isAltPressed = keyboard.isAltPressed;
+
+    return isAltPressed;
   }
 
   static bool isPanModifierPressed() {
