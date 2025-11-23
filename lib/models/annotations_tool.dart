@@ -309,10 +309,12 @@ class AnnotationsModel {
   }
 
   static bool hitTestStroke(Stroke stroke, Offset point, double tolerance) {
+    final squaredTolerance = tolerance * tolerance;
+
     for (final metric in stroke.path.computeMetrics()) {
       for (double d = 0; d < metric.length; d += tolerance) {
         final pos = metric.getTangentForOffset(d)!.position;
-        if ((pos - point).distance <= tolerance) {
+        if ((pos - point).distanceSquared <= squaredTolerance) {
           return true;
         }
       }
