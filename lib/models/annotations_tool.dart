@@ -1054,7 +1054,7 @@ class AnnotationsInterface extends StatelessWidget {
                                   (context, addComparisonRulerValue, child) {
                                 return Tooltip(
                                   message:
-                                      "Toggle to add an overlay\nfor comparing the previous ruler with the next ruler",
+                                      "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
                                   child: AnimateOnListenable(
                                     listenable:
                                         model.comparisonAddedPulseListenable,
