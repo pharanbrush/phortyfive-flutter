@@ -34,12 +34,16 @@ enum RulerType {
 }
 
 class RulerStroke extends Stroke {
-  Offset startClickPosition = Offset.zero;
   Offset start = Offset.zero;
   Offset end = Offset.zero;
   RulerType type = RulerType.line;
   int division = 2;
+
+  Offset startUserPosition = Offset.zero;
+  Offset endUserPosition = Offset.zero;
   bool isCentered = false;
+  bool isCounterclockwise = false;
+
   RulerStroke? comparisonRuler;
   double? comparisonLength;
 
@@ -49,11 +53,28 @@ class RulerStroke extends Stroke {
     return start == end || !start.isFinite || !end.isFinite;
   }
 
-  void updateEnd(Offset newEnd) {
-    end = newEnd;
+  void startAt(Offset userPointer) {
+    startUserPosition = userPointer;
+    endUserPosition = userPointer;
+
+    start = userPointer;
+    end = userPointer;
+  }
+
+  void updateEnd(Offset userPointer) {
+    endUserPosition = userPointer;
+
     if (isCentered) {
-      final delta = newEnd - startClickPosition;
-      start = startClickPosition - delta;
+      final delta = userPointer - startUserPosition;
+      start = startUserPosition - delta;
+      end = userPointer;
+    } else if (isCounterclockwise) {
+      final delta = userPointer - startUserPosition;
+      final deltaPerpendicularCcwHalf = Offset(delta.dy, -delta.dx) * 0.5;
+      start = startUserPosition + deltaPerpendicularCcwHalf;
+      end = userPointer + deltaPerpendicularCcwHalf;
+    } else {
+      end = userPointer;
     }
   }
 
@@ -424,11 +445,12 @@ class AnnotationsModel {
     currentRulerStroke = RulerStroke()
       ..type = currentRulerType.value
       ..division = currentRulerDivisions.value
-      ..startClickPosition = position
-      ..start = position
-      ..end = position;
+      ..startAt(position);
 
-    if (Phshortcuts.isCenteredModifierPressed()) {
+    if (currentRulerStroke.type == RulerType.box &&
+        Phshortcuts.isCounterclockwiseModifierPressed()) {
+      currentRulerStroke.isCounterclockwise = true;
+    } else if (Phshortcuts.isCenteredModifierPressed()) {
       currentRulerStroke.isCentered = true;
     }
 

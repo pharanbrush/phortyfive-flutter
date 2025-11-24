@@ -81,10 +81,11 @@ class Phshortcuts {
   }
 
   static bool isCenteredModifierPressed() {
-    final keyboard = HardwareKeyboard.instance;
-    final isAltPressed = keyboard.isAltPressed;
+    return HardwareKeyboard.instance.isAltPressed;
+  }
 
-    return isAltPressed;
+  static bool isCounterclockwiseModifierPressed() {
+    return HardwareKeyboard.instance.isControlPressed;
   }
 
   static bool isPanModifierPressed() {
