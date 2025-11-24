@@ -62,6 +62,33 @@ class PfsAppModel
     return imageList.get(circulator.currentIndex);
   }
 
+  void preloadSurroundingImages(BuildContext context) async {
+    final current = circulator.currentIndex;
+
+    final surroundingImageData = _getSurroundingImageData(current);
+
+    for (final imageData in surroundingImageData) {
+      if (imageData is ImageFileData) {
+        final path = imageData.filePath;
+        //debugPrint("preloading: $path");
+        final fileImage = FileImage(File(path));
+        await precacheImage(fileImage, context);
+      }
+    }
+  }
+
+  Iterable<ImageData> _getSurroundingImageData(int index) sync* {
+    if (imageList.getCount() == 1) return;
+    const indexOffsets = [1, -1];
+
+    for (final offset in indexOffsets) {
+      final index = circulator.getSurroundingIndex(offset);
+      if (index != null) {
+        yield imageList.get(index);
+      }
+    }
+  }
+
   void tryPauseTimer() {
     if (timerModel.isRunning) {
       tryCancelCountdown();

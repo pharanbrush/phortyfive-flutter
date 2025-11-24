@@ -17,9 +17,15 @@ class ImageList {
   final items = List<ImageData>.empty(growable: true);
 
   int getCount() => items.length;
-  bool isPopulated() => getCount() > 0;
+  bool isPopulated() => items.isNotEmpty;
   ImageData getFirst() => get(0);
   ImageData getLast() => get(items.length - 1);
+
+  ({int first, int last})? getIndexRange() {
+    if (items.isEmpty) return null;
+
+    return (first: 0, last: items.length - 1);
+  }
 
   ImageData get(int index) {
     final count = getCount();

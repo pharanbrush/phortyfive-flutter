@@ -459,6 +459,7 @@ class _MainScreenState extends State<MainScreen>
 
   void _handleOnImageChange() {
     waitThenAddImageToScore();
+    widget.model.preloadSurroundingImages(context);
     setState(() => imagePhviewer.resetTransform());
   }
 

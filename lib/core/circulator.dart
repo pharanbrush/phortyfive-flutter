@@ -43,12 +43,27 @@ class Circulator {
   }
 
   void moveCurrentNumberBy(int increment) {
+    final possibleNewNumber = _getIncrementedIndex(_currentNumber, increment);
+    if (possibleNewNumber == null) return;
+
+    setCurrentNumber(possibleNewNumber);
+  }
+
+  int? _getIncrementedIndex(int current, int increment) {
+    if (reorderedIndices.isEmpty) return null;
+    if (increment.abs() > reorderedIndices.length) return null;
+
     int newNumber = _currentNumber + increment;
+    if (newNumber >= count) newNumber -= count;
+    if (newNumber < 0) newNumber += count;
 
-    final max = maxNumber;
-    if (newNumber > max) newNumber = 0;
-    if (newNumber < 0) newNumber = max;
+    return newNumber;
+  }
 
-    setCurrentNumber(newNumber);
+  int? getSurroundingIndex(int increment) {
+    final possibleNewNumber = _getIncrementedIndex(_currentNumber, increment);
+    if (possibleNewNumber == null) return null;
+
+    return reorderedIndices[possibleNewNumber];
   }
 }
