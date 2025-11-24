@@ -8,6 +8,7 @@ import 'package:pfs2/phlutter/centered_vertically.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
+import 'package:pfs2/phlutter/sized_box_fitted.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -319,7 +320,7 @@ class AnnotationsModel {
   final isStrokesVisible = ValueNotifier(true);
   final undoRedoListenable = SimpleNotifier();
 
-  final isAddComparisonRulerEnabled = ValueNotifier(true);
+  final isNextRulerAddsComparison = ValueNotifier(false);
 
   final comparisonAddedPulseListenable = SimpleNotifier();
   final visibilityPulseListenable = SimpleNotifier();
@@ -362,8 +363,8 @@ class AnnotationsModel {
       didRestoreMode = true;
     }
 
-    if (isAddComparisonRulerEnabled.value) {
-      isAddComparisonRulerEnabled.value = false;
+    if (isNextRulerAddsComparison.value) {
+      isNextRulerAddsComparison.value = false;
       didRestoreMode = true;
     }
 
@@ -405,6 +406,7 @@ class AnnotationsModel {
       return;
     }
 
+    isNextRulerAddsComparison.value = false;
     currentTool.value = AnnotationTool.rulers;
   }
 
@@ -454,7 +456,7 @@ class AnnotationsModel {
       currentRulerStroke.isCentered = true;
     }
 
-    if (isAddComparisonRulerEnabled.value) {
+    if (isNextRulerAddsComparison.value) {
       for (int i = strokes.length - 1; i >= 0; i--) {
         final top = strokes[i];
         if (top is RulerStroke) {
@@ -504,6 +506,8 @@ class AnnotationsModel {
   void commitCurrentRuler() {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
+    isNextRulerAddsComparison.value = false;
+
     if (currentRulerStroke.isInvalid) {
       strokes.remove(currentRulerStroke);
       return;
@@ -1041,6 +1045,39 @@ class AnnotationsInterface extends StatelessWidget {
                                 );
                               },
                             ),
+                            ValueListenableBuilder(
+                              valueListenable: model.isNextRulerAddsComparison,
+                              builder:
+                                  (context, addComparisonRulerValue, child) {
+                                return Tooltip(
+                                  message:
+                                      "Toggle to add an overlay\nfor comparing the previous ruler with the next ruler",
+                                  child: AnimateOnListenable(
+                                    listenable:
+                                        model.comparisonAddedPulseListenable,
+                                    effects: [Phanimations.toolPulseEffect],
+                                    child: SizedBoxFitted(
+                                      height: 32,
+                                      width: 32,
+                                      child: IconButton.outlined(
+                                        onPressed: () => model
+                                            .isNextRulerAddsComparison
+                                            .toggle(),
+                                        icon: Icon(Icons.splitscreen, size: 25),
+                                        isSelected: addComparisonRulerValue,
+                                        selectedIcon: Icon(
+                                          Icons.splitscreen,
+                                          size: 20,
+                                        ),
+                                        color: addComparisonRulerValue
+                                            ? theme.colorScheme.tertiary
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                             VerticalDivider(),
                             SizedBox(width: 10),
                             ValueListenableBuilder(
@@ -1103,51 +1140,6 @@ class AnnotationsInterface extends StatelessWidget {
                               },
                             ),
                             VerticalDivider(),
-                            ValueListenableBuilder(
-                              valueListenable:
-                                  model.isAddComparisonRulerEnabled,
-                              builder:
-                                  (context, addComparisonRulerValue, child) {
-                                return Tooltip(
-                                  message:
-                                      "Toggle to compare previous and current rulers",
-                                  child: AnimateOnListenable(
-                                    listenable:
-                                        model.comparisonAddedPulseListenable,
-                                    effects: [Phanimations.toolPulseEffect],
-                                    child: Flex(
-                                      direction: Axis.horizontal,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6.0,
-                                          ),
-                                          child: Icon(
-                                            Icons.splitscreen,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                          child: FittedBox(
-                                            child: Switch(
-                                              activeThumbColor:
-                                                  theme.colorScheme.tertiary,
-                                              value: addComparisonRulerValue,
-                                              onChanged: (value) {
-                                                model
-                                                    .isAddComparisonRulerEnabled
-                                                    .value = value;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
                           ],
                         ).animate(
                           effects: const [
