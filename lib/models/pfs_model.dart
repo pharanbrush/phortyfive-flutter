@@ -11,6 +11,14 @@ import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 
+enum PfsAppControlsMode {
+  imageBrowse,
+  colorMeter,
+  annotation,
+  firstAction,
+  welcomeChoice
+}
+
 class PfsAppModel
     with
         PfsImageListManager,
@@ -25,10 +33,16 @@ class PfsAppModel
         .model;
   }
 
+  final currentAppControlsMode =
+      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+
   bool get allowTimerPlayPause =>
       hasMoreThanOneImage && isWelcomeDone.value; //&& !isAnnotating;
   bool get allowCirculatorControl =>
-      hasMoreThanOneImage && isWelcomeDone.value; //&& !isAnnotating;
+      hasMoreThanOneImage &&
+      isWelcomeDone.value &&
+      currentAppControlsMode.value ==
+          PfsAppControlsMode.imageBrowse; //&& !isAnnotating;
   // bool get isAnnotating => isAnnotatingMode.value;
 
   late final allowedControlsChanged = Listenable.merge([

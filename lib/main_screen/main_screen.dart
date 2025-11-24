@@ -89,6 +89,12 @@ class _MainScreenState extends State<MainScreen>
   @override
   ImageData getCurrentImageFileData() => widget.model.getCurrentImageData();
 
+  late final _currentAppControlsMode = widget.model.currentAppControlsMode;
+
+  @override
+  ValueNotifier<PfsAppControlsMode> get currentAppControlsMode =>
+      _currentAppControlsMode;
+
   @override
   String getCurrentImagePath() {
     final currentImageData = getCurrentImageFileData();
@@ -850,17 +856,8 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 }
 
-enum PfsAppControlsMode {
-  imageBrowse,
-  colorMeter,
-  annotation,
-  firstAction,
-  welcomeChoice
-}
-
 mixin MainScreenModels on State<MainScreen> {
-  final currentAppControlsMode =
-      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+  ValueNotifier<PfsAppControlsMode> get currentAppControlsMode;
 
   void setAppMode(PfsAppControlsMode newMode) {
     debugPrint("setAppMode called with ($newMode)");

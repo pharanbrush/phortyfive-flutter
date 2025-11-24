@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
-import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/models/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
