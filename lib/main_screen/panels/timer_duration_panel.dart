@@ -195,7 +195,7 @@ class TimerPresetButton extends StatelessWidget {
 
     Widget button;
     final model = PhtimerModel.of(context);
-    
+
     void onPressed() {
       model.setDurationSeconds(seconds);
       onDismiss.call();
