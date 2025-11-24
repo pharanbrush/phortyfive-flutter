@@ -557,6 +557,7 @@ class _MainScreenState extends State<MainScreen>
         final annotationsModel = AnnotationsModel.of(context);
         annotationsModel.annotationsFocus.requestFocus();
         annotationsModel.setTool(AnnotationTool.draw);
+        annotationsModel.tryRestoreBaselineMode();
 
         EscapeNavigator.of(context)?.push(
           EscapeRoute(
