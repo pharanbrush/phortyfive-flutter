@@ -68,7 +68,7 @@ class TimerDurationPanel extends StatelessWidget {
     final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
     final timerModel = PhtimerModel.of(context);
 
-    final windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     const double widestNarrowWidth = 600;
     const double narrowestNarrowWidth = 450;

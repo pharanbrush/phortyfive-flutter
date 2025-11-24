@@ -234,8 +234,9 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   // Calculate the image size to fit the screen while maintaining the aspect ratio
   Size calculateImageSize(ui.Image image) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.sizeOf(context);
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
 
     final imageRatio = image.width / image.height;
     final screenRatio = screenWidth / screenHeight;

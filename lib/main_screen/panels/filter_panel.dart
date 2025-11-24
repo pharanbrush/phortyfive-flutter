@@ -67,7 +67,7 @@ class FilterPanel extends StatelessWidget {
       bottom: 15,
     );
 
-    final windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     const double widestNarrowWidth = 600;
     const double narrowestNarrowWidth = 450;

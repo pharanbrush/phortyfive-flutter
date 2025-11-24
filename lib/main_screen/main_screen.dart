@@ -188,7 +188,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget bottomControlBar(BuildContext context) {
-    final Size windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,

@@ -16,7 +16,7 @@ class HelpSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     final bool isWindowShort = windowSize.height < 520;
     final bool isWindowVeryShort = windowSize.height < 420;
