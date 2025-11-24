@@ -36,14 +36,15 @@ class PfsAppModel
   final currentAppControlsMode =
       ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
 
-  bool get allowTimerPlayPause =>
-      hasMoreThanOneImage && isWelcomeDone.value; //&& !isAnnotating;
+  bool get isImageBrowseMode =>
+      currentAppControlsMode.value == PfsAppControlsMode.imageBrowse;
+
+  bool get allowTimerPlayPause => hasMoreThanOneImage && isWelcomeDone.value;
   bool get allowCirculatorControl =>
-      hasMoreThanOneImage &&
-      isWelcomeDone.value &&
-      currentAppControlsMode.value ==
-          PfsAppControlsMode.imageBrowse; //&& !isAnnotating;
-  // bool get isAnnotating => isAnnotatingMode.value;
+      hasMoreThanOneImage && isWelcomeDone.value && isImageBrowseMode;
+
+  @override
+  bool get allowImageSetChange => isImageBrowseMode;
 
   late final allowedControlsChanged = Listenable.merge([
     imageListChangedNotifier,
@@ -288,6 +289,8 @@ mixin PfsImageListManager {
 
   final imageListChangedNotifier = SimpleNotifier();
 
+  bool get allowImageSetChange;
+
   void Function(int loadedCount, int skippedCount)? onImagesLoadedSuccess;
   void Function()? onFilePickerStateChange;
   void Function()? onImageChange;
@@ -304,6 +307,7 @@ mixin PfsImageListManager {
   }
 
   void openFilePickerForImages() async {
+    if (!allowImageSetChange) return;
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
@@ -324,6 +328,7 @@ mixin PfsImageListManager {
   }
 
   void openFilePickerForFolder({bool includeSubfolders = false}) async {
+    if (!allowImageSetChange) return;
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
@@ -336,6 +341,7 @@ mixin PfsImageListManager {
   }
 
   void loadFolder(String folderPath, {bool recursive = false}) async {
+    if (!allowImageSetChange) return;
     if (folderPath.isEmpty) return;
 
     final directory = Directory(folderPath);

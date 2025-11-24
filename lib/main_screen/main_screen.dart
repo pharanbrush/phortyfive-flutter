@@ -114,7 +114,7 @@ class _MainScreenState extends State<MainScreen>
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
     (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
-    (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
+    (OpenTimerMenuIntent, (_) => _tryOpenTimerMenu()),
     (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
@@ -403,6 +403,11 @@ class _MainScreenState extends State<MainScreen>
 
   void _tryEscape() {
     EscapeNavigator.of(context)?.tryEscape();
+  }
+
+  void _tryOpenTimerMenu() {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+    timerDurationMenu.open();
   }
 
   void _handleOpenColorMeterMenuItem() {
