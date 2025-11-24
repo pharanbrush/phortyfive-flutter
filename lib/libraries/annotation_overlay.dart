@@ -162,7 +162,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
               builder: (_, modelUnderlayColor, __) {
                 return AnimatedContainer(
                   color: modelUnderlayColor,
-                  duration: Durations.medium1,
+                  duration: Duration(milliseconds: 600),
                 );
               },
             ),
