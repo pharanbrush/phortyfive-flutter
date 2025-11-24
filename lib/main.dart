@@ -1,6 +1,7 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
   final Circulator circulator = Circulator();
   final PfsAppModel appModel;
   final ValueNotifier<String> theme;
+  final annotationsModel = AnnotationsModel();
   final PfsWindowState windowState = PfsWindowState();
 
   MyApp({
@@ -49,32 +51,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mainTree = ValueListenableBuilder(
+      valueListenable: theme,
+      builder: (_, __, ___) {
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+          title: pfsAppTitle,
+          theme: PfsTheme.getTheme(theme.value),
+          home: Scaffold(
+            body: WindowWrapper(
+              windowState: windowState,
+              child: MainScreen(
+                model: appModel,
+                theme: theme,
+                windowState: windowState,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     return ModelScope<PfsAppModel>(
       model: appModel,
-      child: ModelScope<PhtimerModel>(
-        model: appModel.timerModel,
-        child: ValueListenableBuilder(
-          valueListenable: theme,
-          builder: (themeContext, __, ___) {
-            return MaterialApp(
-              navigatorKey: navigatorKey,
-              debugShowCheckedModeBanner: false,
-              title: pfsAppTitle,
-              theme: PfsTheme.getTheme(theme.value),
-              home: Scaffold(
-                body: WindowWrapper(
-                  windowState: windowState,
-                  child: EscapeNavigator(
-                    child: MainScreen(
-                      model: appModel,
-                      theme: theme,
-                      windowState: windowState,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+      child: ModelScope<AnnotationsModel>(
+        model: annotationsModel,
+        child: ModelScope<PhtimerModel>(
+          model: appModel.timerModel,
+          child: EscapeNavigator(
+            child: mainTree,
+          ),
         ),
       ),
     );

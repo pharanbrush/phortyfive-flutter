@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -69,7 +68,7 @@ class TimerDurationPanel extends StatelessWidget {
     final onDismiss = ModalDismissContext.of(context)?.onDismiss ?? () {};
     final timerModel = PhtimerModel.of(context);
 
-    final windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     const double widestNarrowWidth = 600;
     const double narrowestNarrowWidth = 450;
@@ -196,7 +195,7 @@ class TimerPresetButton extends StatelessWidget {
 
     Widget button;
     final model = PhtimerModel.of(context);
-    
+
     void onPressed() {
       model.setDurationSeconds(seconds);
       onDismiss.call();

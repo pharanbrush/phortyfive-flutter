@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+export 'package:flutter_animate/flutter_animate.dart';
+export 'package:pfs2/phlutter/animate_on_listenable.dart';
+
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);
   static const zoomTransitionCurve = Curves.easeOutQuint;
@@ -25,6 +28,13 @@ class Phanimations {
     duration: Duration(milliseconds: 400),
     curve: Curves.easeOutQuart,
     begin: Offset(1.55, 1.55),
+    end: Offset(1, 1),
+  );
+
+  static const toolPulseEffect = ScaleEffect(
+    duration: Duration(milliseconds: 500),
+    curve: Curves.easeOutQuart,
+    begin: Offset(1.8, 1.8),
     end: Offset(1, 1),
   );
 
@@ -122,8 +132,8 @@ class Phanimations {
     );
   }
 
-  static const double _imageSlideOriginX = 0.05;
-  static const _imageSwapDuration = Duration(milliseconds: 300);
+  static const double _imageSlideOriginX = 0.035;
+  static const _imageSwapDuration = Duration(milliseconds: 400);
   static const _imageSwapCurve = Curves.easeOutQuint;
   static const imageNext = <Effect>[
     SlideEffect(

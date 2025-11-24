@@ -25,11 +25,18 @@ class Phshortcuts {
   static const zoomOut = SingleActivator(LogicalKeyboardKey.minus);
   static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
 
-  static const toggleAnnotation = SingleActivator(LogicalKeyboardKey.keyN);
-  static const clearAnnotations = SingleActivator(LogicalKeyboardKey.backspace);
+  static const colorMeterMode = SingleActivator(LogicalKeyboardKey.keyI);
+  static const annotationMode = SingleActivator(LogicalKeyboardKey.keyN);
+
+  static const drawToolAnnotations = SingleActivator(LogicalKeyboardKey.keyB);
+  static const rulerToolAnnotations = SingleActivator(LogicalKeyboardKey.keyR);
+  static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
+  static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
+  static const redo =
+      SingleActivator(LogicalKeyboardKey.keyZ, control: true, shift: true);
   static const copyFile =
       SingleActivator(LogicalKeyboardKey.keyC, control: true);
 
@@ -73,6 +80,22 @@ class Phshortcuts {
     return isSpacePressed && isShiftPressed;
   }
 
+  static bool isCenteredModifierPressed() {
+    return HardwareKeyboard.instance.isAltPressed;
+  }
+
+  static bool isCounterclockwiseModifierPressed() {
+    return HardwareKeyboard.instance.isControlPressed;
+  }
+
+  static bool isPanModifierPressed() {
+    final keyboard = HardwareKeyboard.instance;
+    final isSpacePressed =
+        keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
+
+    return isSpacePressed;
+  }
+
   static const intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
@@ -107,7 +130,8 @@ class Phshortcuts {
     Phshortcuts.zoomResetNav: ZoomResetIntent(),
     Phshortcuts.copyFile: CopyFileIntent(),
     Phshortcuts.undo: UndoIntent(),
-    Phshortcuts.toggleAnnotation: AnnotationToggleIntent(),
+    Phshortcuts.colorMeterMode: ColorMeterOpenIntent(),
+    Phshortcuts.annotationMode: AnnotationToggleIntent(),
     Phshortcuts.clearAnnotations: AnnotationClearIntent(),
     Phshortcuts.cycleAnnotationColors: AnnotationCycleColorsIntent(),
     Phshortcuts.paste: PasteIntent(),
@@ -208,4 +232,8 @@ class CopyFileIntent extends Intent {
 
 class PasteIntent extends Intent {
   const PasteIntent();
+}
+
+class ColorMeterOpenIntent extends Intent {
+  const ColorMeterOpenIntent();
 }

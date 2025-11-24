@@ -5,30 +5,28 @@ import 'dart:ui';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
-import 'package:pfs2/main_screen/main_screen.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
-import 'package:pfs2/widgets/annotation_overlay.dart';
+import 'package:pfs2/libraries/annotation_overlay.dart';
 import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
 class ImagePhviewer with ImageZoomPanner, ImageFilters {
-  ImagePhviewer({required this.appControlsMode});
+  ImagePhviewer();
 
   static final imageWidgetKey = GlobalKey();
-
-  final ValueListenable<PfsAppControlsMode> appControlsMode;
 
   @override
   Size getImageSize() {
@@ -42,7 +40,6 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
       panDurationListenable: panDuration,
       isBottomBarMinimized: isBottomBarMinimized,
       revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
-      currentAppControlsMode: appControlsMode,
     );
   }
 }
@@ -296,13 +293,11 @@ class ImageRightClick extends StatelessWidget {
     required this.child,
     required this.resetZoomLevelHandler,
     required this.revealInExplorerHandler,
-    required this.colorChangeModeHandler,
   });
 
   final Widget child;
   final VoidCallback resetZoomLevelHandler;
   final VoidCallback revealInExplorerHandler;
-  final VoidCallback colorChangeModeHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -359,18 +354,11 @@ class ImageRightClick extends StatelessWidget {
       disabled: !isFile,
     );
 
-    final colorChangeModeItem = MenuItem(
-      label: PfsLocalization.openColorChangeMeter,
-      onClick: (menuItem) => colorChangeModeHandler(),
-    );
-
     final contextMenu = Menu(
       items: [
         copyImageItem,
         copyFilePathItem,
         copyFilename,
-        MenuItem.separator(),
-        colorChangeModeItem,
         MenuItem.separator(),
         revealInExplorerItem,
       ],
@@ -430,7 +418,6 @@ class ImageViewerStackWidget extends StatelessWidget {
     required this.isBottomBarMinimized,
     required this.revealInExplorerHandler,
     required this.panDurationListenable,
-    required this.currentAppControlsMode,
     required this.zoomPanner,
     required this.filters,
   });
@@ -439,7 +426,6 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<bool> isBottomBarMinimized;
-  final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
   final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
@@ -475,7 +461,7 @@ class ImageViewerStackWidget extends StatelessWidget {
           final currentImageData = model.getCurrentImageData();
           final imageWidget = getImageWidget(currentImageData);
           final possiblyOverlayedWidget = ValueListenableBuilder(
-            valueListenable: currentAppControlsMode,
+            valueListenable: model.currentAppControlsMode,
             builder: (
               BuildContext context,
               PfsAppControlsMode mode,
@@ -484,14 +470,12 @@ class ImageViewerStackWidget extends StatelessWidget {
               switch (mode) {
                 case PfsAppControlsMode.annotation:
                   final annotatedImageWidget = AnnotationOverlay(
+                    zoomPanner: zoomPanner,
                     image: imageWidget,
                     annotationType: AnnotationType.line,
                     child: imageWidget,
                   );
                   return annotatedImageWidget;
-
-                // case PfsAppControlsMode.eyedrop:
-                //   return EyeDrop(child: imageWidget);
 
                 default:
                   return imageWidget;
@@ -561,6 +545,32 @@ class ImageViewerStackWidget extends StatelessWidget {
                     },
                   ),
                 ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: model.currentAppControlsMode,
+                builder: (_, appControlsModeValue, __) {
+                  if (appControlsModeValue != PfsAppControlsMode.annotation) {
+                    return SizedBox.shrink();
+                  }
+
+                  final translucent = HitTestBehavior.translucent;
+
+                  return GestureDetector(
+                    behavior: translucent,
+                    onSecondaryTap: () {
+                      final restoredMode =
+                          AnnotationsModel.of(context).tryRestoreBaselineMode();
+                      if (restoredMode) return;
+
+                      EscapeNavigator.of(context)?.tryEscape();
+                    },
+                    child: ImagePhviewerZoomOnScrollListener(
+                      behavior: translucent,
+                      zoomPanner: zoomPanner,
+                      child: SizedBox.expand(),
+                    ),
+                  );
+                },
               ),
               ValueListenableBuilder(
                 valueListenable: filters.blurLevelListenable,
@@ -704,28 +714,41 @@ class ImagePhviewerPanListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanUpdate: (details) {
-        final pointerDelta = details.delta;
-
-        if (Phshortcuts.isDragZoomModifierPressed()) {
-          zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
-          zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
-          return;
-        }
-
-        if (!zoomPanner.isZoomedIn) return;
-
-        zoomPanner.panImage(pointerDelta);
-      },
-      onPanEnd: (details) {
-        zoomPanner.resetZoomAccumulator();
-
-        if (!zoomPanner.isZoomedIn) return;
-
-        zoomPanner.panRelease();
-      },
+      onPanUpdate: (details) =>
+          handlePanUpdate(details: details, zoomPanner: zoomPanner),
+      onPanEnd: (details) =>
+          handlePanEnd(details: details, zoomPanner: zoomPanner),
       child: child,
     );
+  }
+
+  static void handlePanEnd({
+    required DragEndDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    zoomPanner.resetZoomAccumulator();
+
+    if (!zoomPanner.isZoomedIn) return;
+    zoomPanner.panRelease();
+  }
+
+  static void handlePanUpdate({
+    required DragUpdateDetails details,
+    required ImageZoomPanner zoomPanner,
+    bool useZoomPannerScale = false,
+  }) {
+    final pointerDelta = details.delta;
+
+    if (Phshortcuts.isDragZoomModifierPressed()) {
+      zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
+      zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
+      return;
+    }
+
+    //if (!zoomPanner.isZoomedIn) return;
+
+    final deltaScale = (useZoomPannerScale ? zoomPanner.currentZoomScale : 1.0);
+    zoomPanner.panImage(pointerDelta * deltaScale);
   }
 }
 
@@ -734,14 +757,17 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
     super.key,
     required this.child,
     required this.zoomPanner,
+    this.behavior = HitTestBehavior.deferToChild,
   });
 
   final Widget child;
   final ImageZoomPanner zoomPanner;
+  final HitTestBehavior behavior;
 
   @override
   Widget build(BuildContext context) {
     return ScrollListener(
+      behavior: behavior,
       onScrollDown: () => zoomPanner.incrementZoomLevel(-1),
       onScrollUp: () => zoomPanner.incrementZoomLevel(1),
       child: child,

@@ -2,11 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
@@ -42,6 +42,7 @@ mixin MainScreenColorMeter on MainScreenPanels {
     onClosed: () {
       colorMeterModel.endColorMeter();
       onColorMeterExit?.call();
+      returnToHomeMode();
     },
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,
@@ -157,8 +158,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
   late final isStartColorPicked = ValueNotifier(false);
   late final isEndColorPicked = ValueNotifier(false);
 
-  final keyRng = math.Random();
-  late final lastPickKey = ValueNotifier("defaultKey");
+  final startColorPickedListenable = SimpleNotifier();
 
   static const colorMeterEscapeId = "color meter";
 
@@ -228,7 +228,7 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
     startColor.value = newColor;
     isStartColorPicked.value = true;
 
-    lastPickKey.value = "pick${keyRng.nextInt(1000).toString()}";
+    startColorPickedListenable.notify();
   }
 
   void onColorPositionClicked(Offset offset) {
@@ -1049,19 +1049,14 @@ take color values out of gamma space before doing color calculations.""")
           );
         }
 
-        return ValueListenableBuilder(
-          valueListenable: lastPickKey,
-          builder: (_, __, ___) {
-            return Animate(
-              key: Key(lastPickKey.value),
-              effects: const [Phanimations.startColorPulseEffect],
-              child: ColorBox.valueListening(
-                startColor,
-                size: ColorBox.bigSize,
-                shape: BoxShape.circle,
-              ),
-            );
-          },
+        return AnimateOnListenable(
+          listenable: startColorPickedListenable,
+          effects: [Phanimations.startColorPulseEffect],
+          child: ColorBox.valueListening(
+            startColor,
+            size: ColorBox.bigSize,
+            shape: BoxShape.circle,
+          ),
         );
       },
     );

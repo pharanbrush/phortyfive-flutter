@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart';
@@ -22,6 +22,7 @@ import 'package:pfs2/main_screen/sheets/first_action_sheet.dart';
 import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
@@ -67,6 +68,7 @@ class _MainScreenState extends State<MainScreen>
         MainScreenWindow,
         MainScreenPanels,
         MainScreenColorMeter,
+        MainScreenAnnotations,
         MainScreenSound,
         MainScreenToaster,
         MainScreenImageViewedCounter,
@@ -87,6 +89,12 @@ class _MainScreenState extends State<MainScreen>
   @override
   ImageData getCurrentImageFileData() => widget.model.getCurrentImageData();
 
+  late final _currentAppControlsMode = widget.model.currentAppControlsMode;
+
+  @override
+  ValueNotifier<PfsAppControlsMode> get currentAppControlsMode =>
+      _currentAppControlsMode;
+
   @override
   String getCurrentImagePath() {
     final currentImageData = getCurrentImageFileData();
@@ -106,7 +114,7 @@ class _MainScreenState extends State<MainScreen>
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
     (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
     (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
-    (OpenTimerMenuIntent, (_) => timerDurationMenu.open()),
+    (OpenTimerMenuIntent, (_) => _tryOpenTimerMenu()),
     (HelpIntent, (_) => helpMenu.open()),
     (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
     (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
@@ -119,6 +127,7 @@ class _MainScreenState extends State<MainScreen>
     (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
     (PasteIntent, (_) => tryPaste()),
+    (UndoIntent, (_) => tryUndo()),
   ];
 
   final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
@@ -137,7 +146,7 @@ class _MainScreenState extends State<MainScreen>
       EscapeRoute(
         name: "home",
         onEscape: () {
-          setAppMode(PfsAppControlsMode.imageBrowse);
+          returnToHomeMode();
           closeAllPanels();
         },
         willPopOnEscape: false,
@@ -150,11 +159,6 @@ class _MainScreenState extends State<MainScreen>
     _playPauseIconStateAnimator.dispose();
     _handleDisposeCallbacks();
     super.dispose();
-  }
-
-  @override
-  void onAppModeChange() {
-    //setState(() {});
   }
 
   void tryPaste() async {
@@ -175,7 +179,7 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
         valueListenable: currentAppControlsMode,
         builder: (_, currentAppControlsModeValue, ___) {
-          if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+          if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
             return SizedBox.shrink();
           }
 
@@ -190,7 +194,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget bottomControlBar(BuildContext context) {
-    final Size windowSize = MediaQuery.of(context).size;
+    final windowSize = MediaQuery.sizeOf(context);
 
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,
@@ -337,6 +341,7 @@ class _MainScreenState extends State<MainScreen>
               },
             ),
             colorMeterPanel.widget(),
+            annotationPanel.widget(),
             ...modalPanelWidgets,
             loadingSheetLayer(),
           ],
@@ -383,7 +388,7 @@ class _MainScreenState extends State<MainScreen>
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
     onColorMeterExit = () {
-      setAppMode(PfsAppControlsMode.imageBrowse);
+      returnToHomeMode();
     };
   }
 
@@ -398,6 +403,11 @@ class _MainScreenState extends State<MainScreen>
 
   void _tryEscape() {
     EscapeNavigator.of(context)?.tryEscape();
+  }
+
+  void _tryOpenTimerMenu() {
+    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+    timerDurationMenu.open();
   }
 
   void _handleOpenColorMeterMenuItem() {
@@ -502,6 +512,12 @@ class _MainScreenState extends State<MainScreen>
     showAlwaysOnTopToast();
   }
 
+  @override
+  void returnToHomeMode() {
+    setAppMode(PfsAppControlsMode.imageBrowse);
+    mainWindowFocus.requestFocus();
+  }
+
   void _handleSoundChanged() {
     void showSoundToggleToast() {
       final bool wasEnabled = windowState.isSoundsEnabled.value;
@@ -520,18 +536,42 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleAppControlsChanged() {
-    if (currentAppControlsMode.value == PfsAppControlsMode.colorMeter) {
-      final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
-      if (imageWidgetContext != null) {
-        colorMeterPanel.open();
-      } else {
-        debugPrint(
-            "image widget not found. canceled opening color meter panel");
-        setAppMode(PfsAppControlsMode.imageBrowse);
-      }
-    } else {
-      colorMeterPanel.close();
-      colorMeterModel.endColorMeter();
+    debugPrint("app controls is now: (${currentAppControlsMode.value})");
+
+    final newAppMode = currentAppControlsMode.value;
+
+    switch (newAppMode) {
+      case PfsAppControlsMode.colorMeter:
+        final imageWidgetContext = ImagePhviewer.imageWidgetKey.currentContext;
+        if (imageWidgetContext != null) {
+          colorMeterPanel.open();
+        } else {
+          debugPrint(
+              "image widget not found. canceled opening color meter panel");
+          returnToHomeMode();
+        }
+
+      case PfsAppControlsMode.annotation:
+        debugPrint("now trying to open annotation panel");
+        annotationPanel.open();
+        final annotationsModel = AnnotationsModel.of(context);
+        annotationsModel.annotationsFocus.requestFocus();
+        annotationsModel.setTool(AnnotationTool.draw);
+        annotationsModel.tryRestoreBaselineMode();
+
+        EscapeNavigator.of(context)?.push(
+          EscapeRoute(
+            name: "Annotation",
+            onEscape: () {
+              annotationPanel.close();
+              returnToHomeMode();
+            },
+            willPopOnEscape: true,
+          ),
+        );
+
+      default:
+        return;
     }
   }
 
@@ -619,22 +659,25 @@ class _MainScreenState extends State<MainScreen>
         return [
           PfsPopupMenuButton<VoidCallback?>(
             tooltip: "Tools",
-            icon: const Icon(Icons.pageview_outlined),
+            //icon: const Icon(Icons.pageview_outlined),
             onSelected: (value) => value?.call(),
             itemBuilder: (context) => [
               PfsPopupMenuItem(
                 child: IconAndText(
-                  icon: Icons.colorize,
+                  icon: FluentIcons.eyedropper_16_filled,
                   text: PfsLocalization.colorChangeMeter,
                 ),
                 value: () => setAppMode(PfsAppControlsMode.colorMeter),
               ),
               PfsPopupMenuItem(
-                enabled: false,
                 child: IconAndText(
-                  icon: Icons.edit_outlined,
-                  text: "Annotate",
+                  icon: FluentIcons.ruler_16_regular,
+                  text: "Annotate & Measure",
                 ),
+                value: () {
+                  debugPrint("Trying to switch to annotate mode");
+                  setAppMode(PfsAppControlsMode.annotation);
+                },
               ),
             ],
           ),
@@ -718,13 +761,17 @@ class _MainScreenState extends State<MainScreen>
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
       builder: (_, currentAppControlsModeValue, __) {
-        if (currentAppControlsModeValue == PfsAppControlsMode.colorMeter) {
+        if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
           return SizedBox.shrink();
         }
 
         return imageBrowseBottomBar();
       },
     );
+  }
+
+  void tryUndo() {
+    debugPrint("Undo!");
   }
 }
 
@@ -815,34 +862,24 @@ mixin MainScreenWindow on State<MainScreen>, MainScreenModels {
   }
 }
 
-enum PfsAppControlsMode {
-  imageBrowse,
-  colorMeter,
-  annotation,
-  firstAction,
-  welcomeChoice
-}
-
 mixin MainScreenModels on State<MainScreen> {
-  final currentAppControlsMode =
-      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+  ValueNotifier<PfsAppControlsMode> get currentAppControlsMode;
 
   void setAppMode(PfsAppControlsMode newMode) {
+    debugPrint("setAppMode called with ($newMode)");
+
     final oldValue = currentAppControlsMode.value;
 
     if (oldValue == PfsAppControlsMode.imageBrowse) {
       widget.model.tryPauseTimer();
     }
 
+    if (oldValue == newMode) return;
+
     currentAppControlsMode.value = newMode;
-    onAppModeChange();
   }
 
-  void onAppModeChange();
-
-  late ImagePhviewer imagePhviewer = ImagePhviewer(
-    appControlsMode: currentAppControlsMode,
-  );
+  final imagePhviewer = ImagePhviewer();
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {
@@ -908,6 +945,8 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
 mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<String> getThemeNotifier();
+
+  void returnToHomeMode();
 
   late final ModalPanel filtersMenu = ModalPanel(
     onBeforeOpen: () {
@@ -1148,7 +1187,6 @@ class ImageBrowseGestureControls extends StatelessWidget {
             child: ImageRightClick(
               revealInExplorerHandler: revealInExplorerHandler,
               resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
-              colorChangeModeHandler: colorMeterMenuItemHandler,
               child: ValueListenableBuilder(
                 valueListenable: imagePhviewer.zoomLevelListenable,
                 builder: (_, __, ___) {
@@ -1175,7 +1213,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
                 model.allowCirculatorControl
                     ? nextPreviousGestureButton(
                         width: beforeButtonWidth,
-                        onPressed: () => model.nextImageNewTimer(),
+                        onPressed: () => model.previousImageNewTimer(),
                         child: PfsTheme.beforeGestureIcon,
                       )
                     : SizedBox(width: beforeButtonWidth),
