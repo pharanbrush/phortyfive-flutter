@@ -873,9 +873,7 @@ mixin MainScreenModels on State<MainScreen> {
     currentAppControlsMode.value = newMode;
   }
 
-  late ImagePhviewer imagePhviewer = ImagePhviewer(
-    appControlsMode: currentAppControlsMode,
-  );
+  final imagePhviewer = ImagePhviewer();
 }
 
 mixin MainScreenClipboardFunctions on MainScreenToaster {

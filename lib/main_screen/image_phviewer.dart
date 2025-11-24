@@ -24,11 +24,9 @@ import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
 class ImagePhviewer with ImageZoomPanner, ImageFilters {
-  ImagePhviewer({required this.appControlsMode});
+  ImagePhviewer();
 
   static final imageWidgetKey = GlobalKey();
-
-  final ValueListenable<PfsAppControlsMode> appControlsMode;
 
   @override
   Size getImageSize() {
@@ -42,7 +40,6 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
       panDurationListenable: panDuration,
       isBottomBarMinimized: isBottomBarMinimized,
       revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
-      currentAppControlsMode: appControlsMode,
     );
   }
 }
@@ -421,7 +418,6 @@ class ImageViewerStackWidget extends StatelessWidget {
     required this.isBottomBarMinimized,
     required this.revealInExplorerHandler,
     required this.panDurationListenable,
-    required this.currentAppControlsMode,
     required this.zoomPanner,
     required this.filters,
   });
@@ -430,7 +426,6 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<bool> isBottomBarMinimized;
-  final ValueListenable<PfsAppControlsMode> currentAppControlsMode;
   final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
@@ -466,7 +461,7 @@ class ImageViewerStackWidget extends StatelessWidget {
           final currentImageData = model.getCurrentImageData();
           final imageWidget = getImageWidget(currentImageData);
           final possiblyOverlayedWidget = ValueListenableBuilder(
-            valueListenable: currentAppControlsMode,
+            valueListenable: model.currentAppControlsMode,
             builder: (
               BuildContext context,
               PfsAppControlsMode mode,
@@ -552,7 +547,7 @@ class ImageViewerStackWidget extends StatelessWidget {
                 ),
               ),
               ValueListenableBuilder(
-                valueListenable: currentAppControlsMode,
+                valueListenable: model.currentAppControlsMode,
                 builder: (_, appControlsModeValue, __) {
                   if (appControlsModeValue != PfsAppControlsMode.annotation) {
                     return SizedBox.shrink();
