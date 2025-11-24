@@ -34,6 +34,7 @@ enum RulerType {
 }
 
 class RulerStroke extends Stroke {
+  Offset startClickPosition = Offset.zero;
   Offset start = Offset.zero;
   Offset end = Offset.zero;
   RulerType type = RulerType.line;
@@ -48,6 +49,14 @@ class RulerStroke extends Stroke {
     return start == end || !start.isFinite || !end.isFinite;
   }
 
+  void updateEnd(Offset newEnd) {
+    end = newEnd;
+    if (isCentered) {
+      final delta = newEnd - startClickPosition;
+      start = startClickPosition - delta;
+    }
+  }
+
   void setComparisonRulerFrom(RulerStroke source) {
     if (source == this) return;
     if (source.isInvalid) return;
@@ -59,10 +68,6 @@ class RulerStroke extends Stroke {
       ..division = source.division
       ..comparisonRuler = null;
     comparisonLength = (source.end - source.start).distance;
-
-    if (source.isCentered && source.type == RulerType.circle) {
-      comparisonLength = comparisonLength! * 2;
-    }
   }
 
   /// Path is used to determine how the ruler is erased. Not for drawing.
@@ -90,7 +95,6 @@ class RulerStroke extends Stroke {
         final c = getCircleParams(
           start: start,
           end: end,
-          isCentered: isCentered,
         );
 
         final rect = Rect.fromCircle(center: c.center, radius: c.radius);
@@ -166,7 +170,7 @@ class RulerStroke extends Stroke {
     final double lerpIncrement = 1.0 / division;
 
     void drawTickmarksForLine() {
-      final usedStart = isCentered ? start - delta : start;
+      final usedStart = start;
 
       for (int i = 1; i < division; i++) {
         final tickPosition =
@@ -187,7 +191,6 @@ class RulerStroke extends Stroke {
         final c = getCircleParams(
           start: start,
           end: end,
-          isCentered: isCentered,
         );
 
         canvas.drawLine(c.outputStart, c.outputEnd, thinnerPaint);
@@ -217,30 +220,17 @@ class RulerStroke extends Stroke {
   }) getCircleParams({
     required Offset start,
     required Offset end,
-    required bool isCentered,
   }) {
     final delta = end - start;
-    final double radius;
-    final Offset center;
-    final Offset radiusPerpendicular;
-    final Offset usedStart;
-    if (isCentered) {
-      center = start;
-      usedStart = center - delta;
-      radius = delta.distance;
-      radiusPerpendicular = Offset(delta.dy, -delta.dx);
-    } else {
-      usedStart = start;
-      center = (start + end) * 0.5;
-      radius = delta.distance * 0.5;
-      radiusPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
-    }
+    final double radius = delta.distance * 0.5;
+    final Offset center = (start + end) * 0.5;
+    final Offset radiusPerpendicular = Offset(delta.dy, -delta.dx) * 0.5;
 
     return (
       center: center,
       delta: delta,
       outputEnd: end,
-      outputStart: usedStart,
+      outputStart: start,
       radius: radius,
       radiusPerpendicular: radiusPerpendicular,
     );
@@ -434,6 +424,7 @@ class AnnotationsModel {
     currentRulerStroke = RulerStroke()
       ..type = currentRulerType.value
       ..division = currentRulerDivisions.value
+      ..startClickPosition = position
       ..start = position
       ..end = position;
 
@@ -457,7 +448,8 @@ class AnnotationsModel {
 
   void updateRulerEnd(Offset position) {
     if (isStrokesLocked) return;
-    currentRulerStroke.end = position;
+
+    currentRulerStroke.updateEnd(position);
 
     currentRulerStroke.updateComparisonRuler();
   }
