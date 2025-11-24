@@ -929,246 +929,277 @@ class AnnotationsInterface extends StatelessWidget {
       ),
     );
 
-    final bottomPanel = Positioned(
-      bottom: -edgeOverflow,
-      left: 10,
-      right: 10,
-      child: panelMaterial(
-        child: SizedBox(
-          height: barHeight + edgeOverflow,
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 8,
-                  right: 8,
-                  bottom: 8 + edgeOverflow,
-                  top: 8,
-                ),
-                child: Flex(
-                  direction: Axis.horizontal,
-                  //spacing: barItemSpacing,
-                  children: [
-                    SizedBox(width: 5),
-                    ListenableBuilder(
-                      listenable: model.undoRedoListenable,
-                      builder: (_, __) {
-                        return Flex(
-                          direction: Axis.horizontal,
-                          children: [
-                            IconButton(
-                              tooltip: "Undo",
-                              onPressed:
-                                  model.changes.canUndo ? model.undo : null,
-                              icon: Icon(Icons.undo, size: 18),
-                            ),
-                            IconButton(
-                              tooltip: "Redo",
-                              onPressed:
-                                  model.changes.canRedo ? model.redo : null,
-                              icon: Icon(Icons.redo, size: 18),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    IconButton(
-                      tooltip: "Clear all strokes  (Del)",
-                      onPressed: () => model.clearAllStrokes(),
-                      icon: Icon(Icons.delete, size: 20),
-                    ),
-                    VerticalDivider(),
-                    ValueListenableBuilder(
-                      valueListenable: model.currentTool,
-                      builder: (context, currentToolValue, _) {
-                        if (currentToolValue != AnnotationTool.rulers) {
-                          return SizedBox.shrink();
-                        }
+    final bottomPanel = Builder(builder: (context) {
+      final windowSize = MediaQuery.sizeOf(context);
 
-                        return Row(
-                          children: [
-                            ValueListenableBuilder(
-                              valueListenable: model.currentRulerType,
-                              builder: (context, rulerTypeValue, _) {
-                                final label = Text(
-                                  "Rulers",
-                                  style: theme.textTheme.labelSmall,
-                                );
-                                return Row(
-                                  children: [
-                                    Tooltip(
-                                      message:
-                                          "Press R to cycle between rulers",
-                                      child: TextButton(
-                                        onPressed: null,
-                                        child: label,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 42 * 3,
-                                      child: SegmentedButton(
-                                        expandedInsets: EdgeInsets.all(0),
-                                        emptySelectionAllowed: false,
-                                        multiSelectionEnabled: false,
-                                        showSelectedIcon: false,
-                                        style: const ButtonStyle(
-                                          visualDensity: VisualDensity.compact,
-                                        ),
-                                        segments: const [
-                                          ButtonSegment(
-                                              value: RulerType.line,
-                                              tooltip: "Line",
-                                              icon: Icon(
-                                                  FluentIcons.line_20_regular)),
-                                          ButtonSegment(
-                                              value: RulerType.box,
-                                              tooltip: "Box",
-                                              icon: Icon(FluentIcons
-                                                  .border_all_16_regular)),
-                                          ButtonSegment(
-                                            value: RulerType.circle,
-                                            tooltip: "Circle",
-                                            icon: Stack(
-                                              children: [
-                                                Icon(Icons.circle_outlined),
-                                                Icon(Icons.add),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                        selected: {rulerTypeValue},
-                                        onSelectionChanged: (newSelection) {
-                                          model.currentRulerType.value =
-                                              newSelection.first;
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                  ],
-                                );
-                              },
-                            ),
-                            ValueListenableBuilder(
-                              valueListenable: model.isNextRulerAddsComparison,
-                              builder:
-                                  (context, addComparisonRulerValue, child) {
-                                return Tooltip(
-                                  message:
-                                      "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
-                                  child: AnimateOnListenable(
-                                    listenable:
-                                        model.comparisonAddedPulseListenable,
-                                    effects: [Phanimations.toolPulseEffect],
-                                    child: SizedBoxFitted(
-                                      height: 32,
-                                      width: 32,
-                                      child: IconButton.outlined(
-                                        onPressed: () => model
-                                            .isNextRulerAddsComparison
-                                            .toggle(),
-                                        icon: Icon(Icons.splitscreen, size: 25),
-                                        isSelected: addComparisonRulerValue,
-                                        selectedIcon: Icon(
-                                          Icons.splitscreen,
-                                          size: 20,
-                                        ),
-                                        color: addComparisonRulerValue
-                                            ? theme.colorScheme.tertiary
-                                            : null,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            VerticalDivider(),
-                            SizedBox(width: 10),
-                            ValueListenableBuilder(
-                              valueListenable: model.currentRulerDivisions,
-                              builder: (context, divisionsValue, _) {
-                                const min = 2;
-                                const max = 8;
+      final windowIsNarrow = windowSize.width < 550;
+      final windowIsCompressed = windowSize.width < 640;
 
-                                final divisionsText =
-                                    divisionsValue.toStringAsFixed(0);
+      return Positioned(
+        bottom: -edgeOverflow,
+        left: 10,
+        right: 10,
+        child: panelMaterial(
+          child: SizedBox(
+            height: barHeight + edgeOverflow,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    bottom: 8 + edgeOverflow,
+                    top: 8,
+                  ),
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    //spacing: barItemSpacing,
+                    children: [
+                      SizedBox(width: 5),
+                      ListenableBuilder(
+                        listenable: model.undoRedoListenable,
+                        builder: (_, __) {
+                          return Flex(
+                            direction: Axis.horizontal,
+                            children: [
+                              IconButton(
+                                tooltip: "Undo",
+                                onPressed:
+                                    model.changes.canUndo ? model.undo : null,
+                                icon: Icon(Icons.undo, size: 18),
+                              ),
+                              IconButton(
+                                tooltip: "Redo",
+                                onPressed:
+                                    model.changes.canRedo ? model.redo : null,
+                                icon: Icon(Icons.redo, size: 18),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      IconButton(
+                        tooltip: "Clear all strokes  (Del)",
+                        onPressed: () => model.clearAllStrokes(),
+                        icon: Icon(Icons.delete, size: 20),
+                      ),
+                      VerticalDivider(),
+                      ValueListenableBuilder(
+                        valueListenable: model.currentTool,
+                        builder: (context, currentToolValue, _) {
+                          if (currentToolValue != AnnotationTool.rulers) {
+                            return SizedBox.shrink();
+                          }
 
-                                return ScrollListener(
-                                  onScrollDown: () => model
-                                      .currentRulerDivisions
-                                      .incrementClamped(-1, min, max),
-                                  onScrollUp: () => model.currentRulerDivisions
-                                      .incrementClamped(1, min, max),
-                                  child: Flex(
-                                    direction: Axis.horizontal,
+                          return Row(
+                            children: [
+                              ValueListenableBuilder(
+                                valueListenable: model.currentRulerType,
+                                builder: (context, rulerTypeValue, _) {
+                                  final label = Text(
+                                    "Rulers",
+                                    style: theme.textTheme.labelSmall,
+                                  );
+                                  return Row(
                                     children: [
-                                      Text(
-                                        "Divisions",
-                                        style: theme.textTheme.labelMedium,
+                                      Tooltip(
+                                        message:
+                                            "Press R to cycle between rulers",
+                                        child: TextButton(
+                                          onPressed: null,
+                                          child: label,
+                                        ),
                                       ),
                                       SizedBox(
-                                        width: 100,
-                                        child: SliderTheme(
-                                          data: theme.sliderTheme.copyWith(
-                                            trackHeight: 3,
-                                            thumbShape: RoundSliderThumbShape(
-                                              enabledThumbRadius: 8,
+                                        width: 42 * 3,
+                                        child: SegmentedButton(
+                                          expandedInsets: EdgeInsets.all(0),
+                                          emptySelectionAllowed: false,
+                                          multiSelectionEnabled: false,
+                                          showSelectedIcon: false,
+                                          style: const ButtonStyle(
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                          ),
+                                          segments: const [
+                                            ButtonSegment(
+                                                value: RulerType.line,
+                                                tooltip: "Line",
+                                                icon: Icon(FluentIcons
+                                                    .line_20_regular)),
+                                            ButtonSegment(
+                                                value: RulerType.box,
+                                                tooltip: "Box",
+                                                icon: Icon(FluentIcons
+                                                    .border_all_16_regular)),
+                                            ButtonSegment(
+                                              value: RulerType.circle,
+                                              tooltip: "Circle",
+                                              icon: Stack(
+                                                children: [
+                                                  Icon(Icons.circle_outlined),
+                                                  Icon(Icons.add),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                          selected: {rulerTypeValue},
+                                          onSelectionChanged: (newSelection) {
+                                            model.currentRulerType.value =
+                                                newSelection.first;
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                    ],
+                                  );
+                                },
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable:
+                                    model.isNextRulerAddsComparison,
+                                builder:
+                                    (context, addComparisonRulerValue, child) {
+                                  return Tooltip(
+                                    message:
+                                        "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
+                                    child: AnimateOnListenable(
+                                      listenable:
+                                          model.comparisonAddedPulseListenable,
+                                      effects: [Phanimations.toolPulseEffect],
+                                      child: SizedBoxFitted(
+                                        height: 32,
+                                        width: 32,
+                                        child: IconButton.outlined(
+                                          onPressed: () => model
+                                              .isNextRulerAddsComparison
+                                              .toggle(),
+                                          icon:
+                                              Icon(Icons.splitscreen, size: 25),
+                                          isSelected: addComparisonRulerValue,
+                                          selectedIcon: Icon(
+                                            Icons.splitscreen,
+                                            size: 20,
+                                          ),
+                                          color: addComparisonRulerValue
+                                              ? theme.colorScheme.tertiary
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              VerticalDivider(),
+                              SizedBox(width: 10),
+                              if (windowIsNarrow)
+                                Tooltip(
+                                  message: "... bottom bar items are hidden.",
+                                  child: Icon(
+                                    Icons.more_horiz,
+                                    size: 20,
+                                  ),
+                                )
+                              else
+                                ValueListenableBuilder(
+                                  valueListenable: model.currentRulerDivisions,
+                                  builder: (context, divisionsValue, _) {
+                                    const min = 2;
+                                    const max = 8;
+
+                                    final divisionsText =
+                                        divisionsValue.toStringAsFixed(0);
+
+                                    return ScrollListener(
+                                      onScrollDown: () => model
+                                          .currentRulerDivisions
+                                          .incrementClamped(-1, min, max),
+                                      onScrollUp: () => model
+                                          .currentRulerDivisions
+                                          .incrementClamped(1, min, max),
+                                      child: Flex(
+                                        direction: Axis.horizontal,
+                                        children: [
+                                          windowIsCompressed
+                                              ? SizedBox.shrink()
+                                              : Text(
+                                                  "Divisions",
+                                                  style: theme
+                                                      .textTheme.labelMedium,
+                                                ),
+                                          SizedBox(
+                                            width:
+                                                windowIsCompressed ? 60 : 100,
+                                            child: SliderTheme(
+                                              data: theme.sliderTheme.copyWith(
+                                                trackHeight: 3,
+                                                thumbShape:
+                                                    RoundSliderThumbShape(
+                                                  enabledThumbRadius: 8,
+                                                ),
+                                              ),
+                                              child: Slider(
+                                                padding:
+                                                    EdgeInsets.only(left: 22),
+                                                value:
+                                                    divisionsValue.toDouble(),
+                                                min: min.toDouble(),
+                                                max: max.toDouble(),
+                                                divisions: max - min,
+                                                onChanged: (newValue) {
+                                                  model.currentRulerDivisions
+                                                      .value = newValue.toInt();
+                                                },
+                                              ),
                                             ),
                                           ),
-                                          child: Slider(
-                                            padding: EdgeInsets.only(left: 22),
-                                            value: divisionsValue.toDouble(),
-                                            min: min.toDouble(),
-                                            max: max.toDouble(),
-                                            divisions: max - min,
-                                            onChanged: (newValue) {
-                                              model.currentRulerDivisions
-                                                  .value = newValue.toInt();
-                                            },
+                                          IgnorePointer(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15.0),
+                                              child: Text(
+                                                divisionsText,
+                                                style:
+                                                    theme.textTheme.labelMedium,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                          windowIsCompressed
+                                              ? SizedBox.shrink()
+                                              : VerticalDivider(),
+                                        ],
                                       ),
-                                      IgnorePointer(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 15.0),
-                                          child: Text(
-                                            divisionsText,
-                                            style: theme.textTheme.labelMedium,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                            VerticalDivider(),
-                          ],
-                        ).animate(
-                          effects: const [
-                            Phanimations.slideRightWideEffect,
-                            Phanimations.fadeInEffect
-                          ],
-                        );
-                      },
-                    ),
-                  ],
+                                    );
+                                  },
+                                ),
+                            ],
+                          ).animate(
+                            effects: const [
+                              Phanimations.slideRightWideEffect,
+                              Phanimations.fadeInEffect
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 5,
-                right: 5,
-                child: PanelCloseButton(
-                  onPressed: () {
-                    ModalDismissContext.of(context)?.onDismiss?.call();
-                  },
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: PanelCloseButton(
+                    onPressed: () {
+                      ModalDismissContext.of(context)?.onDismiss?.call();
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
 
     return Stack(
       children: [
