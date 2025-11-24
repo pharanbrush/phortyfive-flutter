@@ -22,7 +22,7 @@ import 'package:pfs2/main_screen/sheets/first_action_sheet.dart';
 import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
-import 'package:pfs2/models/annotations_tool.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';

@@ -1,7 +1,7 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
-import 'package:pfs2/models/annotations_tool.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';

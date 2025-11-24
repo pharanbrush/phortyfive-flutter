@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
-import 'package:pfs2/models/annotations_tool.dart';
+import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 
 // Heavily modified code from image_annotation by Mikita Drazdou
