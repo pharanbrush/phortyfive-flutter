@@ -175,9 +175,12 @@ class RulerStroke extends Stroke {
 
     const double tickMarkHalfLength = 7;
 
+    const oneThird = 1.0 / 3.0;
+    const twoThirds = 2.0 / 3.0;
     final rulerPaint = Paint.from(paint)..strokeWidth = paint.strokeWidth * 0.6;
     final thinnerPaint = Paint.from(paint)
-      ..strokeWidth = paint.strokeWidth * 0.35;
+      ..strokeWidth = paint.strokeWidth * oneThird
+      ..color = paint.color.withValues(alpha: paint.color.a * twoThirds);
 
     final delta = end - start;
     final distance = delta.distance;
