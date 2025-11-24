@@ -342,10 +342,11 @@ class AnnotationsModel {
 
   static const underlayColorChoices = <Color>[
     Colors.transparent,
-    Colors.black,
+    Color(0xFF888888),
+    Colors.white,
     Colors.blueGrey,
     Color(0xFFDEC4A5),
-    Colors.white,
+    Colors.black,
   ];
 
   bool get isStrokesLocked {
