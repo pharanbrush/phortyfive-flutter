@@ -794,135 +794,154 @@ class AnnotationsInterface extends StatelessWidget {
       ),
     );
 
-    final leftPanel = Positioned(
-      left: -edgeOverflow,
-      top: 0,
-      bottom: 0,
-      child: CenteredVertically(
-        child: panelMaterial(
-          child: SizedBox(
-            width: sidePanelWidth + edgeOverflow,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: edgeOverflow + panelPadding,
-                right: panelPadding,
-                top: panelPadding,
-                bottom: panelPadding,
-              ),
-              child: Flex(
-                direction: Axis.vertical,
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: model.currentTool,
-                    builder: (_, currentToolValue, __) {
-                      return Flex(
-                        direction: Axis.vertical,
-                        children: [
-                          IconButton.filled(
-                            tooltip: "Draw  (B)",
-                            isSelected: currentToolValue == AnnotationTool.draw,
-                            onPressed: () => model.setTool(AnnotationTool.draw),
-                            icon: currentToolValue == AnnotationTool.draw
-                                ? Icon(FluentIcons.edit_20_filled)
-                                : Icon(FluentIcons.edit_20_regular),
-                          ),
-                          IconButton.filled(
-                            tooltip: "Straight line\n(B)",
-                            isSelected: currentToolValue == AnnotationTool.line,
-                            onPressed: () => model.setTool(AnnotationTool.line),
-                            icon: currentToolValue == AnnotationTool.line
-                                ? Icon(FluentIcons.line_20_filled)
-                                : Icon(FluentIcons.line_20_regular),
-                          ),
-                          IconButton.filled(
-                            tooltip: "Proportion rulers\n(R)",
-                            isSelected:
-                                currentToolValue == AnnotationTool.rulers,
-                            onPressed: () => model.selectToolRuler(),
-                            icon: currentToolValue == AnnotationTool.rulers
-                                ? Icon(FluentIcons.ruler_20_filled)
-                                : Icon(FluentIcons.ruler_20_regular),
-                          ),
-                          IconButton.filled(
-                            tooltip: "Stroke Eraser  (E)",
-                            isSelected:
-                                currentToolValue == AnnotationTool.erase,
-                            onPressed: () =>
-                                model.setTool(AnnotationTool.erase),
-                            icon: AnimateOnListenable(
-                              listenable: model.eraserPulseListenable,
-                              effects: [Phanimations.toolPulseEffect],
-                              child: currentToolValue == AnnotationTool.erase
-                                  ? Icon(FluentIcons.eraser_segment_20_filled)
-                                  : Icon(FluentIcons.eraser_segment_20_regular),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+    final leftPanel = Builder(
+      builder: (context) {
+        final size = MediaQuery.sizeOf(context);
+        final height = size.height;
+
+        final isShort = height < 540;
+
+        return Positioned(
+          left: -edgeOverflow,
+          top: 0,
+          bottom: 0,
+          child: CenteredVertically(
+            child: panelMaterial(
+              child: SizedBox(
+                width: sidePanelWidth + edgeOverflow,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: edgeOverflow + panelPadding,
+                    right: panelPadding,
+                    top: panelPadding,
+                    bottom: panelPadding,
                   ),
-                  Divider(),
-                  ValueListenableBuilder(
-                    valueListenable: model.color,
-                    builder: (_, modelColorValue, __) {
-                      return ValueListenableBuilder(
-                        valueListenable: model.strokeWidth,
-                        builder: (_, modelStrokeWidthValue, __) {
-                          const double minScale = 0.2;
-                          const double maxScale = 1.5;
-
-                          double remap(double value, double iMin, double iMax,
-                              double oMin, double oMax) {
-                            return (value - iMin) /
-                                    (iMax - iMin) *
-                                    (oMax - oMin) +
-                                oMin;
-                          }
-
-                          return IconButton(
-                            tooltip: "Cycle stroke color  (C)",
-                            onPressed: () {
-                              model.cycleColor();
-                            },
-                            icon: Transform.scale(
-                              scale: remap(
-                                modelStrokeWidthValue,
-                                brushSizeMin,
-                                brushSizeMax,
-                                minScale,
-                                maxScale,
+                  child: Flex(
+                    direction: Axis.vertical,
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: model.currentTool,
+                        builder: (_, currentToolValue, __) {
+                          return Flex(
+                            direction: Axis.vertical,
+                            children: [
+                              IconButton.filled(
+                                tooltip: "Draw  (B)",
+                                isSelected:
+                                    currentToolValue == AnnotationTool.draw,
+                                onPressed: () =>
+                                    model.setTool(AnnotationTool.draw),
+                                icon: currentToolValue == AnnotationTool.draw
+                                    ? Icon(FluentIcons.edit_20_filled)
+                                    : Icon(FluentIcons.edit_20_regular),
                               ),
-                              child: Icon(Icons.circle),
-                            ),
-                            color: modelColorValue,
+                              if (!isShort)
+                                IconButton.filled(
+                                  key: Key("line button"),
+                                  tooltip: "Straight line\n(B)",
+                                  isSelected:
+                                      currentToolValue == AnnotationTool.line,
+                                  onPressed: () =>
+                                      model.setTool(AnnotationTool.line),
+                                  icon: currentToolValue == AnnotationTool.line
+                                      ? Icon(FluentIcons.line_20_filled)
+                                      : Icon(FluentIcons.line_20_regular),
+                                ),
+                              IconButton.filled(
+                                tooltip: "Proportion rulers\n(R)",
+                                isSelected:
+                                    currentToolValue == AnnotationTool.rulers,
+                                onPressed: () => model.selectToolRuler(),
+                                icon: currentToolValue == AnnotationTool.rulers
+                                    ? Icon(FluentIcons.ruler_20_filled)
+                                    : Icon(FluentIcons.ruler_20_regular),
+                              ),
+                              IconButton.filled(
+                                tooltip: "Stroke Eraser  (E)",
+                                isSelected:
+                                    currentToolValue == AnnotationTool.erase,
+                                onPressed: () =>
+                                    model.setTool(AnnotationTool.erase),
+                                icon: AnimateOnListenable(
+                                  listenable: model.eraserPulseListenable,
+                                  effects: [Phanimations.toolPulseEffect],
+                                  child: currentToolValue ==
+                                          AnnotationTool.erase
+                                      ? Icon(
+                                          FluentIcons.eraser_segment_20_filled)
+                                      : Icon(FluentIcons
+                                          .eraser_segment_20_regular),
+                                ),
+                              ),
+                            ],
                           );
                         },
-                      );
-                    },
+                      ),
+                      Divider(),
+                      ValueListenableBuilder(
+                        valueListenable: model.color,
+                        builder: (_, modelColorValue, __) {
+                          return ValueListenableBuilder(
+                            valueListenable: model.strokeWidth,
+                            builder: (_, modelStrokeWidthValue, __) {
+                              const double minScale = 0.2;
+                              const double maxScale = 1.5;
+
+                              double remap(double value, double iMin,
+                                  double iMax, double oMin, double oMax) {
+                                return (value - iMin) /
+                                        (iMax - iMin) *
+                                        (oMax - oMin) +
+                                    oMin;
+                              }
+
+                              return IconButton(
+                                tooltip: "Cycle stroke color  (C)",
+                                onPressed: () {
+                                  model.cycleColor();
+                                },
+                                icon: Transform.scale(
+                                  scale: remap(
+                                    modelStrokeWidthValue,
+                                    brushSizeMin,
+                                    brushSizeMax,
+                                    minScale,
+                                    maxScale,
+                                  ),
+                                  child: Icon(Icons.circle),
+                                ),
+                                color: modelColorValue,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: model.strokeWidth,
+                        builder: (_, modelStrokeWidthValue, __) {
+                          return Text(
+                            modelStrokeWidthValue.toStringAsFixed(1),
+                            style: smallNumberLabelStyle,
+                          );
+                        },
+                      ),
+                      if (!isShort)
+                        ListenableSlider(
+                          listenable: model.strokeWidth,
+                          min: brushSizeMin,
+                          max: brushSizeMax,
+                          interval: brushSizeIntervals,
+                          direction: Axis.vertical,
+                        ),
+                      SizedBox(height: 10),
+                    ],
                   ),
-                  ValueListenableBuilder(
-                    valueListenable: model.strokeWidth,
-                    builder: (_, modelStrokeWidthValue, __) {
-                      return Text(
-                        modelStrokeWidthValue.toStringAsFixed(1),
-                        style: smallNumberLabelStyle,
-                      );
-                    },
-                  ),
-                  ListenableSlider(
-                    listenable: model.strokeWidth,
-                    min: brushSizeMin,
-                    max: brushSizeMax,
-                    interval: brushSizeIntervals,
-                    direction: Axis.vertical,
-                  ),
-                  SizedBox(height: 10),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
 
     final clearStrokesPanel = ListenableBuilder(
@@ -957,103 +976,115 @@ class AnnotationsInterface extends StatelessWidget {
       },
     );
 
-    final rightPanel = Positioned(
-      top: 0,
-      bottom: 0,
-      right: -edgeOverflow,
-      child: CenteredVertically(
-        child: Flex(
-          direction: Axis.vertical,
-          children: [
-            clearStrokesPanel,
-            SizedBox(height: 15),
-            panelMaterial(
-              child: SizedBox(
-                width: sidePanelWidth + edgeOverflow,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    right: edgeOverflow + panelPadding,
-                    left: panelPadding,
-                    top: panelPadding,
-                    bottom: panelPadding,
-                  ),
-                  child: Flex(
-                    direction: Axis.vertical,
-                    children: [
-                      SizedBox(height: 10),
-                      Icon(
-                        FluentIcons.ink_stroke_20_regular,
-                        size: 15,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: model.isStrokesVisible,
-                        builder: (_, isStrokesVisibleValue, __) {
-                          const double visibilityIconSize = 20;
+    final rightPanel = Builder(
+      builder: (context) {
+        final size = MediaQuery.sizeOf(context);
+        final height = size.height;
 
-                          return IconButton(
-                            tooltip: "Toggle strokes visibility",
-                            onPressed: () => model.toggleStrokesVisibility(),
-                            icon: AnimateOnListenable(
-                              listenable: model.visibilityPulseListenable,
-                              effects: [Phanimations.toolPulseEffect],
-                              child: isStrokesVisibleValue
-                                  ? Icon(
-                                      Icons.visibility_outlined,
-                                      size: visibilityIconSize,
-                                    )
-                                  : Icon(
-                                      size: visibilityIconSize,
-                                      Icons.visibility_off,
-                                      color: Colors.red,
-                                    ),
-                            ),
-                          );
-                        },
+        final isShort = height < 540;
+
+        return Positioned(
+          top: 0,
+          bottom: 0,
+          right: -edgeOverflow,
+          child: CenteredVertically(
+            child: Flex(
+              direction: Axis.vertical,
+              children: [
+                if (!isShort) clearStrokesPanel,
+                if (!isShort) SizedBox(height: 15),
+                panelMaterial(
+                  child: SizedBox(
+                    width: sidePanelWidth + edgeOverflow,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        right: edgeOverflow + panelPadding,
+                        left: panelPadding,
+                        top: panelPadding,
+                        bottom: panelPadding,
                       ),
-                      Divider(),
-                      ListenableSlider(
-                        listenable: model.opacity,
-                        min: 0.0,
-                        max: 1.0,
-                        interval: 0.1,
-                        icon: Icons.image,
+                      child: Flex(
                         direction: Axis.vertical,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: model.underlayColor,
-                        builder: (context, underlayColorValue, __) {
-                          final theme = Theme.of(context);
-
-                          return IconButton(
-                            tooltip: "Cycle underlay color",
-                            onPressed: () {
-                              model.cycleUnderlayColor();
-                            },
-                            icon: Stack(
-                              children: [
-                                Icon(
-                                  FluentIcons.square_16_filled,
-                                  color: underlayColorValue,
-                                ),
-                                Icon(
-                                  FluentIcons.square_16_regular,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ],
+                        children: [
+                          if (!isShort) SizedBox(height: 10),
+                          if (!isShort)
+                            Icon(
+                              FluentIcons.ink_stroke_20_regular,
+                              size: 15,
                             ),
-                          );
-                        },
+                          ValueListenableBuilder(
+                            valueListenable: model.isStrokesVisible,
+                            builder: (_, isStrokesVisibleValue, __) {
+                              const double visibilityIconSize = 20;
+
+                              return IconButton(
+                                tooltip: "Toggle strokes visibility",
+                                onPressed: () =>
+                                    model.toggleStrokesVisibility(),
+                                icon: AnimateOnListenable(
+                                  listenable: model.visibilityPulseListenable,
+                                  effects: [Phanimations.toolPulseEffect],
+                                  child: isStrokesVisibleValue
+                                      ? Icon(
+                                          Icons.visibility_outlined,
+                                          size: visibilityIconSize,
+                                        )
+                                      : Icon(
+                                          size: visibilityIconSize,
+                                          Icons.visibility_off,
+                                          color: Colors.red,
+                                        ),
+                                ),
+                              );
+                            },
+                          ),
+                          if (!isShort) Divider(),
+                          ListenableSlider(
+                            listenable: model.opacity,
+                            min: 0.0,
+                            max: 1.0,
+                            interval: 0.1,
+                            icon: isShort ? null : Icons.image,
+                            useShort: isShort,
+                            direction: Axis.vertical,
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: model.underlayColor,
+                            builder: (context, underlayColorValue, __) {
+                              final theme = Theme.of(context);
+
+                              return IconButton(
+                                tooltip: "Cycle underlay color",
+                                onPressed: () {
+                                  model.cycleUnderlayColor();
+                                },
+                                icon: Stack(
+                                  children: [
+                                    Icon(
+                                      FluentIcons.square_16_filled,
+                                      color: underlayColorValue,
+                                    ),
+                                    Icon(
+                                      FluentIcons.square_16_regular,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          //SizedBox(height: 10),
+                        ],
                       ),
-                      //SizedBox(height: 10),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                if (!isShort) SizedBox(height: 105),
+              ],
             ),
-            SizedBox(height: 105),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
 
     final bottomPanel = Builder(builder: (context) {
@@ -1391,12 +1422,14 @@ class ListenableSlider extends StatelessWidget {
     required this.max,
     required this.interval,
     this.icon,
+    this.useShort = false,
     this.direction = Axis.horizontal,
     this.labelType = PfsSliderLabelType.none,
   });
 
   final Axis direction;
   final ValueNotifier<double> listenable;
+  final bool useShort;
   final double min;
   final double max;
   final double interval;
@@ -1448,7 +1481,7 @@ class ListenableSlider extends StatelessWidget {
                   quarterTurns: direction == Axis.horizontal ? 0 : 3,
                   child: SizedBox(
                     height: 15,
-                    width: 160,
+                    width: useShort ? 90 : 160,
                     child: Slider(
                       value: listenableValue,
                       padding: const EdgeInsets.only(right: 15, left: 10),
