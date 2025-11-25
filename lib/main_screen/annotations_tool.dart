@@ -25,6 +25,7 @@ enum AnnotationTool {
 
 class Stroke {
   Path path = Path();
+  bool updated = false;
 }
 
 enum RulerType {
@@ -333,7 +334,7 @@ Color _cycleColorFrom({
 class AnnotationsModel {
   final annotationsFocus = FocusNode();
   final List<Stroke> strokes = [];
-  Path currentStrokePath = Path();
+  Stroke currentStroke = Stroke();
   RulerStroke currentRulerStroke = RulerStroke();
   final changes = ChangeStack(limit: 30);
   final lastErasedStrokes = <Stroke>[];
@@ -481,8 +482,9 @@ class AnnotationsModel {
       showStrokesLockedHint();
       return;
     }
-    currentStrokePath = Path()..moveTo(position.dx, position.dy);
-    strokes.add(Stroke()..path = currentStrokePath);
+    currentStroke = Stroke()..path = Path();
+    currentStroke.path.moveTo(position.dx, position.dy);
+    strokes.add(currentStroke);
     currentStrokeStartPosition = position;
   }
 
@@ -565,7 +567,8 @@ class AnnotationsModel {
 
   void resetCurrentStrokeWithSecondPoint(Offset point) {
     if (isStrokesLocked) return;
-    currentStrokePath
+    currentStroke.updated = true;
+    currentStroke.path
       ..reset()
       ..moveTo(currentStrokeStartPosition.dx, currentStrokeStartPosition.dy)
       ..lineTo(point.dx, point.dy);
@@ -573,7 +576,8 @@ class AnnotationsModel {
 
   void addPointToStroke(Offset point) {
     if (isStrokesLocked) return;
-    currentStrokePath.lineTo(point.dx, point.dy);
+    currentStroke.updated = true;
+    currentStroke.path.lineTo(point.dx, point.dy);
   }
 
   void startEraseStrokeDoNothing(Offset point) {
@@ -621,8 +625,12 @@ class AnnotationsModel {
   void commitCurrentStroke() {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
-    final lastStroke = strokes.last;
 
+    if (currentStroke.updated == false) {
+      currentStroke.path.relativeLineTo(0, 0.01);
+    }
+
+    final lastStroke = strokes.last;
     changes.add(
       Change(
         lastStroke,
