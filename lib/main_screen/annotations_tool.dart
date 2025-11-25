@@ -781,7 +781,7 @@ class AnnotationsInterface extends StatelessWidget {
                                 : Icon(FluentIcons.edit_20_regular),
                           ),
                           IconButton.filled(
-                            tooltip: "Straight line\n(B to cycle)",
+                            tooltip: "Straight line\n(B)",
                             isSelected: currentToolValue == AnnotationTool.line,
                             onPressed: () => model.setTool(AnnotationTool.line),
                             icon: currentToolValue == AnnotationTool.line
@@ -789,7 +789,7 @@ class AnnotationsInterface extends StatelessWidget {
                                 : Icon(FluentIcons.line_20_regular),
                           ),
                           IconButton.filled(
-                            tooltip: "Proportion rulers\n(R to cycle)",
+                            tooltip: "Proportion rulers\n(R)",
                             isSelected:
                                 currentToolValue == AnnotationTool.rulers,
                             onPressed: () => model.setToolRuler(),
