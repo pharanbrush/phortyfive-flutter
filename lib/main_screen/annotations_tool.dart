@@ -879,93 +879,133 @@ class AnnotationsInterface extends StatelessWidget {
       ),
     );
 
+    final clearStrokesPanel = ListenableBuilder(
+      listenable: model.undoRedoListenable,
+      builder: (_, child) {
+        return AnimatedTranslate(
+          offset: model.strokes.isEmpty ? Offset(50, 0) : Offset(0, 0),
+          curve: Curves.easeOutCirc,
+          duration: Duration(milliseconds: 300),
+          child: panelMaterial(
+            child: SizedBox(
+              width: sidePanelWidth + edgeOverflow,
+              child: Padding(
+                padding: EdgeInsetsGeometry.only(right: edgeOverflow),
+                child: Padding(
+                  padding: const EdgeInsets.all(panelPadding),
+                  child: IconButton(
+                    tooltip: "Delete all strokes",
+                    onPressed: model.strokes.isEmpty
+                        ? null
+                        : () => model.clearAllStrokes(),
+                    icon: Icon(
+                      Icons.delete,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     final rightPanel = Positioned(
       top: 0,
       bottom: 0,
       right: -edgeOverflow,
       child: CenteredVertically(
-        child: panelMaterial(
-          child: SizedBox(
-            width: sidePanelWidth + edgeOverflow,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                right: edgeOverflow + panelPadding,
-                left: panelPadding,
-                top: panelPadding,
-                bottom: panelPadding,
-              ),
-              child: Flex(
-                direction: Axis.vertical,
-                children: [
-                  SizedBox(height: 10),
-                  Icon(
-                    FluentIcons.ink_stroke_20_regular,
-                    size: 15,
+        child: Flex(
+          direction: Axis.vertical,
+          children: [
+            clearStrokesPanel,
+            SizedBox(height: 15),
+            panelMaterial(
+              child: SizedBox(
+                width: sidePanelWidth + edgeOverflow,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    right: edgeOverflow + panelPadding,
+                    left: panelPadding,
+                    top: panelPadding,
+                    bottom: panelPadding,
                   ),
-                  ValueListenableBuilder(
-                    valueListenable: model.isStrokesVisible,
-                    builder: (_, isStrokesVisibleValue, __) {
-                      const double visibilityIconSize = 20;
-
-                      return IconButton(
-                        tooltip: "Toggle strokes visibility",
-                        onPressed: () => model.toggleStrokesVisibility(),
-                        icon: AnimateOnListenable(
-                          listenable: model.visibilityPulseListenable,
-                          effects: [Phanimations.toolPulseEffect],
-                          child: isStrokesVisibleValue
-                              ? Icon(
-                                  Icons.visibility_outlined,
-                                  size: visibilityIconSize,
-                                )
-                              : Icon(
-                                  size: visibilityIconSize,
-                                  Icons.visibility_off,
-                                  color: Colors.red,
-                                ),
-                        ),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ListenableSlider(
-                    listenable: model.opacity,
-                    min: 0.0,
-                    max: 1.0,
-                    interval: 0.1,
-                    icon: Icons.image,
+                  child: Flex(
                     direction: Axis.vertical,
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: model.underlayColor,
-                    builder: (context, underlayColorValue, __) {
-                      final theme = Theme.of(context);
+                    children: [
+                      SizedBox(height: 10),
+                      Icon(
+                        FluentIcons.ink_stroke_20_regular,
+                        size: 15,
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: model.isStrokesVisible,
+                        builder: (_, isStrokesVisibleValue, __) {
+                          const double visibilityIconSize = 20;
 
-                      return IconButton(
-                        tooltip: "Cycle underlay color",
-                        onPressed: () {
-                          model.cycleUnderlayColor();
+                          return IconButton(
+                            tooltip: "Toggle strokes visibility",
+                            onPressed: () => model.toggleStrokesVisibility(),
+                            icon: AnimateOnListenable(
+                              listenable: model.visibilityPulseListenable,
+                              effects: [Phanimations.toolPulseEffect],
+                              child: isStrokesVisibleValue
+                                  ? Icon(
+                                      Icons.visibility_outlined,
+                                      size: visibilityIconSize,
+                                    )
+                                  : Icon(
+                                      size: visibilityIconSize,
+                                      Icons.visibility_off,
+                                      color: Colors.red,
+                                    ),
+                            ),
+                          );
                         },
-                        icon: Stack(
-                          children: [
-                            Icon(
-                              FluentIcons.square_16_filled,
-                              color: underlayColorValue,
+                      ),
+                      Divider(),
+                      ListenableSlider(
+                        listenable: model.opacity,
+                        min: 0.0,
+                        max: 1.0,
+                        interval: 0.1,
+                        icon: Icons.image,
+                        direction: Axis.vertical,
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: model.underlayColor,
+                        builder: (context, underlayColorValue, __) {
+                          final theme = Theme.of(context);
+
+                          return IconButton(
+                            tooltip: "Cycle underlay color",
+                            onPressed: () {
+                              model.cycleUnderlayColor();
+                            },
+                            icon: Stack(
+                              children: [
+                                Icon(
+                                  FluentIcons.square_16_filled,
+                                  color: underlayColorValue,
+                                ),
+                                Icon(
+                                  FluentIcons.square_16_regular,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ],
                             ),
-                            Icon(
-                              FluentIcons.square_16_regular,
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                      //SizedBox(height: 10),
+                    ],
                   ),
-                  //SizedBox(height: 10),
-                ],
+                ),
               ),
             ),
-          ),
+            SizedBox(height: 105),
+          ],
         ),
       ),
     );
@@ -1051,14 +1091,19 @@ Hold Ctrl before drawing a box ruler to create one from the edge.""")
                                     model.changes.canRedo ? model.redo : null,
                                 icon: Icon(Icons.redo, size: 18),
                               ),
+                              IconButton(
+                                tooltip: "Delete all strokes",
+                                onPressed: model.strokes.isEmpty
+                                    ? null
+                                    : () => model.clearAllStrokes(),
+                                icon: Icon(
+                                  Icons.delete,
+                                  size: 20,
+                                ),
+                              ),
                             ],
                           );
                         },
-                      ),
-                      IconButton(
-                        tooltip: "Clear all strokes  (Del)",
-                        onPressed: () => model.clearAllStrokes(),
-                        icon: Icon(Icons.delete, size: 20),
                       ),
                       VerticalDivider(),
                       ValueListenableBuilder(
