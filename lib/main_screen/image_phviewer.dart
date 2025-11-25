@@ -12,6 +12,7 @@ import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
+import 'package:pfs2/phlutter/open_in_browser.dart' as open_in_browser;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -487,11 +488,50 @@ class ImageViewerStackWidget extends StatelessWidget {
               return Align(
                 heightFactor: 2,
                 alignment: Alignment.topCenter,
-                child: ImageClickableLabel(
-                  label: imageData.fileName,
-                  tooltip:
-                      "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
-                  onTap: () => revealInExplorerHandler(imageData),
+                child: GestureDetector(
+                  onSecondaryTap: () async {
+                    final urls = await image_data.tryGetUrls(imageData);
+                    if (urls == null || urls.isEmpty) {
+                      popUpContextualMenu(
+                        Menu(
+                          items: [
+                            MenuItem(
+                              label: "Reveal in explorer",
+                              onClick: (menuItem) =>
+                                  revealInExplorerHandler(imageData),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      Iterable<MenuItem> getMenuItems() sync* {
+                        yield MenuItem(
+                            label:
+                                "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
+                            disabled: true);
+
+                        const lastIndex = 4;
+                        for (final (i, url) in urls.indexed) {
+                          if (i > lastIndex) break;
+                          yield MenuItem(
+                            label: url.shortenWithEllipsis(50),
+                            onClick: (menuItem) =>
+                                open_in_browser.openInBrowser(Uri.parse(url)),
+                          );
+                        }
+                      }
+
+                      final contextMenu = Menu(items: getMenuItems().toList());
+
+                      popUpContextualMenu(contextMenu);
+                    }
+                  },
+                  child: ImageClickableLabel(
+                    label: imageData.fileName,
+                    tooltip:
+                        "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
+                    onTap: () => revealInExplorerHandler(imageData),
+                  ),
                 ),
               );
             }

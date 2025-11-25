@@ -6,6 +6,15 @@ extension CapitalizeExtension on String {
   }
 }
 
+extension ShortenExtension on String {
+  String shortenWithEllipsis(int maxLength) {
+    if (length <= maxLength) {
+      return this;
+    }
+    return '${substring(0, maxLength)}...';
+  }
+}
+
 class PfsLocalization {
   static const bool isDesktop = true;
   static const String version = '0.9.20251125c';

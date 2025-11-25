@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 abstract class ImageData {
   const ImageData();
@@ -25,6 +25,30 @@ class ImageFileData extends ImageData {
   static const empty = ImageFileData('');
 }
 
+const linksFilename = "links.txt";
+
+Future<Iterable<String>?> tryGetUrls(ImageData imageData) async {
+  if (imageData is ImageFileData) {
+    final parentFolder = imageData.fileFolder;
+    final urlsFilePath = "$parentFolder${Platform.pathSeparator}$linksFilename";
+    final urlsFile = File(urlsFilePath);
+    if (urlsFile.existsSync()) {
+      final outputLines = <String>[];
+      final lines = await urlsFile.readAsLines();
+      for (final line in lines) {
+        if (line.isEmpty) continue;
+        final canLaunch = await url_launcher.canLaunchUrl(Uri.parse(line));
+        if (canLaunch) {
+          outputLines.add(line);
+        }
+      }
+      if (outputLines.isNotEmpty) return outputLines;
+    }
+  }
+
+  return null;
+}
+
 ImageData imageDataFromPath(String filePath) {
   if (filePath.isEmpty) return ImageFileData.empty;
   return ImageFileData(filePath);
@@ -42,6 +66,6 @@ void revealPathInExplorer(String? filePath) async {
     await Process.start('explorer', ['/select,', windowsFilePath]);
   } else {
     final fileFolder = Uri.file(File(filePath).parent.path);
-    await launchUrl(fileFolder);
+    await url_launcher.launchUrl(fileFolder);
   }
 }
