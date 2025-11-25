@@ -666,6 +666,7 @@ class AnnotationsModel {
 
   void clearAllStrokes() {
     if (isStrokesLocked) return;
+    if (strokes.isEmpty) return;
 
     final historyStrokes = [...strokes];
     changes.add(
