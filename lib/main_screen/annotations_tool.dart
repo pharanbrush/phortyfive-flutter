@@ -680,6 +680,7 @@ class AnnotationsModel {
         },
       ),
     );
+    undoRedoListenable.notify();
   }
 }
 
