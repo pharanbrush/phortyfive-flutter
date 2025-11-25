@@ -1133,7 +1133,6 @@ Press R repeatedly to switch between ruler types.
 """),
                             heading("\nRulers\n"),
                             TextSpan(text: """
-Hold Shift to draw rulers with the same size as the previous ruler.
 Press D in ruler mode to duplicate the last ruler.
 Hold Alt to draw rulers from the center.
 Hold Ctrl before drawing a box ruler to create one from the edge.""")
