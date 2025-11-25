@@ -33,6 +33,8 @@ class Phshortcuts {
   static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
   static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
+  static const duplicateRulerAnnotations =
+      SingleActivator(LogicalKeyboardKey.keyD);
 
   static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
   static const redo =
@@ -84,9 +86,9 @@ class Phshortcuts {
     return HardwareKeyboard.instance.isAltPressed;
   }
 
-  static bool isSameSizeModifierPressed() {
-    return HardwareKeyboard.instance.isShiftPressed;
-  }
+  // static bool isSameSizeModifierPressed() {
+  //   return HardwareKeyboard.instance.isShiftPressed;
+  // }
 
   static bool isCounterclockwiseModifierPressed() {
     return HardwareKeyboard.instance.isControlPressed;

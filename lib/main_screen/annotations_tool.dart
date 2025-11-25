@@ -340,6 +340,9 @@ class AnnotationsModel {
 
   final currentTool = ValueNotifier(AnnotationTool.draw);
   final currentRulerType = ValueNotifier(RulerType.line);
+
+  final isRulerDuplicateMode = ValueNotifier(false);
+
   final currentRulerDivisions = ValueNotifier<int>(2);
   late final color = ValueNotifier<Color>(colorChoices.first);
   late final underlayColor = ValueNotifier<Color>(underlayColorChoices.first);
@@ -392,6 +395,11 @@ class AnnotationsModel {
       didRestoreMode = true;
     }
 
+    if (isRulerDuplicateMode.value) {
+      isRulerDuplicateMode.value = false;
+      didRestoreMode = true;
+    }
+
     // if (isNextRulerAddsComparison.value) {
     //   isNextRulerAddsComparison.value = false;
     //   didRestoreMode = true;
@@ -424,13 +432,24 @@ class AnnotationsModel {
     };
   }
 
-  void setToolRuler() {
+  void setRulerType(RulerType newType) {
+    if (newType == currentRulerType.value) return;
+    currentRulerType.value = newType;
+  }
+
+  void selectToolRuler() {
+    if (isRulerDuplicateMode.value) {
+      isRulerDuplicateMode.value = false;
+    }
+
     if (currentTool.value == AnnotationTool.rulers) {
-      currentRulerType.value = switch (currentRulerType.value) {
-        RulerType.line => RulerType.box,
-        RulerType.box => RulerType.circle,
-        _ => RulerType.line,
-      };
+      setRulerType(
+        switch (currentRulerType.value) {
+          RulerType.line => RulerType.box,
+          RulerType.box => RulerType.circle,
+          _ => RulerType.line,
+        },
+      );
 
       return;
     }
@@ -467,22 +486,44 @@ class AnnotationsModel {
     currentStrokeStartPosition = position;
   }
 
+  void trySetRulerDuplicateMode() {
+    if (currentTool.value != AnnotationTool.rulers) return;
+    final lastRuler = getLastRuler();
+    if (lastRuler == null || lastRuler.isInvalid) return;
+
+    isRulerDuplicateMode.value = true;
+  }
+
+  void trySetRulerDuplicateModeDisabled() {
+    isRulerDuplicateMode.value = false;
+  }
+
   void startNewRuler(Offset position) {
     if (isStrokesLocked) {
       showStrokesLockedHint();
       return;
     }
 
-    currentRulerStroke = RulerStroke()
-      ..type = currentRulerType.value
-      ..division = currentRulerDivisions.value
-      ..startAt(position);
-
-    if (Phshortcuts.isSameSizeModifierPressed()) {
+    if (isRulerDuplicateMode.value) {
       final lastRuler = getLastRuler();
-      if (lastRuler != null && !lastRuler.isInvalid) {
-        currentRulerStroke.targetLength = lastRuler.getLength();
-      }
+      if (lastRuler == null || lastRuler.isInvalid) return;
+      currentRulerStroke = RulerStroke()
+        ..type = lastRuler.type
+        ..division = lastRuler.division
+        ..targetLength = lastRuler.getLength()
+        ..startAt(position);
+    } else {
+      currentRulerStroke = RulerStroke()
+        ..type = currentRulerType.value
+        ..division = currentRulerDivisions.value
+        ..startAt(position);
+
+      // if (Phshortcuts.isSameSizeModifierPressed()) {
+      //   final lastRuler = getLastRuler();
+      //   if (lastRuler != null && !lastRuler.isInvalid) {
+      //     currentRulerStroke.targetLength = lastRuler.getLength();
+      //   }
+      // }
     }
 
     if (currentRulerStroke.type == RulerType.box &&
@@ -558,6 +599,7 @@ class AnnotationsModel {
     }
 
     currentRulerStroke.updatePath();
+    trySetRulerDuplicateModeDisabled();
 
     final latestStroke =
         currentRulerStroke; // This needs to be a local variable so the value can be captured by the undo closure.
@@ -737,7 +779,9 @@ class AnnotationsInterface extends StatelessWidget {
           Phshortcuts.redo: model.redo,
           Phshortcuts.undo: model.undo,
           Phshortcuts.drawToolAnnotations: () => model.setToolDraw(),
-          Phshortcuts.rulerToolAnnotations: () => model.setToolRuler(),
+          Phshortcuts.rulerToolAnnotations: () => model.selectToolRuler(),
+          Phshortcuts.duplicateRulerAnnotations: () =>
+              model.trySetRulerDuplicateMode(),
           Phshortcuts.eraserToolAnnotations: () =>
               model.setTool(AnnotationTool.erase),
           Phshortcuts.cycleAnnotationColors: model.cycleColor,
@@ -794,7 +838,7 @@ class AnnotationsInterface extends StatelessWidget {
                             tooltip: "Proportion rulers\n(R)",
                             isSelected:
                                 currentToolValue == AnnotationTool.rulers,
-                            onPressed: () => model.setToolRuler(),
+                            onPressed: () => model.selectToolRuler(),
                             icon: currentToolValue == AnnotationTool.rulers
                                 ? Icon(FluentIcons.ruler_20_filled)
                                 : Icon(FluentIcons.ruler_20_regular),
@@ -1051,6 +1095,7 @@ Press R repeatedly to switch between ruler types.
                             heading("\nRulers\n"),
                             TextSpan(text: """
 Hold Shift to draw rulers with the same size as the previous ruler.
+Press D in ruler mode to duplicate the last ruler.
 Hold Alt to draw rulers from the center.
 Hold Ctrl before drawing a box ruler to create one from the edge.""")
                           ],
