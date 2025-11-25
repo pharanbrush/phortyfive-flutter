@@ -642,64 +642,6 @@ class ImageViewerStackWidget extends StatelessWidget {
   );
 }
 
-class ListeningAnimatedTranslate extends StatelessWidget {
-  const ListeningAnimatedTranslate({
-    super.key,
-    required this.offsetListenable,
-    required this.child,
-    required this.duration,
-  });
-
-  final ValueListenable<Offset> offsetListenable;
-  final Widget child;
-  final Duration duration;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: offsetListenable,
-      builder: (_, offset, __) {
-        return AnimatedTranslate(
-          curve: Phanimations.zoomTransitionCurve,
-          duration: duration,
-          offset: offset,
-          child: child,
-        );
-      },
-    );
-  }
-}
-
-class AnimatedTranslate extends StatelessWidget {
-  const AnimatedTranslate({
-    super.key,
-    required this.child,
-    required this.offset,
-    this.duration = const Duration(milliseconds: 150),
-    this.curve = Curves.easeOutQuint,
-  });
-
-  final Widget child;
-  final Offset offset;
-  final Duration duration;
-  final Curve curve;
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<Offset>(
-      duration: duration,
-      curve: curve,
-      tween: Tween<Offset>(begin: Offset.zero, end: offset),
-      builder: (_, animatedOffsetValue, __) {
-        return Transform.translate(
-          offset: animatedOffsetValue,
-          child: child,
-        );
-      },
-    );
-  }
-}
-
 class ImagePhviewerPanListener extends StatelessWidget {
   const ImagePhviewerPanListener({
     super.key,
