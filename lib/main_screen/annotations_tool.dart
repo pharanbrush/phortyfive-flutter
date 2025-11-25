@@ -8,7 +8,6 @@ import 'package:pfs2/phlutter/centered_vertically.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
-import 'package:pfs2/phlutter/sized_box_fitted.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -45,8 +44,12 @@ class RulerStroke extends Stroke {
   bool isCentered = false;
   bool isCounterclockwise = false;
 
-  RulerStroke? comparisonRuler;
-  double? comparisonLength;
+  double? targetLength;
+
+  // RulerStroke? comparisonRuler;
+  // double? comparisonLength;
+
+  double getLength() => (end - start).distance;
 
   List<(Offset p1, Offset p2, bool thin)>? lineCache;
 
@@ -64,33 +67,45 @@ class RulerStroke extends Stroke {
 
   void updateEnd(Offset userPointer) {
     endUserPosition = userPointer;
+    final userDelta = userPointer - startUserPosition;
+
+    final Offset delta;
+    final Offset outputPointer;
+    if (targetLength != null) {
+      delta = userDelta /
+          userDelta.distance *
+          targetLength! *
+          (isCentered ? 0.5 : 1);
+      outputPointer = startUserPosition + delta;
+    } else {
+      delta = userDelta;
+      outputPointer = userPointer;
+    }
 
     if (isCentered) {
-      final delta = userPointer - startUserPosition;
       start = startUserPosition - delta;
-      end = userPointer;
+      end = outputPointer;
     } else if (isCounterclockwise) {
-      final delta = userPointer - startUserPosition;
       final deltaPerpendicularCcwHalf = Offset(delta.dy, -delta.dx) * 0.5;
       start = startUserPosition + deltaPerpendicularCcwHalf;
-      end = userPointer + deltaPerpendicularCcwHalf;
+      end = outputPointer + deltaPerpendicularCcwHalf;
     } else {
-      end = userPointer;
+      end = outputPointer;
     }
   }
 
-  void setComparisonRulerFrom(RulerStroke source) {
-    if (source == this) return;
-    if (source.isInvalid) return;
+  // void setComparisonRulerFrom(RulerStroke source) {
+  //   if (source == this) return;
+  //   if (source.isInvalid) return;
 
-    comparisonRuler = RulerStroke()
-      ..start = source.start
-      ..end = source.end
-      ..type = source.type
-      ..division = source.division
-      ..comparisonRuler = null;
-    comparisonLength = (source.end - source.start).distance;
-  }
+  //   comparisonRuler = RulerStroke()
+  //     ..start = source.start
+  //     ..end = source.end
+  //     ..type = source.type
+  //     ..division = source.division
+  //     ..comparisonRuler = null;
+  //   comparisonLength = (source.end - source.start).distance;
+  // }
 
   /// Path is used to determine how the ruler is erased. Not for drawing.
   void updatePath() {
@@ -148,39 +163,49 @@ class RulerStroke extends Stroke {
     }
   }
 
-  void updateComparisonRuler() {
-    if (isInvalid) return;
+  // void updateComparisonRuler() {
+  //   if (isInvalid) return;
 
-    final cr = comparisonRuler;
-    final cLength = comparisonLength;
+  //   final cr = comparisonRuler;
+  //   final cLength = comparisonLength;
 
-    if (cr == null) return;
-    if (cLength == null) return;
+  //   if (cr == null) return;
+  //   if (cLength == null) return;
 
-    cr.start = start;
-    final delta = end - start;
-    final length = delta.distance;
-    final originalLengthInUpdatedDirection = (delta / length) * cLength;
-    cr.end = start + originalLengthInUpdatedDirection;
-  }
+  //   cr.start = start;
+  //   final delta = end - start;
+  //   final length = delta.distance;
+  //   final originalLengthInUpdatedDirection = (delta / length) * cLength;
+  //   cr.end = start + originalLengthInUpdatedDirection;
+  // }
 
   void draw(Canvas canvas, Paint paint) {
     if (isInvalid) return;
 
-    if (comparisonRuler != null) {
-      final comparisonPaint = Paint.from(paint)
-        ..color = paint.color.withValues(alpha: 0.25);
-      comparisonRuler!.draw(canvas, comparisonPaint);
-    }
+    // if (comparisonRuler != null) {
+    //   final comparisonPaint = Paint.from(paint)
+    //     ..color = paint.color.withValues(alpha: 0.25);
+    //   comparisonRuler!.draw(canvas, comparisonPaint);
+    // }
 
     const double tickMarkHalfLength = 7;
 
     const oneThird = 1.0 / 3.0;
     const twoThirds = 2.0 / 3.0;
-    final rulerPaint = Paint.from(paint)..strokeWidth = paint.strokeWidth * 0.6;
+
+    final Color baseColor;
+    if (targetLength != null) {
+      baseColor = paint.color.withValues(alpha: paint.color.a * oneThird);
+    } else {
+      baseColor = paint.color;
+    }
+
+    final rulerPaint = Paint.from(paint)
+      ..strokeWidth = paint.strokeWidth * 0.6
+      ..color = baseColor;
     final thinnerPaint = Paint.from(paint)
       ..strokeWidth = paint.strokeWidth * oneThird
-      ..color = paint.color.withValues(alpha: paint.color.a * twoThirds);
+      ..color = baseColor.withValues(alpha: baseColor.a * twoThirds);
 
     final delta = end - start;
     final distance = delta.distance;
@@ -323,9 +348,9 @@ class AnnotationsModel {
   final isStrokesVisible = ValueNotifier(true);
   final undoRedoListenable = SimpleNotifier();
 
-  final isNextRulerAddsComparison = ValueNotifier(false);
+  // final isNextRulerAddsComparison = ValueNotifier(false);
+  // final comparisonAddedPulseListenable = SimpleNotifier();
 
-  final comparisonAddedPulseListenable = SimpleNotifier();
   final visibilityPulseListenable = SimpleNotifier();
   final eraserPulseListenable = SimpleNotifier();
 
@@ -367,10 +392,10 @@ class AnnotationsModel {
       didRestoreMode = true;
     }
 
-    if (isNextRulerAddsComparison.value) {
-      isNextRulerAddsComparison.value = false;
-      didRestoreMode = true;
-    }
+    // if (isNextRulerAddsComparison.value) {
+    //   isNextRulerAddsComparison.value = false;
+    //   didRestoreMode = true;
+    // }
 
     if (opacity.value == 0) {
       opacity.value = 0.2;
@@ -410,7 +435,7 @@ class AnnotationsModel {
       return;
     }
 
-    isNextRulerAddsComparison.value = false;
+    // isNextRulerAddsComparison.value = false;
     currentTool.value = AnnotationTool.rulers;
   }
 
@@ -453,6 +478,13 @@ class AnnotationsModel {
       ..division = currentRulerDivisions.value
       ..startAt(position);
 
+    if (Phshortcuts.isSameSizeModifierPressed()) {
+      final lastRuler = getLastRuler();
+      if (lastRuler != null && !lastRuler.isInvalid) {
+        currentRulerStroke.targetLength = lastRuler.getLength();
+      }
+    }
+
     if (currentRulerStroke.type == RulerType.box &&
         Phshortcuts.isCounterclockwiseModifierPressed()) {
       currentRulerStroke.isCounterclockwise = true;
@@ -460,18 +492,26 @@ class AnnotationsModel {
       currentRulerStroke.isCentered = true;
     }
 
-    if (isNextRulerAddsComparison.value) {
-      for (int i = strokes.length - 1; i >= 0; i--) {
-        final top = strokes[i];
-        if (top is RulerStroke) {
-          currentRulerStroke.setComparisonRulerFrom(top);
-          comparisonAddedPulseListenable.notify();
-          break;
-        }
+    // if (isNextRulerAddsComparison.value) {
+    //   final lastRuler = getLastRuler();
+    //   if (lastRuler != null) {
+    //     currentRulerStroke.setComparisonRulerFrom(lastRuler);
+    //     comparisonAddedPulseListenable.notify();
+    //   }
+    // }
+
+    strokes.add(currentRulerStroke);
+  }
+
+  RulerStroke? getLastRuler() {
+    for (int i = strokes.length - 1; i >= 0; i--) {
+      final top = strokes[i];
+      if (top is RulerStroke) {
+        return top;
       }
     }
 
-    strokes.add(currentRulerStroke);
+    return null;
   }
 
   void updateRulerEnd(Offset position) {
@@ -479,7 +519,7 @@ class AnnotationsModel {
 
     currentRulerStroke.updateEnd(position);
 
-    currentRulerStroke.updateComparisonRuler();
+    // currentRulerStroke.updateComparisonRuler();
   }
 
   void resetCurrentStrokeWithSecondPoint(Offset point) {
@@ -510,7 +550,7 @@ class AnnotationsModel {
   void commitCurrentRuler() {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
-    isNextRulerAddsComparison.value = false;
+    // isNextRulerAddsComparison.value = false;
 
     if (currentRulerStroke.isInvalid) {
       strokes.remove(currentRulerStroke);
@@ -945,6 +985,42 @@ class AnnotationsInterface extends StatelessWidget {
             height: barHeight + edgeOverflow,
             child: Stack(
               children: [
+                Builder(
+                  builder: (context) {
+                    TextSpan heading(String text) {
+                      return TextSpan(
+                          text: text,
+                          style: TextStyle(fontWeight: FontWeight.w700));
+                    }
+
+                    return Positioned(
+                      right: 10,
+                      bottom: 10 + edgeOverflow,
+                      child: Tooltip(
+                        ignorePointer: true,
+                        richMessage: TextSpan(
+                          children: [
+                            heading("Tips!\n\n"),
+                            heading("Tools cycling\n"),
+                            TextSpan(text: """
+Press B repeatedly to switch between drawing and line tools.
+Press R repeatedly to switch between ruler types.
+"""),
+                            heading("\nRulers\n"),
+                            TextSpan(text: """
+Hold Shift to draw rulers with the same size as the previous ruler.
+Hold Alt to draw rulers from the center.
+Hold Ctrl before drawing a box ruler to create one from the edge.""")
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.info_outlined,
+                          size: 13,
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 8,
@@ -1003,13 +1079,9 @@ class AnnotationsInterface extends StatelessWidget {
                                   );
                                   return Row(
                                     children: [
-                                      Tooltip(
-                                        message:
-                                            "Press R to cycle between rulers",
-                                        child: TextButton(
-                                          onPressed: null,
-                                          child: label,
-                                        ),
+                                      TextButton(
+                                        onPressed: null,
+                                        child: label,
                                       ),
                                       SizedBox(
                                         width: 42 * 3,
@@ -1056,41 +1128,41 @@ class AnnotationsInterface extends StatelessWidget {
                                   );
                                 },
                               ),
-                              ValueListenableBuilder(
-                                valueListenable:
-                                    model.isNextRulerAddsComparison,
-                                builder:
-                                    (context, addComparisonRulerValue, child) {
-                                  return Tooltip(
-                                    message:
-                                        "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
-                                    child: AnimateOnListenable(
-                                      listenable:
-                                          model.comparisonAddedPulseListenable,
-                                      effects: [Phanimations.toolPulseEffect],
-                                      child: SizedBoxFitted(
-                                        height: 32,
-                                        width: 32,
-                                        child: IconButton.outlined(
-                                          onPressed: () => model
-                                              .isNextRulerAddsComparison
-                                              .toggle(),
-                                          icon:
-                                              Icon(Icons.splitscreen, size: 25),
-                                          isSelected: addComparisonRulerValue,
-                                          selectedIcon: Icon(
-                                            Icons.splitscreen,
-                                            size: 20,
-                                          ),
-                                          color: addComparisonRulerValue
-                                              ? theme.colorScheme.tertiary
-                                              : null,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                              // ValueListenableBuilder(
+                              //   valueListenable:
+                              //       model.isNextRulerAddsComparison,
+                              //   builder:
+                              //       (context, addComparisonRulerValue, child) {
+                              //     return Tooltip(
+                              //       message:
+                              //           "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
+                              //       child: AnimateOnListenable(
+                              //         listenable:
+                              //             model.comparisonAddedPulseListenable,
+                              //         effects: [Phanimations.toolPulseEffect],
+                              //         child: SizedBoxFitted(
+                              //           height: 32,
+                              //           width: 32,
+                              //           child: IconButton.outlined(
+                              //             onPressed: () => model
+                              //                 .isNextRulerAddsComparison
+                              //                 .toggle(),
+                              //             icon:
+                              //                 Icon(Icons.splitscreen, size: 25),
+                              //             isSelected: addComparisonRulerValue,
+                              //             selectedIcon: Icon(
+                              //               Icons.splitscreen,
+                              //               size: 20,
+                              //             ),
+                              //             color: addComparisonRulerValue
+                              //                 ? theme.colorScheme.tertiary
+                              //                 : null,
+                              //           ),
+                              //         ),
+                              //       ),
+                              //     );
+                              //   },
+                              // ),
                               VerticalDivider(),
                               SizedBox(width: 10),
                               if (windowIsNarrow)

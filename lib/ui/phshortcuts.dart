@@ -84,6 +84,10 @@ class Phshortcuts {
     return HardwareKeyboard.instance.isAltPressed;
   }
 
+  static bool isSameSizeModifierPressed() {
+    return HardwareKeyboard.instance.isShiftPressed;
+  }
+
   static bool isCounterclockwiseModifierPressed() {
     return HardwareKeyboard.instance.isControlPressed;
   }
