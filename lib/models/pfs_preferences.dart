@@ -16,27 +16,53 @@ const String includeSubfoldersSuffix = " ?s";
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 // RECENT FOLDERS
-Future<List<String>?> getRecentFolderEntryList() async {
+Future<List<String>?> _getRecentFolderEntryList() async {
   final prefs = await _prefs;
   return prefs.getStringList(recentFoldersKey);
 }
 
-Future<void> pushRecentFolder(String folderPath, bool includeSubfolders) async {
+Future<Iterable<({String folderPath, bool includeSubfolders})>?>
+    getRecentFolders() async {
+  final recentFolderEntries = await _getRecentFolderEntryList();
+  if (recentFolderEntries == null) return null;
+
+  return recentFolderEntries.map((e) => decodeRecentFolderEntry(e));
+}
+
+Future<void> pushRecentFolder({
+  required String folderPath,
+  required bool includeSubfolders,
+}) async {
   final folder = Directory(folderPath);
   if (await folder.exists()) {
-    final folderList = await getRecentFolderEntryList() ?? <String>[];
+    // Load old list from preferences.
+    final folderList = await _getRecentFolderEntryList() ?? <String>[];
+
+    // Remove an existing item that matches the item added.
+    folderList.removeWhere(
+      (element) {
+        final e = decodeRecentFolderEntry(element);
+        return (e.folderPath == folderPath &&
+            e.includeSubfolders == includeSubfolders);
+      },
+    );
+
+    // Shorten if list is too long
     if (folderList.length > maxRecentFoldersCount) {
       folderList.removeAt(0);
     }
+
+    // Add the item to the end
     folderList.add(encodeRecentFolderEntry(folderPath, includeSubfolders));
 
+    // Push the list to preferences.
     final prefs = await _prefs;
     await prefs.setStringList(recentFoldersKey, folderList);
   }
 }
 
 Future<void> trimRecentFolders() async {
-  final folderEntryList = await getRecentFolderEntryList();
+  final folderEntryList = await _getRecentFolderEntryList();
   if (folderEntryList == null) return;
 
   final entriesToRemove = <String>[];

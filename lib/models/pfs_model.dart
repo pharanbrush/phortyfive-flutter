@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
+import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
@@ -387,6 +388,11 @@ mixin PfsImageListManager {
       isPickerOpen = false;
       onFilePickerStateChange?.call();
     }
+
+    await pfs_preferences.pushRecentFolder(
+      folderPath: folderPath,
+      includeSubfolders: recursive,
+    );
   }
 
   Future loadImageFiles(

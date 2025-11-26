@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
 import 'package:pfs2/phlutter/sized_box_fitted.dart';
@@ -155,36 +157,68 @@ class PanelCloseButton extends StatelessWidget {
 //   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
 // }
 
-void _popupImagesMenu(PfsAppModel model) {
+void _popupImagesMenu(PfsAppModel model) async {
   popUpContextualMenu(
-    _getOpenImagesMenu(model),
+    await _getOpenImagesMenu(model),
     placement: Placement.topLeft,
   );
 }
 
-Menu _getOpenImagesMenu(PfsAppModel model) {
+Future<Menu> _getOpenImagesMenu(PfsAppModel model) async {
+  final baseItems = [
+    MenuItem(
+      label: 'Open images...',
+      onClick: (menuItem) {
+        model.openFilePickerForImages();
+      },
+    ),
+    MenuItem.separator(),
+    MenuItem(
+      label: 'Open image folder...',
+      onClick: (menuItem) {
+        model.openFilePickerForFolder();
+      },
+    ),
+    MenuItem(
+      label: 'Open folder and subfolders...',
+      onClick: (menuItem) {
+        model.openFilePickerForFolder(includeSubfolders: true);
+      },
+    )
+  ];
+
+  final recentFolderEntries = await pfs_preferences.getRecentFolders();
+  if (recentFolderEntries == null) return Menu(items: baseItems);
+
+  final menuItems = <MenuItem>[];
+  for (final e in recentFolderEntries) {
+    final shortenedPath = shortenFolderPath(e.folderPath);
+
+    menuItems.add(
+      MenuItem(
+        label: shortenedPath,
+        onClick: (menuItem) => model.loadFolder(
+          e.folderPath,
+          recursive: e.includeSubfolders,
+        ),
+      ),
+    );
+  }
+
+  if (menuItems.isNotEmpty) {
+    // Add number prefixes
+    for (final (i, item) in menuItems.reversed.indexed) {
+      item.label = "${i + 1}   ${item.label}";
+    }
+
+    // Add separator
+    menuItems.add(MenuItem.separator());
+  }
+
+  menuItems.addAll(baseItems);
+
   return Menu(
-    items: [
-      MenuItem(
-        label: 'Open images...',
-        onClick: (menuItem) {
-          model.openFilePickerForImages();
-        },
-      ),
-      MenuItem.separator(),
-      MenuItem(
-        label: 'Open image folder...',
-        onClick: (menuItem) {
-          model.openFilePickerForFolder();
-        },
-      ),
-      MenuItem(
-        label: 'Open folder and subfolders...',
-        onClick: (menuItem) {
-          model.openFilePickerForFolder(includeSubfolders: true);
-        },
-      )
-    ],
+    items: menuItems,
   );
 }
 
@@ -211,7 +245,7 @@ class ImageSetButton extends StatelessWidget {
           final fileCount = model.imageList.getCount();
           final lastFolder = model.lastFolder;
           final String tooltip =
-              '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: .../$lastFolder\n'
+              '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: ...${Platform.pathSeparator}$lastFolder\n'
               '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
 
           const double wideWidth = 80;
