@@ -1,3 +1,4 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -19,22 +20,27 @@ class FilterPanel extends StatelessWidget {
       context,
       content: Wrap(
         direction: Axis.vertical,
-        spacing: 5,
+        spacing: 2,
         children: [
           _headerRow(
             children: [
               const FilterPanelHeading(),
+              Transform.translate(
+                offset: const Offset(0, 1),
+                child: ResetFiltersSwitch(filters: imagePhviewer),
+              ),
               const Spacer(),
-              ResetAllFiltersButton(filters: imagePhviewer),
             ],
           ),
-          ColorModeButtons(
-            filters: imagePhviewer,
-            onSelectionChanged: handleImageModeSelectionChanged,
+          SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: ColorModeButtons(
+              filters: imagePhviewer,
+              onSelectionChanged: handleImageModeSelectionChanged,
+            ),
           ),
-          BlurSlider(
-            filters: imagePhviewer,
-          ),
+          BlurSlider(filters: imagePhviewer),
           FlipControls(zoomPanner: imagePhviewer),
         ],
       ),
@@ -52,9 +58,7 @@ class FilterPanel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: SizedBox(
         width: 250,
-        child: Row(
-          children: children,
-        ),
+        child: Row(children: children),
       ),
     );
   }
@@ -117,17 +121,20 @@ class FlipControls extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: zoomPanner.flipHorizontalListenable,
       builder: (_, isFlippedHorizontal, ___) {
+        final labelStyle = Theme.of(context).textTheme.labelMedium;
+
         return Row(
+          spacing: 8,
           children: [
-            Text(
-              "Flip",
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+            Text("Flip", style: labelStyle),
             IconButton.filled(
               onPressed: () => zoomPanner.flipHorizontal(),
-              icon: Icon(Icons.flip),
+              icon: Icon(
+                FluentIcons.flip_horizontal_16_regular,
+                size: 18,
+              ),
               isSelected: isFlippedHorizontal,
-              tooltip: "Flip the view horizontally (H)",
+              tooltip: "Flip view horizontally (H)",
             ),
           ],
         );
@@ -196,12 +203,12 @@ class BlurSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final labelStyle = theme.textTheme.labelMedium;
+
     final label = Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        'Blur',
-        style: Theme.of(context).textTheme.labelLarge,
-      ),
+      child: Text('Blur', style: labelStyle),
     );
 
     return ValueListenableBuilder(
@@ -215,13 +222,22 @@ class BlurSlider extends StatelessWidget {
               label,
               SizedBox(
                 width: 220,
-                child: Slider.adaptive(
-                  min: 0,
-                  max: 12,
-                  divisions: 12,
-                  label: filters.blurLevel.toInt().toString(),
-                  onChanged: (newValue) => filters.blurLevel = newValue,
-                  value: filters.blurLevel,
+                height: 40,
+                child: SliderTheme(
+                  data: theme.sliderTheme.copyWith(
+                    trackHeight: 3,
+                    thumbShape: RoundSliderThumbShape(
+                      enabledThumbRadius: 8,
+                    ),
+                  ),
+                  child: Slider(
+                    min: 0,
+                    max: 12,
+                    divisions: 12,
+                    label: filters.blurLevel.toInt().toString(),
+                    onChanged: (newValue) => filters.blurLevel = newValue,
+                    value: filters.blurLevel,
+                  ),
                 ),
               ),
             ],
@@ -255,7 +271,7 @@ class FilterPanelHeading extends StatelessWidget {
           'Filters',
           style: Theme.of(context)
               .textTheme
-              .bodyLarge
+              .labelLarge
               ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
@@ -265,8 +281,8 @@ class FilterPanelHeading extends StatelessWidget {
   }
 }
 
-class ResetAllFiltersButton extends StatelessWidget {
-  const ResetAllFiltersButton({
+class ResetFiltersSwitch extends StatelessWidget {
+  const ResetFiltersSwitch({
     super.key,
     required this.filters,
   });
@@ -275,14 +291,33 @@ class ResetAllFiltersButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: filters.filtersChangeListenable,
-      builder: (_, __, ___) => IconButton(
-        tooltip: 'Reset all filters',
-        color: Theme.of(context).colorScheme.tertiary,
-        onPressed:
-            filters.isFilterActive ? () => filters.resetAllFilters() : null,
-        icon: const Icon(Icons.format_color_reset),
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
+      child: ValueListenableBuilder(
+        valueListenable: filters.filtersChangeListenable,
+        builder: (_, __, ___) {
+          final isSomeFiltersAreOn = filters.isFilterActive;
+
+          void toggleFilters(bool newValue) {
+            if (isSomeFiltersAreOn) {
+              filters.storeLastSettings();
+              filters.resetAllFilters();
+            } else {
+              filters.restoreLastSettings();
+            }
+          }
+
+          return Tooltip(
+            message: "Reset all filters",
+            child: Phswitch(
+              height: 20,
+              value: filters.isFilterActive,
+              onChanged: (isSomeFiltersAreOn || filters.lastSettings != null)
+                  ? toggleFilters
+                  : null,
+            ),
+          );
+        },
       ),
     );
   }

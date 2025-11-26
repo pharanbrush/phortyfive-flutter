@@ -660,7 +660,10 @@ class _MainScreenState extends State<MainScreen>
         return [
           PfsPopupMenuButton<VoidCallback?>(
             tooltip: "Tools",
-            //icon: const Icon(Icons.pageview_outlined),
+            icon: const Icon(
+              FluentIcons.more_vertical_20_regular,
+              size: 20,
+            ),
             onSelected: (value) => value?.call(),
             itemBuilder: (context) => [
               PfsPopupMenuItem(
@@ -1068,7 +1071,7 @@ class FiltersButton extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: imageFilters.filtersChangeListenable,
       builder: (_, __, ___) {
-        const double filterIconSize = 20;
+        const double filterIconSize = 15;
         const filterIconOff = Icon(
           Icons.contrast,
           size: filterIconSize,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
+import 'package:pfs2/phlutter/sized_box_fitted.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -41,10 +42,10 @@ class Phbuttons {
 
   static Widget textThenIcon(String text, Icon icon, {double spacing = 3}) {
     return Row(
+      spacing: spacing,
       children: [
         Text(text),
-        SizedBox(width: spacing),
-        icon,
+        Transform.translate(offset: Offset(0, 1), child: icon),
       ],
     );
   }
@@ -122,7 +123,7 @@ class PanelCloseButton extends StatelessWidget {
         tooltip: "Close panel",
         padding: EdgeInsets.all(2.0),
         onPressed: onPressed,
-        icon: Icon(Icons.close, size: 14),
+        icon: Icon(Icons.close, size: 15),
         //hoverColor: Colors.red,
       ),
     );
@@ -195,7 +196,7 @@ class ImageSetButton extends StatelessWidget {
     required this.model,
   });
 
-  static const double _iconSize = 18;
+  static const double _iconSize = 17;
   static const Icon _icon = Icon(Icons.image, size: _iconSize);
 
   final bool narrowButton;
@@ -309,16 +310,16 @@ class IconAndText extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final double usedFontSize = (theme.textTheme.labelLarge?.fontSize ?? 12);
-    final usedIconSize = iconSize ?? usedFontSize * 1.55;
+    final usedIconSize = iconSize ?? usedFontSize * 1.45;
     final usedGap = gap ?? usedFontSize * 0.6;
 
     return Row(
+      spacing: usedGap,
       children: [
-        Icon(
-          icon,
-          size: usedIconSize,
+        Transform.translate(
+          offset: Offset(0, 1),
+          child: Icon(icon, size: usedIconSize),
         ),
-        SizedBox(width: usedGap),
         Text(text),
       ],
     );
@@ -406,4 +407,70 @@ class PfsPopupMenuItem<T> extends PopupMenuItem<T> {
     super.textStyle,
     super.value,
   });
+}
+
+class NotifierSwitchItem extends StatelessWidget {
+  const NotifierSwitchItem({
+    super.key,
+    required this.notifier,
+    required this.title,
+    this.onChanged,
+  });
+
+  final ValueNotifier<bool> notifier;
+  final Widget title;
+  final Function()? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: notifier,
+      builder: (_, notifierValue, __) {
+        return MergeSemantics(
+          child: ListTile(
+            onTap:
+                onChanged == null ? () => handleChange(!notifierValue) : null,
+            trailing: ExcludeFocus(
+              child: Phswitch(
+                value: notifierValue,
+                onChanged: handleChange,
+              ),
+            ),
+            title: title,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+          ),
+        );
+      },
+    );
+  }
+
+  void handleChange(bool newValue) {
+    notifier.value = newValue;
+    onChanged?.call();
+  }
+}
+
+class Phswitch extends StatelessWidget {
+  const Phswitch({
+    super.key,
+    required this.value,
+    this.onChanged,
+    this.height = 26,
+  });
+
+  final bool value;
+  final double height;
+  final void Function(bool newValue)? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBoxFitted(
+      height: height,
+      child: Switch(
+        value: value,
+        onChanged: onChanged,
+      ),
+    );
+  }
 }

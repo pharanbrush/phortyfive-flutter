@@ -159,40 +159,8 @@ class SettingsPanel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         'Settings',
-        style: Theme.of(context).textTheme.titleMedium,
+        style: Theme.of(context).textTheme.titleSmall,
       ),
-    );
-  }
-}
-
-class NotifierSwitchItem extends StatelessWidget {
-  const NotifierSwitchItem({
-    super.key,
-    required this.notifier,
-    required this.title,
-    this.onChanged,
-  });
-
-  final ValueNotifier<bool> notifier;
-  final Widget title;
-  final Function()? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: notifier,
-      builder: (_, value, __) {
-        return SwitchListTile(
-          value: value,
-          onChanged: (value) {
-            notifier.value = value;
-            onChanged?.call();
-          },
-          title: title,
-          dense: true,
-          visualDensity: VisualDensity.compact,
-        );
-      },
     );
   }
 }

@@ -60,6 +60,7 @@ class CornerWindowControls extends StatelessWidget {
                     onPressed: () => settingsMenu.open(),
                     icon: Icons.settings,
                     tooltip: 'Settings',
+                    iconScale: 0.85,
                   ),
                   NotifierToggleCornerButton(
                     notifier: windowState.isSoundsEnabled,
@@ -151,12 +152,14 @@ class CornerButton extends StatelessWidget {
     this.onPressed,
     this.tooltip,
     this.isSelected = false,
+    this.iconScale = 1,
   });
 
   final Function()? onPressed;
   final IconData icon;
   final String? tooltip;
   final bool isSelected;
+  final double iconScale;
 
   @override
   Widget build(BuildContext context) {
@@ -167,14 +170,13 @@ class CornerButton extends StatelessWidget {
     const buttonStyle = ButtonStyle(
       fixedSize: sizes,
       minimumSize: sizes,
-      iconSize: WidgetStatePropertyAll(topControlDiameter * .55),
       padding: WidgetStatePropertyAll(EdgeInsets.zero),
     );
 
     return IconButton(
       style: buttonStyle,
       onPressed: onPressed,
-      icon: Icon(icon),
+      icon: Icon(icon, size: topControlDiameter * .55 * iconScale),
       tooltip: tooltip,
       isSelected: isSelected,
     );

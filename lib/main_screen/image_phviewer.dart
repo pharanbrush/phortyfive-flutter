@@ -49,6 +49,8 @@ mixin ImageFilters {
   static const double _minBlurLevel = 0;
   static const double _maxBlurLevel = 12;
 
+  ({double blurLevel, bool isUsingGrayscale})? lastSettings;
+
   final blurLevelListenable = ValueNotifier<double>(0.0);
   double get blurLevel => blurLevelListenable.value;
   set blurLevel(double val) => blurLevelListenable.value =
@@ -78,6 +80,19 @@ mixin ImageFilters {
     }
 
     return currentActiveFiltersCount;
+  }
+
+  void storeLastSettings() {
+    lastSettings = (
+      blurLevel: blurLevelListenable.value,
+      isUsingGrayscale: usingGrayscaleListenable.value,
+    );
+  }
+
+  void restoreLastSettings() {
+    if (lastSettings == null) return;
+    blurLevelListenable.value = lastSettings!.blurLevel;
+    usingGrayscaleListenable.value = lastSettings!.isUsingGrayscale;
   }
 
   void incrementBlurLevel(int increment) {

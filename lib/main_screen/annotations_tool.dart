@@ -771,14 +771,14 @@ class AnnotationsInterface extends StatelessWidget {
     final model = AnnotationsModel.of(context);
 
     const double edgeOverflow = 10;
-    const double barHeight = 60;
+    const double barHeight = 54;
     //const double barItemSpacing = 3;
 
     const double brushSizeMin = 0.5;
     const double brushSizeIntervals = brushSizeMin;
     const double brushSizeMax = 8;
 
-    const double panelPadding = 4;
+    const double panelPadding = 3;
     const double sidePanelWidth = 52;
 
     final shortcuts = Center(
@@ -830,6 +830,8 @@ class AnnotationsInterface extends StatelessWidget {
                       ValueListenableBuilder(
                         valueListenable: model.currentTool,
                         builder: (_, currentToolValue, __) {
+                          const double pencilToolIconSize = 20;
+
                           return Flex(
                             direction: Axis.vertical,
                             children: [
@@ -840,8 +842,10 @@ class AnnotationsInterface extends StatelessWidget {
                                 onPressed: () =>
                                     model.setTool(AnnotationTool.draw),
                                 icon: currentToolValue == AnnotationTool.draw
-                                    ? Icon(FluentIcons.edit_20_filled)
-                                    : Icon(FluentIcons.edit_20_regular),
+                                    ? Icon(FluentIcons.edit_20_filled,
+                                        size: pencilToolIconSize)
+                                    : Icon(FluentIcons.edit_20_regular,
+                                        size: pencilToolIconSize),
                               ),
                               if (!isShort)
                                 IconButton.filled(
@@ -876,9 +880,11 @@ class AnnotationsInterface extends StatelessWidget {
                                   child: currentToolValue ==
                                           AnnotationTool.erase
                                       ? Icon(
-                                          FluentIcons.eraser_segment_20_filled)
-                                      : Icon(FluentIcons
-                                          .eraser_segment_20_regular),
+                                          FluentIcons.eraser_segment_20_filled,
+                                          size: 22)
+                                      : Icon(
+                                          FluentIcons.eraser_segment_20_regular,
+                                          size: 22),
                                 ),
                               ),
                             ],
@@ -1017,13 +1023,13 @@ class AnnotationsInterface extends StatelessWidget {
                           if (!isShort) SizedBox(height: 10),
                           if (!isShort)
                             Icon(
-                              FluentIcons.ink_stroke_20_regular,
+                              FluentIcons.ink_stroke_24_filled,
                               size: 15,
                             ),
                           ValueListenableBuilder(
                             valueListenable: model.isStrokesVisible,
                             builder: (_, isStrokesVisibleValue, __) {
-                              const double visibilityIconSize = 20;
+                              const double visibilityIconSize = 18;
 
                               return IconButton(
                                 tooltip: "Toggle strokes visibility",
@@ -1111,6 +1117,7 @@ class AnnotationsInterface extends StatelessWidget {
             child: Stack(
               children: [
                 Builder(
+                  // Info tooltip
                   builder: (context) {
                     TextSpan heading(String text) {
                       return TextSpan(
@@ -1119,13 +1126,13 @@ class AnnotationsInterface extends StatelessWidget {
                     }
 
                     return Positioned(
-                      right: 10,
-                      bottom: 10 + edgeOverflow,
+                      right: 11,
+                      bottom: 7 + edgeOverflow,
                       child: Tooltip(
                         ignorePointer: true,
                         richMessage: TextSpan(
                           children: [
-                            heading("Tips!\n\n"),
+                            heading("Annotation tips!\n\n"),
                             heading("Tools cycling\n"),
                             TextSpan(text: """
 Press B repeatedly to switch between drawing and line tools.
@@ -1135,7 +1142,7 @@ Press R repeatedly to switch between ruler types.
                             TextSpan(text: """
 Press D in ruler mode to duplicate the last ruler.
 Hold Alt to draw rulers from the center.
-Hold Ctrl before drawing a box ruler to create one from the edge.""")
+Hold Ctrl to draw a box ruler from the edge.""")
                           ],
                         ),
                         child: Icon(
@@ -1148,10 +1155,10 @@ Hold Ctrl before drawing a box ruler to create one from the edge.""")
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 8,
-                    right: 8,
-                    bottom: 8 + edgeOverflow,
-                    top: 8,
+                    left: 4,
+                    right: 4,
+                    bottom: 4 + edgeOverflow,
+                    top: 4,
                   ),
                   child: Flex(
                     direction: Axis.horizontal,
@@ -1389,7 +1396,7 @@ Hold Ctrl before drawing a box ruler to create one from the edge.""")
                   ),
                 ),
                 Positioned(
-                  top: 5,
+                  top: 3,
                   right: 5,
                   child: PanelCloseButton(
                     onPressed: () {

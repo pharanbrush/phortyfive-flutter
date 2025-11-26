@@ -593,7 +593,7 @@ class PfsTheme {
           pausedColor: Color(0x77F0B132),
           runningColor: Color(0xDD5865F2),
           almostZeroColor: Color(0xDDF23F42),
-          disabledColor: Color(0xFF9E9E9E),
+          disabledColor: Color.fromARGB(255, 26, 26, 26),
           barBackgroundColor: Color(0xDD707070),
           runningButton: Color(0x7852545C),
           pausedButton: Color(0x7852545C),
@@ -917,6 +917,9 @@ class PfsTheme {
       ),
       sliderTheme: SliderThemeData(
         tickMarkShape: SliderTickMarkShape.noTickMark,
+      ),
+      iconTheme: const IconThemeData(
+        color: buttonContentColor,
       ),
       textButtonTheme: TextButtonThemeData(style: buttonStyle),
       iconButtonTheme: IconButtonThemeData(style: buttonStyle),

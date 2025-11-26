@@ -17,60 +17,80 @@ class TimerControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = PfsAppModel.of(context);
 
-    // PARTS
-    final restartTimerButton = TimerControlButton(
-      onPressed: () => model.timerModel.resetTimer(),
-      icon: Icons.refresh,
-      tooltip: PfsLocalization.buttonTooltip(
-        commandName: 'Restart timer',
-        shortcut: Phshortcuts.restartTimer,
-      ),
-    );
-
-    final previousButton = Phbuttons.nextPreviousOnScrollListener(
-      model: model,
-      child: TimerControlButton(
-        onPressed: () => model.previousImageNewTimer(),
-        icon: Icons.skip_previous,
-        tooltip: PfsLocalization.buttonTooltip(
-          commandName: 'Previous Image',
-          shortcut: Phshortcuts.previous2,
-        ),
-      ),
-    );
-
-    final nextButton = Phbuttons.nextPreviousOnScrollListener(
-      model: model,
-      child: TimerControlButton(
-        onPressed: () => model.nextImageNewTimer(),
-        icon: Icons.skip_next,
-        tooltip: PfsLocalization.buttonTooltip(
-          commandName: 'Next Image',
-          shortcut: Phshortcuts.next2,
-        ),
-      ),
-    );
-
     // LAYOUT
-    return Column(
-      children: [
-        const TimerBar(key: TimerBar.mainScreenKey),
-        Container(
-          height: 40,
-          padding: const EdgeInsets.only(top: 1),
-          margin: const EdgeInsets.only(bottom: 2),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 2,
-            children: [
-              restartTimerButton,
-              previousButton,
-              PlayPauseTimerButton(iconProgress: playPauseIconController),
-              nextButton,
-            ],
+    return ListenableBuilder(
+      listenable: model.allowedControlsChanged,
+      builder: (context, child) {
+        final disabled =
+            !(model.allowTimerPlayPause && model.allowCirculatorControl);
+
+        // PARTS
+        final restartTimerButton = TimerControlButton(
+          onPressed: disabled ? null : () => model.timerModel.resetTimer(),
+          icon: Icons.refresh,
+          tooltip: PfsLocalization.buttonTooltip(
+            commandName: 'Restart timer',
+            shortcut: Phshortcuts.restartTimer,
           ),
-        )
-      ],
+        );
+
+        final previousButton = Phbuttons.nextPreviousOnScrollListener(
+          model: model,
+          child: TimerControlButton(
+            onPressed: disabled ? null : () => model.previousImageNewTimer(),
+            icon: Icons.skip_previous,
+            tooltip: PfsLocalization.buttonTooltip(
+              commandName: 'Previous Image',
+              shortcut: Phshortcuts.previous2,
+            ),
+          ),
+        );
+
+        final nextButton = Phbuttons.nextPreviousOnScrollListener(
+          model: model,
+          child: TimerControlButton(
+            onPressed: disabled ? null : () => model.nextImageNewTimer(),
+            icon: Icons.skip_next,
+            tooltip: PfsLocalization.buttonTooltip(
+              commandName: 'Next Image',
+              shortcut: Phshortcuts.next2,
+            ),
+          ),
+        );
+
+        final controls = Column(
+          children: [
+            const TimerBar(key: TimerBar.mainScreenKey),
+            Container(
+              height: 40,
+              padding: const EdgeInsets.only(top: 1),
+              margin: const EdgeInsets.only(bottom: 2),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 2,
+                children: [
+                  restartTimerButton,
+                  previousButton,
+                  PlayPauseTimerButton(
+                    iconProgress: playPauseIconController,
+                    enabled: !disabled,
+                  ),
+                  nextButton,
+                ],
+              ),
+            )
+          ],
+        );
+
+        if (disabled) {
+          return Tooltip(
+            message: "Timer disabled",
+            child: Opacity(opacity: 0.3, child: controls),
+          );
+        }
+
+        return controls;
+      },
     );
   }
 }
@@ -124,9 +144,11 @@ class PlayPauseTimerButton extends StatelessWidget {
   const PlayPauseTimerButton({
     super.key,
     required this.iconProgress,
+    this.enabled = true,
   });
 
   final Animation<double> iconProgress;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -147,13 +169,16 @@ class PlayPauseTimerButton extends StatelessWidget {
               listenable: timerModel.playPauseNotifier,
               builder: (_, __) {
                 final playButtonTooltip =
-                    'Timer paused. $pressLabel to resume ($shortcutLabel)';
+                    "Timer paused. $pressLabel to resume ($shortcutLabel)";
                 final pauseButtonTooltip =
-                    'Timer running. $pressLabel to pause ($shortcutLabel)';
-                final icon = AnimatedIcon(
-                  icon: AnimatedIcons.play_pause,
-                  progress: iconProgress,
-                );
+                    "Timer running. $pressLabel to pause ($shortcutLabel)";
+                final disabledButtonTooltip = "Timer disabled";
+                final icon = enabled
+                    ? AnimatedIcon(
+                        icon: AnimatedIcons.play_pause,
+                        progress: iconProgress,
+                      )
+                    : Icon(Icons.play_arrow);
 
                 final bool allowTimerControl = model.allowTimerPlayPause;
                 final Color buttonColor = allowTimerControl
@@ -176,15 +201,18 @@ class PlayPauseTimerButton extends StatelessWidget {
                   elevation: const WidgetStatePropertyAll(0),
                 );
 
-                final tooltipText = timerModel.isRunning
-                    ? pauseButtonTooltip
-                    : playButtonTooltip;
+                final tooltipText = enabled
+                    ? (timerModel.isRunning
+                        ? pauseButtonTooltip
+                        : playButtonTooltip)
+                    : disabledButtonTooltip;
 
                 return Tooltip(
                   message: tooltipText,
                   child: FilledButton(
                     style: style,
-                    onPressed: () => model.tryTogglePlayPauseTimer(),
+                    onPressed:
+                        enabled ? () => model.tryTogglePlayPauseTimer() : null,
                     child: Container(
                       alignment: Alignment.center,
                       width: 50,
@@ -213,7 +241,7 @@ class TimerControlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(icon),
+      icon: Icon(icon, size: 20),
       tooltip: tooltip,
     );
   }
