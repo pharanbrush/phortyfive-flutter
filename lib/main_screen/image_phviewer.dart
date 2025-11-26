@@ -525,7 +525,8 @@ class ImageViewerStackWidget extends StatelessWidget {
                                 "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
                             disabled: true);
 
-                        const lastIndex = 4;
+                        const linkLimitCount = 8;
+                        const lastIndex = linkLimitCount - 1;
                         for (final (i, url) in urls.indexed) {
                           if (i > lastIndex) break;
                           yield MenuItem(
