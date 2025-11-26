@@ -34,7 +34,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/phlutter/utils/image_from_file.dart';
 import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
-import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
@@ -353,7 +353,8 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _loadSettings() async {
-    windowState.isSoundsEnabled.value = await Preferences.getSoundsEnabled();
+    windowState.isSoundsEnabled.value =
+        await pfs_preferences.getSoundsEnabled();
   }
 
   void _checkAndLoadLaunchArgPath() {
@@ -533,7 +534,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     showSoundToggleToast();
-    Preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
+    pfs_preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
   }
 
   void _handleAppControlsChanged() {

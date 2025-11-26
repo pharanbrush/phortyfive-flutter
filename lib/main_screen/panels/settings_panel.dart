@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtext_widgets.dart';
@@ -100,7 +100,7 @@ class SettingsPanel extends StatelessWidget {
               focusColor: Theme.of(context).highlightColor,
               onChanged: (newTheme) {
                 themeNotifier.value = newTheme ?? PfsTheme.defaultTheme;
-                Preferences.setTheme(themeNotifier.value);
+                pfs_preferences.setTheme(themeNotifier.value);
               },
             );
           },

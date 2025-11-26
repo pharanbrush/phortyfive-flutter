@@ -10,7 +10,7 @@ import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
-import 'package:pfs2/models/preferences.dart';
+import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:window_manager/window_manager.dart';
 
 const pfsAppTitle = 'Phorty-Five Seconds';
@@ -18,7 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
-  final initialTheme = await Preferences.getTheme();
+  final initialTheme = await pfs_preferences.getTheme();
 
   runApp(MyApp(
     appModel: PfsAppModel(),
