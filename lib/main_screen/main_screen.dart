@@ -8,6 +8,8 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
+import 'package:pfs2/main_screen/buttons/image_set_button.dart'
+    as image_set_button;
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/main_screen_sound.dart';
@@ -693,19 +695,20 @@ class _MainScreenState extends State<MainScreen>
           TimerControls(playPauseIconController: _playPauseIconStateAnimator),
           SizedBox(width: spacing + 3),
           ValueListenableBuilder(
-              valueListenable: imagesViewedCounter,
-              builder: (context, value, child) {
-                return ImageSetButton(
-                  model: widget.model,
-                  narrowButton: isNarrowWindow,
-                  extraTooltip: getScoreText(),
-                );
-              }),
+            valueListenable: imagesViewedCounter,
+            builder: (context, value, child) {
+              return image_set_button.ImageSetButton(
+                model: widget.model,
+                narrowButton: isNarrowWindow,
+                extraTooltip: getScoreText(),
+              );
+            },
+          ),
           const SizedBox(width: rightMargin),
         ];
       } else {
         return [
-          Phbuttons.openFiles(
+          image_set_button.openFilesButton(
             width: isNarrowWindow ? 20 : 40,
             model: widget.model,
           ),
