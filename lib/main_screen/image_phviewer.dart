@@ -12,7 +12,7 @@ import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/material_state_property_utils.dart';
-import 'package:pfs2/phlutter/open_in_browser.dart' as open_in_browser;
+import 'package:pfs2/phlutter/utils/open_in_browser.dart' as open_in_browser;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
