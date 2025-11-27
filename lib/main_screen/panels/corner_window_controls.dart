@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pfs2/main_screen/main_screen.dart';
+import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';

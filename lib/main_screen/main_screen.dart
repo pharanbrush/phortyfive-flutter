@@ -25,6 +25,7 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/initial_use_choice_sheet.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
+import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
@@ -1233,13 +1234,4 @@ class ImageBrowseGestureControls extends StatelessWidget {
       },
     );
   }
-}
-
-class PfsWindowState {
-  bool rightControlsOrientation = true;
-  bool isTouch = false;
-
-  final isBottomBarMinimized = ValueNotifier(false);
-  final isAlwaysOnTop = ValueNotifier(false);
-  final isSoundsEnabled = ValueNotifier(true);
 }

@@ -1,10 +1,18 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/phlutter/keep_window_on_top_button.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
+
+class PfsWindowState {
+  bool rightControlsOrientation = true;
+  bool isTouch = false;
+
+  final isBottomBarMinimized = ValueNotifier(false);
+  final isAlwaysOnTop = ValueNotifier(false);
+  final isSoundsEnabled = ValueNotifier(true);
+}
 
 class WindowWrapper extends StatelessWidget {
   const WindowWrapper({
