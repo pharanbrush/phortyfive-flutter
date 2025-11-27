@@ -276,6 +276,11 @@ class PfsTheme {
     final iconColor = textColor.withValues(alpha: 0.5);
     const double panelElevation = 20;
 
+    const cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(0)),
+      side: BorderSide(color: cardOutlineColor),
+    );
+
     final newData = ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: appBackground,
@@ -353,13 +358,14 @@ class PfsTheme {
           backgroundColor: WidgetStatePropertyAll(panelBackground),
         ),
       ),
+      dialogTheme: DialogThemeData(
+        shape: cardShape,
+        backgroundColor: cardColor,
+      ),
       cardTheme: const CardThemeData(
         elevation: 2,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(0)),
-          side: BorderSide(color: cardOutlineColor),
-        ),
+        shape: cardShape,
       ),
       extensions: {
         const PhtimerTheme(
@@ -447,6 +453,11 @@ class PfsTheme {
     const buttonRadius = 5.0;
     const buttonMaterialShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(buttonRadius)),
+    );
+
+    const double cardShapeRadius = 8;
+    const cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(cardShapeRadius)),
     );
 
     const ButtonStyle buttonShapeStyle = ButtonStyle(
@@ -580,13 +591,13 @@ class PfsTheme {
           backgroundColor: WidgetStatePropertyAll(panelBackground),
         ),
       ),
+      dialogTheme: DialogThemeData(
+        shape: cardShape,
+      ),
       cardTheme: const CardThemeData(
         elevation: 2,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          //side: BorderSide(color: cardOutlineColor),
-        ),
+        shape: cardShape,
       ),
       extensions: {
         const PhtimerTheme(
@@ -698,7 +709,14 @@ class PfsTheme {
       color: cspWindowBorderColor,
       width: 3,
     );
-    final cspWindowBorderSideTop = cspWindowBorderSide.copyWith(width: 6);
+    const cspWindowBorderSideTop =
+        BorderSide(color: cspWindowBorderColor, width: 6);
+    const cardShape = Border(
+      top: cspWindowBorderSideTop,
+      bottom: cspWindowBorderSide,
+      left: cspWindowBorderSide,
+      right: cspWindowBorderSide,
+    );
 
     const Color filledbuttonContentColor = buttonContentColor;
     const double cspPanelElevation = 20;
@@ -779,15 +797,14 @@ class PfsTheme {
           backgroundColor: WidgetStatePropertyAll(panelBackground),
         ),
       ),
+      dialogTheme: DialogThemeData(
+        shape: cardShape,
+        backgroundColor: cardColor,
+      ),
       cardTheme: CardThemeData(
         elevation: 2,
         surfaceTintColor: Colors.transparent,
-        shape: Border(
-          top: cspWindowBorderSideTop,
-          bottom: cspWindowBorderSide,
-          left: cspWindowBorderSide,
-          right: cspWindowBorderSide,
-        ),
+        shape: cardShape,
       ),
       extensions: {
         const PhtimerTheme(
@@ -889,6 +906,11 @@ class PfsTheme {
     const Color cardOutlineColor = Color(0xFFEEEEEE);
     const Color outline = Color.fromARGB(82, 94, 76, 53);
 
+    const cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      side: BorderSide(color: cardOutlineColor),
+    );
+
     final newData = ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: appBackground,
@@ -929,14 +951,15 @@ class PfsTheme {
           backgroundColor: WidgetStatePropertyAll(panelBackground),
         ),
       ),
+      dialogTheme: DialogThemeData(
+        shape: cardShape,
+        backgroundColor: cardColor,
+      ),
       cardTheme: const CardThemeData(
         elevation: 0,
         color: cardColor,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          side: BorderSide(color: cardOutlineColor),
-        ),
+        shape: cardShape,
       ),
       extensions: const {
         PhtimerTheme(
