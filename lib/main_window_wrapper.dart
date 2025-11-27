@@ -1,6 +1,6 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/phlutter/keep_window_on_top_button.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
@@ -135,6 +135,39 @@ class WindowButtons extends StatelessWidget {
         MaximizeWindowButton(colors: buttonColors),
         CloseWindowButton(colors: closeButtonColors),
       ],
+    );
+  }
+}
+
+class KeepWindowOnTopButton extends StatelessWidget {
+  const KeepWindowOnTopButton({
+    super.key,
+    required this.notifier,
+  });
+
+  final ValueNotifier<bool> notifier;
+  void toggleNotifier() => notifier.value = !notifier.value;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: notifier,
+      builder: (_, value, __) {
+        return IconButton(
+          style: const ButtonStyle(
+            iconSize: WidgetStatePropertyAll(16),
+            shape: WidgetStatePropertyAll(LinearBorder()),
+          ),
+          isSelected: value,
+          tooltip: value
+              ? 'Click to disable Keep window on top'
+              : 'Click to enable Keep window on top',
+          icon: value
+              ? const Icon(FluentIcons.pin_12_filled)
+              : const Icon(FluentIcons.pin_12_regular),
+          onPressed: toggleNotifier,
+        );
+      },
     );
   }
 }
