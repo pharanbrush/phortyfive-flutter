@@ -35,6 +35,7 @@ String shortenFolderPath(String folderPath) {
 }
 
 class PfsLocalization {
+  static const appTitle = 'Phorty-Five Seconds';
   static const bool isDesktop = true;
   static const String version = '0.9.20251125c';
 
