@@ -26,8 +26,7 @@ class PfsAppModel
         PfsModelTimer,
         PfsCountdownCounter,
         PfsWelcomer,
-        PfsCirculator,
-        PfsAnnotator {
+        PfsCirculator {
   static PfsAppModel of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<ModelScope<PfsAppModel>>()!
@@ -209,14 +208,6 @@ mixin PfsWelcomer {
   bool isUserChoseToStartTimer = false;
 
   void Function()? onWelcomeComplete;
-}
-
-mixin PfsAnnotator {
-  // final isAnnotatingMode = ValueNotifier(false);
-
-  // void toggleAnnotationMode() {
-  //   isAnnotatingMode.value = !isAnnotatingMode.value;
-  // }
 }
 
 mixin PfsCirculator {
