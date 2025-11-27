@@ -20,7 +20,6 @@ import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/libraries/annotation_overlay.dart';
 import 'package:pfs2/widgets/clipboard_handlers.dart';
-import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
@@ -653,11 +652,11 @@ class ImageViewerStackWidget extends StatelessWidget {
       builder: (_, isMinimized, __) {
         const minimizedPadding = EdgeInsets.only(
           bottom: 5,
-          top: Phbuttons.windowTitleBarHeight,
+          top: kWindowTitleBarHeight,
         );
         const normalPadding = EdgeInsets.only(
           bottom: 46,
-          top: Phbuttons.windowTitleBarHeight,
+          top: kWindowTitleBarHeight,
         );
 
         final padding = isMinimized ? minimizedPadding : normalPadding;

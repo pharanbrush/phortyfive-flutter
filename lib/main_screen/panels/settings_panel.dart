@@ -179,7 +179,7 @@ class SettingsPanel extends StatelessWidget {
   Widget _panelContainer(BuildContext context, {required Widget child}) {
     const double panelFixedWidth = 380;
     //const double panelFixedHeight = 300;
-    const double top = Phbuttons.windowTitleBarHeight + 25;
+    const double top = kWindowTitleBarHeight + 25;
     const double side = 30;
 
     final material =

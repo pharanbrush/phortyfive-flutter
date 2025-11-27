@@ -8,6 +8,8 @@ import 'package:pfs2/widgets/phtimer_widgets.dart';
 
 const browseIcon = FluentIcons.folder_open_24_regular;
 
+const double kWindowTitleBarHeight = 32;
+
 // class CachedTheme {
 //   CachedTheme({required this.builder});
 

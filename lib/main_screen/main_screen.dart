@@ -1201,7 +1201,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
         }
 
         return Positioned.fill(
-          top: Phbuttons.windowTitleBarHeight + 50,
+          top: kWindowTitleBarHeight + 50,
           bottom: 80,
           left: 10,
           right: 10,

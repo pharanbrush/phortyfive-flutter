@@ -7,7 +7,6 @@ import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
-import 'package:pfs2/widgets/phbuttons.dart';
 
 class CornerWindowControls extends StatelessWidget {
   const CornerWindowControls({
@@ -41,7 +40,7 @@ class CornerWindowControls extends StatelessWidget {
 
     return Positioned(
       right: 7,
-      top: Phbuttons.windowTitleBarHeight,
+      top: kWindowTitleBarHeight,
       child: Wrap(
         direction: Axis.vertical,
         crossAxisAlignment: WrapCrossAlignment.end,
