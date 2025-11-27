@@ -40,16 +40,6 @@ class Phbuttons {
     );
   }
 
-  static Widget textThenIcon(String text, Icon icon, {double spacing = 3}) {
-    return Row(
-      spacing: spacing,
-      children: [
-        Text(text),
-        Transform.translate(offset: Offset(0, 1), child: icon),
-      ],
-    );
-  }
-
   static Widget timerSettingsButton({
     required Function() onPressed,
     required PhtimerModel timerModel,
@@ -66,8 +56,12 @@ class Phbuttons {
               '(${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
           child: TextButton(
             onPressed: onPressed,
-            child: textThenIcon('${currentTimerSeconds}s',
-                const Icon(Icons.timer_outlined, size: iconSize)),
+            child: IconAndText(
+              text: '${currentTimerSeconds}s',
+              icon: Icons.timer_outlined,
+              iconSize: iconSize,
+              gap: 3,
+            ),
           ),
         );
       },
@@ -229,7 +223,8 @@ class ImageSetButton extends StatelessWidget {
   });
 
   static const double _iconSize = 17;
-  static const Icon _icon = Icon(Icons.image, size: _iconSize);
+  static const IconData imageIcon = Icons.image;
+  static const Icon _icon = Icon(imageIcon, size: _iconSize);
 
   final bool narrowButton;
   final String? extraTooltip;
@@ -269,8 +264,12 @@ class ImageSetButton extends StatelessWidget {
                         const Spacer(),
                         narrowButton
                             ? _icon
-                            : Phbuttons.textThenIcon(
-                                fileCount.toString(), _icon),
+                            : IconAndText(
+                                text: fileCount.toString(),
+                                icon: imageIcon,
+                                iconSize: _iconSize,
+                                gap: 3,
+                              ),
                         const Spacer(),
                       ],
                     ),
@@ -331,12 +330,14 @@ class IconAndText extends StatelessWidget {
     required this.icon,
     this.iconSize,
     this.gap,
+    this.iconLeft = true,
   });
 
   final String text;
   final IconData icon;
   final double? iconSize;
   final double? gap;
+  final bool iconLeft;
 
   @override
   Widget build(BuildContext context) {
@@ -345,15 +346,14 @@ class IconAndText extends StatelessWidget {
     final usedIconSize = iconSize ?? usedFontSize * 1.45;
     final usedGap = gap ?? usedFontSize * 0.6;
 
+    final usedIcon = Transform.translate(
+      offset: Offset(0, 1.1),
+      child: Icon(icon, size: usedIconSize),
+    );
+
     return Row(
       spacing: usedGap,
-      children: [
-        Transform.translate(
-          offset: Offset(0, 1),
-          child: Icon(icon, size: usedIconSize),
-        ),
-        Text(text),
-      ],
+      children: iconLeft ? [usedIcon, Text(text)] : [Text(text), usedIcon],
     );
   }
 }
