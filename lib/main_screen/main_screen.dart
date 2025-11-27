@@ -656,6 +656,24 @@ class _MainScreenState extends State<MainScreen>
       final SizedBox spacingBox = SizedBox(width: spacing);
 
       if (widget.model.hasImagesLoaded) {
+        final annotationsMenuItem = PfsPopupMenuItem(
+          child: IconAndText(
+            icon: FluentIcons.ruler_16_regular,
+            text: "Annotate & Measure",
+          ),
+          value: () {
+            setAppMode(PfsAppControlsMode.annotation);
+          },
+        );
+
+        final colorMeterMenuItem = PfsPopupMenuItem(
+          child: IconAndText(
+            icon: FluentIcons.eyedropper_16_filled,
+            text: PfsLocalization.colorChangeMeter,
+          ),
+          value: () => setAppMode(PfsAppControlsMode.colorMeter),
+        );
+
         return [
           PfsPopupMenuButton<VoidCallback?>(
             tooltip: "Tools",
@@ -665,23 +683,8 @@ class _MainScreenState extends State<MainScreen>
             ),
             onSelected: (value) => value?.call(),
             itemBuilder: (context) => [
-              PfsPopupMenuItem(
-                child: IconAndText(
-                  icon: FluentIcons.eyedropper_16_filled,
-                  text: PfsLocalization.colorChangeMeter,
-                ),
-                value: () => setAppMode(PfsAppControlsMode.colorMeter),
-              ),
-              PfsPopupMenuItem(
-                child: IconAndText(
-                  icon: FluentIcons.ruler_16_regular,
-                  text: "Annotate & Measure",
-                ),
-                value: () {
-                  debugPrint("Trying to switch to annotate mode");
-                  setAppMode(PfsAppControlsMode.annotation);
-                },
-              ),
+              annotationsMenuItem,
+              colorMeterMenuItem,
             ],
           ),
           ResetZoomButton(zoomPanner: imagePhviewer),
