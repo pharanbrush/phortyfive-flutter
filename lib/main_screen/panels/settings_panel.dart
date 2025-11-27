@@ -57,10 +57,6 @@ class SettingsPanel extends StatelessWidget {
                 title: const Text('Sounds'),
                 notifier: soundEnabledNotifier,
               ),
-              // NotifierSwitchItem(
-              //   title: const Text(PfsLocalization.alwaysOnTop),
-              //   notifier: windowState.isAlwaysOnTop,
-              // ),
               divider,
               const SmallHeading('Appearance'),
               themeSetting(context),
@@ -152,7 +148,6 @@ class SettingsPanel extends StatelessWidget {
               underline: const SizedBox.shrink(),
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
               borderRadius: const BorderRadius.all(Radius.circular(radius)),
-              itemHeight: 48,
               style: Theme.of(context).textTheme.bodyMedium,
               focusColor: Theme.of(context).highlightColor,
               onChanged: (newTheme) {
@@ -212,11 +207,15 @@ class SettingsPanel extends StatelessWidget {
   }
 
   Widget _heading(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         'Settings',
-        style: Theme.of(context).textTheme.titleSmall,
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.textTheme.titleMedium?.color,
+        ),
       ),
     );
   }
