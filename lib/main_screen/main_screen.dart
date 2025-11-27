@@ -21,7 +21,7 @@ import 'package:pfs2/main_screen/sheets/countdown_sheet.dart';
 import 'package:pfs2/main_screen/sheets/first_action_sheet.dart';
 import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
-import 'package:pfs2/main_screen/sheets/welcome_choose_mode_sheet.dart';
+import 'package:pfs2/main_screen/sheets/initial_use_choice_sheet.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
@@ -257,11 +257,11 @@ class _MainScreenState extends State<MainScreen>
       );
 
       return wrappedFirstActionApp;
-    } else if (!widget.model.isWelcomeDone.value &&
+    } else if (!widget.model.isInitialUseChoiceChosen.value &&
         widget.model.hasImagesLoaded) {
-      final welcomeChooseModeApp = Stack(
+      final initialChoiceModeApp = Stack(
         children: [
-          const WelcomeChooseModeSheet(),
+          const InitialUseChoiceSheet(),
           CornerWindowControls(
             windowState: windowState,
             zoomPanner: imagePhviewer,
@@ -273,7 +273,7 @@ class _MainScreenState extends State<MainScreen>
         ],
       );
 
-      return welcomeChooseModeApp;
+      return initialChoiceModeApp;
     }
 
     Widget shortcutsWrapper({required Widget child}) {
@@ -374,7 +374,7 @@ class _MainScreenState extends State<MainScreen>
     model.onCountdownUpdate ??= () => playClickSound();
     model.onImageDurationElapse ??= () => playClickSound();
     model.onFilePickerStateChange ??= () => _handleFilePickerOpenClose();
-    model.onWelcomeComplete ??= () => _handleWelcomeComplete();
+    model.onInitialUseChoiceComplete ??= () => handleInitialUseChoiceComplete();
 
     final timerModel = model.timerModel;
     timerModel.playPauseNotifier.addListener(_handleTimerPlayPause);
@@ -397,7 +397,7 @@ class _MainScreenState extends State<MainScreen>
     windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
   }
 
-  void _handleWelcomeComplete() {
+  void handleInitialUseChoiceComplete() {
     _handleTimerPlayPause();
   }
 

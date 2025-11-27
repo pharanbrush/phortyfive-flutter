@@ -3,8 +3,8 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
-class WelcomeChooseModeSheet extends StatelessWidget {
-  const WelcomeChooseModeSheet({
+class InitialUseChoiceSheet extends StatelessWidget {
+  const InitialUseChoiceSheet({
     super.key,
   });
 
@@ -18,7 +18,7 @@ class WelcomeChooseModeSheet extends StatelessWidget {
     final panelMaterial = PfsAppTheme.boxPanelFrom(Theme.of(context));
 
     void onChoseAnything() {
-      model.isWelcomeDone.value = true;
+      model.isInitialUseChoiceChosen.value = true;
       model.tryStartSession();
     }
 
@@ -71,13 +71,13 @@ class WelcomeChooseModeSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  welcomeChoiceButton(
+                  modeChoiceButton(
                     text: "Start timer",
                     icon: Icon(Icons.timer),
                     //color: playColor,
                     onPressed: () => chooseTimerSession(),
                   ),
-                  welcomeChoiceButton(
+                  modeChoiceButton(
                     text: "Just browse",
                     icon: Icon(Icons.folder),
                     //color: pausedColor,
@@ -93,7 +93,7 @@ class WelcomeChooseModeSheet extends StatelessWidget {
     );
   }
 
-  Widget welcomeChoiceButton({
+  Widget modeChoiceButton({
     String text = "",
     Widget? icon,
     VoidCallback? onPressed,

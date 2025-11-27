@@ -17,7 +17,6 @@ enum PfsAppControlsMode {
   colorMeter,
   annotation,
   firstAction,
-  welcomeChoice
 }
 
 class PfsAppModel
@@ -25,7 +24,7 @@ class PfsAppModel
         PfsImageListManager,
         PfsModelTimer,
         PfsCountdownCounter,
-        PfsWelcomer,
+        PfsInitialUseChoice,
         PfsCirculator {
   static PfsAppModel of(BuildContext context) {
     return context
@@ -39,16 +38,17 @@ class PfsAppModel
   bool get isImageBrowseMode =>
       currentAppControlsMode.value == PfsAppControlsMode.imageBrowse;
 
-  bool get allowTimerPlayPause => hasMoreThanOneImage && isWelcomeDone.value;
+  bool get allowTimerPlayPause =>
+      hasMoreThanOneImage && isInitialUseChoiceChosen.value;
   bool get allowCirculatorControl =>
-      hasMoreThanOneImage && isWelcomeDone.value && isImageBrowseMode;
+      hasMoreThanOneImage && isInitialUseChoiceChosen.value && isImageBrowseMode;
 
   @override
   bool get allowImageSetChange => isImageBrowseMode;
 
   late final allowedControlsChanged = Listenable.merge([
     imageListChangedNotifier,
-    isWelcomeDone,
+    isInitialUseChoiceChosen,
   ]);
 
   final currentImageChangedNotifier = SimpleNotifier();
@@ -154,7 +154,7 @@ class PfsAppModel
     final loadedCount = imageList.getCount();
     circulator.startNewOrder(loadedCount);
 
-    if (isWelcomeDone.value) {
+    if (isInitialUseChoiceChosen.value) {
       reinitializeTimer();
       if (timerModel.isRunning) {
         tryStartCountdown();
@@ -163,7 +163,7 @@ class PfsAppModel
       _notifyImageChange();
     } else {
       if (loadedCount == 1) {
-        isWelcomeDone.value = true;
+        isInitialUseChoiceChosen.value = true;
       }
     }
   }
@@ -203,11 +203,11 @@ class PfsAppModel
   }
 }
 
-mixin PfsWelcomer {
-  final isWelcomeDone = ValueNotifier(false);
+mixin PfsInitialUseChoice {
+  final isInitialUseChoiceChosen = ValueNotifier(false);
   bool isUserChoseToStartTimer = false;
 
-  void Function()? onWelcomeComplete;
+  void Function()? onInitialUseChoiceComplete;
 }
 
 mixin PfsCirculator {
