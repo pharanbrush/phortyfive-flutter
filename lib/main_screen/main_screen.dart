@@ -188,7 +188,6 @@ class _MainScreenState extends State<MainScreen>
             playPauseIconProgress: _playPauseIconStateAnimator,
             imagePhviewer: imagePhviewer,
             revealInExplorerHandler: revealCurrentImageInExplorer,
-            colorMeterMenuItemHandler: _handleOpenColorMeterMenuItem,
           );
         });
   }
@@ -411,10 +410,10 @@ class _MainScreenState extends State<MainScreen>
     timerDurationMenu.open();
   }
 
-  void _handleOpenColorMeterMenuItem() {
-    if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
-    setAppMode(PfsAppControlsMode.colorMeter);
-  }
+  // void _handleOpenColorMeterMenuItem() {
+  //   if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
+  //   setAppMode(PfsAppControlsMode.colorMeter);
+  // }
 
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
@@ -554,7 +553,6 @@ class _MainScreenState extends State<MainScreen>
         }
 
       case PfsAppControlsMode.annotation:
-        debugPrint("now trying to open annotation panel");
         annotationPanel.open();
         final annotationsModel = AnnotationsModel.of(context);
         annotationsModel.annotationsFocus.requestFocus();
@@ -1133,7 +1131,6 @@ class ImageBrowseGestureControls extends StatelessWidget {
     required this.playPauseIconProgress,
     required this.imagePhviewer,
     required this.revealInExplorerHandler,
-    required this.colorMeterMenuItemHandler,
     required this.model,
   });
 
@@ -1141,7 +1138,6 @@ class ImageBrowseGestureControls extends StatelessWidget {
   final Animation<double> playPauseIconProgress;
   final ImagePhviewer imagePhviewer;
   final VoidCallback revealInExplorerHandler;
-  final VoidCallback colorMeterMenuItemHandler;
 
   @override
   Widget build(BuildContext context) {
