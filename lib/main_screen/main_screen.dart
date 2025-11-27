@@ -40,7 +40,7 @@ import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/widgets/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
-import 'package:pfs2/widgets/overlay_button.dart';
+import 'package:pfs2/main_screen/buttons/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:window_manager/window_manager.dart';
