@@ -410,11 +410,6 @@ class _MainScreenState extends State<MainScreen>
     timerDurationMenu.open();
   }
 
-  // void _handleOpenColorMeterMenuItem() {
-  //   if (currentAppControlsMode.value != PfsAppControlsMode.imageBrowse) return;
-  //   setAppMode(PfsAppControlsMode.colorMeter);
-  // }
-
   void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
     final imageNoun = PfsLocalization.imageNoun(filesLoaded);
 
