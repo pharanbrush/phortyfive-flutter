@@ -86,9 +86,11 @@ Future<void> trimRecentFolders() async {
   }
 }
 
-Future<void> clearRecentFolders() async {
+Future<bool> clearRecentFolders() async {
   final prefs = await _prefs;
-  await prefs.setStringList(recentFoldersKey, <String>[]);
+  final exists = prefs.containsKey(recentFoldersKey);
+  if (!exists) return false;
+  return await prefs.remove(recentFoldersKey);
 }
 
 String encodeRecentFolderEntry(String folderPath, bool includeSubfolders) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
+import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
@@ -63,6 +64,62 @@ class SettingsPanel extends StatelessWidget {
               divider,
               const SmallHeading('Appearance'),
               themeSetting(context),
+              divider,
+              const SmallHeading('Recent folders'),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Flex(
+                  direction: Axis.horizontal,
+                  children: [
+                    Spacer(),
+                    TextButton(
+                      onPressed: () async {
+                        final userClickedYes = await showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  content: Padding(
+                                    padding: const EdgeInsets.only(
+                                        right: 50, top: 10),
+                                    child: Text(
+                                      "Do you want to clear the recent folders list?",
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                      child: Text("Yes, clear it!"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: Text("Never mind."),
+                                    )
+                                  ],
+                                );
+                              },
+                            ) ??
+                            false;
+
+                        if (userClickedYes) {
+                          if (await pfs_preferences.clearRecentFolders()) {
+                            if (context.mounted) {
+                              Phtoasts.show(
+                                context,
+                                message: "Recent folders list cleared",
+                                icon: Icons.list_alt,
+                              );
+                            }
+                          }
+                        }
+                      },
+                      child: Text("Clear recent folder list"),
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
+              ),
               divider,
               TextButton(
                 onPressed: () => aboutMenu.open(),
