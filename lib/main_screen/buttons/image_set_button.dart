@@ -128,15 +128,14 @@ Widget openFilesButton({double width = 40.0, required PfsAppModel model}) {
 //   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
 // }
 
-void _popupImagesMenu(PfsAppModel model) async {
-  popUpContextualMenu(
-    await _getOpenImagesMenu(model),
-    placement: Placement.topLeft,
+void _popupImagesMenu(PfsAppModel model) {
+  _getOpenImagesMenu(model).then(
+    (menu) => popUpContextualMenu(menu, placement: Placement.topLeft),
   );
 }
 
 Future<Menu> _getOpenImagesMenu(PfsAppModel model) async {
-  final baseItems = [
+  final baseMenuItems = [
     MenuItem(
       label: "Open images...",
       onClick: (menuItem) {
@@ -158,37 +157,44 @@ Future<Menu> _getOpenImagesMenu(PfsAppModel model) async {
     )
   ];
 
-  final recentFolderEntries = await pfs_preferences.getRecentFolders();
-  if (recentFolderEntries == null) return Menu(items: baseItems);
+  try {
+    final recentFolderEntries = await pfs_preferences
+        .getRecentFolders()
+        .timeout(Duration(milliseconds: 1500));
 
-  final menuItems = <MenuItem>[];
-  for (final e in recentFolderEntries) {
-    final shortenedPath = shortenFolderPath(e.folderPath);
-
-    menuItems.add(
-      MenuItem(
-        label: shortenedPath,
-        onClick: (menuItem) => model.loadFolder(
-          e.folderPath,
-          recursive: e.includeSubfolders,
-        ),
-      ),
-    );
-  }
-
-  if (menuItems.isNotEmpty) {
-    // Add number prefixes
-    for (final (i, item) in menuItems.reversed.indexed) {
-      item.label = "${i + 1}   ${item.label}";
+    if (recentFolderEntries == null) {
+      return Menu(items: baseMenuItems);
     }
 
-    // Add separator
-    menuItems.add(MenuItem.separator());
+    final menuItems = <MenuItem>[];
+    for (final e in recentFolderEntries) {
+      final shortenedPath = shortenFolderPath(e.folderPath);
+
+      menuItems.add(
+        MenuItem(
+          label: shortenedPath,
+          onClick: (menuItem) => model.loadFolder(
+            e.folderPath,
+            recursive: e.includeSubfolders,
+          ),
+        ),
+      );
+    }
+
+    if (menuItems.isNotEmpty) {
+      // Add number prefixes
+      for (final (i, item) in menuItems.reversed.indexed) {
+        item.label = "${i + 1}   ${item.label}";
+      }
+
+      // Add separator
+      menuItems.add(MenuItem.separator());
+    }
+
+    menuItems.addAll(baseMenuItems);
+
+    return Menu(items: menuItems);
+  } catch (e) {
+    return Menu(items: baseMenuItems);
   }
-
-  menuItems.addAll(baseItems);
-
-  return Menu(
-    items: menuItems,
-  );
 }
