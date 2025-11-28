@@ -32,21 +32,25 @@ Future<Iterable<String>?> tryGetUrls(ImageData imageData) async {
     final parentFolder = imageData.fileFolder;
     final urlsFilePath = "$parentFolder${Platform.pathSeparator}$linksFilename";
     final urlsFile = File(urlsFilePath);
-    if (urlsFile.existsSync()) {
-      final outputLines = <String>[];
-      final lines = await urlsFile.readAsLines();
-      for (final line in lines) {
-        if (line.isEmpty) continue;
-        final canLaunch = await url_launcher.canLaunchUrl(Uri.parse(line));
-        if (canLaunch) {
-          outputLines.add(line);
-        }
+    final fileExists = await urlsFile.exists();
+    if (!fileExists) throw FileSystemException("File not found");
+
+    final outputLines = <String>[];
+    final lines = await urlsFile.readAsLines();
+    for (final line in lines) {
+      if (line.isEmpty) continue;
+      final canLaunch = await url_launcher.canLaunchUrl(Uri.parse(line));
+      if (canLaunch) {
+        outputLines.add(line);
       }
-      if (outputLines.isNotEmpty) return outputLines;
     }
+
+    if (outputLines.isNotEmpty) return outputLines;
+
+    throw Exception("File exists but did not contain valid URLs.");
   }
 
-  return null;
+  throw UnsupportedError("Image is not a file from a folder.");
 }
 
 ImageData imageDataFromPath(String filePath) {

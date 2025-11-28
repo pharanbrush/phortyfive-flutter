@@ -504,20 +504,13 @@ class ImageViewerStackWidget extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: GestureDetector(
                   onSecondaryTap: () async {
-                    final urls = await image_data.tryGetUrls(imageData);
-                    if (urls == null || urls.isEmpty) {
-                      popUpContextualMenu(
-                        Menu(
-                          items: [
-                            MenuItem(
-                              label: "Reveal in explorer",
-                              onClick: (menuItem) =>
-                                  revealInExplorerHandler(imageData),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
+                    try {
+                      final urls = await image_data
+                          .tryGetUrls(imageData)
+                          .timeout(Duration(milliseconds: 900));
+                      if (urls == null) throw Exception("URLs was null");
+                      if (urls.isEmpty) throw Exception("URLs was empty");
+
                       Iterable<MenuItem> getMenuItems() sync* {
                         yield MenuItem(
                             label:
@@ -539,6 +532,18 @@ class ImageViewerStackWidget extends StatelessWidget {
                       final contextMenu = Menu(items: getMenuItems().toList());
 
                       popUpContextualMenu(contextMenu);
+                    } catch (e) {
+                      popUpContextualMenu(
+                        Menu(
+                          items: [
+                            MenuItem(
+                              label: "Reveal in explorer",
+                              onClick: (menuItem) =>
+                                  revealInExplorerHandler(imageData),
+                            ),
+                          ],
+                        ),
+                      );
                     }
                   },
                   child: ImageClickableLabel(
