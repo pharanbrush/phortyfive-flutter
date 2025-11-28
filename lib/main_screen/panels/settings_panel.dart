@@ -110,7 +110,7 @@ class SettingsPanel extends StatelessWidget {
                           }
                         }
                       },
-                      child: Text("Clear recent folder list"),
+                      child: Text("Clear recent folder list..."),
                     ),
                     SizedBox(width: 10),
                   ],
