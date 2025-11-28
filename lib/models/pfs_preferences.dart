@@ -36,7 +36,9 @@ Future<void> pushRecentFolder({
   final folder = Directory(folderPath);
   if (await folder.exists()) {
     // Load old list from preferences.
-    final folderList = await _getRecentFolderEntryList() ?? <String>[];
+    final folderList =
+        await _getRecentFolderEntryList().onError((_, __) => <String>[]) ??
+            <String>[];
 
     // Remove an existing item that matches the item added.
     folderList.removeWhere(
