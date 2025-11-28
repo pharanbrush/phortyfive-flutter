@@ -56,7 +56,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
     );
 
     final label = Text(
-      'Drop image files here.',
+      "Drop image files here.",
       style: textStyle,
     );
 

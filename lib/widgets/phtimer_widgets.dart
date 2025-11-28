@@ -29,7 +29,7 @@ class TimerControls extends StatelessWidget {
           onPressed: disabled ? null : () => model.timerModel.resetTimer(),
           icon: Icons.refresh,
           tooltip: PfsLocalization.buttonTooltip(
-            commandName: 'Restart timer',
+            commandName: "Restart timer",
             shortcut: Phshortcuts.restartTimer,
           ),
         );
@@ -40,7 +40,7 @@ class TimerControls extends StatelessWidget {
             onPressed: disabled ? null : () => model.previousImageNewTimer(),
             icon: Icons.skip_previous,
             tooltip: PfsLocalization.buttonTooltip(
-              commandName: 'Previous Image',
+              commandName: "Previous Image",
               shortcut: Phshortcuts.previous2,
             ),
           ),
@@ -52,7 +52,7 @@ class TimerControls extends StatelessWidget {
             onPressed: disabled ? null : () => model.nextImageNewTimer(),
             icon: Icons.skip_next,
             tooltip: PfsLocalization.buttonTooltip(
-              commandName: 'Next Image',
+              commandName: "Next Image",
               shortcut: Phshortcuts.next2,
             ),
           ),

@@ -160,8 +160,8 @@ class KeepWindowOnTopButton extends StatelessWidget {
           ),
           isSelected: value,
           tooltip: value
-              ? 'Click to disable Keep window on top'
-              : 'Click to enable Keep window on top',
+              ? "Click to disable Keep window on top"
+              : "Click to enable Keep window on top",
           icon: value
               ? const Icon(FluentIcons.pin_12_filled)
               : const Icon(FluentIcons.pin_12_regular),

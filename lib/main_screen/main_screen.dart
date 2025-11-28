@@ -420,15 +420,15 @@ class _MainScreenState extends State<MainScreen>
       if (filesLoaded == 1) {
         Phtoasts.showWidget(
           context,
-          child: Text("${imageNoun.capitalizeFirst()} loaded."),
+          child: Text("${imageNoun.capitalizeFirst()} loaded"),
         );
       } else {
         Phtoasts.showWidget(
           context,
           child: PfsLocalization.textWithMultiBold(
-            text1: '',
-            boldText1: '$filesLoaded $imageNoun',
-            text2: ' loaded.',
+            text1: "",
+            boldText1: "$filesLoaded $imageNoun",
+            text2: " loaded and shuffled",
           ),
         );
       }
@@ -438,9 +438,9 @@ class _MainScreenState extends State<MainScreen>
       Phtoasts.showWidget(
         context,
         child: PfsLocalization.textWithMultiBold(
-            text1: '',
-            boldText1: '$filesLoaded $imageNoun',
-            text2: ' loaded. ',
+            text1: "",
+            boldText1: "$filesLoaded $imageNoun",
+            text2: " loaded  and shuffled",
             boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
       );
     }
@@ -448,9 +448,9 @@ class _MainScreenState extends State<MainScreen>
 
   void _handleTimerChangeSuccess() {
     final toastContent = PfsLocalization.textWithMultiBold(
-      text1: 'Timer is set to ',
-      boldText1: '${widget.model.timerModel.currentDurationSeconds} seconds',
-      text2: ' per image.',
+      text1: "Timer is set to ",
+      boldText1: "${widget.model.timerModel.currentDurationSeconds} seconds",
+      text2: " per image.",
     );
     Phtoasts.showWidget(context, child: toastContent);
   }
@@ -1079,8 +1079,8 @@ class FiltersButton extends StatelessWidget {
         );
 
         final String tooltip = imageFilters.isFilterActive
-            ? 'Filters (${imageFilters.activeFilterCount})'
-            : 'Filters';
+            ? "Filters (${imageFilters.activeFilterCount})"
+            : "Filters";
 
         return GestureDetector(
           onTertiaryTapDown: (details) {

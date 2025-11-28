@@ -56,13 +56,13 @@ class FirstActionSheet extends StatelessWidget {
                   firstActionIcon,
                   const SizedBox(height: 8),
                   Text(
-                    'Get started by loading images!',
+                    "Get started by loading images!",
                     style: titleStyle,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 2),
                   const Text(
-                    'You can also drag & drop image folders into the window.',
+                    "You can also drag & drop image folders into the window.",
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(flex: 5),

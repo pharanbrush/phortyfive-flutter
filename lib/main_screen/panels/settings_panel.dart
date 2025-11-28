@@ -212,7 +212,7 @@ class SettingsPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
-        'Settings',
+        "Settings",
         style: theme.textTheme.titleSmall?.copyWith(
           color: theme.textTheme.titleMedium?.color,
         ),

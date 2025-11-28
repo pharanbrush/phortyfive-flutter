@@ -13,7 +13,7 @@ extension ShortenExtension on String {
     if (length <= maxLength) {
       return this;
     }
-    return '${substring(0, maxLength)}...';
+    return "${substring(0, maxLength)}...";
   }
 }
 
@@ -35,22 +35,22 @@ String shortenFolderPath(String folderPath) {
 }
 
 class PfsLocalization {
-  static const appTitle = 'Phorty-Five Seconds';
+  static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
   static const String version = '0.9.20251125c';
 
-  static const String alwaysOnTop = 'Keep window on top';
-  static const String shortcutHelp = 'Shortcut help...';
-  static const String revealInExplorer = 'Reveal file in Explorer';
-  static const String copyFilePath = 'Copy file path';
-  static const String copyImageToClipboard = 'Copy Image';
-  static const String copyFileName = 'Copy filename';
+  static const String alwaysOnTop = "Keep window on top";
+  static const String shortcutHelp = "Shortcut help...";
+  static const String revealInExplorer = "Reveal file in Explorer";
+  static const String copyFilePath = "Copy file path";
+  static const String copyImageToClipboard = "Copy Image";
+  static const String copyFileName = "Copy filename";
 
-  static const String timerPlaying = 'Timer running';
-  static const String timerPaused = 'Timer paused';
+  static const String timerPlaying = "Timer running";
+  static const String timerPaused = "Timer paused";
 
-  static const String openColorChangeMeter = 'Open color change meter';
-  static const String colorChangeMeter = 'Color change meter';
+  static const String openColorChangeMeter = "Open color change meter";
+  static const String colorChangeMeter = "Color change meter";
   static const String clickForColorComponents =
       'Click to toggle color components.';
 
@@ -78,33 +78,33 @@ class PfsLocalization {
       enabled ? '"$alwaysOnTop" enabled' : '"$alwaysOnTop" disabled';
 
   static String soundsSwitched(bool enabled) =>
-      enabled ? 'Sounds enabled' : 'Sounds disabled';
+      enabled ? "Sounds enabled" : "Sounds muted";
 
-  static const String press = isDesktop ? 'click' : 'tap';
+  static const String press = isDesktop ? "click" : "tap";
 
   static String get pressCapital => press.capitalizeFirst();
 
   static const String secondaryPressCapital =
-      isDesktop ? 'Right-click' : 'Long-press';
+      isDesktop ? "Right-click" : "Long-press";
 
   static String imageNoun(int count) {
-    return count == 1 ? 'image' : 'images';
+    return count == 1 ? "image" : "images";
   }
 
   static String fileNoun(int count) {
-    return count == 1 ? 'file' : 'files';
+    return count == 1 ? "file" : "files";
   }
 
   static String tooltipShortcut(SingleActivator shortcut) {
     final keyString = shortcut.trigger.keyLabel;
-    return '${shortcut.control ? 'Ctrl+' : ''}${shortcut.shift ? 'Shift+' : ''}$keyString';
+    return "${shortcut.control ? "Ctrl+" : ""}${shortcut.shift ? "Shift+" : ""}$keyString";
   }
 
   static String buttonTooltip({
     required String commandName,
     required SingleActivator shortcut,
   }) {
-    return '$commandName (${tooltipShortcut(shortcut)})';
+    return "$commandName (${tooltipShortcut(shortcut)})";
   }
 
   static Text textWithMultiBold(

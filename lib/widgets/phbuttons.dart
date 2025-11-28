@@ -22,13 +22,13 @@ class Phbuttons {
         const iconSize = PfsTheme.timerButtonIconSize;
 
         return Tooltip(
-          message: '$currentTimerSeconds seconds per image.\n'
-              '${PfsLocalization.pressCapital} to edit timer. '
-              '(${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})',
+          message: "$currentTimerSeconds seconds per image.\n"
+              "${PfsLocalization.pressCapital} to edit timer "
+              "(${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})",
           child: TextButton(
             onPressed: onPressed,
             child: IconAndText(
-              text: '${currentTimerSeconds}s',
+              text: "${currentTimerSeconds}s",
               icon: Icons.timer_outlined,
               iconSize: iconSize,
               gap: 3,
@@ -192,13 +192,13 @@ class CollapseBottomBarButton extends StatelessWidget {
     if (isMinimized) {
       return MinorWindowControlButton(
         icon: expandIcon,
-        tooltip: 'Expand controls ($bottomBarShortcutKey)',
+        tooltip: "Expand controls ($bottomBarShortcutKey)",
         onPressed: onPressed,
       );
     } else {
       return MinorWindowControlButton(
         icon: collapseIcon,
-        tooltip: 'Minimize controls ($bottomBarShortcutKey)',
+        tooltip: "Minimize controls ($bottomBarShortcutKey)",
         onPressed: onPressed,
       );
     }

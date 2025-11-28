@@ -323,7 +323,7 @@ class ImageRightClick extends StatelessWidget {
       if (currentImageData is ImageFileData) {
         ClipboardHandlers.of(context)?.copyText(
           text: currentImageData.filePath,
-          toastMessage: 'File path copied to clipboard.',
+          toastMessage: "File path copied to clipboard.",
         );
       }
     }
@@ -333,7 +333,7 @@ class ImageRightClick extends StatelessWidget {
       if (currentImageData is ImageFileData) {
         ClipboardHandlers.of(context)?.copyText(
           text: currentImageData.fileName,
-          toastMessage: 'Filename copied to clipboard.',
+          toastMessage: "Filename copied to clipboard.",
         );
       }
     }
@@ -787,7 +787,7 @@ class ResetZoomButton extends StatelessWidget {
         return Visibility(
           visible: !zoomPanner.isZoomLevelDefault,
           child: IconButton(
-            tooltip: 'Reset zoom',
+            tooltip: "Reset zoom",
             onPressed: () => zoomPanner.resetTransform(),
             icon: const Icon(Icons.youtube_searched_for),
           ),

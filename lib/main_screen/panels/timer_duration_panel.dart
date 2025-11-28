@@ -33,14 +33,14 @@ class TimerDurationPanel extends StatelessWidget {
   ];
 
   static const List<(String, int)> timerPresets = [
-    ('15s', 15),
-    ('30s', 30),
-    ('45s', 45),
-    ('60s', 60),
-    ('90s', 90),
-    ('2m', 2 * 60),
-    ('3m', 3 * 60),
-    ('5m', 5 * 60),
+    ("15s", 15),
+    ("30s", 30),
+    ("45s", 45),
+    ("60s", 60),
+    ("90s", 90),
+    ("2m", 2 * 60),
+    ("3m", 3 * 60),
+    ("5m", 5 * 60),
   ];
 
   Iterable<Widget> presetButtons() sync* {
@@ -136,7 +136,7 @@ class TimerDurationPanel extends StatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Timer duration', style: bigLabelStyle),
+                            child: Text("Timer duration", style: bigLabelStyle),
                           ),
                           secondsTextField,
                           const SizedBox(height: 3),

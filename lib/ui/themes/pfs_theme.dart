@@ -31,19 +31,19 @@ class PfsTheme {
 
   static const defaultTheme = 'phashion';
   static final themeMap = <String, ThemeData Function()>{
-    'phashion': phashion,
-    'phriends': phriends,
-    'phaint': clip,
-    'philes': philesTen,
+    "phashion": phashion,
+    "phriends": phriends,
+    "phaint": clip,
+    "philes": philesTen,
     //'phish': () => lysaris.themeData,
   };
 
   static const themeNames = <String, String>{
-    'phashion': 'Phashion (Light)',
-    'phriends': 'Phriends (Dark)',
-    'phaint': 'Phaint (Dark)',
-    'philes': 'Philes 10 (Light)',
-    'phish': 'Phish',
+    "phashion": "Phashion (Light)",
+    "phriends": "Phriends (Dark)",
+    "phaint": "Phaint (Dark)",
+    "philes": "Philes 10 (Light)",
+    "phish": "Phish",
   };
 
   //
@@ -404,7 +404,7 @@ class PfsTheme {
                     borderRadius: BorderRadius.all(Radius.circular(2)),
                   ),
                   filled: true,
-                  counterText: '',
+                  counterText: "",
                   counterStyle: TextStyle(fontSize: 1),
                 ),
                 style: PfsAppTheme.defaultLargeTextFieldTextStyle,
@@ -844,7 +844,7 @@ class PfsTheme {
                       borderRadius: BorderRadius.all(Radius.circular(2)),
                     ),
                     filled: true,
-                    counterText: '',
+                    counterText: "",
                     counterStyle: TextStyle(fontSize: 1),
                   ),
                   style: PfsAppTheme.defaultLargeTextFieldTextStyle,
@@ -1045,7 +1045,7 @@ class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
       borderRadius: BorderRadius.all(Radius.circular(30)),
     ),
     filled: true,
-    counterText: '',
+    counterText: "",
     counterStyle: TextStyle(fontSize: 1),
   );
 

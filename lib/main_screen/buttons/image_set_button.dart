@@ -34,8 +34,8 @@ class ImageSetButton extends StatelessWidget {
           final fileCount = model.imageList.getCount();
           final lastFolder = model.lastFolder;
           final String tooltip =
-              '${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: ...${Platform.pathSeparator}$lastFolder\n'
-              '$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded.';
+              "${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: ...${Platform.pathSeparator}$lastFolder\n"
+              "$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded and shuffled";
 
           const double wideWidth = 80;
           const double narrowWidth = 18;
@@ -138,20 +138,20 @@ void _popupImagesMenu(PfsAppModel model) async {
 Future<Menu> _getOpenImagesMenu(PfsAppModel model) async {
   final baseItems = [
     MenuItem(
-      label: 'Open images...',
+      label: "Open images...",
       onClick: (menuItem) {
         model.openFilePickerForImages();
       },
     ),
     MenuItem.separator(),
     MenuItem(
-      label: 'Open image folder...',
+      label: "Open image folder...",
       onClick: (menuItem) {
         model.openFilePickerForFolder();
       },
     ),
     MenuItem(
-      label: 'Open folder and subfolders...',
+      label: "Open folder and subfolders...",
       onClick: (menuItem) {
         model.openFilePickerForFolder(includeSubfolders: true);
       },

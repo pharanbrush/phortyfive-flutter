@@ -6,12 +6,12 @@ import 'package:pfs2/core/image_data.dart';
 
 class ImageList {
   static const List<String> allowedExtensions = [
-    'jpg',
-    'webp',
-    'png',
-    'jpeg',
-    'jfif',
-    'gif'
+    "jpg",
+    "webp",
+    "png",
+    "jpeg",
+    "jfif",
+    "gif"
   ];
 
   final items = List<ImageData>.empty(growable: true);

@@ -333,7 +333,7 @@ mixin PfsImageListManager {
     final files = await openFiles(
       acceptedTypeGroups: [
         const XTypeGroup(
-          label: 'images',
+          label: "images",
           extensions: ImageList.allowedExtensions,
         )
       ],

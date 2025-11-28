@@ -24,7 +24,7 @@ class AboutSheet extends StatelessWidget {
     final headingStyle = Theme.of(context).textTheme.titleMedium;
 
     const spacing = SizedBox(height: 10);
-    const pharanBrushUrl = 'ko-fi.com/Pharanbrush';
+    const pharanBrushUrl = "ko-fi.com/Pharanbrush";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,16 +37,16 @@ class AboutSheet extends StatelessWidget {
         ),
         spacing,
         Text(
-          'Phorty-Five Seconds by PharanBrush',
+          "Phorty-Five Seconds by PharanBrush",
           style: headingStyle,
         ),
-        const Text('Image Shuffler for Drawing Practice'),
+        const Text("Image Shuffler for Drawing Practice"),
         spacing,
-        const Text('Build ${PfsLocalization.version}'),
+        const Text("Build ${PfsLocalization.version}"),
         const HyperlinkRichText(
-          'For more info, visit: ',
+          "For more info, visit: ",
           urlText: pharanBrushUrl,
-          url: 'https://$pharanBrushUrl',
+          url: "https://$pharanBrushUrl",
         ),
         const Spacer(),
         Align(
@@ -55,7 +55,7 @@ class AboutSheet extends StatelessWidget {
             onPressed: () {
               showLicensePage(context: context);
             },
-            child: const Text('License info...'),
+            child: const Text("License info..."),
           ),
         ),
       ],

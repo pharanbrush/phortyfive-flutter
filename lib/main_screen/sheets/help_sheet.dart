@@ -54,7 +54,7 @@ class HelpSheet extends StatelessWidget {
                           children: [
                             if (!isWindowShort) headingIcon,
                             Text(
-                              'Keyboard Shortcuts',
+                              "Keyboard Shortcuts",
                               style: headingStyle,
                             ),
                           ],
@@ -75,24 +75,24 @@ class HelpSheet extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 ShortcutListItem(
-                                    text: 'Next image',
+                                    text: "Next image",
                                     keyLabel:
                                         Phshortcuts.next2.trigger.keyLabel),
                                 ShortcutListItem(
-                                    text: 'Previous image',
+                                    text: "Previous image",
                                     keyLabel:
                                         Phshortcuts.previous2.trigger.keyLabel),
                                 const Text(''),
                                 ShortcutListItem(
-                                    text: 'Play/Pause',
+                                    text: "Play/Pause",
                                     keyLabel:
                                         Phshortcuts.playPause.trigger.keyLabel),
                                 ShortcutListItem(
-                                    text: 'Restart timer',
+                                    text: "Restart timer",
                                     keyLabel: Phshortcuts
                                         .restartTimer.trigger.keyLabel),
                                 ShortcutListItem(
-                                    text: 'Change timer duration',
+                                    text: "Change timer duration",
                                     keyLabel: Phshortcuts
                                         .openTimerMenu.trigger.keyLabel),
                               ]),
@@ -106,28 +106,28 @@ class HelpSheet extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   ShortcutListItem(
-                                    text: 'Open images...',
-                                    modifier: 'Ctrl',
+                                    text: "Open images...",
+                                    modifier: "Ctrl",
                                     keyLabel:
                                         Phshortcuts.openFiles.trigger.keyLabel,
                                   ),
                                   ShortcutListItem(
                                     text:
                                         'Toggle "${PfsLocalization.alwaysOnTop}"',
-                                    modifier: 'Ctrl',
+                                    modifier: "Ctrl",
                                     keyLabel: Phshortcuts
                                         .alwaysOnTop.trigger.keyLabel,
                                   ),
                                   ShortcutListItem(
-                                      text: 'Show/hide bottom bar',
+                                      text: "Show/hide bottom bar",
                                       keyLabel: Phshortcuts
                                           .toggleBottomBar.trigger.keyLabel),
                                   ShortcutListItem(
-                                      text: 'Open help sheet',
+                                      text: "Open help sheet",
                                       keyLabel:
                                           Phshortcuts.help.trigger.keyLabel),
                                   ShortcutListItem(
-                                      text: 'Mute/unmute sounds',
+                                      text: "Mute/unmute sounds",
                                       keyLabel: Phshortcuts
                                           .toggleSounds.trigger.keyLabel),
                                 ]),
@@ -140,7 +140,7 @@ class HelpSheet extends StatelessWidget {
                                 widthFactor: 5,
                                 heightFactor: 5,
                                 child: Text(
-                                  '...',
+                                  "...",
                                   style: headingStyle,
                                 )),
                           ),

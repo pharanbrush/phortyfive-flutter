@@ -208,7 +208,7 @@ class BlurSlider extends StatelessWidget {
 
     final label = Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text('Blur', style: labelStyle),
+      child: Text("Blur", style: labelStyle),
     );
 
     return ValueListenableBuilder(
@@ -268,7 +268,7 @@ class FilterPanelHeading extends StatelessWidget {
       children: [
         headingIcon,
         Text(
-          'Filters',
+          "Filters",
           style: Theme.of(context)
               .textTheme
               .labelLarge

@@ -58,15 +58,15 @@ class CornerWindowControls extends StatelessWidget {
                   CornerButton(
                     onPressed: () => settingsMenu.open(),
                     icon: Icons.settings,
-                    tooltip: 'Settings',
+                    tooltip: "Settings",
                     iconScale: 0.85,
                   ),
                   NotifierToggleCornerButton(
                     notifier: windowState.isSoundsEnabled,
                     falseIcon: Icons.volume_off,
                     trueIcon: Icons.volume_up,
-                    trueTooltip: 'Mute sounds ($soundShortcut)',
-                    falseTooltip: 'Unmute sounds ($soundShortcut)',
+                    trueTooltip: "Mute sounds ($soundShortcut)",
+                    falseTooltip: "Unmute sounds ($soundShortcut)",
                   ),
                   CornerButton(
                     onPressed: () => helpMenu.open(),
