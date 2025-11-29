@@ -8,6 +8,7 @@ import 'package:pfs2/phlutter/centered_vertically.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 import 'package:pfs2/phlutter/simple_notifier.dart';
+import 'package:pfs2/phlutter/sized_box_fitted.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -494,6 +495,16 @@ class AnnotationsModel {
     if (lastRuler == null || lastRuler.isInvalid) return;
 
     isRulerDuplicateMode.value = true;
+  }
+
+  void trySetRulerDuplicateModeToggle() {
+    final lastRuler = getLastRuler();
+    if (lastRuler == null || lastRuler.isInvalid) return;
+    if (isRulerDuplicateMode.value) {
+      trySetRulerDuplicateModeDisabled();
+    } else {
+      trySetRulerDuplicateMode();
+    }
   }
 
   void trySetRulerDuplicateModeDisabled() {
@@ -1107,6 +1118,34 @@ class AnnotationsInterface extends StatelessWidget {
       final windowIsNarrow = windowSize.width < 550;
       final windowIsCompressed = windowSize.width < 640;
 
+      Widget duplicateRulerButton() {
+        return SizedBoxFitted(
+          height: 32,
+          child: ListenableBuilder(
+            listenable: model.undoRedoListenable,
+            builder: (context, child) {
+              return ValueListenableBuilder(
+                valueListenable: model.isRulerDuplicateMode,
+                builder: (_, isRulerDuplicateModeValue, __) {
+                  return IconButton.outlined(
+                    isSelected: isRulerDuplicateModeValue,
+                    tooltip: "Duplicate last ruler  (D)",
+                    onPressed: model.getLastRuler() == null
+                        ? null
+                        : () => model.trySetRulerDuplicateModeToggle(),
+                    icon: Icon(FluentIcons.copy_20_regular, size: 25),
+                    selectedIcon: Icon(FluentIcons.copy_20_filled, size: 25),
+                    color: isRulerDuplicateModeValue
+                        ? theme.colorScheme.tertiary
+                        : null,
+                  );
+                },
+              );
+            },
+          ),
+        );
+      }
+
       return Positioned(
         bottom: -edgeOverflow,
         left: 10,
@@ -1260,6 +1299,9 @@ Hold Ctrl to draw a box ruler from the edge.""")
                                           },
                                         ),
                                       ),
+                                      if (!windowIsNarrow) SizedBox(width: 5),
+                                      if (!windowIsNarrow)
+                                        duplicateRulerButton(),
                                       SizedBox(width: 10),
                                     ],
                                   );
