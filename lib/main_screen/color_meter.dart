@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
@@ -1291,7 +1292,7 @@ class _ColorMeterRightArrow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Icon(Icons.arrow_right_alt),
+      child: Icon(FluentIcons.arrow_right_16_regular),
     );
   }
 }

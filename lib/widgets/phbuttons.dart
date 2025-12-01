@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -29,7 +30,7 @@ class Phbuttons {
             onPressed: onPressed,
             child: IconAndText(
               text: "${currentTimerSeconds}s",
-              icon: Icons.timer_outlined,
+              icon: FluentIcons.timer_16_regular,
               iconSize: iconSize,
               gap: 3,
             ),
@@ -160,7 +161,7 @@ class IconAndText extends StatelessWidget {
     final usedGap = gap ?? usedFontSize * 0.6;
 
     final usedIcon = Transform.translate(
-      offset: Offset(0, 1.1),
+      offset: Offset(0, 1.09),
       child: Icon(icon, size: usedIconSize),
     );
 
