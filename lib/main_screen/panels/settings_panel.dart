@@ -67,7 +67,7 @@ class SettingsPanel extends StatelessWidget {
                 child: Flex(
                   direction: Axis.horizontal,
                   children: [
-                    Spacer(),
+                    const Spacer(),
                     TextButton(
                       onPressed: () async {
                         final userClickedYes = await showDialog<bool>(
