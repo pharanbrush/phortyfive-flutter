@@ -588,9 +588,7 @@ take color values out of gamma space before doing color calculations.""")
                                                       size: 15,
                                                     ),
                                                   ),
-                                                  SizedBox(
-                                                    width: 6,
-                                                  ),
+                                                  SizedBox(width: 6),
                                                   Padding(
                                                     padding: EdgeInsets.only(
                                                         bottom: 1),
