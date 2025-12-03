@@ -8,7 +8,7 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
-import 'package:pfs2/main_screen/buttons/image_set_button.dart'
+import 'package:pfs2/main_screen/buttons/open_images_button.dart'
     as image_set_button;
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
