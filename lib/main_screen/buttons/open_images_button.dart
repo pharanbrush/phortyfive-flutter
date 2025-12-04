@@ -128,6 +128,103 @@ Widget openFilesButton({double width = 40.0, required PfsAppModel model}) {
 //   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
 // }
 
+// Custom Popup Menu using OverlayEntry
+
+// OverlayEntry? overlayEntry;
+
+// void dummy(BuildContext context, PfsAppModel model) {
+//   final getRecentFolders =
+//       pfs_preferences.getRecentFolders().timeout(Duration(milliseconds: 1500));
+
+//   void closePopup() {
+//     if (overlayEntry != null) {
+//       overlayEntry!.remove();
+//       overlayEntry = null;
+//     }
+//   }
+
+//   final overlay = Overlay.of(context);
+//   overlayEntry = OverlayEntry(
+//     builder: (context) {
+//       final theme = Theme.of(context);
+
+//       return Stack(
+//         children: [
+//           ModalUnderlay.transparent(
+//             onDismiss: () => closePopup(),
+//           ),
+//           Positioned(
+//             bottom: 10,
+//             right: 10,
+//             child: Material(
+//               //color: theme.colorScheme.tertiary,
+//               elevation: 8,
+//               child: Padding(
+//                 padding: const EdgeInsets.all(15.0),
+//                 child: DefaultTextStyle(
+//                   style: theme.textTheme.labelMedium!,
+//                   child: FutureBuilder(
+//                     future: getRecentFolders,
+//                     builder: (context, snapshot) {
+//                       final items = <Widget>[
+//                         if (snapshot.hasData) Text("Recent folders"),
+//                         if (snapshot.hasData)
+//                           ...snapshot.data!.map(
+//                             (folderItem) {
+//                               final shortenedPath =
+//                                   shortenFolderPath(folderItem.folderPath);
+
+//                               return InkWell(
+//                                 onTap: () {
+//                                   model.loadFolder(
+//                                     folderItem.folderPath,
+//                                     recursive: folderItem.includeSubfolders,
+//                                   );
+//                                   closePopup();
+//                                 },
+//                                 child: Padding(
+//                                   padding: const EdgeInsets.all(10.0),
+//                                   child: Padding(
+//                                     padding: const EdgeInsets.only(right: 20.0),
+//                                     child: IconAndText(
+//                                       text: shortenedPath,
+//                                       icon: FluentIcons.folder_16_regular,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               );
+//                             },
+//                           ),
+//                         if (!snapshot.hasData)
+//                           CircularProgressIndicator(
+//                             color: theme.colorScheme.onSurface,
+//                           ),
+//                         Text("Hello Item"),
+//                       ];
+
+//                       return IntrinsicWidth(
+//                         child: Column(
+//                           mainAxisSize: MainAxisSize.min,
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: items,
+//                         ),
+//                       );
+//                     },
+//                   ),
+//                 ),
+//               ),
+//             ).animate(effects: [Phanimations.slideUpEffectLarge]),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+
+//   if (overlayEntry != null) {
+//     overlay.insert(overlayEntry!);
+//   }
+// }
+
 void _popupImagesMenu(PfsAppModel model) {
   _getOpenImagesMenu(model).then(
     (menu) => popUpContextualMenu(menu, placement: Placement.topLeft),
