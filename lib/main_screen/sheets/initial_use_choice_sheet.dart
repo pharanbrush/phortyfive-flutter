@@ -1,7 +1,9 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
+import 'package:pfs2/widgets/phbuttons.dart';
 
 class InitialUseChoiceSheet extends StatelessWidget {
   const InitialUseChoiceSheet({
@@ -73,13 +75,13 @@ class InitialUseChoiceSheet extends StatelessWidget {
                   ),
                   modeChoiceButton(
                     text: "Start timer",
-                    icon: Icon(Icons.timer),
+                    icon: FluentIcons.timer_20_filled,
                     //color: playColor,
                     onPressed: () => chooseTimerSession(),
                   ),
                   modeChoiceButton(
                     text: "Just browse",
-                    icon: Icon(Icons.folder),
+                    icon: FluentIcons.folder_20_filled,
                     //color: pausedColor,
                     onPressed: () => chooseBrowseSession(),
                   ),
@@ -95,20 +97,26 @@ class InitialUseChoiceSheet extends StatelessWidget {
 
   Widget modeChoiceButton({
     String text = "",
-    Widget? icon,
+    required IconData icon,
     VoidCallback? onPressed,
     Color? color,
   }) {
-    final buttonStyle = OutlinedButton.styleFrom(
-      minimumSize: Size(200, 70),
-      //foregroundColor: color,
-    );
-
-    final button = FilledButton.tonalIcon(
-      onPressed: onPressed,
-      icon: icon,
-      style: buttonStyle,
-      label: Text(text),
+    final button = SizedBox(
+      height: 70,
+      width: 200,
+      child: FilledButton.tonal(
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconAndText(
+              text: text,
+              icon: icon,
+              padOpposite: true,
+            )
+          ],
+        ),
+      ),
     );
 
     return Padding(

@@ -145,6 +145,7 @@ class IconAndText extends StatelessWidget {
     this.iconSize,
     this.gap,
     this.iconLeft = true,
+    this.padOpposite = false,
   });
 
   final String text;
@@ -152,6 +153,7 @@ class IconAndText extends StatelessWidget {
   final double? iconSize;
   final double? gap;
   final bool iconLeft;
+  final bool padOpposite;
 
   @override
   Widget build(BuildContext context) {
@@ -165,9 +167,13 @@ class IconAndText extends StatelessWidget {
       child: Icon(icon, size: usedIconSize),
     );
 
+    Widget padBox() => SizedBox(width: usedIconSize * 0.5, height: usedIconSize * 0.5);
+
     return Row(
       spacing: usedGap,
-      children: iconLeft ? [usedIcon, Text(text)] : [Text(text), usedIcon],
+      children: iconLeft
+          ? [usedIcon, Text(text), if (padOpposite) padBox()]
+          : [if (padOpposite) padBox(), Text(text), usedIcon],
     );
   }
 }
