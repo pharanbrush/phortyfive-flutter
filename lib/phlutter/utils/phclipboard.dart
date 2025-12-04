@@ -41,6 +41,17 @@ Future<String?> getStringFromClipboard() async {
   return clipboardData.text;
 }
 
+Future<bool> isClipboardHasImage() async {
+  final clipboard = SystemClipboard.instance;
+  if (clipboard == null) {
+    return false;
+  }
+
+  final reader = await clipboard.read();
+
+  return reader.canProvide(Formats.png);
+}
+
 void getImageBytesFromClipboard(
   void Function(Uint8List? imageBytes) onClipboardImageRead,
 ) async {

@@ -702,6 +702,7 @@ class _MainScreenState extends State<MainScreen>
                 model: widget.model,
                 narrowButton: isNarrowWindow,
                 extraTooltip: getScoreText(),
+                pasteHandler: tryPaste,
               );
             },
           ),
@@ -712,6 +713,7 @@ class _MainScreenState extends State<MainScreen>
           image_set_button.openFilesButton(
             width: isNarrowWindow ? 20 : 40,
             model: widget.model,
+            pasteHandler: tryPaste,
           ),
           const SizedBox(width: 15, height: 43),
         ];

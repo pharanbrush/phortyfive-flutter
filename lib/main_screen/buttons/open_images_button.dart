@@ -4,6 +4,7 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
+import 'package:pfs2/phlutter/utils/phclipboard.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -16,6 +17,7 @@ class ImageSetButton extends StatelessWidget {
     this.narrowButton = false,
     this.extraTooltip,
     required this.model,
+    this.pasteHandler,
   });
 
   static const double _iconSize = 17;
@@ -25,6 +27,7 @@ class ImageSetButton extends StatelessWidget {
   final bool narrowButton;
   final String? extraTooltip;
   final PfsAppModel model;
+  final VoidCallback? pasteHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,7 @@ class ImageSetButton extends StatelessWidget {
           return Tooltip(
             message: tooltip,
             child: TextButton(
-              onPressed: () => _popupImagesMenu(model),
+              onPressed: () => _popupImagesMenu(model, pasteHandler),
               child: AnimatedSizedBoxWidth(
                 defaultWidth: narrowWidth,
                 width: currentWidth,
@@ -78,7 +81,11 @@ class ImageSetButton extends StatelessWidget {
   }
 }
 
-Widget openFilesButton({double width = 40.0, required PfsAppModel model}) {
+Widget openFilesButton({
+  double width = 40.0,
+  required PfsAppModel model,
+  VoidCallback? pasteHandler,
+}) {
   final toolTipText =
       'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})';
 
@@ -92,7 +99,7 @@ Widget openFilesButton({double width = 40.0, required PfsAppModel model}) {
         message: toolTipText,
         child: FilledButton(
           style: style,
-          onPressed: () => _popupImagesMenu(model),
+          onPressed: () => _popupImagesMenu(model, pasteHandler),
           child: SizedBox(
             width: width,
             child: const Icon(browseIcon),
@@ -225,14 +232,29 @@ Widget openFilesButton({double width = 40.0, required PfsAppModel model}) {
 //   }
 // }
 
-void _popupImagesMenu(PfsAppModel model) {
-  _getOpenImagesMenu(model).then(
+void _popupImagesMenu(PfsAppModel model, VoidCallback? pasteHandler) {
+  _getOpenImagesMenu(model, pasteHandler).then(
     (menu) => popUpContextualMenu(menu, placement: Placement.topLeft),
   );
 }
 
-Future<Menu> _getOpenImagesMenu(PfsAppModel model) async {
+Future<Menu> _getOpenImagesMenu(
+  PfsAppModel model,
+  VoidCallback? pasteHandler,
+) async {
+  final canPasteFromClipboard = await isClipboardHasImage().timeout(
+    Duration(milliseconds: 250),
+    onTimeout: () => false,
+  );
+
   final baseMenuItems = [
+    if (pasteHandler != null)
+      MenuItem(
+        label: "Paste image from clipboard",
+        disabled: !canPasteFromClipboard,
+        onClick: (menuItem) => pasteHandler(),
+      ),
+    if (pasteHandler != null) MenuItem.separator(),
     MenuItem(
       label: "Open images...",
       onClick: (menuItem) {
