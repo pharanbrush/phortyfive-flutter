@@ -1209,24 +1209,22 @@ class ImageBrowseGestureControls extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                model.allowCirculatorControl
-                    ? nextPreviousGestureButton(
-                        width: beforeButtonWidth,
-                        onPressed: () => model.previousImageNewTimer(),
-                        child: PfsTheme.beforeGestureIcon,
-                      )
-                    : SizedBox(width: beforeButtonWidth),
+                if (model.allowCirculatorControl)
+                  nextPreviousGestureButton(
+                    width: beforeButtonWidth,
+                    onPressed: () => model.previousImageNewTimer(),
+                    child: PfsTheme.beforeGestureIcon,
+                  ),
                 Expanded(
                   flex: 4,
                   child: middleGestureButton(),
                 ),
-                model.allowCirculatorControl
-                    ? nextPreviousGestureButton(
-                        width: afterButtonWidth,
-                        onPressed: () => model.nextImageNewTimer(),
-                        child: PfsTheme.nextGestureIcon,
-                      )
-                    : SizedBox(width: afterButtonWidth),
+                if (model.allowCirculatorControl)
+                  nextPreviousGestureButton(
+                    width: afterButtonWidth,
+                    onPressed: () => model.nextImageNewTimer(),
+                    child: PfsTheme.nextGestureIcon,
+                  ),
               ],
             ),
           ),
