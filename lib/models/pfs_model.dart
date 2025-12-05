@@ -41,7 +41,9 @@ class PfsAppModel
   bool get allowTimerPlayPause =>
       hasMoreThanOneImage && isInitialUseChoiceChosen.value;
   bool get allowCirculatorControl =>
-      hasMoreThanOneImage && isInitialUseChoiceChosen.value && isImageBrowseMode;
+      hasMoreThanOneImage &&
+      isInitialUseChoiceChosen.value &&
+      isImageBrowseMode;
 
   @override
   bool get allowImageSetChange => isImageBrowseMode;
