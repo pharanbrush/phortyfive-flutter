@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_selector/file_selector.dart';
+import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/image_data.dart';
@@ -330,9 +330,9 @@ mixin PfsImageListManager {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    final files = await openFiles(
+    final files = await file_selector.openFiles(
       acceptedTypeGroups: [
-        const XTypeGroup(
+        const file_selector.XTypeGroup(
           label: "images",
           extensions: ImageList.allowedExtensions,
         )
@@ -351,7 +351,7 @@ mixin PfsImageListManager {
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    final folder = await getDirectoryPath();
+    final folder = await file_selector.getDirectoryPath();
     _setStateFilePickerOpen(false);
 
     if (folder == null || folder.isEmpty) return;
@@ -359,7 +359,34 @@ mixin PfsImageListManager {
     loadFolder(folder, recursive: includeSubfolders);
   }
 
-  void loadFolder(String folderPath, {bool recursive = false}) async {
+  void openFilePickerForRandomFolderInFolder({
+    bool includeSubfolders = false,
+  }) async {
+    if (!allowImageSetChange) return;
+    if (isPickerOpen) return;
+
+    _setStateFilePickerOpen(true);
+    final parentFolderPath = await file_selector.getDirectoryPath();
+    _setStateFilePickerOpen(false);
+
+    if (parentFolderPath == null || parentFolderPath.isEmpty) return;
+
+    final folderPath = await getRandomFolderFrom(parentFolderPath);
+
+    if (folderPath == null || folderPath.isEmpty) return;
+
+    loadFolder(
+      folderPath,
+      recursive: includeSubfolders,
+      addToRecentFolders: false,
+    );
+  }
+
+  void loadFolder(
+    String folderPath, {
+    bool recursive = false,
+    bool addToRecentFolders = true,
+  }) async {
     if (!allowImageSetChange) return;
     if (folderPath.isEmpty) return;
 
@@ -367,7 +394,7 @@ mixin PfsImageListManager {
 
     try {
       final directoryContents = directory.list(recursive: recursive);
-      final List<String?> filePaths = [];
+      final filePaths = <String?>[];
       await for (final FileSystemEntity entry in directoryContents) {
         if (entry is File) {
           filePaths.add(entry.path);
@@ -380,10 +407,12 @@ mixin PfsImageListManager {
       onFilePickerStateChange?.call();
     }
 
-    await pfs_preferences.pushRecentFolder(
-      folderPath: folderPath,
-      includeSubfolders: recursive,
-    );
+    if (addToRecentFolders) {
+      await pfs_preferences.pushRecentFolder(
+        folderPath: folderPath,
+        includeSubfolders: recursive,
+      );
+    }
   }
 
   Future loadImageFiles(

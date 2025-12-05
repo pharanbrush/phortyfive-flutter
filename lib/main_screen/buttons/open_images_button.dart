@@ -252,25 +252,31 @@ Future<Menu> _getOpenImagesMenu(
       MenuItem(
         label: "Paste image from clipboard",
         disabled: !canPasteFromClipboard,
-        onClick: (menuItem) => pasteHandler(),
+        onClick: (_) => pasteHandler(),
       ),
     if (pasteHandler != null) MenuItem.separator(),
     MenuItem(
       label: "Open images...",
-      onClick: (menuItem) {
+      onClick: (_) {
         model.openFilePickerForImages();
       },
     ),
     MenuItem.separator(),
     MenuItem(
       label: "Open image folder...",
-      onClick: (menuItem) {
+      onClick: (_) {
         model.openFilePickerForFolder();
       },
     ),
     MenuItem(
+      label: "Open random folder in folder...",
+      onClick: (_) {
+        model.openFilePickerForRandomFolderInFolder();
+      },
+    ),
+    MenuItem(
       label: "Open folder and subfolders...",
-      onClick: (menuItem) {
+      onClick: (_) {
         model.openFilePickerForFolder(includeSubfolders: true);
       },
     )
