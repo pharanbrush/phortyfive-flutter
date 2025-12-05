@@ -59,7 +59,7 @@ class PfsAppModel
   bool _canStartCountdown() => timerModel.isRunning; // && !isAnnotating;
 
   ImageData getCurrentImageData() {
-    if (!imageList.isPopulated()) return ImageData.invalid;
+    if (!imageList.isPopulated) return ImageData.invalid;
 
     return imageList.get(circulator.currentIndex);
   }
@@ -80,7 +80,7 @@ class PfsAppModel
   }
 
   Iterable<ImageData> _getSurroundingImageData(int index) sync* {
-    if (imageList.getCount() == 1) return;
+    if (imageList.count == 1) return;
     const indexOffsets = [1, -1];
 
     for (final offset in indexOffsets) {
@@ -153,7 +153,7 @@ class PfsAppModel
 
   @override
   void _onImagesLoaded() {
-    final loadedCount = imageList.getCount();
+    final loadedCount = imageList.count;
     circulator.startNewOrder(loadedCount);
 
     if (isInitialUseChoiceChosen.value) {
@@ -305,8 +305,8 @@ mixin PfsImageListManager {
 
   String lastFolder = '';
   bool isPickerOpen = false;
-  bool get hasImagesLoaded => imageList.isPopulated();
-  bool get hasMoreThanOneImage => imageList.getCount() > 1;
+  bool get hasImagesLoaded => imageList.isPopulated;
+  bool get hasMoreThanOneImage => imageList.count > 1;
 
   final imageListChangedNotifier = SimpleNotifier();
 
@@ -433,7 +433,7 @@ mixin PfsImageListManager {
 
     await imageList.loadFiles(expandedFilePaths);
 
-    final lastFile = imageList.getLast();
+    final lastFile = imageList.last;
     if (lastFile is ImageFileData) {
       final potentialFolderPath = lastFile.fileFolder;
       if (potentialFolderPath.trim().isNotEmpty) {
@@ -467,7 +467,7 @@ mixin PfsImageListManager {
   }
 
   void _endLoadingImages(int sourceCount) {
-    final loadedCount = imageList.getCount();
+    final loadedCount = imageList.count;
     onImagesChanged?.call();
 
     onImagesLoadedSuccess?.call(loadedCount, loadedCount - sourceCount);
