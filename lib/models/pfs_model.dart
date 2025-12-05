@@ -61,11 +61,11 @@ class PfsAppModel
   ImageData getCurrentImageData() {
     if (!imageList.isPopulated) return ImageData.invalid;
 
-    return imageList.get(circulator.currentIndex);
+    return imageList.get(circulator.currentOutputIndex);
   }
 
   void preloadSurroundingImages(BuildContext context) async {
-    final current = circulator.currentIndex;
+    final current = circulator.currentOutputIndex;
 
     final surroundingImageData = _getSurroundingImageData(current);
 
@@ -84,7 +84,7 @@ class PfsAppModel
     const indexOffsets = [1, -1];
 
     for (final offset in indexOffsets) {
-      final index = circulator.getSurroundingIndex(offset);
+      final index = circulator.getSurroundingOutputIndex(offset);
       if (index != null) {
         yield imageList.get(index);
       }
@@ -216,7 +216,7 @@ mixin PfsCirculator {
   final Circulator circulator = Circulator();
 
   int lastIncrement = 1;
-  int get currentImageIndex => circulator.currentIndex;
+  int get currentImageIndex => circulator.currentOutputIndex;
 }
 
 mixin PfsModelTimer {

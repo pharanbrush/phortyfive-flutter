@@ -1,15 +1,16 @@
-class Circulator {
-  final reorderedIndices = List<int>.empty(growable: true);
-  int _currentNumber = 0;
+/// [Circulator] generates a reordered list of indices and keeps track of a "current" value.
+/// This allows a shuffled order access by keeping track of a lookup table of shuffled indices
+/// instead of shuffling the source list.
+class Circulator with IndexCursor {
+  final outputIndices = <int>[];
 
-  int get count => reorderedIndices.length;
-  bool get isPopulated => count > 0;
+  @override
+  int get count => outputIndices.length;
 
-  int get currentIndex => isPopulated ? reorderedIndices[_currentNumber] : 0;
-  int get maxNumber => count - 1;
+  bool get isPopulated => outputIndices.isNotEmpty;
 
-  void moveNext() => moveCurrentNumberBy(1);
-  void movePrevious() => moveCurrentNumberBy(-1);
+  int get currentOutputIndex =>
+      isPopulated ? outputIndices[_currentInputIndex] : 0;
 
   void startNewOrder(int count) {
     if (count <= 0) {
@@ -17,53 +18,71 @@ class Circulator {
       return;
     }
 
-    resetToDefaultOrder(count);
-    _generateShuffledOrder();
-    setCurrentNumber(0);
-  }
-
-  void resetToDefaultOrder(int count) {
-    reorderedIndices.clear();
-    for (var i = 0; i < count; i++) {
-      reorderedIndices.add(i);
+    void resetToDefaultOrder(int count) {
+      outputIndices.clear();
+      for (int i = 0; i < count; i++) {
+        outputIndices.add(i);
+      }
     }
-  }
 
-  void _generateShuffledOrder() {
-    reorderedIndices.shuffle();
+    void generateShuffledOrder() {
+      outputIndices.shuffle();
+    }
+
+    resetToDefaultOrder(count);
+    generateShuffledOrder();
+    resetCurrentInputIndex();
   }
 
   void clear() {
-    reorderedIndices.clear();
-    setCurrentNumber(0);
+    outputIndices.clear();
+    resetCurrentInputIndex();
   }
 
-  void setCurrentNumber(int newNumber) {
-    _currentNumber = newNumber;
+  int? getSurroundingOutputIndex(int increment) {
+    final possibleNewInputIndex =
+        _getIncrementedInputIndex(_currentInputIndex, increment);
+    if (possibleNewInputIndex == null) return null;
+
+    return outputIndices[possibleNewInputIndex];
+  }
+}
+
+mixin IndexCursor {
+  int _currentInputIndex = 0;
+
+  int get count;
+
+  int get maxInputIndex => count - 1;
+
+  void moveNext() => moveCurrentInputIndexBy(1);
+  void movePrevious() => moveCurrentInputIndexBy(-1);
+
+  void resetCurrentInputIndex() {
+    setCurrentInputIndex(0);
   }
 
-  void moveCurrentNumberBy(int increment) {
-    final possibleNewNumber = _getIncrementedIndex(_currentNumber, increment);
-    if (possibleNewNumber == null) return;
-
-    setCurrentNumber(possibleNewNumber);
+  void setCurrentInputIndex(int newNumber) {
+    _currentInputIndex = newNumber;
   }
 
-  int? _getIncrementedIndex(int current, int increment) {
-    if (reorderedIndices.isEmpty) return null;
-    if (increment.abs() > reorderedIndices.length) return null;
+  int? _getIncrementedInputIndex(int currentInput, int increment) {
+    final count = this.count;
+    if (count == 0) return null;
+    if (increment.abs() > count) return null;
 
-    int newNumber = _currentNumber + increment;
-    if (newNumber >= count) newNumber -= count;
-    if (newNumber < 0) newNumber += count;
+    int newInputIndex = currentInput + increment;
+    if (newInputIndex >= count) newInputIndex -= count;
+    if (newInputIndex < 0) newInputIndex += count;
 
-    return newNumber;
+    return newInputIndex;
   }
 
-  int? getSurroundingIndex(int increment) {
-    final possibleNewNumber = _getIncrementedIndex(_currentNumber, increment);
-    if (possibleNewNumber == null) return null;
+  void moveCurrentInputIndexBy(int increment) {
+    final possibleNewInputIndex =
+        _getIncrementedInputIndex(_currentInputIndex, increment);
+    if (possibleNewInputIndex == null) return;
 
-    return reorderedIndices[possibleNewNumber];
+    setCurrentInputIndex(possibleNewInputIndex);
   }
 }
