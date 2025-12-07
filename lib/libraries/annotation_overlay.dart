@@ -143,13 +143,13 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
       initialized = true;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      calculateImageOffset();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   calculateImageOffset();
+    // });
 
     final usableImageSize = imageSize;
 
-    if (usableImageSize == null || imageOffset == null) {
+    if (usableImageSize == null) {
       return const CircularProgressIndicator(); // Placeholder or loading indicator while the image size and offset are being retrieved
     }
 
@@ -190,7 +190,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                 currentToolCallbacks.onPointerDown?.call(details.localPosition);
               },
               onPanUpdate: (details) {
-                //debugPrint("onPanUpdate");
                 if (Phshortcuts.isPanModifierPressed()) {
                   // debugPrint("trying to pan");
                   ImagePhviewerPanListener.handlePanUpdate(
@@ -221,6 +220,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                 builder: (_, isStrokesVisibleValue, ___) {
                   return CustomPaint(
                     painter: AnnotationPainter(
+                      repaint: model.repaintListenable,
                       strokeWidth: model.strokeWidth.value,
                       strokes: model.strokes,
                       color: model.color.value,
@@ -309,6 +309,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
 class AnnotationPainter extends CustomPainter {
   AnnotationPainter({
+    required super.repaint,
     required this.strokes,
     required this.color,
     required this.strokeWidth,
@@ -344,6 +345,6 @@ class AnnotationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(AnnotationPainter old) {
-    return true;
+    return false;
   }
 }
