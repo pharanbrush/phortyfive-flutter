@@ -46,7 +46,7 @@ class SettingsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _heading(context),
+        panelHeading(context),
         themesWidgets(
           context,
           child: Column(
@@ -62,60 +62,7 @@ class SettingsPanel extends StatelessWidget {
               themeSetting(context),
               divider,
               const SmallHeading('Recent folders'),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () async {
-                        final userClickedYes = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 50, top: 10),
-                                    child: Text(
-                                      "Do you want to clear the recent folders list?",
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(true),
-                                      child: Text("Yes, clear it!"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: Text("Never mind."),
-                                    )
-                                  ],
-                                );
-                              },
-                            ) ??
-                            false;
-
-                        if (userClickedYes) {
-                          if (await pfs_preferences.clearRecentFolders()) {
-                            if (context.mounted) {
-                              Phtoasts.show(
-                                context,
-                                message: "Recent folders list cleared",
-                                icon: Icons.list_alt,
-                              );
-                            }
-                          }
-                        }
-                      },
-                      child: Text("Clear recent folder list..."),
-                    ),
-                    SizedBox(width: 10),
-                  ],
-                ),
-              ),
+              clearRecentFoldersButton(context),
               divider,
               TextButton(
                 onPressed: () => aboutMenu.open(),
@@ -125,6 +72,23 @@ class SettingsPanel extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget clearRecentFoldersButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Flex(
+        direction: Axis.horizontal,
+        children: [
+          const Spacer(),
+          TextButton(
+            onPressed: () => promptUserClearRecentFolders(context),
+            child: Text("Clear recent folder list..."),
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
     );
   }
 
@@ -166,14 +130,55 @@ class SettingsPanel extends StatelessWidget {
 
     if (themeMenuItems.isEmpty) {
       for (final key in PfsTheme.themeMap.keys) {
-        themeMenuItems.add(DropdownMenuItem(
-          value: key,
-          child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst()),
-        ));
+        themeMenuItems.add(
+          DropdownMenuItem(
+            value: key,
+            child: Text(PfsTheme.themeNames[key] ?? key.capitalizeFirst()),
+          ),
+        );
       }
     }
 
     return themeMenuItems;
+  }
+
+  void promptUserClearRecentFolders(BuildContext context) async {
+    final userClickedYes = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Padding(
+                padding: const EdgeInsets.only(right: 50, top: 10),
+                child: Text(
+                  "Do you want to clear the recent folders list?",
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("Yes, clear it!"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("Never mind."),
+                )
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (userClickedYes) {
+      if (await pfs_preferences.clearRecentFolders()) {
+        if (context.mounted) {
+          Phtoasts.show(
+            context,
+            message: "Recent folders list cleared",
+            icon: Icons.list_alt,
+          );
+        }
+      }
+    }
   }
 
   Widget _panelContainer(BuildContext context, {required Widget child}) {
@@ -206,7 +211,7 @@ class SettingsPanel extends StatelessWidget {
     );
   }
 
-  Widget _heading(BuildContext context) {
+  Widget panelHeading(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
