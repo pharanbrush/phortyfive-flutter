@@ -106,6 +106,54 @@ mixin ImageFilters {
     isUsingGrayscale = false;
     blurLevel = 0;
   }
+
+  ValueListenableBuilder<bool> grayscaleFilterLayer() {
+    return ValueListenableBuilder(
+      valueListenable: usingGrayscaleListenable,
+      builder: (_, value, ___) =>
+          value ? grayscaleBackdropFilter : const SizedBox.expand(),
+    );
+  }
+
+  ValueListenableBuilder<double> blurFilterLayer() {
+    return ValueListenableBuilder(
+      valueListenable: blurLevelListenable,
+      builder: (_, blurValue, __) {
+        if (blurValue <= 0) return const SizedBox.expand();
+        final sigma = pow(1.3, blurValue).toDouble();
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+          child: const SizedBox.expand(),
+        );
+      },
+    );
+  }
+
+  static const Widget grayscaleBackdropFilter = BackdropFilter(
+    filter: ColorFilter.matrix(<double>[
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ]),
+    child: SizedBox.expand(),
+  );
 }
 
 mixin ImageZoomPanner {
@@ -448,209 +496,168 @@ class ImageViewerStackWidget extends StatelessWidget {
     final model = PfsAppModel.of(context);
 
     final content = ListenableBuilder(
-        listenable: model.currentImageChangedNotifier,
-        builder: (context, _) {
-          Image getImageWidget(ImageData imageData) {
-            if (imageData is image_data.ImageFileData) {
-              final imageFile = File(imageData.filePath);
-              return Image.file(
+      listenable: model.currentImageChangedNotifier,
+      builder: (context, _) {
+        Image getImageWidget(ImageData imageData) {
+          if (imageData is image_data.ImageFileData) {
+            final imageFile = File(imageData.filePath);
+            return Image.file(
+              filterQuality: FilterQuality.medium,
+              key: ImagePhviewer.imageWidgetKey,
+              imageFile,
+            );
+          } else if (imageData is ImageMemoryData) {
+            final byteData = imageData.bytes;
+            if (byteData != null) {
+              return Image.memory(
                 filterQuality: FilterQuality.medium,
                 key: ImagePhviewer.imageWidgetKey,
-                imageFile,
+                byteData,
               );
-            } else if (imageData is ImageMemoryData) {
-              final byteData = imageData.bytes;
-              if (byteData != null) {
-                return Image.memory(
-                  filterQuality: FilterQuality.medium,
-                  key: ImagePhviewer.imageWidgetKey,
-                  byteData,
+            }
+          }
+
+          return Image.file(File(""));
+        }
+
+        final currentImageData = model.getCurrentImageData();
+        final imageWidget = getImageWidget(currentImageData);
+        final possiblyOverlayedWidget = ValueListenableBuilder(
+          valueListenable: model.currentAppControlsMode,
+          builder: (
+            BuildContext context,
+            PfsAppControlsMode mode,
+            Widget? child,
+          ) {
+            switch (mode) {
+              case PfsAppControlsMode.annotation:
+                final annotatedImageWidget = AnnotationOverlay(
+                  zoomPanner: zoomPanner,
+                  image: imageWidget,
+                  annotationType: AnnotationType.line,
+                  child: imageWidget,
                 );
-              }
+                return annotatedImageWidget;
+
+              default:
+                return imageWidget;
             }
+          },
+        );
 
-            return Image.file(File(""));
-          }
+        Widget imageFilenameLayer(ImageData imageData) {
+          if (imageData is ImageFileData) {
+            return Align(
+              heightFactor: 2,
+              alignment: Alignment.topCenter,
+              child: GestureDetector(
+                onSecondaryTap: () async {
+                  try {
+                    final urls = await image_data
+                        .tryGetUrls(imageData)
+                        .timeout(Duration(milliseconds: 900));
+                    if (urls == null) throw Exception("URLs was null");
+                    if (urls.isEmpty) throw Exception("URLs was empty");
 
-          final currentImageData = model.getCurrentImageData();
-          final imageWidget = getImageWidget(currentImageData);
-          final possiblyOverlayedWidget = ValueListenableBuilder(
-            valueListenable: model.currentAppControlsMode,
-            builder: (
-              BuildContext context,
-              PfsAppControlsMode mode,
-              Widget? child,
-            ) {
-              switch (mode) {
-                case PfsAppControlsMode.annotation:
-                  final annotatedImageWidget = AnnotationOverlay(
-                    zoomPanner: zoomPanner,
-                    image: imageWidget,
-                    annotationType: AnnotationType.line,
-                    child: imageWidget,
-                  );
-                  return annotatedImageWidget;
+                    Iterable<MenuItem> getMenuItems() sync* {
+                      yield MenuItem(
+                          label:
+                              "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
+                          disabled: true);
 
-                default:
-                  return imageWidget;
-              }
-            },
-          );
-
-          Widget imageFilenameLayer(ImageData imageData) {
-            if (imageData is ImageFileData) {
-              return Align(
-                heightFactor: 2,
-                alignment: Alignment.topCenter,
-                child: GestureDetector(
-                  onSecondaryTap: () async {
-                    try {
-                      final urls = await image_data
-                          .tryGetUrls(imageData)
-                          .timeout(Duration(milliseconds: 900));
-                      if (urls == null) throw Exception("URLs was null");
-                      if (urls.isEmpty) throw Exception("URLs was empty");
-
-                      Iterable<MenuItem> getMenuItems() sync* {
+                      const linkLimitCount = 8;
+                      const lastIndex = linkLimitCount - 1;
+                      for (final (i, url) in urls.indexed) {
+                        if (i > lastIndex) break;
                         yield MenuItem(
-                            label:
-                                "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
-                            disabled: true);
-
-                        const linkLimitCount = 8;
-                        const lastIndex = linkLimitCount - 1;
-                        for (final (i, url) in urls.indexed) {
-                          if (i > lastIndex) break;
-                          yield MenuItem(
-                            label: url.shortenWithEllipsis(50),
-                            onClick: (menuItem) =>
-                                open_in_browser.openInBrowser(Uri.parse(url)),
-                          );
-                        }
+                          label: url.shortenWithEllipsis(50),
+                          onClick: (menuItem) =>
+                              open_in_browser.openInBrowser(Uri.parse(url)),
+                        );
                       }
-
-                      final contextMenu = Menu(items: getMenuItems().toList());
-
-                      popUpContextualMenu(contextMenu);
-                    } catch (e) {
-                      popUpContextualMenu(
-                        Menu(
-                          items: [
-                            MenuItem(
-                              label: "Reveal in explorer",
-                              onClick: (menuItem) =>
-                                  revealInExplorerHandler(imageData),
-                            ),
-                          ],
-                        ),
-                      );
                     }
-                  },
-                  child: ImageClickableLabel(
-                    label: imageData.fileName,
-                    tooltip:
-                        "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
-                    onTap: () => revealInExplorerHandler(imageData),
-                  ),
-                ),
-              );
-            }
 
-            return SizedBox.shrink();
+                    final contextMenu = Menu(items: getMenuItems().toList());
+
+                    popUpContextualMenu(contextMenu);
+                  } catch (e) {
+                    popUpContextualMenu(
+                      Menu(
+                        items: [
+                          MenuItem(
+                            label: "Reveal in explorer",
+                            onClick: (menuItem) =>
+                                revealInExplorerHandler(imageData),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+                child: ImageClickableLabel(
+                  label: imageData.fileName,
+                  tooltip:
+                      "${PfsLocalization.revealInExplorer} : ${imageData.parentFolderName}",
+                  onTap: () => revealInExplorerHandler(imageData),
+                ),
+              ),
+            );
           }
 
-          final isNextImageTransition = model.lastIncrement > 0;
-          final currentImageIndexString = model.currentImageIndex.toString();
-          final slideKeyString = model.isCountingDown
-              ? 'countingDownImage'
-              : 'i$currentImageIndexString';
+          return SizedBox.shrink();
+        }
 
-          return Stack(
-            children: [
-              Animate(
-                key: Key(slideKeyString),
-                effects: isNextImageTransition
-                    ? Phanimations.imageNext
-                    : Phanimations.imagePrevious,
-                child: SizedBox.expand(
-                  child: ValueListenableBuilder(
-                    valueListenable: zoomPanner.flipHorizontalListenable,
-                    builder: (_, __, ___) {
-                      return Transform.flip(
-                        flipX: zoomPanner.flipHorizontalListenable.value,
-                        flipY: false,
-                        child: ValueListenableBuilder(
-                            valueListenable: panDurationListenable,
-                            builder: (_, panDuration, ___) {
-                              return ListeningAnimatedTranslate(
-                                offsetListenable: zoomPanner.offsetListenable,
-                                duration: panDuration,
-                                child: ValueListenableBuilder(
-                                  valueListenable:
-                                      zoomPanner.zoomLevelListenable,
-                                  builder: (_, __, ___) {
-                                    return AnimatedScale(
-                                      duration:
-                                          Phanimations.zoomTransitionDuration,
-                                      curve: Phanimations.zoomTransitionCurve,
-                                      scale: zoomPanner.currentZoomScale,
-                                      child: possiblyOverlayedWidget,
-                                    );
-                                  },
-                                ),
-                              );
-                            }),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              ValueListenableBuilder(
-                valueListenable: model.currentAppControlsMode,
-                builder: (_, appControlsModeValue, __) {
-                  if (appControlsModeValue != PfsAppControlsMode.annotation) {
-                    return SizedBox.shrink();
-                  }
+        final isNextImageTransition = model.lastIncrement > 0;
+        final currentImageIndexString = model.currentImageIndex.toString();
+        final slideKeyString = model.isCountingDown
+            ? 'countingDownImage'
+            : 'i$currentImageIndexString';
 
-                  final translucent = HitTestBehavior.translucent;
-
-                  return GestureDetector(
-                    behavior: translucent,
-                    onSecondaryTap: () {
-                      final restoredMode =
-                          AnnotationsModel.of(context).tryRestoreBaselineMode();
-                      if (restoredMode) return;
-
-                      EscapeNavigator.of(context)?.tryEscape();
-                    },
-                    child: ImagePhviewerZoomOnScrollListener(
-                      behavior: translucent,
-                      zoomPanner: zoomPanner,
-                      child: SizedBox.expand(),
-                    ),
+        return Stack(
+          children: [
+            SizedBox.expand(
+              child: ValueListenableBuilder(
+                valueListenable: zoomPanner.flipHorizontalListenable,
+                builder: (_, __, ___) {
+                  return Transform.flip(
+                    flipX: zoomPanner.flipHorizontalListenable.value,
+                    flipY: false,
+                    child: ValueListenableBuilder(
+                        valueListenable: panDurationListenable,
+                        builder: (_, panDuration, ___) {
+                          return ListeningAnimatedTranslate(
+                            offsetListenable: zoomPanner.offsetListenable,
+                            duration: panDuration,
+                            child: ValueListenableBuilder(
+                              valueListenable: zoomPanner.zoomLevelListenable,
+                              builder: (_, __, ___) {
+                                return AnimatedScale(
+                                  duration: Phanimations.zoomTransitionDuration,
+                                  curve: Phanimations.zoomTransitionCurve,
+                                  scale: zoomPanner.currentZoomScale,
+                                  child: possiblyOverlayedWidget,
+                                );
+                              },
+                            ),
+                          );
+                        }),
                   );
                 },
               ),
-              ValueListenableBuilder(
-                valueListenable: filters.blurLevelListenable,
-                builder: (_, blurValue, __) {
-                  if (blurValue <= 0) return const SizedBox.expand();
-                  final sigma = pow(1.3, blurValue).toDouble();
-                  return BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                    child: const SizedBox.expand(),
-                  );
-                },
-              ),
-              ValueListenableBuilder(
-                valueListenable: filters.usingGrayscaleListenable,
-                builder: (_, value, ___) =>
-                    value ? grayscaleBackdropFilter : const SizedBox.expand(),
-              ),
-              imageFilenameLayer(currentImageData),
-            ],
-          );
-        });
+            ).animate(
+              key: Key(slideKeyString),
+              effects: isNextImageTransition
+                  ? Phanimations.imageNext
+                  : Phanimations.imagePrevious,
+            ),
+            annotationEscapeGesturesLayer(model, context),
+            filters.blurFilterLayer(),
+            filters.grayscaleFilterLayer(),
+            imageFilenameLayer(currentImageData),
+          ],
+        );
+      },
+    );
 
     return ValueListenableBuilder(
       valueListenable: isBottomBarMinimized,
@@ -675,31 +682,37 @@ class ImageViewerStackWidget extends StatelessWidget {
     );
   }
 
-  static const Widget grayscaleBackdropFilter = BackdropFilter(
-    filter: ColorFilter.matrix(<double>[
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0
-    ]),
-    child: SizedBox.expand(),
-  );
+  Widget annotationEscapeGesturesLayer(
+    PfsAppModel model,
+    BuildContext context,
+  ) {
+    return ValueListenableBuilder(
+      valueListenable: model.currentAppControlsMode,
+      builder: (_, appControlsModeValue, __) {
+        if (appControlsModeValue != PfsAppControlsMode.annotation) {
+          return SizedBox.shrink();
+        }
+
+        const translucent = HitTestBehavior.translucent;
+
+        return GestureDetector(
+          behavior: translucent,
+          onSecondaryTap: () {
+            final restoredMode =
+                AnnotationsModel.of(context).tryRestoreBaselineMode();
+            if (restoredMode) return;
+
+            EscapeNavigator.of(context)?.tryEscape();
+          },
+          child: ImagePhviewerZoomOnScrollListener(
+            behavior: translucent,
+            zoomPanner: zoomPanner,
+            child: SizedBox.expand(),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class ImagePhviewerPanListener extends StatelessWidget {
