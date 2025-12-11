@@ -255,19 +255,32 @@ Future<Menu> _getOpenImagesMenu(
         onClick: (_) => pasteHandler(),
       ),
     if (pasteHandler != null) MenuItem.separator(),
-    MenuItem(
-      label: "Open images...",
-      onClick: (_) {
-        model.openFilePickerForImages();
-      },
+    MenuItem.submenu(
+      label: "Open special",
+      submenu: Menu(
+        items: [
+          MenuItem(
+            label: "Open shortcuts folder...",
+            onClick: (_) {
+              model.openFilePickerForShortcutsFolder();
+            },
+          ),
+          MenuItem(
+            label: "Open images...",
+            onClick: (_) {
+              model.openFilePickerForImages();
+            },
+          ),
+          MenuItem(
+            label: "Open folder without subfolders...",
+            onClick: (_) {
+              model.openFilePickerForFolder();
+            },
+          ),
+        ],
+      ),
     ),
     MenuItem.separator(),
-    MenuItem(
-      label: "Open image folder...",
-      onClick: (_) {
-        model.openFilePickerForFolder();
-      },
-    ),
     MenuItem(
       label: "Open random folder in folder...",
       onClick: (_) {
@@ -275,7 +288,7 @@ Future<Menu> _getOpenImagesMenu(
       },
     ),
     MenuItem(
-      label: "Open folder and subfolders...",
+      label: "Open image folder...",
       onClick: (_) {
         model.openFilePickerForFolder(includeSubfolders: true);
       },

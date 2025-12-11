@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart'
+    as windows_shortcuts;
+
 // Matches flutter/foundation.dart
 typedef ValueChanged<T> = void Function(T value);
 
@@ -16,9 +20,11 @@ Future<List<String>> getExpandedList(
   List<String?> filePaths, {
   ValueChanged<int>? onFileAdded,
   bool recursive = false,
+  bool resolveShortcuts = false,
 }) async {
   final expandedFilePaths = List<String>.empty(growable: true);
   Timer? timer;
+  final foldersAdded = <String>{};
 
   try {
     if (onFileAdded != null) {
@@ -32,20 +38,46 @@ Future<List<String>> getExpandedList(
 
     onFileAdded?.call(0);
 
+    Future<void> tryAddIfDirectory(String path) async {
+      if (foldersAdded.contains(path)) return;
+
+      final d = Directory(path);
+
+      if (await d.exists()) {
+        foldersAdded.add(path);
+        final directoryFileList = d.list(recursive: recursive);
+        await for (final f in directoryFileList) {
+          expandedFilePaths.add(f.path);
+        }
+      }
+    }
+
     for (final filePath in filePaths) {
       if (filePath == null) continue;
 
-      final file = File(filePath);
-      if (await file.exists()) {
-        expandedFilePaths.add(filePath);
-      } else {
-        final d = Directory(filePath);
-        if (await d.exists()) {
-          final directoryFileList = d.list(recursive: recursive);
-          await for (final f in directoryFileList) {
-            expandedFilePaths.add(f.path);
+      if (await File(filePath).exists()) {
+        bool wasLink = false;
+        if (resolveShortcuts) {
+          if (p.extension(filePath) == ".lnk") {
+            wasLink = true;
+            final resolvedShortcutPath =
+                windows_shortcuts.resolveShortcut(filePath);
+
+            if (resolvedShortcutPath != null) {
+              if (await File(resolvedShortcutPath).exists()) {
+                expandedFilePaths.add(filePath);
+              } else if (await Directory(resolvedShortcutPath).exists()) {
+                await tryAddIfDirectory(resolvedShortcutPath);
+              }
+            }
           }
         }
+
+        if (!wasLink) {
+          expandedFilePaths.add(filePath);
+        }
+      } else {
+        await tryAddIfDirectory(filePath);
       }
     }
 

@@ -38,7 +38,7 @@ dependencies:
   window_manager: ^0.5.1
   audioplayers: ^6.2.0
   desktop_drop: ^0.7.0
-  path: ^1.8.3
+  path: ^1.9.1
   url_launcher: ^6.1.14
   flutter_animate: ^4.2.0+1
   contextual_menu: ^0.1.2
@@ -52,6 +52,7 @@ dependencies:
   vector_math: ^2.2.0
   undo: ^1.5.0
   win32: ^5.15.0
+  ffi: ^2.1.4
 
 dev_dependencies:
   flutter_test:

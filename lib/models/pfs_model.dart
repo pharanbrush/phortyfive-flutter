@@ -348,46 +348,65 @@ mixin PfsImageListManager {
     loadImageFiles(pathList);
   }
 
-  void openFilePickerForFolder({bool includeSubfolders = false}) async {
-    if (!allowImageSetChange) return;
-    if (isPickerOpen) return;
-
-    _setStateFilePickerOpen(true);
-    final folder = await file_selector.getDirectoryPath();
-    _setStateFilePickerOpen(false);
-
-    if (folder == null || folder.isEmpty) return;
-
-    loadFolder(folder, recursive: includeSubfolders);
+  Future<void> openFilePickerForShortcutsFolder() {
+    return _openFolderPickerAndProcess(
+      processFolder: (folderPath) => loadFolder(
+        folderPath,
+        recursive: false,
+        addToRecentFolders: false,
+        resolveShortcuts: true,
+      ),
+    );
   }
 
-  void openFilePickerForRandomFolderInFolder({
+  Future<void> openFilePickerForFolder({bool includeSubfolders = false}) {
+    return _openFolderPickerAndProcess(
+      processFolder: (folderPath) => loadFolder(
+        folderPath,
+        recursive: includeSubfolders,
+      ),
+    );
+  }
+
+  Future<void> openFilePickerForRandomFolderInFolder({
     bool includeSubfolders = false,
+  }) {
+    return _openFolderPickerAndProcess(
+      processFolder: (parentFolderPath) async {
+        if (parentFolderPath.isEmpty) return;
+
+        final folderPath = await getRandomFolderFrom(parentFolderPath);
+
+        if (folderPath == null || folderPath.isEmpty) return;
+
+        await loadFolder(
+          folderPath,
+          recursive: includeSubfolders,
+          addToRecentFolders: false,
+        );
+      },
+    );
+  }
+
+  Future<void> _openFolderPickerAndProcess({
+    required Future<void> Function(String folderPath) processFolder,
   }) async {
     if (!allowImageSetChange) return;
     if (isPickerOpen) return;
 
     _setStateFilePickerOpen(true);
-    final parentFolderPath = await file_selector.getDirectoryPath();
+    final folderPath = await file_selector.getDirectoryPath();
     _setStateFilePickerOpen(false);
+    if (folderPath == null) return;
 
-    if (parentFolderPath == null || parentFolderPath.isEmpty) return;
-
-    final folderPath = await getRandomFolderFrom(parentFolderPath);
-
-    if (folderPath == null || folderPath.isEmpty) return;
-
-    loadFolder(
-      folderPath,
-      recursive: includeSubfolders,
-      addToRecentFolders: false,
-    );
+    await processFolder.call(folderPath);
   }
 
-  void loadFolder(
+  Future<void> loadFolder(
     String folderPath, {
     bool recursive = false,
     bool addToRecentFolders = true,
+    bool resolveShortcuts = false,
   }) async {
     if (!allowImageSetChange) return;
     if (folderPath.isEmpty) return;
@@ -402,7 +421,7 @@ mixin PfsImageListManager {
           filePaths.add(entry.path);
         }
       }
-      await loadImageFiles(filePaths);
+      await loadImageFiles(filePaths, resolveShortcuts: resolveShortcuts);
       lastFolder = directory.path.split(Platform.pathSeparator).last;
     } catch (e) {
       isPickerOpen = false;
@@ -420,32 +439,38 @@ mixin PfsImageListManager {
   Future loadImageFiles(
     List<String?> filePaths, {
     bool recursive = false,
+    bool resolveShortcuts = false,
   }) async {
     if (filePaths.isEmpty) return;
 
     _startLoadingImages();
 
-    final expandedFilePaths = await getExpandedList(
-      filePaths,
-      onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
-      recursive: recursive,
-    );
+    try {
+      final expandedFilePaths = await getExpandedList(
+        filePaths,
+        onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
+        recursive: recursive,
+        resolveShortcuts: resolveShortcuts,
+      );
 
-    await imageList.loadFiles(expandedFilePaths);
+      await imageList.loadFiles(expandedFilePaths);
 
-    final lastFile = imageList.last;
-    if (lastFile is ImageFileData) {
-      final potentialFolderPath = lastFile.fileFolder;
-      if (potentialFolderPath.trim().isNotEmpty) {
-        lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
+      final lastFile = imageList.last;
+      if (lastFile is ImageFileData) {
+        final potentialFolderPath = lastFile.fileFolder;
+        if (potentialFolderPath.trim().isNotEmpty) {
+          lastFolder = potentialFolderPath.split(Platform.pathSeparator).last;
+        } else {
+          lastFolder = "[mixed]";
+        }
       } else {
-        lastFolder = "[mixed]";
+        lastFolder = "";
       }
-    } else {
-      lastFolder = "";
-    }
 
-    _endLoadingImages(expandedFilePaths.length);
+      _endLoadingImages(expandedFilePaths.length);
+    } catch (e) {
+      _endLoadingImages(0);
+    }
   }
 
   Future loadImage(ImageData? image) async {
