@@ -391,15 +391,19 @@ mixin PfsImageListManager {
   Future<void> _openFolderPickerAndProcess({
     required Future<void> Function(String folderPath) processFolder,
   }) async {
-    if (!allowImageSetChange) return;
-    if (isPickerOpen) return;
+    try {
+      if (!allowImageSetChange) return;
+      if (isPickerOpen) return;
 
-    _setStateFilePickerOpen(true);
-    final folderPath = await file_selector.getDirectoryPath();
-    _setStateFilePickerOpen(false);
-    if (folderPath == null) return;
+      _setStateFilePickerOpen(true);
+      final folderPath = await file_selector.getDirectoryPath();
+      _setStateFilePickerOpen(false);
+      if (folderPath == null) return;
 
-    await processFolder.call(folderPath);
+      await processFolder.call(folderPath);
+    } finally {
+      _setStateFilePickerOpen(false);
+    }
   }
 
   Future<void> loadFolder(
@@ -423,16 +427,16 @@ mixin PfsImageListManager {
       }
       await loadImageFiles(filePaths, resolveShortcuts: resolveShortcuts);
       lastFolder = directory.path.split(Platform.pathSeparator).last;
+
+      if (addToRecentFolders) {
+        await pfs_preferences.pushRecentFolder(
+          folderPath: folderPath,
+          includeSubfolders: recursive,
+        );
+      }
     } catch (e) {
       isPickerOpen = false;
       onFilePickerStateChange?.call();
-    }
-
-    if (addToRecentFolders) {
-      await pfs_preferences.pushRecentFolder(
-        folderPath: folderPath,
-        includeSubfolders: recursive,
-      );
     }
   }
 
@@ -469,7 +473,7 @@ mixin PfsImageListManager {
 
       _endLoadingImages(expandedFilePaths.length);
     } catch (e) {
-      _endLoadingImages(0);
+      _cancelLoadingImages();
     }
   }
 
@@ -489,6 +493,10 @@ mixin PfsImageListManager {
 
   void _startLoadingImages() {
     isLoadingImages.value = true;
+  }
+
+  void _cancelLoadingImages() {
+    isLoadingImages.value = false;
   }
 
   void _endLoadingImages(int sourceCount) {
