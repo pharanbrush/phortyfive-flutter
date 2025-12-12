@@ -35,22 +35,21 @@ class ImageList {
     return items[index];
   }
 
-  Future loadFiles(List<String?> filePaths) async {
+  Future loadFiles(List<String?> filePaths) {
     items.clear();
-    await appendFiles(filePaths);
+    return appendFiles(filePaths);
   }
 
   Future<int> appendFiles(List<String?> filePaths) async {
-    int filesAppendedCount = 0;
+    final imagesToAppend = <ImageData>[];
     for (final filePath in filePaths) {
       if (filePath == null) continue;
       if (!fileIsImage(filePath)) continue;
-
-      items.add(imageDataFromPath(filePath));
-      filesAppendedCount++;
+      imagesToAppend.add(imageDataFromPath(filePath));
     }
 
-    return filesAppendedCount;
+    items.addAll(imagesToAppend);
+    return imagesToAppend.length;
   }
 
   Future loadImages(List<ImageData?> images) async {
@@ -84,7 +83,7 @@ class ImageList {
   static bool fileIsImage(String filePath) {
     if (filePath.isEmpty) return false;
 
-    final fileExtension = getFileExtension(filePath);
+    final fileExtension = p.extension(filePath).replaceFirst(".", "");
     final isImage = ImageList.allowedExtensions.contains(fileExtension);
     return isImage;
   }
@@ -117,12 +116,4 @@ Future<String?> getRandomFolderFrom(String parentFolderPath) async {
   }
 
   return null;
-}
-
-String getFileName(String filePath) {
-  return File(filePath).uri.pathSegments.last;
-}
-
-String getFileExtension(String filePath) {
-  return p.extension(filePath).split('.').last;
 }
