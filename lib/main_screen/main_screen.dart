@@ -316,7 +316,7 @@ class _MainScreenState extends State<MainScreen>
             Overlay.wrap(
               child: EyeDropperLayer(
                 key: eyeDropKey,
-                child: imagePhviewer.widget(windowState.isBottomBarMinimized),
+                child: imagePhviewer.widget(windowState.bottomBarHeight),
               ),
             ),
             _fileDropZone(),
@@ -387,6 +387,9 @@ class _MainScreenState extends State<MainScreen>
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
+    windowState.isBottomBarMinimized
+        .addListener(() => _handleBottomBarMinimizedChanged());
+    _handleBottomBarMinimizedChanged();
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
@@ -775,6 +778,11 @@ class _MainScreenState extends State<MainScreen>
         return imageBrowseBottomBar();
       },
     );
+  }
+
+  void _handleBottomBarMinimizedChanged() {
+    windowState.bottomBarHeight.value =
+        windowState.isBottomBarMinimized.value ? 5 : 46;
   }
 }
 

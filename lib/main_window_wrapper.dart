@@ -12,6 +12,8 @@ class PfsWindowState {
   final isBottomBarMinimized = ValueNotifier(false);
   final isAlwaysOnTop = ValueNotifier(false);
   final isSoundsEnabled = ValueNotifier(true);
+
+  final bottomBarHeight = ValueNotifier<double>(0);
 }
 
 class WindowWrapper extends StatelessWidget {

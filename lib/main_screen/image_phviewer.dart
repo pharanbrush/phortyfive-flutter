@@ -33,12 +33,12 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
     return imageWidgetKey.currentContext?.size ?? Size.zero;
   }
 
-  Widget widget(ValueListenable<bool> isBottomBarMinimized) {
+  Widget widget(ValueListenable<double> bottomBarHeight) {
     return ImageViewerStackWidget(
+      bottomBarHeight: bottomBarHeight,
       zoomPanner: this,
       filters: this,
       panDurationListenable: panDuration,
-      isBottomBarMinimized: isBottomBarMinimized,
       revealInExplorerHandler: image_data.revealImageFileDataInExplorer,
     );
   }
@@ -478,7 +478,7 @@ class ImageRightClick extends StatelessWidget {
 class ImageViewerStackWidget extends StatelessWidget {
   const ImageViewerStackWidget({
     super.key,
-    required this.isBottomBarMinimized,
+    required this.bottomBarHeight,
     required this.revealInExplorerHandler,
     required this.panDurationListenable,
     required this.zoomPanner,
@@ -488,7 +488,7 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ImageZoomPanner zoomPanner;
   final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
-  final ValueListenable<bool> isBottomBarMinimized;
+  final ValueListenable<double> bottomBarHeight;
   final Function(ImageFileData fileData) revealInExplorerHandler;
 
   @override
@@ -660,22 +660,15 @@ class ImageViewerStackWidget extends StatelessWidget {
     );
 
     return ValueListenableBuilder(
-      valueListenable: isBottomBarMinimized,
-      builder: (_, isMinimized, __) {
-        const minimizedPadding = EdgeInsets.only(
-          bottom: 5,
-          top: kWindowTitleBarHeight,
-        );
-        const normalPadding = EdgeInsets.only(
-          bottom: 46,
-          top: kWindowTitleBarHeight,
-        );
-
-        final padding = isMinimized ? minimizedPadding : normalPadding;
+      valueListenable: bottomBarHeight,
+      builder: (_, bottomBarHeightValue, __) {
         return AnimatedPadding(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutExpo,
-          padding: padding,
+          padding: EdgeInsets.only(
+            bottom: bottomBarHeightValue,
+            top: kWindowTitleBarHeight,
+          ),
           child: content,
         );
       },
