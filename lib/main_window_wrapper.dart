@@ -1,4 +1,6 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'dart:io';
+
+import 'package:bitsdojo_window/bitsdojo_window.dart' as bitsdojo;
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
@@ -32,43 +34,50 @@ class WindowWrapper extends StatelessWidget {
       final titleBarColor =
           borderSide == null ? Colors.transparent : borderSide.color;
 
-      return WindowTitleBarBox(
+      final isLeftSidedControls = Platform.isMacOS;
+
+      return bitsdojo.WindowTitleBarBox(
         child: Container(
           decoration: BoxDecoration(color: titleBarColor),
           child: RepaintBoundary(
             child: Row(
               children: [
+                if (isLeftSidedControls) SizedBox(width: 70),
+                if (isLeftSidedControls)
+                  KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
                 Expanded(
                   child: Stack(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 8,
+                      if (!isLeftSidedControls)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 8,
+                          ),
+                          child: Row(
+                            children: [
+                              Image.memory(
+                                PfsTheme.pfsIconBytes,
+                                filterQuality: FilterQuality.medium,
+                                color: const Color(0x7EFFFFFF),
+                                colorBlendMode: BlendMode.modulate,
+                              ),
+                              const SizedBox(width: 5),
+                              const Text(
+                                PfsLocalization.appTitle,
+                                style: TextStyle(
+                                    color: Color(0x7E999999), fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Image.memory(
-                              PfsTheme.pfsIconBytes,
-                              filterQuality: FilterQuality.medium,
-                              color: const Color(0x7EFFFFFF),
-                              colorBlendMode: BlendMode.modulate,
-                            ),
-                            const SizedBox(width: 5),
-                            const Text(
-                              PfsLocalization.appTitle,
-                              style: TextStyle(
-                                  color: Color(0x7E999999), fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                      MoveWindow(),
+                      bitsdojo.MoveWindow(),
                     ],
                   ),
                 ),
-                KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
-                const WindowButtons(),
+                if (!isLeftSidedControls)
+                  KeepWindowOnTopButton(notifier: windowState.isAlwaysOnTop),
+                if (!isLeftSidedControls) const WindowButtons(),
               ],
             ),
           ),
@@ -131,9 +140,9 @@ class WindowButtons extends StatelessWidget {
 
     return Row(
       children: [
-        MinimizeWindowButton(colors: buttonColors),
-        MaximizeWindowButton(colors: buttonColors),
-        CloseWindowButton(colors: closeButtonColors),
+        bitsdojo.MinimizeWindowButton(colors: buttonColors),
+        bitsdojo.MaximizeWindowButton(colors: buttonColors),
+        bitsdojo.CloseWindowButton(colors: closeButtonColors),
       ],
     );
   }
