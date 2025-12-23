@@ -355,6 +355,14 @@ class AnnotationsModel {
 
   final repaintListenable = SimpleNotifier();
 
+  late final strokesChangedListenable = Listenable.merge([
+    repaintListenable,
+    opacity,
+    strokeWidth,
+    undoRedoListenable,
+    color,
+  ]);
+
   // final isNextRulerAddsComparison = ValueNotifier(false);
   // final comparisonAddedPulseListenable = SimpleNotifier();
 

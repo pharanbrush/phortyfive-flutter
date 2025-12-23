@@ -220,7 +220,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                 builder: (_, isStrokesVisibleValue, ___) {
                   return CustomPaint(
                     painter: AnnotationPainter(
-                      repaint: model.repaintListenable,
+                      repaint: model.strokesChangedListenable,
                       strokeWidth: model.strokeWidth.value,
                       strokes: model.strokes,
                       color: model.color.value,
