@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -886,7 +887,7 @@ take color values out of gamma space before doing color calculations.""")
                           ),
                         ),
                         unitTextWidget: percentLabel,
-                        valueSizedBoxWidth: 52,
+                        valueSizedBoxWidth: Platform.isMacOS ? 80 : 52,
                       ),
                     ].animate(
                       effects: [
@@ -910,6 +911,8 @@ take color values out of gamma space before doing color calculations.""")
     final theme = Theme.of(context);
     final valueTextSize = theme.textTheme.bodySmall?.fontSize ?? 12;
 
+    final double width = Platform.isMacOS ? 33 : 35;
+
     return Tooltip(
       message:
           "The color and opacity placed on top of the start color to get the end color.",
@@ -917,7 +920,7 @@ take color values out of gamma space before doing color calculations.""")
         children: [
           Text("${PfsLocalization.normal} ", style: blendModeLabelStyle(theme)),
           SizedBox(
-            width: 35,
+            width: width,
             child: ValueListenableBuilder(
               valueListenable: calculatedColors.alphaBlendColorPercent,
               builder: (_, value, ___) {
@@ -943,7 +946,7 @@ take color values out of gamma space before doing color calculations.""")
   }
 
   Widget _blendModeBoxes() {
-    const double boxSpacing = 13;
+    final double boxSpacing = Platform.isMacOS ? 9 : 13;
 
     return ValueListenableBuilder(
       valueListenable: calculatedColors.startEndColorDifference,
