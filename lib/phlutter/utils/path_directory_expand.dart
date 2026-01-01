@@ -52,6 +52,8 @@ Future<List<String>> getExpandedList(
       }
     }
 
+    if (!Platform.isWindows) resolveShortcuts = false;
+
     for (final filePath in filePaths) {
       if (filePath == null) continue;
 

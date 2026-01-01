@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 import 'dart:ffi';
 
 // Edited version of recommendation from https://github.com/halildurmus/win32/discussions/965
 String? resolveShortcut(String shortcutPath) {
+  if (!Platform.isWindows) return null;
+
   String? path;
   final lpPath = wsalloc(MAX_PATH + 1);
 

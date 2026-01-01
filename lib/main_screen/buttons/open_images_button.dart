@@ -259,12 +259,13 @@ Future<Menu> _getOpenImagesMenu(
       label: "Open special",
       submenu: Menu(
         items: [
-          MenuItem(
-            label: "Open shortcuts folder...",
-            onClick: (_) {
-              model.openFilePickerForShortcutsFolder();
-            },
-          ),
+          if (Platform.isWindows)
+            MenuItem(
+              label: "Open shortcuts folder...",
+              onClick: (_) {
+                model.openFilePickerForShortcutsFolder();
+              },
+            ),
           MenuItem(
             label: "Open images...",
             onClick: (_) {
