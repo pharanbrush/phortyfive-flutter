@@ -435,6 +435,8 @@ mixin PfsImageListManager {
         );
       }
     } catch (e) {
+      debugPrint("[-] loadFolder failed");
+      debugPrint(e.toString());
       isPickerOpen = false;
       onFilePickerStateChange?.call();
     }
