@@ -296,6 +296,12 @@ Future<Menu> _getOpenImagesMenu(
     )
   ];
 
+  if (Platform.isMacOS) {
+    // Disable recent folders feature until native recents can be implemented.
+    // Otherwise, the app runs into folder permissions problems in a typical app sandbox.
+    return Menu(items: baseMenuItems);
+  }
+
   try {
     final recentFolderEntries = await pfs_preferences
         .getRecentFolders()
