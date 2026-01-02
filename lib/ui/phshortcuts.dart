@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -36,13 +38,15 @@ class Phshortcuts {
   static const duplicateRulerAnnotations =
       SingleActivator(LogicalKeyboardKey.keyD);
 
-  static const undo = SingleActivator(LogicalKeyboardKey.keyZ, control: true);
-  static const redo =
-      SingleActivator(LogicalKeyboardKey.keyZ, control: true, shift: true);
-  static const copyFile =
-      SingleActivator(LogicalKeyboardKey.keyC, control: true);
+  static final undo = SingleActivator(LogicalKeyboardKey.keyZ,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
+  static final redo = SingleActivator(LogicalKeyboardKey.keyZ,
+      control: !Platform.isMacOS, meta: Platform.isMacOS, shift: true);
+  static final copyFile = SingleActivator(LogicalKeyboardKey.keyC,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
 
-  static const paste = SingleActivator(LogicalKeyboardKey.keyV, control: true);
+  static final paste = SingleActivator(LogicalKeyboardKey.keyV,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
 
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
@@ -53,18 +57,18 @@ class Phshortcuts {
   static const zoomInArrow = SingleActivator(LogicalKeyboardKey.arrowUp);
   static const zoomOutArrow = SingleActivator(LogicalKeyboardKey.arrowDown);
 
-  static const openFiles =
-      SingleActivator(LogicalKeyboardKey.keyO, control: true);
-  static const openFolder =
-      SingleActivator(LogicalKeyboardKey.keyO, control: true, shift: true);
+  static final openFiles = SingleActivator(LogicalKeyboardKey.keyO,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
+  static final openFolder = SingleActivator(LogicalKeyboardKey.keyO,
+      control: !Platform.isMacOS, meta: Platform.isMacOS, shift: true);
   static const alwaysOnTop =
       SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
   static const revealInExplorer =
       SingleActivator(LogicalKeyboardKey.enter, shift: true);
 
-  static const preferences =
-      SingleActivator(LogicalKeyboardKey.comma, control: true);
+  static final preferences = SingleActivator(LogicalKeyboardKey.comma,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
 
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
   static const toggleBottomBar =
@@ -102,7 +106,7 @@ class Phshortcuts {
     return isSpacePressed;
   }
 
-  static const intentMap = <ShortcutActivator, Intent>{
+  static final intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousImageIntent(),
