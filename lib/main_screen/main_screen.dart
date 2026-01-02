@@ -139,6 +139,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void initState() {
+    _initPlatformBindings();
     _bindModelCallbacks();
     _loadSettings();
     super.initState();
@@ -783,6 +784,85 @@ class _MainScreenState extends State<MainScreen>
   void _handleBottomBarMinimizedChanged() {
     windowState.bottomBarHeight.value =
         windowState.isBottomBarMinimized.value ? 5 : 46;
+  }
+
+  void _initPlatformBindings() {
+    if (!Platform.isMacOS) return;
+    final topLevelMenus = <PlatformMenuItem>[
+      PlatformMenu(
+        label: "PhortyFive Menu",
+        menus: [
+          PlatformMenuItemGroup(
+            members: [
+              PlatformMenuItem(
+                label: "About...",
+                onSelected: () => aboutMenu.open(),
+              ),
+              //PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.about),
+            ],
+          ),
+          PlatformMenuItemGroup(
+            members: [
+              PlatformMenuItem(
+                label: "Settings...",
+                onSelected: () => settingsMenu.open(),
+                shortcut: SingleActivator(LogicalKeyboardKey.comma, meta: true),
+              ),
+            ],
+          ),
+          PlatformMenuItemGroup(
+            members: [
+              PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hide),
+              PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.hideOtherApplications),
+              PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.showAllApplications),
+            ],
+          ),
+          PlatformMenuItemGroup(
+            members: [
+              PlatformProvidedMenuItem(
+                type: PlatformProvidedMenuItemType.quit,
+              ),
+            ],
+          ),
+        ],
+      ),
+      PlatformMenu(
+        label: "Window",
+        menus: [
+          PlatformMenuItemGroup(
+            members: [
+              PlatformProvidedMenuItem(
+                type: PlatformProvidedMenuItemType.toggleFullScreen,
+              ),
+            ],
+          ),
+          // PlatformMenuItemGroup(
+          //   members: [
+          //     //PlatformMenuItem(label: "Toggle sounds"),
+          //     PlatformMenuItem(label: "Keep window on top"),
+          //   ],
+          // ),
+        ],
+      ),
+      PlatformMenu(
+        label: "Help",
+        menus: [
+          PlatformMenuItemGroup(
+            members: [
+              PlatformMenuItem(
+                label: "Keyboard tips",
+                onSelected: () => helpMenu.open(),
+                shortcut: SingleActivator(LogicalKeyboardKey.f1),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ];
+
+    WidgetsBinding.instance.platformMenuDelegate.setMenus(topLevelMenus);
   }
 }
 
