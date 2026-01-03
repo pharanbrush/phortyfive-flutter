@@ -12,7 +12,8 @@ class ImageList {
     "png",
     "jpeg",
     "jfif",
-    "gif"
+    "gif",
+    "avif",
   ];
 
   final items = <ImageData>[];
