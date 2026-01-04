@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
+import 'package:pfs2/main_screen/macos/macos_window_events.dart' as macos_window;
 import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -16,6 +19,10 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  if (Platform.isMacOS) {
+    await macos_window.bindWindowDelegate();
+  }
 
   final initialTheme = await pfs_preferences.getTheme();
 

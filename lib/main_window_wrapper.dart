@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart' as bitsdojo;
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:pfs2/main_screen/macos/macos_window_events.dart' as macos_window;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
@@ -38,7 +39,7 @@ class WindowWrapper extends StatelessWidget {
 
       final isLeftSidedControls = Platform.isMacOS;
 
-      return bitsdojo.WindowTitleBarBox(
+      final titlebarWidget = bitsdojo.WindowTitleBarBox(
         child: Container(
           decoration: BoxDecoration(color: titleBarColor),
           child: RepaintBoundary(
@@ -85,6 +86,19 @@ class WindowWrapper extends StatelessWidget {
           ),
         ),
       );
+
+      if (Platform.isMacOS) {
+        return ValueListenableBuilder(
+          valueListenable: macos_window.isWindowFullscreen,
+          child: titlebarWidget,
+          builder: (context, isFullScreen, child) {
+            if (isFullScreen) return SizedBox.shrink();
+            return child!;
+          },
+        );
+      }
+
+      return titlebarWidget;
     }
 
     Widget windowBorderWrapper(BuildContext context, {required Widget child}) {
