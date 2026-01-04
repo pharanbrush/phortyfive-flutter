@@ -1,5 +1,5 @@
 name: pfs2
-description: A new Flutter project.
+description: Phorty-Five Seconds
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -123,7 +123,7 @@ flutter:
 msix_config:
   display_name: PhortyFive Seconds  
   publisher_display_name: PharanBrush
-  identity_name: pharanbrush.tools.phortyfive
+  identity_name: com.pharanbrush.tools.phortyfive
   msix_version: 0.3.10.4
   logo_path: C:\Projects\pfs-assets\PhortyFiveIconv2.png
   publisher: CN=PharanBrush, O=PharanBrush
