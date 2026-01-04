@@ -135,7 +135,13 @@ class _MainScreenState extends State<MainScreen>
 
   final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
   late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
-      [(PasteIntent, (_) => tryPaste())];
+      [
+    (EscapeIntent, (_) => _tryEscape()),
+    (HelpIntent, (_) => helpMenu.open()),
+    (OpenPreferencesIntent, (_) => settingsMenu.open()),
+    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
+    (PasteIntent, (_) => tryPaste()),
+  ];
 
   @override
   void initState() {
