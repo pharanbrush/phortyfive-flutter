@@ -312,7 +312,9 @@ mixin PfsImageListManager {
 
   bool get allowImageSetChange;
 
-  void Function(int loadedCount, int skippedCount)? onImagesLoadedSuccess;
+  void Function({required int loadedCount, required int skippedCount})?
+      onImagesLoadedSuccess;
+  void Function({required String message})? onImageLoadedError;
   void Function()? onFilePickerStateChange;
   void Function()? onImageChange;
   void Function()? onImagesChanged;
@@ -459,7 +461,11 @@ mixin PfsImageListManager {
         resolveShortcuts: resolveShortcuts,
       );
 
-      await imageList.loadFiles(expandedFilePaths);
+      final loadResult = await imageList.loadFiles(expandedFilePaths);
+      if (loadResult == ImageLoadResult.empty) {
+        _cancelLoadingImages("No images loaded.");
+        return;
+      }
 
       final lastFile = imageList.last;
       if (lastFile is ImageFileData) {
@@ -473,9 +479,9 @@ mixin PfsImageListManager {
         lastFolder = "";
       }
 
-      _endLoadingImages(expandedFilePaths.length);
+      _endLoadingImages(sourceCount: expandedFilePaths.length);
     } catch (e) {
-      _cancelLoadingImages();
+      _cancelLoadingImages(e.toString());
     }
   }
 
@@ -483,29 +489,37 @@ mixin PfsImageListManager {
     if (image == null) return;
     _startLoadingImages();
     await imageList.loadImage(image);
-    _endLoadingImages(1);
+    _endLoadingImages(sourceCount: 1);
   }
 
   Future loadImages(List<ImageData?> images) async {
     if (images.isEmpty) return;
     _startLoadingImages();
-    await imageList.loadImages(images);
-    _endLoadingImages(images.length);
+    final loadResult = await imageList.loadImages(images);
+    if (loadResult == ImageLoadResult.empty) {
+      _cancelLoadingImages("No images loaded.");
+      return;
+    }
+    _endLoadingImages(sourceCount: images.length);
   }
 
   void _startLoadingImages() {
     isLoadingImages.value = true;
   }
 
-  void _cancelLoadingImages() {
+  void _cancelLoadingImages(String message) {
     isLoadingImages.value = false;
+    onImageLoadedError?.call(message: message);
   }
 
-  void _endLoadingImages(int sourceCount) {
+  void _endLoadingImages({required int sourceCount}) {
     final loadedCount = imageList.count;
     onImagesChanged?.call();
 
-    onImagesLoadedSuccess?.call(loadedCount, loadedCount - sourceCount);
+    onImagesLoadedSuccess?.call(
+      loadedCount: loadedCount,
+      skippedCount: loadedCount - sourceCount,
+    );
     isLoadingImages.value = false;
     imageListChangedNotifier.notify();
 

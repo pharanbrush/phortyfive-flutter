@@ -5,6 +5,11 @@ import 'package:path/path.dart' as p;
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart';
 
+enum ImageLoadResult {
+  success,
+  empty,
+}
+
 class ImageList {
   static const List<String> allowedExtensions = [
     "jpg",
@@ -36,26 +41,46 @@ class ImageList {
     return items[index];
   }
 
-  Future loadFiles(List<String?> filePaths) {
-    items.clear();
-    return appendFiles(filePaths);
-  }
-
-  Future<int> appendFiles(List<String?> filePaths) async {
-    final imagesToAppend = <ImageData>[];
-    for (final filePath in filePaths) {
-      if (filePath == null) continue;
-      if (!fileIsImage(filePath)) continue;
-      imagesToAppend.add(imageDataFromPath(filePath));
+  Future<ImageLoadResult> loadFiles(List<String?> filePaths) async {
+    final newItems = <ImageData>[];
+    await appendFiles(filePaths, imageDataList: newItems);
+    if (newItems.isEmpty) {
+      return ImageLoadResult.empty;
     }
 
-    items.addAll(imagesToAppend);
-    return imagesToAppend.length;
+    items.clear();
+    items.addAll(newItems);
+    return ImageLoadResult.success;
   }
 
-  Future loadImages(List<ImageData?> images) async {
+  Future<int> appendFiles(
+    List<String?> filePaths, {
+    required List<ImageData> imageDataList,
+  }) async {
+    int imagesAppendedCount = 0;
+    for (final filePath in filePaths) {
+      if (filePath == null) continue;
+      if (!fileIsImage(filePath)) {
+        //debugPrint("$filePath skipped");
+        continue;
+      }
+      imagesAppendedCount++;
+      imageDataList.add(imageDataFromPath(filePath));
+    }
+
+    return imagesAppendedCount;
+  }
+
+  Future<ImageLoadResult> loadImages(List<ImageData?> images) async {
+    final newItems = <ImageData>[];
+    await appendImages(images, imageDataList: newItems);
+    if (newItems.isEmpty) {
+      return ImageLoadResult.empty;
+    }
+
     items.clear();
-    appendImages(images);
+    items.addAll(newItems);
+    return ImageLoadResult.success;
   }
 
   Future loadImage(ImageData? image) async {
@@ -65,15 +90,18 @@ class ImageList {
     items.add(image);
   }
 
-  Future<int> appendImages(List<ImageData?> images) async {
+  Future<int> appendImages(
+    List<ImageData?> images, {
+    required List<ImageData> imageDataList,
+  }) async {
     int imagesAppendedCount = 0;
     for (final image in images) {
       if (image is ImageFileData) {
         if (image.filePath.isEmpty) continue;
-        items.add(image);
+        imageDataList.add(image);
         imagesAppendedCount++;
       } else if (image is ImageMemoryData) {
-        items.add(image);
+        imageDataList.add(image);
         imagesAppendedCount++;
       }
     }

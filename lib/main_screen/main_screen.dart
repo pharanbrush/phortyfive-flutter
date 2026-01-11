@@ -380,6 +380,7 @@ class _MainScreenState extends State<MainScreen>
     final model = widget.model;
     model.onImagesChanged ??= () => _handleStateChange();
     model.onImagesLoadedSuccess ??= _handleFilesLoadedSuccess;
+    model.onImageLoadedError ??= _handleFilesLoadedError;
     model.onImageChange ??= _handleOnImageChange;
     model.onCountdownUpdate ??= () => playClickSound();
     model.onImageDurationElapse ??= () => playClickSound();
@@ -423,37 +424,37 @@ class _MainScreenState extends State<MainScreen>
     timerDurationMenu.open();
   }
 
-  void _handleFilesLoadedSuccess(int filesLoaded, int filesSkipped) {
-    final imageNoun = PfsLocalization.imageNoun(filesLoaded);
+  void _handleFilesLoadedSuccess({
+    required int loadedCount,
+    required int skippedCount,
+  }) {
+    final imageNoun = PfsLocalization.imageNoun(loadedCount);
 
-    if (filesSkipped == 0) {
-      if (filesLoaded == 1) {
-        Phtoasts.showWidget(
-          context,
-          child: Text("${imageNoun.capitalizeFirst()} loaded"),
-        );
-      } else {
-        Phtoasts.showWidget(
-          context,
-          child: PfsLocalization.textWithMultiBold(
-            text1: "",
-            boldText1: "$filesLoaded $imageNoun",
-            text2: " loaded and shuffled",
-          ),
-        );
-      }
+    if (loadedCount == 1) {
+      Phtoasts.showWidget(
+        context,
+        child: Text("${imageNoun.capitalizeFirst()} loaded"),
+      );
     } else {
-      final fileSkippedNoun = PfsLocalization.fileNoun(filesSkipped);
-
       Phtoasts.showWidget(
         context,
         child: PfsLocalization.textWithMultiBold(
-            text1: "",
-            boldText1: "$filesLoaded $imageNoun",
-            text2: " loaded  and shuffled",
-            boldText2: '($filesSkipped incompatible $fileSkippedNoun skipped)'),
+          text1: "",
+          boldText1: "$loadedCount $imageNoun",
+          text2: " loaded and shuffled",
+        ),
       );
     }
+
+    setState(() {});
+  }
+
+  void _handleFilesLoadedError({required String message}) {
+    Phtoasts.show(
+      context,
+      icon: Icons.error,
+      message: message,
+    );
   }
 
   void _handleTimerChangeSuccess() {
