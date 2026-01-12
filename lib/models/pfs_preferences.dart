@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const themeKey = "theme";
-const timerDurationKey = "timer_duration";
-const soundKey = "sounds";
+const _themeKey = "theme";
+const _timerDurationKey = "timer_duration";
+const _soundKey = "sounds";
+const _rememberWindowKey = "window_size_and_position";
 const recentFoldersKey = "recent_folders";
 
 const int defaultTimerDuration = 45;
@@ -14,6 +14,24 @@ const maxRecentFoldersCount = 8;
 const String includeSubfoldersSuffix = " ?s";
 
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+final rememberWindowPositionPreference = BoolPreference(_rememberWindowKey);
+final soundPreference = BoolPreference(_soundKey);
+final themePreference = StringPreference(_themeKey);
+final timerDurationPreference = IntPreference(
+  _timerDurationKey,
+  sanitize: (duration) {
+    bool isValidDuration(int? duration) {
+      return (duration != null && duration > 0 && duration < 9999);
+    }
+
+    if (!isValidDuration(duration)) {
+      return defaultTimerDuration;
+    }
+
+    return duration;
+  },
+);
 
 // RECENT FOLDERS
 Future<List<String>?> _getRecentFolderEntryList() async {
@@ -114,67 +132,6 @@ String encodeRecentFolderEntry(String folderPath, bool includeSubfolders) {
   }
 }
 
-// DURATION
-bool isValidDuration(int? duration) {
-  return (duration != null && duration > 0 && duration < 9999);
-}
-
-Future<int> getTimerDuration() async {
-  final int loadedDuration = await _getInt(
-    key: timerDurationKey,
-    defaultValue: defaultTimerDuration,
-  );
-  final int cleanDuration = sanitizeDuration(loadedDuration);
-
-  return cleanDuration;
-}
-
-int sanitizeDuration(int? duration) {
-  if (duration == null || !isValidDuration(duration)) {
-    return defaultTimerDuration;
-  }
-
-  return duration;
-}
-
-Future<void> setDuration(int durationToSave) async {
-  if (!isValidDuration(durationToSave)) return;
-  _setInt(
-    value: durationToSave,
-    key: timerDurationKey,
-  );
-}
-
-// THEME
-Future<String> getTheme() async {
-  return await getString(
-    key: themeKey,
-    defaultValue: PfsTheme.defaultTheme,
-  );
-}
-
-Future<void> setTheme(String themeToSave) async {
-  await setString(
-    value: themeToSave,
-    key: themeKey,
-  );
-}
-
-// SOUNDS
-Future<bool> getSoundsEnabled() async {
-  return await _getBool(
-    key: soundKey,
-    defaultValue: true,
-  );
-}
-
-Future<void> setSoundsEnabled(bool soundsEnabled) async {
-  _setBool(
-    value: soundsEnabled,
-    key: soundKey,
-  );
-}
-
 // GENERAL
 Future<String> getString({
   required String key,
@@ -220,24 +177,77 @@ Future<void> _setInt({
   );
 }
 
-Future<bool> _getBool({
-  required String key,
-  required bool defaultValue,
-}) async {
-  final SharedPreferences prefs = await _prefs;
-
-  // Separate nullable variable so it can be checked and logged.
-  final bool? loadedBool = prefs.getBool(key);
-  return loadedBool ?? defaultValue;
+class Preference {
+  Preference(this.preferenceKey);
+  final String preferenceKey;
 }
 
-Future<void> _setBool({
-  required bool value,
-  required String key,
-}) async {
-  final SharedPreferences prefs = await _prefs;
-  prefs.setBool(
-    key,
-    value,
-  );
+class BoolPreference extends Preference {
+  BoolPreference(super.preferenceKey);
+
+  Future<bool> getValue({required bool defaultValue}) async {
+    final SharedPreferences prefs = await _prefs;
+
+    // Separate nullable variable so it can be checked and logged.
+    final bool? loadedBool = prefs.getBool(preferenceKey);
+    return loadedBool ?? defaultValue;
+  }
+
+  Future<void> setValue(bool value) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool(
+      preferenceKey,
+      value,
+    );
+  }
+}
+
+class IntPreference extends Preference {
+  IntPreference(
+    super.preferenceKey, {
+    this.sanitize,
+  });
+
+  int Function(int)? sanitize;
+
+  Future<int> getValue({required int defaultValue}) async {
+    final loadedInt = await _getInt(
+      key: preferenceKey,
+      defaultValue: defaultValue,
+    );
+
+    final sanitizeFunction = sanitize;
+    return sanitizeFunction == null
+        ? loadedInt
+        : sanitizeFunction.call(loadedInt);
+  }
+
+  Future<void> setValue(int value) {
+    final sanitizeFunction = sanitize;
+    final sanitizedValue =
+        sanitizeFunction == null ? value : sanitizeFunction.call(value);
+
+    return _setInt(
+      value: sanitizedValue,
+      key: preferenceKey,
+    );
+  }
+}
+
+class StringPreference extends Preference {
+  StringPreference(super.preferenceKey);
+
+  Future<String> getValue({required String defaultValue}) {
+    return getString(
+      key: preferenceKey,
+      defaultValue: defaultValue,
+    );
+  }
+
+  Future<void> setValue(String value) {
+    return setString(
+      value: value,
+      key: preferenceKey,
+    );
+  }
 }

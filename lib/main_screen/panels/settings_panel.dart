@@ -116,7 +116,7 @@ class SettingsPanel extends StatelessWidget {
               focusColor: Theme.of(context).highlightColor,
               onChanged: (newTheme) {
                 themeNotifier.value = newTheme ?? PfsTheme.defaultTheme;
-                pfs_preferences.setTheme(themeNotifier.value);
+                pfs_preferences.themePreference.setValue(themeNotifier.value);
               },
             );
           },

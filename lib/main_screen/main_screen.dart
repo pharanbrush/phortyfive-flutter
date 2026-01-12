@@ -363,7 +363,7 @@ class _MainScreenState extends State<MainScreen>
 
   void _loadSettings() async {
     windowState.isSoundsEnabled.value =
-        await pfs_preferences.getSoundsEnabled();
+        await pfs_preferences.soundPreference.getValue(defaultValue: true);
   }
 
   void _checkAndLoadLaunchArgPath() {
@@ -542,7 +542,7 @@ class _MainScreenState extends State<MainScreen>
     }
 
     showSoundToggleToast();
-    pfs_preferences.setSoundsEnabled(windowState.isSoundsEnabled.value);
+    pfs_preferences.soundPreference.setValue(windowState.isSoundsEnabled.value);
   }
 
   void _handleAppControlsChanged() {

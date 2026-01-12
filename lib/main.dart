@@ -24,7 +24,8 @@ void main() async {
     await macos_window.bindWindowDelegate();
   }
 
-  final initialTheme = await pfs_preferences.getTheme();
+  final initialTheme = await pfs_preferences.themePreference
+      .getValue(defaultValue: PfsTheme.defaultTheme);
 
   runApp(MyApp(
     appModel: PfsAppModel(),
