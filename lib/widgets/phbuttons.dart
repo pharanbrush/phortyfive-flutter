@@ -167,7 +167,8 @@ class IconAndText extends StatelessWidget {
       child: Icon(icon, size: usedIconSize),
     );
 
-    Widget padBox() => SizedBox(width: usedIconSize * 0.5, height: usedIconSize * 0.5);
+    Widget padBox() =>
+        SizedBox(width: usedIconSize * 0.5, height: usedIconSize * 0.5);
 
     return Row(
       spacing: usedGap,
@@ -267,15 +268,17 @@ class NotifierSwitchItem extends StatelessWidget {
     required this.notifier,
     required this.title,
     this.onChanged,
+    this.tooltip,
   });
 
   final ValueNotifier<bool> notifier;
   final Widget title;
   final Function()? onChanged;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
+    final widgetStack = ValueListenableBuilder(
       valueListenable: notifier,
       builder: (_, notifierValue, __) {
         return MergeSemantics(
@@ -295,6 +298,12 @@ class NotifierSwitchItem extends StatelessWidget {
         );
       },
     );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip, child: widgetStack);
+    }
+
+    return widgetStack;
   }
 
   void handleChange(bool newValue) {
