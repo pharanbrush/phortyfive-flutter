@@ -259,6 +259,12 @@ Future<Menu> _getOpenImagesMenu(
       label: "Open special",
       submenu: Menu(
         items: [
+          MenuItem(
+            label: "Open random folder in folder...",
+            onClick: (_) {
+              model.openFilePickerForRandomFolderInFolder();
+            },
+          ),
           if (Platform.isWindows)
             MenuItem(
               label: "Open shortcuts folder...",
@@ -266,6 +272,7 @@ Future<Menu> _getOpenImagesMenu(
                 model.openFilePickerForShortcutsFolder();
               },
             ),
+          MenuItem.separator(),
           MenuItem(
             label: "Open images...",
             onClick: (_) {
@@ -282,12 +289,6 @@ Future<Menu> _getOpenImagesMenu(
       ),
     ),
     MenuItem.separator(),
-    MenuItem(
-      label: "Open random folder in folder...",
-      onClick: (_) {
-        model.openFilePickerForRandomFolderInFolder();
-      },
-    ),
     MenuItem(
       label: "Open image folder...",
       onClick: (_) {
