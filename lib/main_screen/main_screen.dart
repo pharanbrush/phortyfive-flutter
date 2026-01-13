@@ -28,6 +28,8 @@ import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
+import 'package:pfs2/phlutter/remember_window_size.dart'
+    as remember_window_size;
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -66,6 +68,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
+        WindowListener,
+        remember_window_size.WindowSizeRememberer,
         PlayPauseAnimatedIcon,
         MainScreenModels,
         MainScreenWindow,
@@ -79,6 +83,10 @@ class _MainScreenState extends State<MainScreen>
   @override
   ValueNotifier<bool> getSoundEnabledNotifier() =>
       widget.windowState.isSoundsEnabled;
+
+  @override
+  ValueNotifier<bool> getRememberWindowNotifier() =>
+      remember_window_size.appRememberWindowSizeNotifier;
 
   @override
   ValueNotifier<String> getThemeNotifier() => widget.theme;
@@ -398,6 +406,9 @@ class _MainScreenState extends State<MainScreen>
     windowState.isBottomBarMinimized
         .addListener(() => _handleBottomBarMinimizedChanged());
     _handleBottomBarMinimizedChanged();
+
+    remember_window_size.appRememberWindowSizeNotifier
+        .addListener(() => _handleRememberWindowPositionChanged());
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
@@ -871,6 +882,27 @@ class _MainScreenState extends State<MainScreen>
 
     WidgetsBinding.instance.platformMenuDelegate.setMenus(topLevelMenus);
   }
+
+  void _handleRememberWindowPositionChanged() {
+    void showRememberWindowToggleToast() {
+      final bool wasEnabled =
+          remember_window_size.appRememberWindowSizeNotifier.value;
+      final message = PfsLocalization.rememeberWindowSwitched(wasEnabled);
+      final icon = wasEnabled
+          ? FluentIcons.window_16_filled
+          : FluentIcons.window_16_regular;
+
+      showToast(
+        message: message,
+        icon: icon,
+        alignment: Phtoasts.topControlsAlign,
+      );
+    }
+
+    showRememberWindowToggleToast();
+    remember_window_size.storeRememberWindowSizePreference(
+        remember_window_size.appRememberWindowSizeNotifier.value);
+  }
 }
 
 mixin PlayPauseAnimatedIcon on TickerProvider {
@@ -1042,6 +1074,7 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
 
 mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
+  ValueNotifier<bool> getRememberWindowNotifier();
   ValueNotifier<String> getThemeNotifier();
 
   void returnToHomeMode();
@@ -1078,6 +1111,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       return SettingsPanel(
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
+        rememberWindowEnabledNotifier: getRememberWindowNotifier(),
         aboutMenu: aboutMenu,
       );
     },

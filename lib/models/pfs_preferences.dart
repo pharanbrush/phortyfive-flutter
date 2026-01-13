@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _themeKey = "theme";
 const _timerDurationKey = "timer_duration";
 const _soundKey = "sounds";
-const _rememberWindowKey = "window_size_and_position";
 const recentFoldersKey = "recent_folders";
 
 const int defaultTimerDuration = 45;
@@ -15,7 +14,6 @@ const String includeSubfoldersSuffix = " ?s";
 
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-final rememberWindowPositionPreference = BoolPreference(_rememberWindowKey);
 final soundPreference = BoolPreference(_soundKey);
 final themePreference = StringPreference(_themeKey);
 final timerDurationPreference = IntPreference(

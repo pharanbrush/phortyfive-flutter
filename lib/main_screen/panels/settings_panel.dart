@@ -13,10 +13,12 @@ class SettingsPanel extends StatelessWidget {
     required this.themeNotifier,
     required this.aboutMenu,
     required this.soundEnabledNotifier,
+    required this.rememberWindowEnabledNotifier,
   });
 
   final ValueNotifier<String> themeNotifier;
   final ValueNotifier<bool> soundEnabledNotifier;
+  final ValueNotifier<bool> rememberWindowEnabledNotifier;
   final ModalPanel aboutMenu;
 
   @override
@@ -56,6 +58,12 @@ class SettingsPanel extends StatelessWidget {
               NotifierSwitchItem(
                 title: const Text('Sounds'),
                 notifier: soundEnabledNotifier,
+              ),
+              NotifierSwitchItem(
+                notifier: rememberWindowEnabledNotifier,
+                title: const Text("Remember window size"),
+                tooltip:
+                    "Remember the window size\nfor the next time the application is opened.",
               ),
               divider,
               const SmallHeading('Appearance'),

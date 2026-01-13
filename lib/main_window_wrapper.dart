@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart' as bitsdojo;
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/main_screen/macos/macos_window_events.dart' as macos_window;
+import 'package:pfs2/main_screen/macos/macos_window_events.dart'
+    as macos_window;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';

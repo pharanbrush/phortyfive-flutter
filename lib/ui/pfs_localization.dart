@@ -80,6 +80,10 @@ class PfsLocalization {
   static String soundsSwitched(bool enabled) =>
       enabled ? "Sounds enabled" : "Sounds muted";
 
+  static String rememeberWindowSwitched(bool enabled) => enabled
+      ? "Remember window size enabled"
+      : "Remember window size disabled";
+
   static const String press = isDesktop ? "click" : "tap";
 
   static String get pressCapital => press.capitalizeFirst();

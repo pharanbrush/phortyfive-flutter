@@ -11,6 +11,8 @@ import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/model_scope.dart';
+import 'package:pfs2/phlutter/remember_window_size.dart'
+    as remember_window_size;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
@@ -27,17 +29,30 @@ void main() async {
   final initialTheme = await pfs_preferences.themePreference
       .getValue(defaultValue: PfsTheme.defaultTheme);
 
+  remember_window_size.appRememberWindowSizeNotifier.value =
+      await remember_window_size.getRememberWindowSizePreference();
+
+  final Size windowSize;
+  const defaultWindowSize = Size(720, 860);
+  if (remember_window_size.appRememberWindowSizeNotifier.value) {
+    windowSize = await remember_window_size.getWindowSizePreference(
+        defaultSize: defaultWindowSize);
+  } else {
+    windowSize = defaultWindowSize;
+  }
+
   runApp(MyApp(
     appModel: PfsAppModel(),
     initialTheme: initialTheme,
   ));
 
   doWhenWindowReady(() {
-    final win = appWindow;
-    win.minSize = const Size(460, 320);
-    win.size = const Size(720, 860);
-    win.title = PfsLocalization.appTitle;
-    win.show();
+    appWindow
+      ..minSize = const Size(460, 320)
+      ..title = PfsLocalization.appTitle
+      ..size = windowSize;
+
+    appWindow.show();
   });
 }
 
