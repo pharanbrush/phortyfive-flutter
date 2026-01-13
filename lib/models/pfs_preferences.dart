@@ -200,6 +200,37 @@ class BoolPreference extends Preference {
   }
 }
 
+class Vector2IntPreference extends Preference {
+  Vector2IntPreference(super.preferenceKey);
+  static const xSuffix = "_x";
+  static const ySuffix = "_y";
+
+  Future<(int x, int y)> getValue({
+    required (int x, int y) defaultValue,
+  }) async {
+    final x = await _getInt(
+        key: preferenceKey + xSuffix, defaultValue: defaultValue.$1);
+    final y = await _getInt(
+        key: preferenceKey + ySuffix, defaultValue: defaultValue.$2);
+
+    return (x, y);
+  }
+
+  Future<void> setValue((int x, int y) value) async {
+    final setX = _setInt(
+      value: value.$1,
+      key: preferenceKey + xSuffix,
+    );
+
+    final setY = _setInt(
+      value: value.$2,
+      key: preferenceKey + ySuffix,
+    );
+
+    await Future.wait([setX, setY]);
+  }
+}
+
 class IntPreference extends Preference {
   IntPreference(
     super.preferenceKey, {
