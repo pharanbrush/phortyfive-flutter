@@ -106,6 +106,7 @@ class WindowWrapper extends StatelessWidget {
       final theme = Theme.of(context);
       final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
       final double borderSideWidth = borderSide?.width ?? 0;
+      final double platformBorderRadius = Platform.isMacOS ? 12 : 0;
 
       return Stack(
         children: [
@@ -126,11 +127,17 @@ class WindowWrapper extends StatelessWidget {
           if (borderSide != null)
             Material(
               type: MaterialType.transparency,
-              shape: Border(
-                bottom: borderSide,
-                left: borderSide,
-                right: borderSide,
-              ),
+              shape: platformBorderRadius > 0
+                  ? RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(platformBorderRadius)),
+                      side: borderSide,
+                    )
+                  : Border(
+                      bottom: borderSide,
+                      left: borderSide,
+                      right: borderSide,
+                    ),
               child: const SizedBox.expand(),
             )
         ],
