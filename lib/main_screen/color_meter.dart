@@ -418,13 +418,15 @@ This color change meter calculates values in """),
 This reflects how painting apps show their color pickers, and how they
 blend layers using modes like "Normal", "Multiply", and "Screen".
 Operating in gamma space is the standard way most current systems, everyday apps,
-like browsers and painting apps, encode and use colors.
+like browsers and painting apps, encode and use colors. But this does not
+follow how light behaves in real life.
 
-This uses numbers that are stretched to give space for a larger range of dark colors.
-However, having stretched numbers means a color having half the lightness number
-isn't equivalent to having half the physical amount of light in real life.
+Gamma space uses numbers that are stretched to give space for a larger range
+of dark colors. But having stretched numbers also means a color having
+half the lightness number is not equivalent to having half the real-life
+physical amount of light.
 
-Operations done in gamma space deviates significantly from real behavior of light.
+Blending done in gamma space deviates significantly from real behavior of light.
 For more accurate and pleasing results, applications like modern games and 3D software
 take color values out of gamma space before doing color calculations.""")
               ],
