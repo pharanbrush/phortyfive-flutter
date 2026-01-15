@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart'
     as windows_shortcuts;
@@ -19,6 +20,7 @@ bool pathIsDirectory(String fullPath) {
 Future<List<String>> getExpandedList(
   List<String?> filePaths, {
   ValueChanged<int>? onFileAdded,
+  ValueNotifier<bool>? isLoadingExternalStatus,
   bool recursive = false,
   bool resolveShortcuts = false,
 }) async {
@@ -38,7 +40,7 @@ Future<List<String>> getExpandedList(
 
     onFileAdded?.call(0);
 
-    Future<void> tryAddIfDirectory(String path) async {
+    Future<void> tryAddIfDirectory(String path, List<String> fileList) async {
       if (foldersAdded.contains(path)) return;
 
       final d = Directory(path);
@@ -47,7 +49,11 @@ Future<List<String>> getExpandedList(
         foldersAdded.add(path);
         final directoryFileList = d.list(recursive: recursive);
         await for (final f in directoryFileList) {
-          expandedFilePaths.add(f.path);
+          if (isLoadingExternalStatus?.value == false) {
+            throw Exception("Canceled from external status.");
+          }
+
+          fileList.add(f.path);
         }
       }
     }
@@ -56,6 +62,9 @@ Future<List<String>> getExpandedList(
 
     for (final filePath in filePaths) {
       if (filePath == null) continue;
+      if (isLoadingExternalStatus?.value == false) {
+        throw Exception("Canceled from external status.");
+      }
 
       if (await File(filePath).exists()) {
         bool wasLink = false;
@@ -69,7 +78,10 @@ Future<List<String>> getExpandedList(
               if (await File(resolvedShortcutPath).exists()) {
                 expandedFilePaths.add(filePath);
               } else if (await Directory(resolvedShortcutPath).exists()) {
-                await tryAddIfDirectory(resolvedShortcutPath);
+                await tryAddIfDirectory(
+                  resolvedShortcutPath,
+                  expandedFilePaths,
+                );
               }
             }
           }
@@ -79,7 +91,10 @@ Future<List<String>> getExpandedList(
           expandedFilePaths.add(filePath);
         }
       } else {
-        await tryAddIfDirectory(filePath);
+        await tryAddIfDirectory(
+          filePath,
+          expandedFilePaths,
+        );
       }
     }
 

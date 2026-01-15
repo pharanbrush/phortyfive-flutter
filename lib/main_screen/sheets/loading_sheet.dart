@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pfs2/models/pfs_model.dart';
 
 class LoadingSheet extends StatelessWidget {
   const LoadingSheet({
@@ -11,6 +12,9 @@ class LoadingSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageListManager = PfsAppModel.of(context) as PfsImageListManager;
+    final cancelNotifier = imageListManager.imageLoadingCanceledNotifier;
+
     return Stack(
       children: [
         ModalBarrier(
@@ -28,6 +32,18 @@ class LoadingSheet extends StatelessWidget {
                 valueListenable: loadedFileCountListenable,
                 builder: (_, value, __) {
                   return Text("Listing $value images...");
+                },
+              ),
+              const SizedBox(height: 10),
+              ValueListenableBuilder(
+                valueListenable: cancelNotifier,
+                builder: (context, isCanceled, child) {
+                  return TextButton(
+                    onPressed: isCanceled
+                        ? null
+                        : () => imageListManager.tryCancelLoading(),
+                    child: Text("Cancel"),
+                  );
                 },
               ),
             ],

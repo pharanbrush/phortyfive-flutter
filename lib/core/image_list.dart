@@ -8,6 +8,7 @@ import 'package:pfs2/core/image_data.dart';
 enum ImageLoadResult {
   success,
   empty,
+  canceled,
 }
 
 class ImageList {

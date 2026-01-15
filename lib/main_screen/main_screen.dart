@@ -394,6 +394,7 @@ class _MainScreenState extends State<MainScreen>
     model.onImageDurationElapse ??= () => playClickSound();
     model.onFilePickerStateChange ??= () => _handleFilePickerOpenClose();
     model.onInitialUseChoiceComplete ??= () => handleInitialUseChoiceComplete();
+    model.isLoadingImages.addListener(_handleIsLoadingImagesStateChanged);
 
     final timerModel = model.timerModel;
     timerModel.playPauseNotifier.addListener(_handleTimerPlayPause);
@@ -902,6 +903,23 @@ class _MainScreenState extends State<MainScreen>
     showRememberWindowToggleToast();
     remember_window_size.storeRememberWindowSizePreference(
         remember_window_size.appRememberWindowSizeNotifier.value);
+  }
+
+  void _handleIsLoadingImagesStateChanged() {
+    final imageListManager = PfsAppModel.of(context) as PfsImageListManager;
+    if (imageListManager.isLoadingImages.value) {
+      EscapeNavigator.of(context)?.push(
+        EscapeRoute(
+          name: PfsImageListManager.imageLoadingCommandId,
+          onEscape: () => imageListManager.tryCancelLoading(),
+          willPopOnEscape: true,
+        ),
+      );
+    } else {
+      EscapeNavigator.of(context)?.tryPop(
+        PfsImageListManager.imageLoadingCommandId,
+      );
+    }
   }
 }
 

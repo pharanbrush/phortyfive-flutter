@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
@@ -319,7 +320,10 @@ mixin PfsImageListManager {
   void Function()? onImageChange;
   void Function()? onImagesChanged;
 
+  static const String imageLoadingCommandId = "Image Loading";
+
   final isLoadingImages = ValueNotifier(false);
+  final imageLoadingCanceledNotifier = ValueNotifier(false);
   final currentlyLoadingImages = ValueNotifier<int>(0);
 
   void _onImagesLoaded();
@@ -444,6 +448,30 @@ mixin PfsImageListManager {
     }
   }
 
+  Future<ImageLoadResult> waitForCancel() async {
+    debugPrint("[Loading] Polling for cancel signal started...");
+    bool isCanceled = false;
+    while (!isCanceled) {
+      await Future.delayed(Duration(milliseconds: 200));
+      //debugPrint("[Loading] Polling for cancel signal...");
+      isCanceled = imageLoadingCanceledNotifier.value;
+
+      if (!isLoadingImages.value) {
+        debugPrint("[Loading] Finished without cancel signal...");
+        return ImageLoadResult.success;
+      }
+    }
+
+    debugPrint("[Loading] Cancel signal detected...");
+    return ImageLoadResult.canceled;
+  }
+
+  void tryCancelLoading() {
+    if (isLoadingImages.value) {
+      imageLoadingCanceledNotifier.value = true;
+    }
+  }
+
   Future loadImageFiles(
     List<String?> filePaths, {
     bool recursive = false,
@@ -454,16 +482,35 @@ mixin PfsImageListManager {
     _startLoadingImages();
 
     try {
-      final expandedFilePaths = await getExpandedList(
+      final fileExpandProcess = getExpandedList(
         filePaths,
         onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
         recursive: recursive,
         resolveShortcuts: resolveShortcuts,
+        isLoadingExternalStatus: isLoadingImages,
+      );
+      final cancelPollingProcess = waitForCancel().then((value) => null);
+
+      final expandedFilePaths = await Future.any(
+        [fileExpandProcess, cancelPollingProcess],
       );
 
+      if (expandedFilePaths == null) {
+        CancelableOperation.fromFuture(fileExpandProcess).cancel();
+        CancelableOperation.fromFuture(cancelPollingProcess).cancel();
+        _cancelLoadingImages("Image loading canceled");
+        return;
+      }
+
+      debugPrint("[Loading] getExpandedList await done");
+
       final loadResult = await imageList.loadFiles(expandedFilePaths);
+
       if (loadResult == ImageLoadResult.empty) {
         _cancelLoadingImages("No images loaded.");
+        return;
+      } else if (loadResult == ImageLoadResult.canceled) {
+        _cancelLoadingImages("Image loading canceled.");
         return;
       }
 
@@ -505,15 +552,18 @@ mixin PfsImageListManager {
 
   void _startLoadingImages() {
     isLoadingImages.value = true;
+    imageLoadingCanceledNotifier.value = false;
   }
 
   void _cancelLoadingImages(String message) {
     isLoadingImages.value = false;
     onImageLoadedError?.call(message: message);
+    imageLoadingCanceledNotifier.value = false;
   }
 
   void _endLoadingImages({required int sourceCount}) {
     final loadedCount = imageList.count;
+    imageLoadingCanceledNotifier.value = false;
     onImagesChanged?.call();
 
     onImagesLoadedSuccess?.call(
