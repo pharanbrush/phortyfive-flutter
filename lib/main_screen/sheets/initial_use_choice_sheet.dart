@@ -67,9 +67,7 @@ class InitialUseChoiceSheet extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Center(
-                      child: Text(
-                        "How do you want to start this session?",
-                      ),
+                      child: Text("How do you want to start this session?"),
                     ),
                   ),
                   modeChoiceButton(
