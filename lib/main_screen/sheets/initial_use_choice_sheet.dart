@@ -69,7 +69,6 @@ class InitialUseChoiceSheet extends StatelessWidget {
                     child: Center(
                       child: Text(
                         "How do you want to start this session?",
-                        //style: labelSmall,
                       ),
                     ),
                   ),
