@@ -71,6 +71,15 @@ mixin ImageFilters {
 
   bool get isFilterActive => activeFilterCount > 0;
 
+  void toggleFilters() {
+    if (isFilterActive) {
+      storeLastSettings();
+      resetAllFilters();
+    } else {
+      restoreLastSettings();
+    }
+  }
+
   int get activeFilterCount {
     int currentActiveFiltersCount = 0;
 

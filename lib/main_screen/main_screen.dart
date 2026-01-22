@@ -1232,11 +1232,7 @@ class FiltersButton extends StatelessWidget {
             : "Filters";
 
         return GestureDetector(
-          onTertiaryTapDown: (details) {
-            if (imageFilters.isFilterActive) {
-              imageFilters.resetAllFilters();
-            }
-          },
+          onTertiaryTapDown: (details) => imageFilters.toggleFilters(),
           child: IconButton(
             onPressed: () => filtersMenu.open(),
             isSelected: imageFilters.isFilterActive,

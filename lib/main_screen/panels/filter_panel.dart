@@ -298,22 +298,13 @@ class ResetFiltersSwitch extends StatelessWidget {
         builder: (_, __, ___) {
           final isSomeFiltersAreOn = filters.isFilterActive;
 
-          void toggleFilters(bool newValue) {
-            if (isSomeFiltersAreOn) {
-              filters.storeLastSettings();
-              filters.resetAllFilters();
-            } else {
-              filters.restoreLastSettings();
-            }
-          }
-
           return Tooltip(
             message: "Reset all filters",
             child: Phswitch(
               height: 20,
               value: filters.isFilterActive,
               onChanged: (isSomeFiltersAreOn || filters.lastSettings != null)
-                  ? toggleFilters
+                  ? (_) => filters.toggleFilters()
                   : null,
             ),
           );
