@@ -358,7 +358,7 @@ mixin PfsImageListManager {
     return _openFolderPickerAndProcess(
       processFolder: (folderPath) => loadFolder(
         folderPath,
-        recursive: false,
+        recursive: true,
         addToRecentFolders: false,
         resolveShortcuts: true,
       ),
@@ -367,9 +367,9 @@ mixin PfsImageListManager {
 
   Future<void> openFilePickerForFolder({bool includeSubfolders = false}) {
     return _openFolderPickerAndProcess(
-      processFolder: (folderPath) => loadFolder(
-        folderPath,
-        recursive: includeSubfolders,
+      processFolder: (folderPath) => openFolderCommandBasic(
+        folderPath: folderPath,
+        includeSubfolders: includeSubfolders,
       ),
     );
   }
@@ -389,6 +389,7 @@ mixin PfsImageListManager {
           folderPath,
           recursive: includeSubfolders,
           addToRecentFolders: false,
+          resolveShortcuts: true,
         );
       },
     );
@@ -412,26 +413,33 @@ mixin PfsImageListManager {
     }
   }
 
+  Future<void> openFolderCommandBasic({
+    required String folderPath,
+    bool includeSubfolders = true,
+  }) {
+    return loadFolder(
+      folderPath,
+      recursive: includeSubfolders,
+      resolveShortcuts: true,
+    );
+  }
+
   Future<void> loadFolder(
     String folderPath, {
     bool recursive = false,
-    bool addToRecentFolders = true,
     bool resolveShortcuts = false,
+    bool addToRecentFolders = true,
   }) async {
     if (!allowImageSetChange) return;
     if (folderPath.isEmpty) return;
-
     final directory = Directory(folderPath);
 
     try {
-      final directoryContents = directory.list(recursive: recursive);
-      final filePaths = <String?>[];
-      await for (final FileSystemEntity entry in directoryContents) {
-        if (entry is File) {
-          filePaths.add(entry.path);
-        }
-      }
-      await loadImageFiles(filePaths, resolveShortcuts: resolveShortcuts);
+      await loadImageFiles(
+        [folderPath],
+        recursive: recursive,
+        resolveShortcuts: resolveShortcuts,
+      );
       lastFolder = directory.path.split(Platform.pathSeparator).last;
 
       if (addToRecentFolders) {

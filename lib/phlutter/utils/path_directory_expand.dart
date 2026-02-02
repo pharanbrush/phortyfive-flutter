@@ -24,84 +24,127 @@ Future<List<String>> getExpandedList(
   bool recursive = false,
   bool resolveShortcuts = false,
 }) async {
-  final expandedFilePaths = List<String>.empty(growable: true);
+  if (!Platform.isWindows) resolveShortcuts = false;
+
+  final outputFilePathList = <String>[];
   Timer? timer;
-  final foldersAdded = <String>{};
+
+  Future<FileSystemEntity?> tryResolveShortcut(
+    String possibleShortcutFile,
+  ) async {
+    const windowsShortcutExtension = ".lnk";
+    if (p.extension(possibleShortcutFile) == windowsShortcutExtension) {
+      if (resolveShortcuts) {
+        final resolvedShortcutPath =
+            windows_shortcuts.resolveShortcut(possibleShortcutFile);
+
+        if (resolvedShortcutPath == null) return null;
+
+        switch (await FileSystemEntity.type(resolvedShortcutPath)) {
+          case FileSystemEntityType.directory:
+            final resolvedDirectory = Directory(resolvedShortcutPath);
+            if (await resolvedDirectory.exists()) {
+              debugPrint(
+                  "Found shortcut and resolved. Adding to stack: $resolvedShortcutPath");
+              return resolvedDirectory;
+            }
+            break;
+
+          case FileSystemEntityType.file:
+            final resolvedFile = File(resolvedShortcutPath);
+            if (await resolvedFile.exists()) {
+              return resolvedFile;
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+
+    return null;
+  }
 
   try {
     if (onFileAdded != null) {
       timer = Timer.periodic(
         const Duration(milliseconds: 17),
         (timer) {
-          onFileAdded.call(expandedFilePaths.length);
+          onFileAdded.call(outputFilePathList.length);
         },
       );
     }
 
     onFileAdded?.call(0);
 
-    Future<void> tryAddIfDirectory(String path, List<String> fileList) async {
-      if (foldersAdded.contains(path)) return;
+    final alreadyProcessedDirectories = <String>{};
+    final directoryTraversalStack = <Directory>[];
 
-      final d = Directory(path);
+    for (final path in filePaths) {
+      if (path == null) continue;
 
-      if (await d.exists()) {
-        foldersAdded.add(path);
-        final directoryFileList = d.list(recursive: recursive);
-        await for (final f in directoryFileList) {
+      final directory = Directory(path);
+      if (await directory.exists()) {
+        debugPrint("Adding $path to initial traversal");
+        directoryTraversalStack.add(directory);
+        continue;
+      }
+
+      final file = File(path);
+      if (await file.exists()) {
+        final possibleResolvedShortcut = await tryResolveShortcut(path);
+        if (possibleResolvedShortcut == null) {
+          debugPrint("Adding $path to initial file list");
+          outputFilePathList.add(path);
+        } else if (possibleResolvedShortcut is Directory) {
+          debugPrint("Adding $path to initial traversal");
+          directoryTraversalStack.add(possibleResolvedShortcut);
+        } else if (possibleResolvedShortcut is File) {
+          outputFilePathList.add(possibleResolvedShortcut.path);
+        }
+      }
+    }
+
+    while (directoryTraversalStack.isNotEmpty) {
+      final currentDirectory = directoryTraversalStack.removeLast();
+      final currentDirectoryPath = currentDirectory.path;
+
+      if (alreadyProcessedDirectories.contains(currentDirectoryPath)) {
+        debugPrint("Avoiding duplicate load: $currentDirectoryPath");
+        continue;
+      }
+      alreadyProcessedDirectories.add(currentDirectoryPath);
+
+      await for (final entity in currentDirectory.list()) {
+        if (entity is Directory) {
+          if (recursive) {
+            // debugPrint("Adding found directory to traversal stack: ${entity.path}");
+            directoryTraversalStack.add(entity);
+          }
+        } else if (entity is File) {
+          final filePath = entity.path;
+
           if (isLoadingExternalStatus?.value == false) {
             throw Exception("Canceled from external status.");
           }
 
-          fileList.add(f.path);
-        }
-      }
-    }
-
-    if (!Platform.isWindows) resolveShortcuts = false;
-
-    for (final filePath in filePaths) {
-      if (filePath == null) continue;
-      if (isLoadingExternalStatus?.value == false) {
-        throw Exception("Canceled from external status.");
-      }
-
-      if (await File(filePath).exists()) {
-        bool wasLink = false;
-        if (resolveShortcuts) {
-          if (p.extension(filePath) == ".lnk") {
-            wasLink = true;
-            final resolvedShortcutPath =
-                windows_shortcuts.resolveShortcut(filePath);
-
-            if (resolvedShortcutPath != null) {
-              if (await File(resolvedShortcutPath).exists()) {
-                expandedFilePaths.add(filePath);
-              } else if (await Directory(resolvedShortcutPath).exists()) {
-                await tryAddIfDirectory(
-                  resolvedShortcutPath,
-                  expandedFilePaths,
-                );
-              }
-            }
+          final possibleResolvedShortcut = await tryResolveShortcut(filePath);
+          if (possibleResolvedShortcut == null) {
+            outputFilePathList.add(filePath);
+          } else if (possibleResolvedShortcut is Directory) {
+            directoryTraversalStack.add(possibleResolvedShortcut);
+          } else if (possibleResolvedShortcut is File) {
+            outputFilePathList.add(possibleResolvedShortcut.path);
           }
         }
-
-        if (!wasLink) {
-          expandedFilePaths.add(filePath);
-        }
-      } else {
-        await tryAddIfDirectory(
-          filePath,
-          expandedFilePaths,
-        );
       }
     }
 
-    onFileAdded?.call(expandedFilePaths.length);
+    onFileAdded?.call(outputFilePathList.length);
   } finally {
     timer?.cancel();
   }
 
-  return expandedFilePaths;
+  return outputFilePathList;
 }

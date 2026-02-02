@@ -238,6 +238,18 @@ void _popupImagesMenu(PfsAppModel model, VoidCallback? pasteHandler) {
   );
 }
 
+void openFolderCommandCallback(
+  PfsAppModel model,
+  String folderPath,
+  bool includeSubfolders,
+) {
+  model.loadFolder(
+    folderPath,
+    recursive: includeSubfolders,
+    resolveShortcuts: true,
+  );
+}
+
 Future<Menu> _getOpenImagesMenu(
   PfsAppModel model,
   VoidCallback? pasteHandler,
@@ -265,13 +277,6 @@ Future<Menu> _getOpenImagesMenu(
               model.openFilePickerForRandomFolderInFolder();
             },
           ),
-          if (Platform.isWindows)
-            MenuItem(
-              label: "Open shortcuts folder...",
-              onClick: (_) {
-                model.openFilePickerForShortcutsFolder();
-              },
-            ),
           MenuItem.separator(),
           MenuItem(
             label: "Open images...",
@@ -319,9 +324,9 @@ Future<Menu> _getOpenImagesMenu(
       menuItems.add(
         MenuItem(
           label: shortenedPath,
-          onClick: (menuItem) => model.loadFolder(
-            e.folderPath,
-            recursive: e.includeSubfolders,
+          onClick: (menuItem) => model.openFolderCommandBasic(
+            folderPath: e.folderPath,
+            includeSubfolders: e.includeSubfolders,
           ),
         ),
       );
