@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
+import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 abstract class ImageData {
@@ -26,13 +27,29 @@ class ImageFileData extends ImageData {
 }
 
 const linksFilename = "links.txt";
+const linksShortcut = "$linksFilename - Shortcut.lnk";
 
 Future<Iterable<String>?> tryGetUrls(ImageData imageData) async {
   if (imageData is ImageFileData) {
     final parentFolder = imageData.fileFolder;
     final urlsFilePath = "$parentFolder${Platform.pathSeparator}$linksFilename";
-    final urlsFile = File(urlsFilePath);
-    final fileExists = await urlsFile.exists();
+    File urlsFile = File(urlsFilePath);
+    bool fileExists = await urlsFile.exists();
+
+    if (!fileExists) {
+      final urlShortcutPath =
+          "$parentFolder${Platform.pathSeparator}$linksShortcut";
+      urlsFile = File(urlShortcutPath);
+      if (await urlsFile.exists()) {
+        final resolvedUrlPath = resolveShortcut(urlShortcutPath);
+        if (resolvedUrlPath != null &&
+            resolvedUrlPath.endsWith(linksFilename)) {
+          urlsFile = File(resolvedUrlPath);
+          fileExists = await urlsFile.exists();
+        }
+      }
+    }
+
     if (!fileExists) throw FileSystemException("File not found");
 
     final outputLines = <String>[];
