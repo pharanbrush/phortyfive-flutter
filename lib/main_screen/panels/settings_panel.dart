@@ -14,11 +14,13 @@ class SettingsPanel extends StatelessWidget {
     required this.aboutMenu,
     required this.soundEnabledNotifier,
     required this.rememberWindowEnabledNotifier,
+    required this.excludeNsfwNotifier,
   });
 
   final ValueNotifier<String> themeNotifier;
   final ValueNotifier<bool> soundEnabledNotifier;
   final ValueNotifier<bool> rememberWindowEnabledNotifier;
+  final ValueNotifier<bool> excludeNsfwNotifier;
   final ModalPanel aboutMenu;
 
   @override
@@ -69,7 +71,41 @@ class SettingsPanel extends StatelessWidget {
               const SmallHeading('Appearance'),
               themeSetting(context),
               divider,
-              const SmallHeading('Recent folders'),
+              const SmallHeading('Folders'),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  SizedBox(width: 16),
+                  Wrap(
+                    direction: Axis.vertical,
+                    spacing: 10,
+                    children: [
+                      Text("Exclude folders ending in",
+                          style: Theme.of(context).textTheme.labelMedium),
+                      Row(
+                        children: [
+                          SizedBox(width: 10),
+                          //Icon(Icons.filter_alt_outlined),
+                          SizedBox(width: 10),
+                          ValueListenableBuilder(
+                            valueListenable: excludeNsfwNotifier,
+                            builder: (context, value, child) {
+                              return FilterChip(
+                                label: Text("nsfw"),
+                                onSelected: (newValue) =>
+                                    excludeNsfwNotifier.value = newValue,
+                                selected: value,
+                                showCheckmark: false,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
               clearRecentFoldersButton(context),
               divider,
               TextButton(

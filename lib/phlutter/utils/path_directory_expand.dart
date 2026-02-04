@@ -23,6 +23,7 @@ Future<List<String>> getExpandedList(
   ValueNotifier<bool>? isLoadingExternalStatus,
   bool recursive = false,
   bool resolveShortcuts = false,
+  List<String>? ignoredSuffixes,
 }) async {
   if (!Platform.isWindows) resolveShortcuts = false;
 
@@ -111,10 +112,23 @@ Future<List<String>> getExpandedList(
       final currentDirectoryPath = currentDirectory.path;
 
       if (alreadyProcessedDirectories.contains(currentDirectoryPath)) {
-        debugPrint("Avoiding duplicate load: $currentDirectoryPath");
+        //debugPrint("Avoiding duplicate load: $currentDirectoryPath");
         continue;
       }
       alreadyProcessedDirectories.add(currentDirectoryPath);
+
+      bool ignoreFolder = false;
+      if (ignoredSuffixes != null) {
+        for (final suffix in ignoredSuffixes) {
+          if (currentDirectoryPath.endsWith(suffix)) {
+            debugPrint(
+                "Ignoring '$currentDirectoryPath' because of suffix: $suffix");
+            ignoreFolder = true;
+            break;
+          }
+        }
+      }
+      if (ignoreFolder == true) continue;
 
       await for (final entity in currentDirectory.list()) {
         if (entity is Directory) {

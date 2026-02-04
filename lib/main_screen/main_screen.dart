@@ -89,6 +89,10 @@ class _MainScreenState extends State<MainScreen>
       remember_window_size.appRememberWindowSizeNotifier;
 
   @override
+  ValueNotifier<bool> getExcludeNsfwNotifier() =>
+      widget.model.excludeNsfwNotifier;
+
+  @override
   ValueNotifier<String> getThemeNotifier() => widget.theme;
 
   @override
@@ -1094,6 +1098,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<bool> getRememberWindowNotifier();
   ValueNotifier<String> getThemeNotifier();
+  ValueNotifier<bool> getExcludeNsfwNotifier();
 
   void returnToHomeMode();
 
@@ -1130,6 +1135,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
         rememberWindowEnabledNotifier: getRememberWindowNotifier(),
+        excludeNsfwNotifier: getExcludeNsfwNotifier(),
         aboutMenu: aboutMenu,
       );
     },

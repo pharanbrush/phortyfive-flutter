@@ -304,6 +304,8 @@ mixin PfsCountdownCounter {
 mixin PfsImageListManager {
   final ImageList imageList = ImageList();
 
+  final excludeNsfwNotifier = ValueNotifier(true);
+
   String lastFolder = '';
   bool isPickerOpen = false;
   bool get hasImagesLoaded => imageList.isPopulated;
@@ -495,6 +497,7 @@ mixin PfsImageListManager {
         onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
         recursive: recursive,
         resolveShortcuts: resolveShortcuts,
+        ignoredSuffixes: [if (excludeNsfwNotifier.value) "nsfw"],
         isLoadingExternalStatus: isLoadingImages,
       );
       final cancelPollingProcess = waitForCancel().then((value) => null);
