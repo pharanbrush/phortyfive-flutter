@@ -198,6 +198,17 @@ mixin ImageZoomPanner {
   ];
   static const _defaultZoomLevel = 3;
 
+  double currentBaseZoom = 1.0;
+  void rememberBaseZoom() {
+    currentBaseZoom = currentZoomScale;
+  }
+
+  void floorToNearestZoom(double targetZoom) {
+    final foundZoomIndex =
+        _zoomScales.lastIndexWhere((z) => z <= currentBaseZoom * targetZoom);
+    zoomLevelListenable.value = foundZoomIndex;
+  }
+
   void incrementZoomAccumulator(double dragIncrement) {
     const zoomSensitivity = 0.04;
     zoomAccumulator += dragIncrement * zoomSensitivity;
@@ -729,6 +740,29 @@ class ImagePhviewerPanListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isMacOS) {
+      return GestureDetector(
+        onScaleStart: (details) {
+          zoomPanner.rememberBaseZoom();
+        },
+        onScaleUpdate: (details) {
+          zoomPanner.floorToNearestZoom(details.scale);
+          zoomPanner.panImage(-details.focalPointDelta);
+        },
+        onScaleEnd: (details) {
+          zoomPanner.resetZoomAccumulator();
+
+          if (!zoomPanner.isZoomedIn) return;
+          zoomPanner.panRelease();
+
+          if (zoomPanner.currentBaseZoom != zoomPanner.currentZoomScale) {
+            zoomPanner.resetOffset();
+          }
+        },
+        child: child,
+      );
+    }
+
     return GestureDetector(
       onPanUpdate: (details) =>
           handlePanUpdate(details: details, zoomPanner: zoomPanner),
