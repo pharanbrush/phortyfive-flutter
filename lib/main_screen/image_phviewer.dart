@@ -185,7 +185,7 @@ mixin ImageZoomPanner {
   final panDuration =
       ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
 
-  static const List<double> _zoomScales = [
+  static const _zoomScales = <double>[
     0.25,
     0.5,
     0.75,
