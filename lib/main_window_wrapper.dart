@@ -9,6 +9,9 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/themes/window_button_colors.dart';
 
+const double kWindowTitleBarHeight = 32;
+const double kWindowCollapsedTitleBarHeight = 4;
+
 class PfsWindowState {
   bool rightControlsOrientation = true;
   bool isTouch = false;
@@ -18,6 +21,7 @@ class PfsWindowState {
   final isSoundsEnabled = ValueNotifier(true);
 
   final bottomBarHeight = ValueNotifier<double>(0);
+  final topBarHeight = ValueNotifier<double>(kWindowTitleBarHeight);
 }
 
 class WindowWrapper extends StatelessWidget {

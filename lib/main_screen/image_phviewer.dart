@@ -33,9 +33,13 @@ class ImagePhviewer with ImageZoomPanner, ImageFilters {
     return imageWidgetKey.currentContext?.size ?? Size.zero;
   }
 
-  Widget widget(ValueListenable<double> bottomBarHeight) {
+  Widget widget({
+    required ValueListenable<double> bottomBarHeight,
+    required ValueListenable<double> topBarHeight,
+  }) {
     return ImageViewerStackWidget(
       bottomBarHeight: bottomBarHeight,
+      topBarHeight: topBarHeight,
       zoomPanner: this,
       filters: this,
       panDurationListenable: panDuration,
@@ -496,9 +500,10 @@ class ImageRightClick extends StatelessWidget {
 }
 
 class ImageViewerStackWidget extends StatelessWidget {
-  const ImageViewerStackWidget({
+  ImageViewerStackWidget({
     super.key,
     required this.bottomBarHeight,
+    required this.topBarHeight,
     required this.revealInExplorerHandler,
     required this.panDurationListenable,
     required this.zoomPanner,
@@ -509,7 +514,11 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ImageFilters filters;
   final ValueNotifier<Duration> panDurationListenable;
   final ValueListenable<double> bottomBarHeight;
+  final ValueListenable<double> topBarHeight;
   final Function(ImageFileData fileData) revealInExplorerHandler;
+
+  late final topBottomPaddingNotifiers =
+      Listenable.merge([bottomBarHeight, topBarHeight]);
 
   @override
   Widget build(BuildContext context) {
@@ -679,15 +688,15 @@ class ImageViewerStackWidget extends StatelessWidget {
       },
     );
 
-    return ValueListenableBuilder(
-      valueListenable: bottomBarHeight,
-      builder: (_, bottomBarHeightValue, __) {
+    return ListenableBuilder(
+      listenable: topBottomPaddingNotifiers,
+      builder: (_, __) {
         return AnimatedPadding(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutExpo,
           padding: EdgeInsets.only(
-            bottom: bottomBarHeightValue,
-            top: kWindowTitleBarHeight,
+            bottom: bottomBarHeight.value,
+            top: topBarHeight.value,
           ),
           child: content,
         );

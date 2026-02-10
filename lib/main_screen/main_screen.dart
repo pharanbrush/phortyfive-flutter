@@ -12,6 +12,8 @@ import 'package:pfs2/main_screen/buttons/open_images_button.dart'
     as image_set_button;
 import 'package:pfs2/main_screen/color_meter.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
+import 'package:pfs2/main_screen/macos/macos_window_events.dart'
+    as macos_window_events;
 import 'package:pfs2/main_screen/main_screen_sound.dart';
 import 'package:pfs2/main_screen/panels/corner_window_controls.dart';
 import 'package:pfs2/main_screen/panels/filter_panel.dart';
@@ -335,7 +337,10 @@ class _MainScreenState extends State<MainScreen>
             Overlay.wrap(
               child: EyeDropperLayer(
                 key: eyeDropKey,
-                child: imagePhviewer.widget(windowState.bottomBarHeight),
+                child: imagePhviewer.widget(
+                  bottomBarHeight: windowState.bottomBarHeight,
+                  topBarHeight: windowState.topBarHeight,
+                ),
               ),
             ),
             _fileDropZone(),
@@ -411,6 +416,15 @@ class _MainScreenState extends State<MainScreen>
     windowState.isBottomBarMinimized
         .addListener(() => _handleBottomBarMinimizedChanged());
     _handleBottomBarMinimizedChanged();
+
+    if (Platform.isMacOS) {
+      macos_window_events.isWindowFullscreen.addListener(
+        () => windowState.topBarHeight.value =
+            macos_window_events.isWindowFullscreen.value
+                ? kWindowCollapsedTitleBarHeight
+                : kWindowTitleBarHeight,
+      );
+    }
 
     remember_window_size.appRememberWindowSizeNotifier
         .addListener(() => _handleRememberWindowPositionChanged());
