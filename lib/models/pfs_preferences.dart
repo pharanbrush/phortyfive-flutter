@@ -280,3 +280,22 @@ class StringPreference extends Preference {
     );
   }
 }
+
+class StringListPreference extends Preference {
+  StringListPreference(super.preferenceKey);
+
+  static final _empty = List<String>.empty(growable: false);
+
+  Future<List<String>> getValue() async {
+    final SharedPreferences prefs = await _prefs;
+
+    final stringList = prefs.getStringList(preferenceKey);
+    return stringList ?? _empty;
+  }
+
+  Future<void> setValue(List<String> value) async {
+    final SharedPreferences prefs = await _prefs;
+
+    await prefs.setStringList(preferenceKey, value);
+  }
+}
