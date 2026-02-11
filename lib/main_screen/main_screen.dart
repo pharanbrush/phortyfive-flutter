@@ -34,6 +34,7 @@ import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/remember_window_size.dart'
     as remember_window_size;
 import 'package:pfs2/phlutter/simple_notifier.dart';
+import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -398,7 +399,23 @@ class _MainScreenState extends State<MainScreen>
     if (main_args.appFileToLoadFromMainArgs.isEmpty) return;
 
     try {
-      final possiblePath = main_args.appFileToLoadFromMainArgs;
+      String possiblePath = main_args.appFileToLoadFromMainArgs;
+
+      if (Platform.isWindows) {
+        if (possiblePath.endsWith(".lnk")) {
+          final possibleFile = File(possiblePath);
+          final fileExists = await possibleFile.exists();
+          if (fileExists) {
+            final possibleShortcutResolvedPath = resolveShortcut(possiblePath);
+            if (possibleShortcutResolvedPath == null) {
+              throw Exception("Shortcut does not point anywhere.");
+            }
+
+            possiblePath = possibleShortcutResolvedPath;
+          }
+        }
+      }
+
       final directoryExists = await Directory(possiblePath).exists();
 
       if (!directoryExists) {
