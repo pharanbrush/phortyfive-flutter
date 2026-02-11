@@ -22,6 +22,7 @@ enum PfsAppControlsMode {
 
 class PfsAppModel
     with
+        SuffixExcludeList,
         PfsImageListManager,
         PfsModelTimer,
         PfsCountdownCounter,
@@ -301,10 +302,13 @@ mixin PfsCountdownCounter {
   }
 }
 
-mixin PfsImageListManager {
-  final ImageList imageList = ImageList();
+mixin SuffixExcludeList {
+  final excludedSuffixes = <String>[];
+  final excludedSuffixesNotifier = SimpleNotifier();
+}
 
-  final excludeNsfwNotifier = ValueNotifier(true);
+mixin PfsImageListManager on SuffixExcludeList {
+  final ImageList imageList = ImageList();
 
   String lastFolder = '';
   bool isPickerOpen = false;
@@ -497,7 +501,7 @@ mixin PfsImageListManager {
         onFileAdded: (fileCount) => currentlyLoadingImages.value = fileCount,
         recursive: recursive,
         resolveShortcuts: resolveShortcuts,
-        ignoredSuffixes: [if (excludeNsfwNotifier.value) "nsfw"],
+        ignoredSuffixes: excludedSuffixes,
         isLoadingExternalStatus: isLoadingImages,
       );
       final cancelPollingProcess = waitForCancel().then((value) => null);

@@ -6,6 +6,7 @@ const _themeKey = "theme";
 const _timerDurationKey = "timer_duration";
 const _soundKey = "sounds";
 const recentFoldersKey = "recent_folders";
+const excludedSuffixesKey = "excluded_suffixes";
 
 const int defaultTimerDuration = 45;
 
@@ -13,6 +14,8 @@ const maxRecentFoldersCount = 8;
 const String includeSubfoldersSuffix = " ?s";
 
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+final exlcudedSuffixesPreference = StringListPreference(excludedSuffixesKey);
 
 final soundPreference = BoolPreference(_soundKey);
 final themePreference = StringPreference(_themeKey);

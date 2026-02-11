@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_window_wrapper.dart';
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -15,13 +16,15 @@ class SettingsPanel extends StatelessWidget {
     required this.aboutMenu,
     required this.soundEnabledNotifier,
     required this.rememberWindowEnabledNotifier,
-    required this.excludeNsfwNotifier,
+    required this.excludedSuffixesNotifier,
+    required this.exlcudedSuffixes,
   });
 
   final ValueNotifier<String> themeNotifier;
   final ValueNotifier<bool> soundEnabledNotifier;
   final ValueNotifier<bool> rememberWindowEnabledNotifier;
-  final ValueNotifier<bool> excludeNsfwNotifier;
+  final SimpleNotifier excludedSuffixesNotifier;
+  final List<String> exlcudedSuffixes;
   final ModalPanel aboutMenu;
 
   @override
@@ -88,14 +91,24 @@ class SettingsPanel extends StatelessWidget {
                           SizedBox(width: 10),
                           //Icon(Icons.filter_alt_outlined),
                           SizedBox(width: 10),
-                          ValueListenableBuilder(
-                            valueListenable: excludeNsfwNotifier,
-                            builder: (context, value, child) {
+                          ListenableBuilder(
+                            listenable: excludedSuffixesNotifier,
+                            builder: (context, child) {
+                              const tag = "nsfw";
+                              final isSelected = exlcudedSuffixes.contains(tag);
+
                               return FilterChip(
-                                label: Text("nsfw"),
-                                onSelected: (newValue) =>
-                                    excludeNsfwNotifier.value = newValue,
-                                selected: value,
+                                label: Text(tag),
+                                onSelected: (newValue) {
+                                  if (newValue) {
+                                    if (exlcudedSuffixes.contains(tag)) return;
+                                    exlcudedSuffixes.add(tag);
+                                  } else {
+                                    exlcudedSuffixes.remove(tag);
+                                  }
+                                  excludedSuffixesNotifier.notify();
+                                },
+                                selected: isSelected,
                                 showCheckmark: false,
                               );
                             },

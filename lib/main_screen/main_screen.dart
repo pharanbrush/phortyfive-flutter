@@ -32,6 +32,7 @@ import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/remember_window_size.dart'
     as remember_window_size;
+import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
@@ -91,8 +92,11 @@ class _MainScreenState extends State<MainScreen>
       remember_window_size.appRememberWindowSizeNotifier;
 
   @override
-  ValueNotifier<bool> getExcludeNsfwNotifier() =>
-      widget.model.excludeNsfwNotifier;
+  SimpleNotifier getSuffixesChangedNotifier() =>
+      widget.model.excludedSuffixesNotifier;
+
+  @override
+  List<String> getExcludedSuffixes() => widget.model.excludedSuffixes;
 
   @override
   ValueNotifier<String> getThemeNotifier() => widget.theme;
@@ -381,6 +385,12 @@ class _MainScreenState extends State<MainScreen>
   void _loadSettings() async {
     windowState.isSoundsEnabled.value =
         await pfs_preferences.soundPreference.getValue(defaultValue: true);
+
+    final loadedSuffixes =
+        await pfs_preferences.exlcudedSuffixesPreference.getValue();
+    widget.model.excludedSuffixes.clear();
+    widget.model.excludedSuffixes.addAll(loadedSuffixes);
+    widget.model.excludedSuffixesNotifier.notify();
   }
 
   void _checkAndLoadLaunchArgPath() {
@@ -410,6 +420,8 @@ class _MainScreenState extends State<MainScreen>
     timerModel.resetNotifier.addListener(playClickSound);
 
     timerModel.onDurationChangeSuccess ??= () => _handleTimerChangeSuccess();
+
+    getSuffixesChangedNotifier().addListener(() => _handleNsfwExcludeChanged());
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
@@ -939,6 +951,11 @@ class _MainScreenState extends State<MainScreen>
       );
     }
   }
+
+  void _handleNsfwExcludeChanged() {
+    final suffixList = widget.model.excludedSuffixes;
+    pfs_preferences.exlcudedSuffixesPreference.setValue(suffixList);
+  }
 }
 
 mixin PlayPauseAnimatedIcon on TickerProvider {
@@ -1112,7 +1129,8 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<bool> getRememberWindowNotifier();
   ValueNotifier<String> getThemeNotifier();
-  ValueNotifier<bool> getExcludeNsfwNotifier();
+  SimpleNotifier getSuffixesChangedNotifier();
+  List<String> getExcludedSuffixes();
 
   void returnToHomeMode();
 
@@ -1149,7 +1167,8 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
         rememberWindowEnabledNotifier: getRememberWindowNotifier(),
-        excludeNsfwNotifier: getExcludeNsfwNotifier(),
+        excludedSuffixesNotifier: getSuffixesChangedNotifier(),
+        exlcudedSuffixes: getExcludedSuffixes(),
         aboutMenu: aboutMenu,
       );
     },
