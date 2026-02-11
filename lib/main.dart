@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/core/circulator.dart';
+import 'package:pfs2/main_args.dart' as main_args;
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/main_screen/macos/macos_window_events.dart'
     as macos_window;
@@ -19,12 +20,16 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:window_manager/window_manager.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
   if (Platform.isMacOS) {
     await macos_window.bindWindowDelegate();
+  }
+
+  if (args.isNotEmpty) {
+    main_args.appFileToLoadFromMainArgs = args.first;
   }
 
   final initialTheme = await pfs_preferences.themePreference

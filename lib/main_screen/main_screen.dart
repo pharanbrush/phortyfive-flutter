@@ -8,6 +8,7 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
+import 'package:pfs2/main_args.dart' as main_args;
 import 'package:pfs2/main_screen/buttons/open_images_button.dart'
     as image_set_button;
 import 'package:pfs2/main_screen/color_meter.dart';
@@ -165,10 +166,10 @@ class _MainScreenState extends State<MainScreen>
   void initState() {
     _initPlatformBindings();
     _bindModelCallbacks();
-    _loadSettings();
+    _loadSettings().then((_) {
+      _checkAndLoadLaunchArgPath();
+    });
     super.initState();
-
-    _checkAndLoadLaunchArgPath();
 
     EscapeNavigator.of(context)?.push(
       EscapeRoute(
@@ -382,7 +383,7 @@ class _MainScreenState extends State<MainScreen>
     return appWindowContent;
   }
 
-  void _loadSettings() async {
+  Future _loadSettings() async {
     windowState.isSoundsEnabled.value =
         await pfs_preferences.soundPreference.getValue(defaultValue: true);
 
@@ -393,13 +394,25 @@ class _MainScreenState extends State<MainScreen>
     widget.model.excludedSuffixesNotifier.notify();
   }
 
-  void _checkAndLoadLaunchArgPath() {
-    if (Platform.executableArguments.isEmpty) return;
-    final possiblePath = Platform.executableArguments[0];
-    if (possiblePath.isEmpty) return;
+  Future _checkAndLoadLaunchArgPath() async {
+    if (main_args.appFileToLoadFromMainArgs.isEmpty) return;
 
-    if (Directory(possiblePath).existsSync()) {
-      widget.model.loadFolder(possiblePath, recursive: true);
+    try {
+      final possiblePath = main_args.appFileToLoadFromMainArgs;
+      final directoryExists = await Directory(possiblePath).exists();
+
+      if (!directoryExists) {
+        throw PathNotFoundException(
+          "Path is not a folder $possiblePath",
+          OSError("Path is not a folder $possiblePath"),
+        );
+      }
+
+      await widget.model.openFolderCommandBasic(folderPath: possiblePath);
+    } catch (e) {
+      await Future.delayed(Duration(seconds: 1));
+      showToast(message: e.toString());
+      rethrow;
     }
   }
 
