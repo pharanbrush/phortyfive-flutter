@@ -171,6 +171,7 @@ mixin ImageFilters {
 
 mixin ImageZoomPanner {
   final flipHorizontalListenable = ValueNotifier<bool>(false);
+  PointerDeviceKind? currentPointerDeviceKind;
 
   final zoomLevelListenable =
       ValueNotifier<int>(ImageZoomPanner._defaultZoomLevel);
@@ -211,6 +212,14 @@ mixin ImageZoomPanner {
     final foundZoomIndex =
         _zoomScales.lastIndexWhere((z) => z <= currentBaseZoom * targetZoom);
     zoomLevelListenable.value = foundZoomIndex;
+  }
+
+  void snapToOneScale() {
+    const unzoomed = 1.0;
+    final difference = (currentZoomScale - unzoomed).abs();
+    if (difference < 0.4) {
+      _resetZoomLevel();
+    }
   }
 
   void incrementZoomAccumulator(double dragIncrement) {
@@ -751,22 +760,12 @@ class ImagePhviewerPanListener extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isMacOS) {
       return GestureDetector(
-        onScaleStart: (details) {
-          zoomPanner.rememberBaseZoom();
-        },
-        onScaleUpdate: (details) {
-          zoomPanner.floorToNearestZoom(details.scale);
-          zoomPanner.panImage(-details.focalPointDelta);
-        },
+        onScaleStart: (details) =>
+            handleScaleStart(details: details, zoomPanner: zoomPanner),
+        onScaleUpdate: (details) =>
+            handleScaleUpdate(details: details, zoomPanner: zoomPanner),
         onScaleEnd: (details) {
-          zoomPanner.resetZoomAccumulator();
-
-          if (!zoomPanner.isZoomedIn) return;
-          zoomPanner.panRelease();
-
-          if (zoomPanner.currentBaseZoom != zoomPanner.currentZoomScale) {
-            zoomPanner.resetOffset();
-          }
+          handleScaleEnd(details: details, zoomPanner: zoomPanner);
         },
         child: child,
       );
@@ -774,15 +773,44 @@ class ImagePhviewerPanListener extends StatelessWidget {
 
     return GestureDetector(
       onPanUpdate: (details) =>
-          handlePanUpdate(details: details, zoomPanner: zoomPanner),
-      onPanEnd: (details) =>
-          handlePanEnd(details: details, zoomPanner: zoomPanner),
+          handlePanUpdate(pointerDelta: details.delta, zoomPanner: zoomPanner),
+      onPanEnd: (details) => handlePanEnd(zoomPanner: zoomPanner),
       child: child,
     );
   }
 
+  static void handleScaleUpdate({
+    required ScaleUpdateDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    zoomPanner.floorToNearestZoom(details.scale);
+    handlePanUpdate(
+      pointerDelta: details.focalPointDelta,
+      zoomPanner: zoomPanner,
+    );
+  }
+
+  static void handleScaleStart({
+    required ScaleStartDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    zoomPanner.currentPointerDeviceKind = details.kind;
+    zoomPanner.rememberBaseZoom();
+  }
+
+  static void handleScaleEnd({
+    required ScaleEndDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    handlePanEnd(zoomPanner: zoomPanner);
+    zoomPanner.snapToOneScale();
+
+    if (zoomPanner.currentBaseZoom != zoomPanner.currentZoomScale) {
+      zoomPanner.resetOffset();
+    }
+  }
+
   static void handlePanEnd({
-    required DragEndDetails details,
     required ImageZoomPanner zoomPanner,
   }) {
     zoomPanner.resetZoomAccumulator();
@@ -792,12 +820,10 @@ class ImagePhviewerPanListener extends StatelessWidget {
   }
 
   static void handlePanUpdate({
-    required DragUpdateDetails details,
+    required Offset pointerDelta,
     required ImageZoomPanner zoomPanner,
     bool useZoomPannerScale = false,
   }) {
-    final pointerDelta = details.delta;
-
     if (Phshortcuts.isDragZoomModifierPressed()) {
       zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
       zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);
@@ -805,7 +831,6 @@ class ImagePhviewerPanListener extends StatelessWidget {
     }
 
     //if (!zoomPanner.isZoomedIn) return;
-
     final deltaScale = (useZoomPannerScale ? zoomPanner.currentZoomScale : 1.0);
     zoomPanner.panImage(pointerDelta * deltaScale);
   }

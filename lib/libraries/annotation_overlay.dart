@@ -193,7 +193,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                 if (Phshortcuts.isPanModifierPressed()) {
                   // debugPrint("trying to pan");
                   ImagePhviewerPanListener.handlePanUpdate(
-                    details: details,
+                    pointerDelta: details.delta,
                     zoomPanner: widget.zoomPanner,
                     useZoomPannerScale: true,
                   );
@@ -207,7 +207,6 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
               onPanEnd: (details) {
                 if (Phshortcuts.isPanModifierPressed()) {
                   ImagePhviewerPanListener.handlePanEnd(
-                    details: details,
                     zoomPanner: widget.zoomPanner,
                   );
                   return;
