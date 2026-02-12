@@ -10,6 +10,11 @@ Future bindWindowDelegate () async {
   WindowManipulator.addNSWindowDelegate(windowEventDelegate);
 }
 
+Future<void> tryExitFullScreen () async {
+  if (isWindowFullscreen.value == false) return;
+  return await WindowManipulator.exitFullscreen();
+}
+
 class _PfsMacWindowDelegate extends NSWindowDelegate {
   @override
   void windowDidEnterFullScreen() {

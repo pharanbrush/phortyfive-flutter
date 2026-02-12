@@ -176,8 +176,13 @@ class _MainScreenState extends State<MainScreen>
       EscapeRoute(
         name: "home",
         onEscape: () {
-          returnToHomeMode();
-          closeAllPanels();
+          final didReturnToHomeMode = returnToHomeMode();
+          final didCloseAnyPanel = closeAllPanels();
+
+          if (Platform.isMacOS) {
+            if (didCloseAnyPanel || didReturnToHomeMode) return;
+            macos_window_events.tryExitFullScreen();
+          }
         },
         willPopOnEscape: false,
       ),
@@ -595,9 +600,12 @@ class _MainScreenState extends State<MainScreen>
   }
 
   @override
-  void returnToHomeMode() {
+  bool returnToHomeMode() {
+    final previousMode = currentAppControlsMode.value;
     setAppMode(PfsAppControlsMode.imageBrowse);
     mainWindowFocus.requestFocus();
+
+    return previousMode != PfsAppControlsMode.imageBrowse;
   }
 
   void _handleSoundChanged() {
@@ -1162,7 +1170,8 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   SimpleNotifier getSuffixesChangedNotifier();
   List<String> getExcludedSuffixes();
 
-  void returnToHomeMode();
+  /// Returns [true] if was not originally in home mode.
+  bool returnToHomeMode();
 
   late final ModalPanel filtersMenu = ModalPanel(
     onBeforeOpen: () {
@@ -1258,16 +1267,21 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
     );
   }
 
-  void closeAllPanels({ModalPanel? except}) {
+  /// Returns [false] if no panels were closed.
+  bool closeAllPanels({ModalPanel? except}) {
     void tryDismiss(ModalPanel toDismiss) {
       if (except != null || toDismiss != except) {
         toDismiss.close();
       }
     }
 
+    bool anyPanelClosed = false;
     for (final panel in modalPanels) {
+      if (panel != except && panel.isOpen) anyPanelClosed = true;
       tryDismiss(panel);
     }
+
+    return anyPanelClosed;
   }
 }
 
