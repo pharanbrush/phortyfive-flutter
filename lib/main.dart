@@ -39,7 +39,7 @@ void main(List<String> args) async {
       await remember_window_size.getRememberWindowSizePreference();
 
   final Size windowSize;
-  const defaultWindowSize = Size(720, 860);
+  const defaultWindowSize = Size(860, 1024);
   if (remember_window_size.appRememberWindowSizeNotifier.value) {
     windowSize = await remember_window_size.getWindowSizePreference(
         defaultSize: defaultWindowSize);
