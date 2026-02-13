@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
+// import 'package:pfs2/main_screen/macos/macos_alias_files.dart'
+//     as macos_alias_files;
 import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart'
     as windows_shortcuts;
 
@@ -25,43 +27,51 @@ Future<List<String>> getExpandedList(
   bool resolveShortcuts = false,
   List<String>? ignoredSuffixes,
 }) async {
-  if (!Platform.isWindows) resolveShortcuts = false;
-
   final outputFilePathList = <String>[];
   Timer? timer;
 
   Future<FileSystemEntity?> tryResolveShortcut(
     String possibleShortcutFile,
   ) async {
+    if (!resolveShortcuts) return null;
+
     const windowsShortcutExtension = ".lnk";
-    if (p.extension(possibleShortcutFile) == windowsShortcutExtension) {
-      if (resolveShortcuts) {
-        final resolvedShortcutPath =
-            windows_shortcuts.resolveShortcut(possibleShortcutFile);
+    // const macosAliasDefaultSuffix = "alias";
 
-        if (resolvedShortcutPath == null) return null;
+    final String? resolvedShortcutPath;
+    if (Platform.isWindows &&
+        p.extension(possibleShortcutFile) == windowsShortcutExtension) {
+      resolvedShortcutPath =
+          windows_shortcuts.resolveShortcut(possibleShortcutFile);
+      // } else if (Platform.isMacOS &&
+      //     possibleShortcutFile.endsWith(macosAliasDefaultSuffix)) {
+      //   resolvedShortcutPath =
+      //       await macos_alias_files.resolveAlias(possibleShortcutFile);
+    } else {
+      resolvedShortcutPath = null;
+    }
 
-        switch (await FileSystemEntity.type(resolvedShortcutPath)) {
-          case FileSystemEntityType.directory:
-            final resolvedDirectory = Directory(resolvedShortcutPath);
-            if (await resolvedDirectory.exists()) {
-              debugPrint(
-                  "Found shortcut and resolved. Adding to stack: $resolvedShortcutPath");
-              return resolvedDirectory;
-            }
-            break;
+    if (resolvedShortcutPath == null) return null;
 
-          case FileSystemEntityType.file:
-            final resolvedFile = File(resolvedShortcutPath);
-            if (await resolvedFile.exists()) {
-              return resolvedFile;
-            }
-            break;
-
-          default:
-            break;
+    switch (await FileSystemEntity.type(resolvedShortcutPath)) {
+      case FileSystemEntityType.directory:
+        final resolvedDirectory = Directory(resolvedShortcutPath);
+        if (await resolvedDirectory.exists()) {
+          debugPrint(
+              "Found shortcut and resolved. Adding to stack: $resolvedShortcutPath");
+          return resolvedDirectory;
         }
-      }
+        break;
+
+      case FileSystemEntityType.file:
+        final resolvedFile = File(resolvedShortcutPath);
+        if (await resolvedFile.exists()) {
+          return resolvedFile;
+        }
+        break;
+
+      default:
+        break;
     }
 
     return null;
