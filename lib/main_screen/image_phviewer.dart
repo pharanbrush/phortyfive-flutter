@@ -776,23 +776,14 @@ class ImagePhviewerPanListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isMacOS) {
-      return GestureDetector(
-        onScaleStart: (details) =>
-            handleScaleStart(details: details, zoomPanner: zoomPanner),
-        onScaleUpdate: (details) =>
-            handleScaleUpdate(details: details, zoomPanner: zoomPanner),
-        onScaleEnd: (details) {
-          handleScaleEnd(details: details, zoomPanner: zoomPanner);
-        },
-        child: child,
-      );
-    }
-
     return GestureDetector(
-      onPanUpdate: (details) =>
-          handlePanUpdate(pointerDelta: details.delta, zoomPanner: zoomPanner),
-      onPanEnd: (details) => handlePanEnd(zoomPanner: zoomPanner),
+      onScaleStart: (details) =>
+          handleScaleStart(details: details, zoomPanner: zoomPanner),
+      onScaleUpdate: (details) =>
+          handleScaleUpdate(details: details, zoomPanner: zoomPanner),
+      onScaleEnd: (details) {
+        handleScaleEnd(details: details, zoomPanner: zoomPanner);
+      },
       child: child,
     );
   }
