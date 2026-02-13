@@ -48,7 +48,7 @@ Future<List<String>> getExpandedList(
       //   resolvedShortcutPath =
       //       await macos_alias_files.resolveAlias(possibleShortcutFile);
     } else {
-      resolvedShortcutPath = null;
+      return null;
     }
 
     if (resolvedShortcutPath == null) return null;
