@@ -22,6 +22,8 @@ import 'package:pfs2/libraries/annotation_overlay.dart';
 import 'package:pfs2/widgets/clipboard_handlers.dart';
 import 'package:pfs2/phlutter/scroll_listener.dart';
 
+final isTouchPanningInverted = ValueNotifier(true);
+
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
 class ImagePhviewer with ImageZoomPanner, ImageFilters {
   ImagePhviewer();
@@ -173,14 +175,17 @@ mixin ImageZoomPanner {
   final flipHorizontalListenable = ValueNotifier<bool>(false);
   PointerDeviceKind? currentPointerDeviceKind;
 
-  final zoomLevelListenable =
-      ValueNotifier<int>(ImageZoomPanner._defaultZoomLevel);
-  double get currentZoomScale =>
-      ImageZoomPanner._zoomScales[zoomLevelListenable.value];
-  int get currentZoomScalePercent => (currentZoomScale * 100).toInt();
-  bool get isZoomLevelDefault =>
-      (zoomLevelListenable.value == ImageZoomPanner._defaultZoomLevel);
-  bool get isZoomedIn => currentZoomScale > 1;
+  bool get isUsingAnyTouchPointerDeviceKind =>
+      currentPointerDeviceKind == PointerDeviceKind.touch ||
+      currentPointerDeviceKind == PointerDeviceKind.trackpad;
+
+  static const double defaultZoomScale = 1.0;
+
+  final currentZoomScale = ValueNotifier<double>(defaultZoomScale);
+
+  int get currentZoomScalePercent => (currentZoomScale.value * 100).toInt();
+  bool get isZoomLevelDefault => (currentZoomScale.value == defaultZoomScale);
+  bool get isZoomedIn => currentZoomScale.value > defaultZoomScale;
 
   final offsetListenable = ValueNotifier<Offset>(Offset.zero);
   Offset get panOffset => offsetListenable.value;
@@ -194,7 +199,7 @@ mixin ImageZoomPanner {
     0.25,
     0.5,
     0.75,
-    1.0,
+    defaultZoomScale,
     1.5,
     2.0,
     3.0,
@@ -203,22 +208,34 @@ mixin ImageZoomPanner {
   ];
   static const _defaultZoomLevel = 3;
 
-  double currentBaseZoom = 1.0;
-  void rememberBaseZoom() {
-    currentBaseZoom = currentZoomScale;
+  double gestureStartZoomScale = 1.0;
+  void rememberGestureStartZoomScale() {
+    gestureStartZoomScale = currentZoomScale.value;
   }
 
-  void floorToNearestZoom(double targetZoom) {
-    final foundZoomIndex =
-        _zoomScales.lastIndexWhere((z) => z <= currentBaseZoom * targetZoom);
-    zoomLevelListenable.value = foundZoomIndex;
+  void clampZoomScale() {
+    if (currentZoomScale.value < _zoomScales.first) {
+      currentZoomScale.value = _zoomScales.first;
+    } else if (currentZoomScale.value > _zoomScales.last) {
+      currentZoomScale.value = _zoomScales.last;
+    }
   }
 
-  void snapToOneScale() {
-    const unzoomed = 1.0;
-    final difference = (currentZoomScale - unzoomed).abs();
-    if (difference < 0.4) {
-      _resetZoomLevel();
+  void snapZoomScale() {
+    final currentZoomScaleValue = currentZoomScale.value;
+    if (currentZoomScaleValue > 0.8 && currentZoomScaleValue < 1.2) {
+      currentZoomScale.value = 1.0;
+    } else if (currentZoomScaleValue > 1.9 && currentZoomScaleValue < 2.1) {
+      currentZoomScale.value = 2.0;
+    }
+  }
+
+  void snapOffset() {
+    const double snapThreshold = 40;
+    final isNearEnoughToZero =
+        panOffset.distanceSquared < snapThreshold * snapThreshold;
+    if (isNearEnoughToZero) {
+      resetOffset();
     }
   }
 
@@ -240,7 +257,8 @@ mixin ImageZoomPanner {
   }
 
   void incrementZoomLevel(int increment) {
-    final previousZoomLevel = zoomLevelListenable.value;
+    final previousZoomLevel =
+        _zoomScales.lastIndexWhere((z) => z <= currentZoomScale.value);
     final newZoomLevel = (previousZoomLevel + increment)
         .clamp(0, ImageZoomPanner._zoomScales.length - 1);
 
@@ -256,11 +274,11 @@ mixin ImageZoomPanner {
       offsetListenable.value *= 0.75;
     }
 
-    zoomLevelListenable.value = newZoomLevel;
+    currentZoomScale.value = _zoomScales[newZoomLevel];
   }
 
   void _resetZoomLevel() {
-    zoomLevelListenable.value = ImageZoomPanner._defaultZoomLevel;
+    currentZoomScale.value = defaultZoomScale;
   }
 
   void resetOffset() {
@@ -308,7 +326,7 @@ mixin ImageZoomPanner {
   void _setPanOffsetClamped(Offset newOffset) {
     Offset clampPanOffset(Offset offset) {
       final imageSize = getImageSize();
-      final scaledSize = imageSize * currentZoomScale;
+      final scaledSize = imageSize * currentZoomScale.value;
 
       final xMax = scaledSize.width * 0.5;
       final yMax = scaledSize.height * 0.5;
@@ -667,12 +685,12 @@ class ImageViewerStackWidget extends StatelessWidget {
                             offsetListenable: zoomPanner.offsetListenable,
                             duration: panDuration,
                             child: ValueListenableBuilder(
-                              valueListenable: zoomPanner.zoomLevelListenable,
+                              valueListenable: zoomPanner.currentZoomScale,
                               builder: (_, __, ___) {
                                 return AnimatedScale(
                                   duration: Phanimations.zoomTransitionDuration,
                                   curve: Phanimations.zoomTransitionCurve,
-                                  scale: zoomPanner.currentZoomScale,
+                                  scale: zoomPanner.currentZoomScale.value,
                                   child: possiblyOverlayedWidget,
                                 );
                               },
@@ -779,23 +797,32 @@ class ImagePhviewerPanListener extends StatelessWidget {
     );
   }
 
-  static void handleScaleUpdate({
-    required ScaleUpdateDetails details,
-    required ImageZoomPanner zoomPanner,
-  }) {
-    zoomPanner.floorToNearestZoom(details.scale);
-    handlePanUpdate(
-      pointerDelta: details.focalPointDelta,
-      zoomPanner: zoomPanner,
-    );
-  }
-
   static void handleScaleStart({
     required ScaleStartDetails details,
     required ImageZoomPanner zoomPanner,
   }) {
     zoomPanner.currentPointerDeviceKind = details.kind;
-    zoomPanner.rememberBaseZoom();
+    zoomPanner.rememberGestureStartZoomScale();
+  }
+
+  static void handleScaleUpdate({
+    required ScaleUpdateDetails details,
+    required ImageZoomPanner zoomPanner,
+  }) {
+    final isUsingAnyTouch = zoomPanner.isUsingAnyTouchPointerDeviceKind;
+    if (isUsingAnyTouch) {
+      final newZoom = zoomPanner.gestureStartZoomScale * details.scale;
+      zoomPanner.currentZoomScale.value = newZoom;
+    }
+
+    final focalPointDelta = isUsingAnyTouch && isTouchPanningInverted.value
+        ? -details.focalPointDelta
+        : details.focalPointDelta;
+
+    handlePanUpdate(
+      pointerDelta: focalPointDelta,
+      zoomPanner: zoomPanner,
+    );
   }
 
   static void handleScaleEnd({
@@ -803,11 +830,11 @@ class ImagePhviewerPanListener extends StatelessWidget {
     required ImageZoomPanner zoomPanner,
   }) {
     handlePanEnd(zoomPanner: zoomPanner);
-    zoomPanner.snapToOneScale();
+    zoomPanner.clampZoomScale();
+    zoomPanner.snapZoomScale();
+    if (!zoomPanner.isZoomedIn) zoomPanner.snapOffset();
 
-    if (zoomPanner.currentBaseZoom != zoomPanner.currentZoomScale) {
-      zoomPanner.resetOffset();
-    }
+    zoomPanner.currentPointerDeviceKind = null;
   }
 
   static void handlePanEnd({
@@ -831,7 +858,8 @@ class ImagePhviewerPanListener extends StatelessWidget {
     }
 
     //if (!zoomPanner.isZoomedIn) return;
-    final deltaScale = (useZoomPannerScale ? zoomPanner.currentZoomScale : 1.0);
+    final deltaScale =
+        (useZoomPannerScale ? zoomPanner.currentZoomScale.value : 1.0);
     zoomPanner.panImage(pointerDelta * deltaScale);
   }
 }
@@ -870,7 +898,7 @@ class ResetZoomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: zoomPanner.zoomLevelListenable,
+      valueListenable: zoomPanner.currentZoomScale,
       builder: (_, __, ___) {
         return Visibility(
           visible: !zoomPanner.isZoomLevelDefault,

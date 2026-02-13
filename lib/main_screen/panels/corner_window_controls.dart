@@ -93,7 +93,7 @@ class CornerWindowControls extends StatelessWidget {
                   const Text('For testing only\n'
                       '${PfsLocalization.version}'),
                   ValueListenableBuilder(
-                    valueListenable: zoomPanner.zoomLevelListenable,
+                    valueListenable: zoomPanner.currentZoomScale,
                     builder: (_, __, ___) {
                       return Visibility(
                         visible: !zoomPanner.isZoomLevelDefault,

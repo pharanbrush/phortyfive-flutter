@@ -1415,7 +1415,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
               revealInExplorerHandler: revealInExplorerHandler,
               resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
               child: ValueListenableBuilder(
-                valueListenable: imagePhviewer.zoomLevelListenable,
+                valueListenable: imagePhviewer.currentZoomScale,
                 builder: (_, __, ___) {
                   return ImagePhviewerPanListener(
                     zoomPanner: imagePhviewer,
