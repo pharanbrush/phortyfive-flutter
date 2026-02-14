@@ -58,9 +58,9 @@ class Phshortcuts {
   static const zoomOutArrow = SingleActivator(LogicalKeyboardKey.arrowDown);
 
   static final openFiles = SingleActivator(LogicalKeyboardKey.keyO,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
-  static final openFolder = SingleActivator(LogicalKeyboardKey.keyO,
       control: !Platform.isMacOS, meta: Platform.isMacOS, shift: true);
+  static final openFolder = SingleActivator(LogicalKeyboardKey.keyO,
+      control: !Platform.isMacOS, meta: Platform.isMacOS);
   static const alwaysOnTop =
       SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
