@@ -823,6 +823,13 @@ class ImagePhviewerPanListener extends StatelessWidget {
     handlePanEnd(zoomPanner: zoomPanner);
     zoomPanner.clampZoomScale();
     zoomPanner.snapZoomScale();
+
+    if (zoomPanner.isUsingAnyTouchPointerDeviceKind &&
+        zoomPanner.gestureStartZoomScale > 1.0 &&
+        zoomPanner.currentZoomScale.value <= 1.0) {
+      zoomPanner.resetOffset();
+    }
+
     if (!zoomPanner.isZoomedIn) zoomPanner.snapOffset();
 
     zoomPanner.currentPointerDeviceKind = null;
