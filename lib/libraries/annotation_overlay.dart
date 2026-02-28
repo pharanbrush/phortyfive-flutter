@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
@@ -44,7 +45,7 @@ class PointerToolCallbacks {
   });
 
   final void Function(Offset position)? onPointerDown;
-  final void Function(Offset position)? onPointerUp;
+  final void Function()? onPointerUp;
   final void Function(Offset position)? onPointerUpdate;
 
   static const none = PointerToolCallbacks();
@@ -75,31 +76,33 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
 
   bool initialized = false;
 
+  bool currentDragIsTool = false;
+
   late final drawTool = PointerToolCallbacks(
     onPointerDown: (position) => setState(() => model.startNewStroke(position)),
     onPointerUpdate: (position) =>
         setState(() => model.addPointToStroke(position)),
-    onPointerUp: (position) => model.commitCurrentStroke(),
+    onPointerUp: () => model.commitCurrentStroke(),
   );
 
   late final lineTool = PointerToolCallbacks(
     onPointerDown: (position) => setState(() => model.startNewStroke(position)),
     onPointerUpdate: (position) =>
         setState(() => model.resetCurrentStrokeWithSecondPoint(position)),
-    onPointerUp: (position) => model.commitCurrentStroke(),
+    onPointerUp: () => model.commitCurrentStroke(),
   );
 
   late final rulerTool = PointerToolCallbacks(
     onPointerDown: (position) => setState(() => model.startNewRuler(position)),
     onPointerUpdate: (position) =>
         setState(() => model.updateRulerEnd(position)),
-    onPointerUp: (position) => model.commitCurrentRuler(),
+    onPointerUp: () => model.commitCurrentRuler(),
   );
 
   late final eraseTool = PointerToolCallbacks(
     onPointerDown: (position) => model.startEraseStrokeDoNothing(position),
     onPointerUpdate: (position) => setState(() => model.tryEraseAt(position)),
-    onPointerUp: (position) => model.commitCurrentEraseStroke(),
+    onPointerUp: () => model.commitCurrentEraseStroke(),
   );
 
   PointerToolCallbacks currentToolCallbacks = PointerToolCallbacks.none;
@@ -181,15 +184,21 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
           Center(
             // left: imageOffset!.dx,
             // top: imageOffset!.dy,
-            child: GestureDetector(
-              onPanDown: (details) {
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (details) {
                 if (Phshortcuts.isPanModifierPressed()) {
                   return;
                 }
 
+                if (details.buttons != kPrimaryMouseButton) {
+                  return;
+                }
+
+                currentDragIsTool = true;
                 currentToolCallbacks.onPointerDown?.call(details.localPosition);
               },
-              onPanUpdate: (details) {
+              onPointerMove: (details) {
                 if (Phshortcuts.isPanModifierPressed()) {
                   // debugPrint("trying to pan");
                   ImagePhviewerPanListener.handlePanUpdate(
@@ -201,10 +210,23 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                   return;
                 }
 
+                if (!currentDragIsTool &&
+                    details.buttons != kPrimaryMouseButton) {
+                  final isPressingPanButton =
+                      details.buttons == kTertiaryButton ||
+                          details.buttons == kSecondaryButton;
+
+                  if (isPressingPanButton) {
+                    widget.zoomPanner.panImage(details.delta);
+                  }
+
+                  return;
+                }
+
                 currentToolCallbacks.onPointerUpdate
                     ?.call(details.localPosition);
               },
-              onPanEnd: (details) {
+              onPointerUp: (details) {
                 if (Phshortcuts.isPanModifierPressed()) {
                   ImagePhviewerPanListener.handlePanEnd(
                     zoomPanner: widget.zoomPanner,
@@ -212,7 +234,12 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                   return;
                 }
 
-                currentToolCallbacks.onPointerUp?.call(details.localPosition);
+                if (!currentDragIsTool) {
+                  widget.zoomPanner.panRelease();
+                }
+
+                currentDragIsTool = false;
+                currentToolCallbacks.onPointerUp?.call();
               },
               child: ValueListenableBuilder(
                 valueListenable: model.isStrokesVisible,
