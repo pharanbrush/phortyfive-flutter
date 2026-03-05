@@ -174,9 +174,21 @@ class PlayPauseTimerButton extends StatelessWidget {
                     "Timer running. $pressLabel to pause ($shortcutLabel)";
                 final disabledButtonTooltip = "Timer disabled";
                 final icon = enabled
-                    ? AnimatedIcon(
-                        icon: AnimatedIcons.play_pause,
-                        progress: iconProgress,
+                    ? ListenableBuilder(
+                        // Translucent [AnimatedIcons.play_pause] Workaround.
+                        // This [ListenableBuilder] prevents the semitransparent icon
+                        // from showing its overlaps in the play arrow state.
+                        listenable: iconProgress,
+                        builder: (context, child) {
+                          if (iconProgress.value <= 0) {
+                            return Icon(Icons.play_arrow);
+                          }
+
+                          return AnimatedIcon(
+                            icon: AnimatedIcons.play_pause,
+                            progress: iconProgress,
+                          );
+                        },
                       )
                     : Icon(Icons.play_arrow);
 
