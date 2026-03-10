@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -74,27 +76,22 @@ class HelpSheet extends StatelessWidget {
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                ShortcutListItem(
+                                ShortcutListItem.fromSingleActivator(
                                     text: "Next image",
-                                    keyLabel:
-                                        Phshortcuts.verticalNext.trigger.keyLabel),
-                                ShortcutListItem(
+                                    activator: Phshortcuts.verticalNext),
+                                ShortcutListItem.fromSingleActivator(
                                     text: "Previous image",
-                                    keyLabel:
-                                        Phshortcuts.verticalPrevious.trigger.keyLabel),
+                                    activator: Phshortcuts.verticalPrevious),
                                 const Text(''),
-                                ShortcutListItem(
+                                ShortcutListItem.fromSingleActivator(
                                     text: "Play/Pause",
-                                    keyLabel:
-                                        Phshortcuts.playPause.trigger.keyLabel),
-                                ShortcutListItem(
+                                    activator: Phshortcuts.playPause),
+                                ShortcutListItem.fromSingleActivator(
                                     text: "Restart timer",
-                                    keyLabel: Phshortcuts
-                                        .restartTimer.trigger.keyLabel),
-                                ShortcutListItem(
+                                    activator: Phshortcuts.restartTimer),
+                                ShortcutListItem.fromSingleActivator(
                                     text: "Change timer duration",
-                                    keyLabel: Phshortcuts
-                                        .openTimerMenu.trigger.keyLabel),
+                                    activator: Phshortcuts.openTimerMenu),
                               ]),
                         ),
                         if (!isWindowVeryNarrow)
@@ -105,31 +102,25 @@ class HelpSheet extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  ShortcutListItem(
+                                  ShortcutListItem.fromSingleActivator(
                                     text: "Open images...",
-                                    modifier: "Ctrl",
-                                    keyLabel:
-                                        Phshortcuts.openFiles.trigger.keyLabel,
+                                    activator: Phshortcuts.openFiles,
                                   ),
-                                  ShortcutListItem(
+                                  ShortcutListItem.fromSingleActivator(
                                     text:
                                         'Toggle "${PfsLocalization.alwaysOnTop}"',
-                                    modifier: "Ctrl",
-                                    keyLabel: Phshortcuts
-                                        .alwaysOnTop.trigger.keyLabel,
+                                    activator: Phshortcuts.alwaysOnTop,
                                   ),
-                                  ShortcutListItem(
-                                      text: "Show/hide bottom bar",
-                                      keyLabel: Phshortcuts
-                                          .toggleBottomBar.trigger.keyLabel),
-                                  ShortcutListItem(
+                                  ShortcutListItem.fromSingleActivator(
+                                    text: "Show/hide bottom bar",
+                                    activator: Phshortcuts.toggleBottomBar,
+                                  ),
+                                  ShortcutListItem.fromSingleActivator(
                                       text: "Open help sheet",
-                                      keyLabel:
-                                          Phshortcuts.help.trigger.keyLabel),
-                                  ShortcutListItem(
+                                      activator: Phshortcuts.help),
+                                  ShortcutListItem.fromSingleActivator(
                                       text: "Mute/unmute sounds",
-                                      keyLabel: Phshortcuts
-                                          .toggleSounds.trigger.keyLabel),
+                                      activator: Phshortcuts.toggleSounds),
                                 ]),
                           ),
                         if (isWindowVeryNarrow)
@@ -194,6 +185,16 @@ class ShortcutListItem extends StatelessWidget {
     this.modifier,
     this.modifier2,
   });
+
+  ShortcutListItem.fromSingleActivator(
+      {super.key, this.text, required SingleActivator activator})
+      : keyLabel = activator.trigger.keyLabel,
+        modifier = Platform.isMacOS && activator.meta
+            ? "Cmd"
+            : activator.control
+                ? "Ctrl"
+                : null,
+        modifier2 = null;
 
   final String? text, keyLabel, modifier, modifier2;
 
