@@ -77,11 +77,11 @@ class HelpSheet extends StatelessWidget {
                                 ShortcutListItem(
                                     text: "Next image",
                                     keyLabel:
-                                        Phshortcuts.next2.trigger.keyLabel),
+                                        Phshortcuts.verticalNext.trigger.keyLabel),
                                 ShortcutListItem(
                                     text: "Previous image",
                                     keyLabel:
-                                        Phshortcuts.previous2.trigger.keyLabel),
+                                        Phshortcuts.verticalPrevious.trigger.keyLabel),
                                 const Text(''),
                                 ShortcutListItem(
                                     text: "Play/Pause",

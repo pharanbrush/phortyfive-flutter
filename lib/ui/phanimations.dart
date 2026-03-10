@@ -66,7 +66,7 @@ class Phanimations {
     end: Offset.zero,
     curve: Curves.easeOutQuart,
   );
-  
+
   static const slideUpEffectLarge = SlideEffect(
     duration: defaultDuration,
     begin: Offset(0, 0.05),
@@ -141,6 +141,7 @@ class Phanimations {
   }
 
   static const double _imageSlideOriginX = 0.035;
+  static const double _imageSlideOriginY = 0.035;
   static const _imageSwapDuration = Duration(milliseconds: 400);
   static const _imageSwapCurve = Curves.easeOutQuint;
   static const imageNext = <Effect>[
@@ -154,6 +155,23 @@ class Phanimations {
   static const imagePrevious = <Effect>[
     SlideEffect(
       begin: Offset(-_imageSlideOriginX, 0),
+      end: Offset.zero,
+      duration: _imageSwapDuration,
+      curve: _imageSwapCurve,
+    )
+  ];
+
+  static const verticalImageNext = <Effect>[
+    SlideEffect(
+      begin: Offset(0, _imageSlideOriginY),
+      end: Offset.zero,
+      duration: _imageSwapDuration,
+      curve: _imageSwapCurve,
+    )
+  ];
+  static const verticalImagePrevious = <Effect>[
+    SlideEffect(
+      begin: Offset(0, -_imageSlideOriginY),
       end: Offset.zero,
       duration: _imageSwapDuration,
       curve: _imageSwapCurve,

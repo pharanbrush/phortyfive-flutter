@@ -7,8 +7,8 @@ class Phshortcuts {
   static const previous = SingleActivator(LogicalKeyboardKey.arrowLeft);
   static const next = SingleActivator(LogicalKeyboardKey.arrowRight);
 
-  static const previous2 = SingleActivator(LogicalKeyboardKey.keyK);
-  static const next2 = SingleActivator(LogicalKeyboardKey.keyJ);
+  static const verticalPrevious = SingleActivator(LogicalKeyboardKey.keyK);
+  static const verticalNext = SingleActivator(LogicalKeyboardKey.keyJ);
 
   static const previous3 = SingleActivator(LogicalKeyboardKey.keyA);
   static const next3 = SingleActivator(LogicalKeyboardKey.keyD);
@@ -111,8 +111,8 @@ class Phshortcuts {
     Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousImageIntent(),
     Phshortcuts.next: NextImageIntent(),
-    Phshortcuts.previous2: PreviousImageIntent(),
-    Phshortcuts.next2: NextImageIntent(),
+    Phshortcuts.verticalPrevious: VerticalPreviousImageIntent(),
+    Phshortcuts.verticalNext: VerticalNextImageIntent(),
     Phshortcuts.previous3: PreviousImageIntent(),
     Phshortcuts.next3: NextImageIntent(),
     Phshortcuts.previous4: PreviousImageIntent(),
@@ -162,6 +162,14 @@ class NextImageIntent extends Intent {
 
 class PreviousImageIntent extends Intent {
   const PreviousImageIntent();
+}
+
+class VerticalNextImageIntent extends Intent {
+  const VerticalNextImageIntent();
+}
+
+class VerticalPreviousImageIntent extends Intent {
+  const VerticalPreviousImageIntent();
 }
 
 class PlayPauseIntent extends Intent {

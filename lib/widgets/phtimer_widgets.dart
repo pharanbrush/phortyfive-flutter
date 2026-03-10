@@ -41,7 +41,7 @@ class TimerControls extends StatelessWidget {
             icon: Icons.skip_previous,
             tooltip: PfsLocalization.buttonTooltip(
               commandName: "Previous Image",
-              shortcut: Phshortcuts.previous2,
+              shortcut: Phshortcuts.next,
             ),
           ),
         );
@@ -53,7 +53,7 @@ class TimerControls extends StatelessWidget {
             icon: Icons.skip_next,
             tooltip: PfsLocalization.buttonTooltip(
               commandName: "Next Image",
-              shortcut: Phshortcuts.next2,
+              shortcut: Phshortcuts.previous,
             ),
           ),
         );

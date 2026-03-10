@@ -663,8 +663,16 @@ class ImageViewerStackWidget extends StatelessWidget {
           return SizedBox.shrink();
         }
 
-        final isNextImageTransition = model.lastIncrement > 0;
-        final currentImageIndexString = model.currentImageIndex.toString();
+        final circulator = model as PfsCirculator;
+        List<Effect> getNextTransitionDirection() {
+          final isNext = circulator.lastIncrement > 0;
+          return switch (model.lastIncrementAxis) {
+            Axis.horizontal => isNext ? Phanimations.imageNext : Phanimations.imagePrevious,
+            Axis.vertical => isNext ? Phanimations.verticalImageNext : Phanimations.verticalImagePrevious
+          };
+        }
+
+        final currentImageIndexString = circulator.currentImageIndex.toString();
         final slideKeyString = model.isCountingDown
             ? 'countingDownImage'
             : 'i$currentImageIndexString';
@@ -702,9 +710,7 @@ class ImageViewerStackWidget extends StatelessWidget {
               ),
             ).animate(
               key: Key(slideKeyString),
-              effects: isNextImageTransition
-                  ? Phanimations.imageNext
-                  : Phanimations.imagePrevious,
+              effects: getNextTransitionDirection(),
             ),
             annotationEscapeGesturesLayer(model, context),
             filters.blurFilterLayer(),

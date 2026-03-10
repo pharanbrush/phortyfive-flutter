@@ -34,6 +34,8 @@ class PfsAppModel
         .model;
   }
 
+  Axis lastIncrementAxis = Axis.horizontal;
+
   final currentAppControlsMode =
       ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
 
@@ -107,17 +109,19 @@ class PfsAppModel
     timerModel.playPauseToggleTimer();
   }
 
-  void previousImageNewTimer() {
+  void previousImageNewTimer({Axis axis = Axis.horizontal}) {
     if (!allowCirculatorControl) return;
 
+    lastIncrementAxis = axis;
     tryCancelCountdown();
     timerModel.resetTimer();
     _previousImage();
   }
 
-  void nextImageNewTimer() {
+  void nextImageNewTimer({Axis axis = Axis.horizontal}) {
     if (!allowCirculatorControl) return;
 
+    lastIncrementAxis = axis;
     tryCancelCountdown();
     timerModel.resetTimer();
 
