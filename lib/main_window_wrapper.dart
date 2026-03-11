@@ -24,6 +24,10 @@ class PfsWindowState {
   final topBarHeight = ValueNotifier<double>(kWindowTitleBarHeight);
 }
 
+void toggleMaximizeRestoreWindow() {
+  bitsdojo.appWindow.maximizeOrRestore();
+}
+
 class WindowWrapper extends StatelessWidget {
   const WindowWrapper({
     super.key,

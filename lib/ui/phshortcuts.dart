@@ -27,6 +27,8 @@ class Phshortcuts {
   static const zoomOut = SingleActivator(LogicalKeyboardKey.minus);
   static const zoomReset = SingleActivator(LogicalKeyboardKey.digit0);
 
+  static const maximize = SingleActivator(LogicalKeyboardKey.keyF);
+
   static const colorMeterMode = SingleActivator(LogicalKeyboardKey.keyI);
   static const annotationMode = SingleActivator(LogicalKeyboardKey.keyN);
 
@@ -130,6 +132,7 @@ class Phshortcuts {
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.flipHorizontal: FlipHorizontalIntent(),
+    Phshortcuts.maximize: MaximizeIntent(),
     Phshortcuts.zoomIn: ZoomInIntent(),
     Phshortcuts.zoomInNumpad: ZoomInIntent(),
     Phshortcuts.zoomOut: ZoomOutIntent(),
@@ -210,6 +213,10 @@ class RevealInExplorerIntent extends Intent {
 
 class OpenPreferencesIntent extends Intent {
   const OpenPreferencesIntent();
+}
+
+class MaximizeIntent extends Intent {
+  const MaximizeIntent();
 }
 
 class ZoomInIntent extends Intent {

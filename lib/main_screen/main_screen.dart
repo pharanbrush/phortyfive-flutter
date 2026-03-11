@@ -134,6 +134,7 @@ class _MainScreenState extends State<MainScreen>
     (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
     (VerticalPreviousImageIntent, (_) => widget.model.previousImageNewTimer(axis: Axis.vertical)),
     (VerticalNextImageIntent, (_) => widget.model.nextImageNewTimer(axis: Axis.vertical)),
+    (MaximizeIntent, (_) => _toggleMaximize()),
     (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
     (RestartTimerIntent, (_) => widget.model.timerModel.resetTimer()),
     (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
@@ -389,6 +390,10 @@ class _MainScreenState extends State<MainScreen>
     );
 
     return appWindowContent;
+  }
+
+  void _toggleMaximize() {
+    toggleMaximizeRestoreWindow();
   }
 
   Future _loadSettings() async {
