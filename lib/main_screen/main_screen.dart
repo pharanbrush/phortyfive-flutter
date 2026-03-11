@@ -132,8 +132,14 @@ class _MainScreenState extends State<MainScreen>
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
     (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
     (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
-    (VerticalPreviousImageIntent, (_) => widget.model.previousImageNewTimer(axis: Axis.vertical)),
-    (VerticalNextImageIntent, (_) => widget.model.nextImageNewTimer(axis: Axis.vertical)),
+    (
+      VerticalPreviousImageIntent,
+      (_) => widget.model.previousImageNewTimer(axis: Axis.vertical)
+    ),
+    (
+      VerticalNextImageIntent,
+      (_) => widget.model.nextImageNewTimer(axis: Axis.vertical)
+    ),
     (MaximizeIntent, (_) => _toggleMaximize()),
     (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
     (RestartTimerIntent, (_) => widget.model.timerModel.resetTimer()),
