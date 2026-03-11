@@ -13,8 +13,8 @@ class Phshortcuts {
   static const previous3 = SingleActivator(LogicalKeyboardKey.keyA);
   static const next3 = SingleActivator(LogicalKeyboardKey.keyD);
 
-  static const previous4 = SingleActivator(LogicalKeyboardKey.period);
-  static const next4 = SingleActivator(LogicalKeyboardKey.comma);
+  static const previous4 = SingleActivator(LogicalKeyboardKey.comma);
+  static const next4 = SingleActivator(LogicalKeyboardKey.period);
 
   static const previous5 = SingleActivator(LogicalKeyboardKey.navigatePrevious);
   static const next5 = SingleActivator(LogicalKeyboardKey.navigateNext);
