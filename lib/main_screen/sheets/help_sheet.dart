@@ -186,17 +186,24 @@ class ShortcutListItem extends StatelessWidget {
     this.modifier2,
   });
 
-  ShortcutListItem.fromSingleActivator(
-      {super.key, this.text, required SingleActivator activator})
-      : keyLabel = activator.trigger.keyLabel,
-        modifier = Platform.isMacOS && activator.meta
-            ? "Cmd"
-            : activator.control
-                ? "Ctrl"
-                : null,
-        modifier2 = null;
-
+  static const ctrlLabel = "Ctrl";
+  static const cmdLabel = "Cmd";
   final String? text, keyLabel, modifier, modifier2;
+
+  ShortcutListItem.fromSingleActivator({
+    Key? key,
+    String? text,
+    required SingleActivator activator,
+  }) : this(
+          key: key,
+          text: text,
+          keyLabel: activator.trigger.keyLabel,
+          modifier: Platform.isMacOS && activator.meta
+              ? cmdLabel
+              : activator.control
+                  ? ctrlLabel
+                  : null,
+        );
 
   @override
   Widget build(BuildContext context) {
