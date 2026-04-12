@@ -16,7 +16,7 @@ class FirstActionSheet extends StatelessWidget {
         child: Animate(
           effects: const [
             Phanimations.slideUpEffect,
-            Phanimations.growBottomEffect
+            Phanimations.growBottomEffect,
           ],
           child: _box(context),
         ),
@@ -46,45 +46,49 @@ class FirstActionSheet extends StatelessWidget {
       child: panelMaterial(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          child: Stack(children: [
-            DefaultTextStyle(
-              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(flex: 3),
-                  firstActionIcon,
-                  const SizedBox(height: 8),
-                  Text(
-                    "Get started by loading images!",
-                    style: titleStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    "You can also drag & drop image folders into the window.",
-                    textAlign: TextAlign.center,
-                  ),
-                  const Spacer(flex: 5),
-                ],
+          child: Stack(
+            children: [
+              DefaultTextStyle(
+                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 3),
+                    firstActionIcon,
+                    const SizedBox(height: 8),
+                    Text(
+                      "Get started by loading images!",
+                      style: titleStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      "You can also drag & drop image folders into the window.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const Spacer(flex: 5),
+                  ],
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: RepaintBoundary(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(
-                    PfsTheme.downIcon,
-                    color: downArrowColor,
-                  ).animate(
-                    effects: const [Phanimations.arrowBounceEffect],
-                    onPlay: (controller) => controller.repeat(reverse: true),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: RepaintBoundary(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child:
+                        Icon(
+                          PfsTheme.downIcon,
+                          color: downArrowColor,
+                        ).animate(
+                          effects: const [Phanimations.arrowBounceEffect],
+                          onPlay: (controller) =>
+                              controller.repeat(reverse: true),
+                        ),
                   ),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );

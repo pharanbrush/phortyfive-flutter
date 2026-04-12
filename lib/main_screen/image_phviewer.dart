@@ -58,8 +58,11 @@ mixin ImageFilters {
 
   final blurLevelListenable = ValueNotifier<double>(0.0);
   double get blurLevel => blurLevelListenable.value;
-  set blurLevel(double val) => blurLevelListenable.value =
-      clampDouble(val, _minBlurLevel, _maxBlurLevel);
+  set blurLevel(double val) => blurLevelListenable.value = clampDouble(
+    val,
+    _minBlurLevel,
+    _maxBlurLevel,
+  );
 
   final usingGrayscaleListenable = ValueNotifier<bool>(false);
   bool get isUsingGrayscale => usingGrayscaleListenable.value;
@@ -125,7 +128,7 @@ mixin ImageFilters {
   ValueListenableBuilder<bool> grayscaleFilterLayer() {
     return ValueListenableBuilder(
       valueListenable: usingGrayscaleListenable,
-      builder: (_, value, ___) =>
+      builder: (_, value, _) =>
           value ? grayscaleBackdropFilter : const SizedBox.expand(),
     );
   }
@@ -133,7 +136,7 @@ mixin ImageFilters {
   ValueListenableBuilder<double> blurFilterLayer() {
     return ValueListenableBuilder(
       valueListenable: blurLevelListenable,
-      builder: (_, blurValue, __) {
+      builder: (_, blurValue, _) {
         if (blurValue <= 0) return const SizedBox.expand();
         final sigma = pow(1.3, blurValue).toDouble();
         return BackdropFilter(
@@ -165,7 +168,7 @@ mixin ImageFilters {
       0,
       0,
       1,
-      0
+      0,
     ]),
     child: SizedBox.expand(),
   );
@@ -192,8 +195,9 @@ mixin ImageZoomPanner {
 
   double zoomAccumulator = 0;
 
-  final panDuration =
-      ValueNotifier<Duration>(Phanimations.zoomTransitionDuration);
+  final panDuration = ValueNotifier<Duration>(
+    Phanimations.zoomTransitionDuration,
+  );
 
   static const _zoomScales = <double>[
     0.25,
@@ -257,10 +261,13 @@ mixin ImageZoomPanner {
   }
 
   void incrementZoomLevel(int increment) {
-    final previousZoomLevel =
-        _zoomScales.lastIndexWhere((z) => z <= currentZoomScale.value);
-    final newZoomLevel = (previousZoomLevel + increment)
-        .clamp(0, ImageZoomPanner._zoomScales.length - 1);
+    final previousZoomLevel = _zoomScales.lastIndexWhere(
+      (z) => z <= currentZoomScale.value,
+    );
+    final newZoomLevel = (previousZoomLevel + increment).clamp(
+      0,
+      ImageZoomPanner._zoomScales.length - 1,
+    );
 
     if (newZoomLevel != previousZoomLevel) {
       final newZoomScale = ImageZoomPanner._zoomScales[newZoomLevel];
@@ -544,8 +551,10 @@ class ImageViewerStackWidget extends StatelessWidget {
   final ValueListenable<double> topBarHeight;
   final Function(ImageFileData fileData) revealInExplorerHandler;
 
-  late final topBottomPaddingNotifiers =
-      Listenable.merge([bottomBarHeight, topBarHeight]);
+  late final topBottomPaddingNotifiers = Listenable.merge([
+    bottomBarHeight,
+    topBarHeight,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -580,25 +589,22 @@ class ImageViewerStackWidget extends StatelessWidget {
         final imageWidget = getImageWidget(currentImageData);
         final possiblyOverlayedWidget = ValueListenableBuilder(
           valueListenable: model.currentAppControlsMode,
-          builder: (
-            BuildContext context,
-            PfsAppControlsMode mode,
-            Widget? child,
-          ) {
-            switch (mode) {
-              case PfsAppControlsMode.annotation:
-                final annotatedImageWidget = AnnotationOverlay(
-                  zoomPanner: zoomPanner,
-                  image: imageWidget,
-                  annotationType: AnnotationType.line,
-                  child: imageWidget,
-                );
-                return annotatedImageWidget;
+          builder:
+              (BuildContext context, PfsAppControlsMode mode, Widget? child) {
+                switch (mode) {
+                  case PfsAppControlsMode.annotation:
+                    final annotatedImageWidget = AnnotationOverlay(
+                      zoomPanner: zoomPanner,
+                      image: imageWidget,
+                      annotationType: AnnotationType.line,
+                      child: imageWidget,
+                    );
+                    return annotatedImageWidget;
 
-              default:
-                return imageWidget;
-            }
-          },
+                  default:
+                    return imageWidget;
+                }
+              },
         );
 
         Widget imageFilenameLayer(ImageData imageData) {
@@ -617,9 +623,10 @@ class ImageViewerStackWidget extends StatelessWidget {
 
                     Iterable<MenuItem> getMenuItems() sync* {
                       yield MenuItem(
-                          label:
-                              "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
-                          disabled: true);
+                        label:
+                            "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
+                        disabled: true,
+                      );
 
                       const linkLimitCount = 8;
                       const lastIndex = linkLimitCount - 1;
@@ -667,8 +674,12 @@ class ImageViewerStackWidget extends StatelessWidget {
         List<Effect> getNextTransitionDirection() {
           final isNext = circulator.lastIncrement > 0;
           return switch (model.lastIncrementAxis) {
-            Axis.horizontal => isNext ? Phanimations.imageNext : Phanimations.imagePrevious,
-            Axis.vertical => isNext ? Phanimations.verticalImageNext : Phanimations.verticalImagePrevious
+            Axis.horizontal =>
+              isNext ? Phanimations.imageNext : Phanimations.imagePrevious,
+            Axis.vertical =>
+              isNext
+                  ? Phanimations.verticalImageNext
+                  : Phanimations.verticalImagePrevious,
           };
         }
 
@@ -682,29 +693,30 @@ class ImageViewerStackWidget extends StatelessWidget {
             SizedBox.expand(
               child: ValueListenableBuilder(
                 valueListenable: zoomPanner.flipHorizontalListenable,
-                builder: (_, __, ___) {
+                builder: (_, _, _) {
                   return Transform.flip(
                     flipX: zoomPanner.flipHorizontalListenable.value,
                     flipY: false,
                     child: ValueListenableBuilder(
-                        valueListenable: panDurationListenable,
-                        builder: (_, panDuration, ___) {
-                          return ListeningAnimatedTranslate(
-                            offsetListenable: zoomPanner.offsetListenable,
-                            duration: panDuration,
-                            child: ValueListenableBuilder(
-                              valueListenable: zoomPanner.currentZoomScale,
-                              builder: (_, __, ___) {
-                                return AnimatedScale(
-                                  duration: Phanimations.zoomTransitionDuration,
-                                  curve: Phanimations.zoomTransitionCurve,
-                                  scale: zoomPanner.currentZoomScale.value,
-                                  child: possiblyOverlayedWidget,
-                                );
-                              },
-                            ),
-                          );
-                        }),
+                      valueListenable: panDurationListenable,
+                      builder: (_, panDuration, _) {
+                        return ListeningAnimatedTranslate(
+                          offsetListenable: zoomPanner.offsetListenable,
+                          duration: panDuration,
+                          child: ValueListenableBuilder(
+                            valueListenable: zoomPanner.currentZoomScale,
+                            builder: (_, _, _) {
+                              return AnimatedScale(
+                                duration: Phanimations.zoomTransitionDuration,
+                                curve: Phanimations.zoomTransitionCurve,
+                                scale: zoomPanner.currentZoomScale.value,
+                                child: possiblyOverlayedWidget,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -723,7 +735,7 @@ class ImageViewerStackWidget extends StatelessWidget {
 
     return ListenableBuilder(
       listenable: topBottomPaddingNotifiers,
-      builder: (_, __) {
+      builder: (_, _) {
         return AnimatedPadding(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutExpo,
@@ -743,7 +755,7 @@ class ImageViewerStackWidget extends StatelessWidget {
   ) {
     return ValueListenableBuilder(
       valueListenable: model.currentAppControlsMode,
-      builder: (_, appControlsModeValue, __) {
+      builder: (_, appControlsModeValue, _) {
         if (appControlsModeValue != PfsAppControlsMode.annotation) {
           return SizedBox.shrink();
         }
@@ -753,8 +765,9 @@ class ImageViewerStackWidget extends StatelessWidget {
         return GestureDetector(
           behavior: translucent,
           onSecondaryTap: () {
-            final restoredMode =
-                AnnotationsModel.of(context).tryRestoreBaselineMode();
+            final restoredMode = AnnotationsModel.of(
+              context,
+            ).tryRestoreBaselineMode();
             if (restoredMode) return;
 
             EscapeNavigator.of(context)?.tryEscape();
@@ -816,10 +829,7 @@ class ImagePhviewerPanListener extends StatelessWidget {
         ? -details.focalPointDelta
         : details.focalPointDelta;
 
-    handlePanUpdate(
-      pointerDelta: focalPointDelta,
-      zoomPanner: zoomPanner,
-    );
+    handlePanUpdate(pointerDelta: focalPointDelta, zoomPanner: zoomPanner);
   }
 
   static void handleScaleEnd({
@@ -841,9 +851,7 @@ class ImagePhviewerPanListener extends StatelessWidget {
     zoomPanner.currentPointerDeviceKind = null;
   }
 
-  static void handlePanEnd({
-    required ImageZoomPanner zoomPanner,
-  }) {
+  static void handlePanEnd({required ImageZoomPanner zoomPanner}) {
     zoomPanner.resetZoomAccumulator();
 
     if (!zoomPanner.isZoomedIn) return;
@@ -862,8 +870,9 @@ class ImagePhviewerPanListener extends StatelessWidget {
     }
 
     //if (!zoomPanner.isZoomedIn) return;
-    final deltaScale =
-        (useZoomPannerScale ? zoomPanner.currentZoomScale.value : 1.0);
+    final deltaScale = (useZoomPannerScale
+        ? zoomPanner.currentZoomScale.value
+        : 1.0);
     zoomPanner.panImage(pointerDelta * deltaScale);
   }
 }
@@ -892,10 +901,7 @@ class ImagePhviewerZoomOnScrollListener extends StatelessWidget {
 }
 
 class ResetZoomButton extends StatelessWidget {
-  const ResetZoomButton({
-    super.key,
-    required this.zoomPanner,
-  });
+  const ResetZoomButton({super.key, required this.zoomPanner});
 
   final ImageZoomPanner zoomPanner;
 
@@ -903,7 +909,7 @@ class ResetZoomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: zoomPanner.currentZoomScale,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return Visibility(
           visible: !zoomPanner.isZoomLevelDefault,
           child: IconButton(

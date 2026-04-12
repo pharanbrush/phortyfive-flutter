@@ -33,7 +33,8 @@ class Phtoasts {
             Icon(
               icon,
               size: iconSize,
-              color: snackbarTheme.contentTextStyle?.color ??
+              color:
+                  snackbarTheme.contentTextStyle?.color ??
                   colorScheme.onPrimary,
             ),
             Text(message),
@@ -55,7 +56,8 @@ class Phtoasts {
     //final colorScheme = theme.colorScheme;
     final snackbarTheme = theme.snackBarTheme;
 
-    final textStyle = snackbarTheme.contentTextStyle ??
+    final textStyle =
+        snackbarTheme.contentTextStyle ??
         theme.primaryTextTheme.bodyMedium ??
         const TextStyle(fontSize: 16);
 
@@ -66,7 +68,8 @@ class Phtoasts {
         color: snackbarTheme.backgroundColor,
         elevation: snackbarTheme.elevation ?? 0,
         textStyle: textStyle,
-        shape: snackbarTheme.shape ??
+        shape:
+            snackbarTheme.shape ??
             const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(7)),
             ),

@@ -39,8 +39,9 @@ class _DebugContainerState extends State<DebugContainer> {
 
   @override
   void initState() {
-    color = colors[math.Random().nextInt(colors.length)]
-        .withValues(alpha: widget.alpha);
+    color = colors[math.Random().nextInt(colors.length)].withValues(
+      alpha: widget.alpha,
+    );
     super.initState();
   }
 

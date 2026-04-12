@@ -98,7 +98,7 @@ class _ModalPanelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isOpen,
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         final Widget panel = AnimatedSwitcher(
           transitionBuilder: transitionBuilder,
           switchInCurve: Curves.easeOutCubic,
@@ -115,8 +115,8 @@ class _ModalPanelWidget extends StatelessWidget {
                     duration: fastDuration,
                     child: value
                         ? (isUnderlayTransparent
-                            ? const ModalUnderlay.transparent()
-                            : const ModalUnderlay())
+                              ? const ModalUnderlay.transparent()
+                              : const ModalUnderlay())
                         : null,
                   ),
                   panel,
@@ -141,7 +141,7 @@ class ModalUnderlay extends StatelessWidget {
   });
 
   const ModalUnderlay.transparent({super.key, this.onDismiss})
-      : isTransparent = true;
+    : isTransparent = true;
 
   final Function()? onDismiss;
   final bool isTransparent;

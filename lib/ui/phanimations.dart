@@ -195,7 +195,7 @@ class ListeningAnimatedTranslate extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: offsetListenable,
-      builder: (_, offset, __) {
+      builder: (_, offset, _) {
         return AnimatedTranslate(
           curve: Phanimations.zoomTransitionCurve,
           duration: duration,
@@ -227,7 +227,7 @@ class AnimatedTranslate extends StatelessWidget {
       duration: duration,
       curve: curve,
       tween: Tween<Offset>(begin: Offset.zero, end: offset),
-      builder: (_, animatedOffsetValue, __) {
+      builder: (_, animatedOffsetValue, _) {
         return Transform.translate(
           offset: animatedOffsetValue,
           child: child,
@@ -258,7 +258,7 @@ class AnimatedSizedBoxWidth extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       duration: duration,
       tween: Tween<double>(begin: defaultWidth, end: width),
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         return SizedBox(
           width: value,
           height: height,

@@ -28,15 +28,17 @@ class CornerWindowControls extends StatelessWidget {
     final theme = Theme.of(context);
 
     final Color watermarkColor = theme.colorScheme.outline;
-    final cornerWatermarkTextStyle =
-        theme.textTheme.bodySmall!.copyWith(color: watermarkColor);
+    final cornerWatermarkTextStyle = theme.textTheme.bodySmall!.copyWith(
+      color: watermarkColor,
+    );
 
-    final soundShortcut =
-        PfsLocalization.tooltipShortcut(Phshortcuts.toggleSounds);
+    final soundShortcut = PfsLocalization.tooltipShortcut(
+      Phshortcuts.toggleSounds,
+    );
 
     final containerBorderRadius =
         theme.extension<PfsAppTheme>()?.borderRadius ??
-            BorderRadius.circular(25);
+        BorderRadius.circular(25);
 
     return Positioned(
       right: 7,
@@ -90,15 +92,18 @@ class CornerWindowControls extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.end,
                 spacing: 5,
                 children: [
-                  const Text('For testing only\n'
-                      '${PfsLocalization.version}'),
+                  const Text(
+                    'For testing only\n'
+                    '${PfsLocalization.version}',
+                  ),
                   ValueListenableBuilder(
                     valueListenable: zoomPanner.currentZoomScale,
-                    builder: (_, __, ___) {
+                    builder: (_, _, _) {
                       return Visibility(
                         visible: !zoomPanner.isZoomLevelDefault,
-                        child:
-                            Text('Zoom ${zoomPanner.currentZoomScalePercent}%'),
+                        child: Text(
+                          'Zoom ${zoomPanner.currentZoomScalePercent}%',
+                        ),
                       );
                     },
                   ),
@@ -132,7 +137,7 @@ class NotifierToggleCornerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: notifier,
-      builder: (_, valueIsTrue, __) {
+      builder: (_, valueIsTrue, _) {
         return CornerButton(
           onPressed: () => notifier.toggle(),
           icon: valueIsTrue ? trueIcon : falseIcon,

@@ -48,7 +48,9 @@ class InitialUseChoiceSheet extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 20),
+                      vertical: 12,
+                      horizontal: 20,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -110,7 +112,7 @@ class InitialUseChoiceSheet extends StatelessWidget {
               text: text,
               icon: icon,
               padOpposite: true,
-            )
+            ),
           ],
         ),
       ),

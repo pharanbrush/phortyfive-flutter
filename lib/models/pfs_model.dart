@@ -36,8 +36,9 @@ class PfsAppModel
 
   Axis lastIncrementAxis = Axis.horizontal;
 
-  final currentAppControlsMode =
-      ValueNotifier<PfsAppControlsMode>(PfsAppControlsMode.imageBrowse);
+  final currentAppControlsMode = ValueNotifier<PfsAppControlsMode>(
+    PfsAppControlsMode.imageBrowse,
+  );
 
   bool get isImageBrowseMode =>
       currentAppControlsMode.value == PfsAppControlsMode.imageBrowse;
@@ -324,7 +325,7 @@ mixin PfsImageListManager on SuffixExcludeList {
   bool get allowImageSetChange;
 
   void Function({required int loadedCount, required int skippedCount})?
-      onImagesLoadedSuccess;
+  onImagesLoadedSuccess;
   void Function({required String message})? onImageLoadedError;
   void Function()? onFilePickerStateChange;
   void Function()? onImageChange;
@@ -353,7 +354,7 @@ mixin PfsImageListManager on SuffixExcludeList {
         const file_selector.XTypeGroup(
           label: "images",
           extensions: ImageList.allowedExtensions,
-        )
+        ),
       ],
     );
     _setStateFilePickerOpen(false);

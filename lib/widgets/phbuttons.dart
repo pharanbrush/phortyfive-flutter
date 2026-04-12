@@ -18,7 +18,7 @@ class Phbuttons {
   }) {
     return ListenableBuilder(
       listenable: timerModel.durationChangeNotifier,
-      builder: (_, __) {
+      builder: (_, _) {
         final currentTimerSeconds = timerModel.currentDurationSeconds;
         const iconSize = PfsTheme.timerButtonIconSize;
 
@@ -280,7 +280,7 @@ class NotifierSwitchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final widgetStack = ValueListenableBuilder(
       valueListenable: notifier,
-      builder: (_, notifierValue, __) {
+      builder: (_, notifierValue, _) {
         return MergeSemantics(
           child: ListTile(
             onTap:

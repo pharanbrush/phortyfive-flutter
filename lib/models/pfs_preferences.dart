@@ -41,7 +41,7 @@ Future<List<String>?> _getRecentFolderEntryList() async {
 }
 
 Future<Iterable<({String folderPath, bool includeSubfolders})>?>
-    getRecentFolders() async {
+getRecentFolders() async {
   final recentFolderEntries = await _getRecentFolderEntryList();
   if (recentFolderEntries == null) return null;
 
@@ -56,8 +56,8 @@ Future<void> pushRecentFolder({
   if (await folder.exists()) {
     // Load old list from preferences.
     final folderList =
-        await _getRecentFolderEntryList().onError((_, __) => <String>[]) ??
-            <String>[];
+        await _getRecentFolderEntryList().onError((_, _) => <String>[]) ??
+        <String>[];
 
     // Remove an existing item that matches the item added.
     folderList.removeWhere(
@@ -119,14 +119,15 @@ String encodeRecentFolderEntry(String folderPath, bool includeSubfolders) {
 }
 
 ({String folderPath, bool includeSubfolders}) decodeRecentFolderEntry(
-    String folderEntryString) {
+  String folderEntryString,
+) {
   if (folderEntryString.endsWith(includeSubfoldersSuffix)) {
     return (
       folderPath: folderEntryString.substring(
         0,
         folderEntryString.length - includeSubfoldersSuffix.length,
       ),
-      includeSubfolders: true
+      includeSubfolders: true,
     );
   } else {
     return (folderPath: folderEntryString, includeSubfolders: false);
@@ -212,9 +213,13 @@ class Vector2IntPreference extends Preference {
     required (int x, int y) defaultValue,
   }) async {
     final x = await _getInt(
-        key: preferenceKey + xSuffix, defaultValue: defaultValue.$1);
+      key: preferenceKey + xSuffix,
+      defaultValue: defaultValue.$1,
+    );
     final y = await _getInt(
-        key: preferenceKey + ySuffix, defaultValue: defaultValue.$2);
+      key: preferenceKey + ySuffix,
+      defaultValue: defaultValue.$2,
+    );
 
     return (x, y);
   }
@@ -256,8 +261,9 @@ class IntPreference extends Preference {
 
   Future<void> setValue(int value) {
     final sanitizeFunction = sanitize;
-    final sanitizedValue =
-        sanitizeFunction == null ? value : sanitizeFunction.call(value);
+    final sanitizedValue = sanitizeFunction == null
+        ? value
+        : sanitizeFunction.call(value);
 
     return _setInt(
       value: sanitizedValue,

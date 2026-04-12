@@ -15,7 +15,7 @@ class AboutSheet extends StatelessWidget {
         _container(
           context,
           child: _contents(context),
-        )
+        ),
       ],
     );
   }

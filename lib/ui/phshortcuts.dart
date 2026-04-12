@@ -37,52 +37,84 @@ class Phshortcuts {
   static const eraserToolAnnotations = SingleActivator(LogicalKeyboardKey.keyE);
   static const clearAnnotations = SingleActivator(LogicalKeyboardKey.delete);
   static const cycleAnnotationColors = SingleActivator(LogicalKeyboardKey.keyC);
-  static const duplicateRulerAnnotations =
-      SingleActivator(LogicalKeyboardKey.keyD);
+  static const duplicateRulerAnnotations = SingleActivator(
+    LogicalKeyboardKey.keyD,
+  );
 
-  static final undo = SingleActivator(LogicalKeyboardKey.keyZ,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
-  static final redo = SingleActivator(LogicalKeyboardKey.keyZ,
-      control: !Platform.isMacOS, meta: Platform.isMacOS, shift: true);
-  static final copyFile = SingleActivator(LogicalKeyboardKey.keyC,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
+  static final undo = SingleActivator(
+    LogicalKeyboardKey.keyZ,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
+  static final redo = SingleActivator(
+    LogicalKeyboardKey.keyZ,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+    shift: true,
+  );
+  static final copyFile = SingleActivator(
+    LogicalKeyboardKey.keyC,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
 
-  static final paste = SingleActivator(LogicalKeyboardKey.keyV,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
+  static final paste = SingleActivator(
+    LogicalKeyboardKey.keyV,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
 
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
-  static const zoomOutNumpad =
-      SingleActivator(LogicalKeyboardKey.numpadSubtract);
+  static const zoomOutNumpad = SingleActivator(
+    LogicalKeyboardKey.numpadSubtract,
+  );
   static const zoomResetNav = SingleActivator(LogicalKeyboardKey.insert);
 
   static const zoomInArrow = SingleActivator(LogicalKeyboardKey.arrowUp);
   static const zoomOutArrow = SingleActivator(LogicalKeyboardKey.arrowDown);
 
-  static final openFiles = SingleActivator(LogicalKeyboardKey.keyO,
-      control: !Platform.isMacOS, meta: Platform.isMacOS, shift: true);
-  static final openFolder = SingleActivator(LogicalKeyboardKey.keyO,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
-  static const alwaysOnTop =
-      SingleActivator(LogicalKeyboardKey.keyT, control: true);
+  static final openFiles = SingleActivator(
+    LogicalKeyboardKey.keyO,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+    shift: true,
+  );
+  static final openFolder = SingleActivator(
+    LogicalKeyboardKey.keyO,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
+  static const alwaysOnTop = SingleActivator(
+    LogicalKeyboardKey.keyT,
+    control: true,
+  );
 
-  static const revealInExplorer =
-      SingleActivator(LogicalKeyboardKey.enter, shift: true);
+  static const revealInExplorer = SingleActivator(
+    LogicalKeyboardKey.enter,
+    shift: true,
+  );
 
-  static final preferences = SingleActivator(LogicalKeyboardKey.comma,
-      control: !Platform.isMacOS, meta: Platform.isMacOS);
+  static final preferences = SingleActivator(
+    LogicalKeyboardKey.comma,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
 
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
-  static const toggleBottomBar =
-      SingleActivator(LogicalKeyboardKey.keyH, control: true);
+  static const toggleBottomBar = SingleActivator(
+    LogicalKeyboardKey.keyH,
+    control: true,
+  );
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
   static const escape = SingleActivator(LogicalKeyboardKey.escape);
 
   static bool isDragZoomModifierPressed() {
     final keyboard = HardwareKeyboard.instance;
-    final isSpacePressed =
-        keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
+    final isSpacePressed = keyboard.isLogicalKeyPressed(
+      LogicalKeyboardKey.space,
+    );
     final isShiftPressed = keyboard.isShiftPressed;
 
     return isSpacePressed && isShiftPressed;
@@ -102,8 +134,9 @@ class Phshortcuts {
 
   static bool isPanModifierPressed() {
     final keyboard = HardwareKeyboard.instance;
-    final isSpacePressed =
-        keyboard.isLogicalKeyPressed(LogicalKeyboardKey.space);
+    final isSpacePressed = keyboard.isLogicalKeyPressed(
+      LogicalKeyboardKey.space,
+    );
 
     return isSpacePressed;
   }

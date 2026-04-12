@@ -14,7 +14,7 @@ class CountdownSheet extends StatelessWidget {
     SlideEffect(
       duration: Duration(milliseconds: 200),
       curve: Curves.easeOutQuint,
-    )
+    ),
   ];
 
   @override
@@ -28,32 +28,34 @@ class CountdownSheet extends StatelessWidget {
     final counter = PfsAppModel.of(context);
 
     return ListenableBuilder(
-        listenable: counter.countdownChangedListenable,
-        builder: (_, __) {
-          if (!counter.isCountingDown) {
-            return const SizedBox.shrink();
-          }
+      listenable: counter.countdownChangedListenable,
+      builder: (_, _) {
+        if (!counter.isCountingDown) {
+          return const SizedBox.shrink();
+        }
 
-          final countdownNumber = counter.countdownLeft;
-          final countdownString = countdownNumber.toString();
+        final countdownNumber = counter.countdownLeft;
+        final countdownString = countdownNumber.toString();
 
-          return Stack(
-            children: [
-              ModalBarrier(
-                color: Theme.of(context).colorScheme.surface,
-                dismissible: false,
-              ),
-              Center(
-                child: Text(
-                  countdownString,
-                  style: style,
-                ).animate(
-                  key: Key('count$countdownString'),
-                  effects: animationEffects,
-                ),
-              ),
-            ],
-          );
-        });
+        return Stack(
+          children: [
+            ModalBarrier(
+              color: Theme.of(context).colorScheme.surface,
+              dismissible: false,
+            ),
+            Center(
+              child:
+                  Text(
+                    countdownString,
+                    style: style,
+                  ).animate(
+                    key: Key('count$countdownString'),
+                    effects: animationEffects,
+                  ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

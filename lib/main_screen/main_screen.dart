@@ -222,7 +222,7 @@ class _MainScreenState extends State<MainScreen>
   Widget overlayGestureControls(BuildContext context) {
     return ValueListenableBuilder(
         valueListenable: currentAppControlsMode,
-        builder: (_, currentAppControlsModeValue, ___) {
+        builder: (_, currentAppControlsModeValue, _) {
           if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
             return SizedBox.shrink();
           }
@@ -241,7 +241,7 @@ class _MainScreenState extends State<MainScreen>
 
     return ValueListenableBuilder(
       valueListenable: windowState.isBottomBarMinimized,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return _bottomControls(windowWidth: windowSize.width);
       },
     );
@@ -251,7 +251,7 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     Widget loadingSheetLayer() => ValueListenableBuilder(
           valueListenable: widget.model.isLoadingImages,
-          builder: (_, isLoading, __) {
+          builder: (_, isLoading, _) {
             return Visibility(
               visible: isLoading,
               child: LoadingSheet(
@@ -273,7 +273,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           ValueListenableBuilder(
             valueListenable: windowState.isBottomBarMinimized,
-            builder: (context, __, ___) => _bottomControls(),
+            builder: (context, _, _) => _bottomControls(),
           ),
           _fileDropZone(),
           ...modalPanelWidgets,
@@ -375,7 +375,7 @@ class _MainScreenState extends State<MainScreen>
             bottomControlBar(context),
             ValueListenableBuilder(
               valueListenable: currentAppControlsMode,
-              builder: (_, currentAppControlsModeValue, __) {
+              builder: (_, currentAppControlsModeValue, _) {
                 if (currentAppControlsModeValue ==
                     PfsAppControlsMode.imageBrowse) {
                   return WindowDockingControls(
@@ -687,7 +687,7 @@ class _MainScreenState extends State<MainScreen>
   Widget _fileDropZone() {
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
-      builder: (context, currentAppControlModeValue, __) {
+      builder: (context, currentAppControlModeValue, _) {
         if (currentAppControlModeValue != PfsAppControlsMode.imageBrowse) {
           return const SizedBox.shrink();
         }
@@ -838,7 +838,7 @@ class _MainScreenState extends State<MainScreen>
             begin: narrowSpacing,
             end: isNarrowWindow ? narrowSpacing : wideSpacing,
           ),
-          builder: (_, spacing, __) {
+          builder: (_, spacing, _) {
             final theme = Theme.of(context);
             final containerBorderRadius =
                 theme.extension<PfsAppTheme>()?.borderRadius ??
@@ -871,7 +871,7 @@ class _MainScreenState extends State<MainScreen>
 
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
-      builder: (_, currentAppControlsModeValue, __) {
+      builder: (_, currentAppControlsModeValue, _) {
         if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
           return SizedBox.shrink();
         }
@@ -1312,7 +1312,7 @@ class FiltersButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: imageFilters.filtersChangeListenable,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         const double filterIconSize = 15;
         const filterIconOff = Icon(
           Icons.contrast,
@@ -1357,7 +1357,7 @@ class WindowDockingControls extends StatelessWidget {
       right: cornerMargin,
       child: ValueListenableBuilder(
         valueListenable: isBottomBarMinimized,
-        builder: (_, __, ___) {
+        builder: (_, _, _) {
           return CollapseBottomBarButton(
             isMinimized: isBottomBarMinimized.value,
             onPressed: () => isBottomBarMinimized.toggle(),
@@ -1392,7 +1392,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
 
     return ListenableBuilder(
       listenable: model.allowedControlsChanged,
-      builder: (_, __) {
+      builder: (_, _) {
         const double beforeButtonWidth = 100;
         const double afterButtonWidth = 140;
 
@@ -1429,7 +1429,7 @@ class ImageBrowseGestureControls extends StatelessWidget {
               resetZoomLevelHandler: () => imagePhviewer.resetTransform(),
               child: ValueListenableBuilder(
                 valueListenable: imagePhviewer.currentZoomScale,
-                builder: (_, __, ___) {
+                builder: (_, _, _) {
                   return ImagePhviewerPanListener(
                     zoomPanner: imagePhviewer,
                     child: playPauseButton(),

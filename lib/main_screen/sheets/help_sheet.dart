@@ -74,66 +74,76 @@ class HelpSheet extends StatelessWidget {
                           duration: Phanimations.fastDuration,
                           padding: dynamicPadding,
                           child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ShortcutListItem.fromSingleActivator(
-                                    text: "Next image",
-                                    activator: Phshortcuts.verticalNext),
-                                ShortcutListItem.fromSingleActivator(
-                                    text: "Previous image",
-                                    activator: Phshortcuts.verticalPrevious),
-                                const Text(''),
-                                ShortcutListItem.fromSingleActivator(
-                                    text: "Play/Pause",
-                                    activator: Phshortcuts.playPause),
-                                ShortcutListItem.fromSingleActivator(
-                                    text: "Restart timer",
-                                    activator: Phshortcuts.restartTimer),
-                                ShortcutListItem.fromSingleActivator(
-                                    text: "Change timer duration",
-                                    activator: Phshortcuts.openTimerMenu),
-                              ]),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ShortcutListItem.fromSingleActivator(
+                                text: "Next image",
+                                activator: Phshortcuts.verticalNext,
+                              ),
+                              ShortcutListItem.fromSingleActivator(
+                                text: "Previous image",
+                                activator: Phshortcuts.verticalPrevious,
+                              ),
+                              const Text(''),
+                              ShortcutListItem.fromSingleActivator(
+                                text: "Play/Pause",
+                                activator: Phshortcuts.playPause,
+                              ),
+                              ShortcutListItem.fromSingleActivator(
+                                text: "Restart timer",
+                                activator: Phshortcuts.restartTimer,
+                              ),
+                              ShortcutListItem.fromSingleActivator(
+                                text: "Change timer duration",
+                                activator: Phshortcuts.openTimerMenu,
+                              ),
+                            ],
+                          ),
                         ),
                         if (!isWindowVeryNarrow)
                           AnimatedPadding(
                             duration: Phanimations.fastDuration,
                             padding: dynamicPadding,
                             child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  ShortcutListItem.fromSingleActivator(
-                                    text: "Open images...",
-                                    activator: Phshortcuts.openFiles,
-                                  ),
-                                  ShortcutListItem.fromSingleActivator(
-                                    text:
-                                        'Toggle "${PfsLocalization.alwaysOnTop}"',
-                                    activator: Phshortcuts.alwaysOnTop,
-                                  ),
-                                  ShortcutListItem.fromSingleActivator(
-                                    text: "Show/hide bottom bar",
-                                    activator: Phshortcuts.toggleBottomBar,
-                                  ),
-                                  ShortcutListItem.fromSingleActivator(
-                                      text: "Open help sheet",
-                                      activator: Phshortcuts.help),
-                                  ShortcutListItem.fromSingleActivator(
-                                      text: "Mute/unmute sounds",
-                                      activator: Phshortcuts.toggleSounds),
-                                ]),
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                ShortcutListItem.fromSingleActivator(
+                                  text: "Open images...",
+                                  activator: Phshortcuts.openFiles,
+                                ),
+                                ShortcutListItem.fromSingleActivator(
+                                  text:
+                                      'Toggle "${PfsLocalization.alwaysOnTop}"',
+                                  activator: Phshortcuts.alwaysOnTop,
+                                ),
+                                ShortcutListItem.fromSingleActivator(
+                                  text: "Show/hide bottom bar",
+                                  activator: Phshortcuts.toggleBottomBar,
+                                ),
+                                ShortcutListItem.fromSingleActivator(
+                                  text: "Open help sheet",
+                                  activator: Phshortcuts.help,
+                                ),
+                                ShortcutListItem.fromSingleActivator(
+                                  text: "Mute/unmute sounds",
+                                  activator: Phshortcuts.toggleSounds,
+                                ),
+                              ],
+                            ),
                           ),
                         if (isWindowVeryNarrow)
                           AnimatedPadding(
                             duration: Phanimations.fastDuration,
                             padding: dynamicPadding,
                             child: Center(
-                                widthFactor: 5,
-                                heightFactor: 5,
-                                child: Text(
-                                  "...",
-                                  style: headingStyle,
-                                )),
+                              widthFactor: 5,
+                              heightFactor: 5,
+                              child: Text(
+                                "...",
+                                style: headingStyle,
+                              ),
+                            ),
                           ),
                         const Spacer(),
                       ],
@@ -143,35 +153,37 @@ class HelpSheet extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: SizedBox(
-                          width: 600,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                        width: 600,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Icon(
+                                Icons.file_open_outlined,
+                                size: 30,
+                              ),
+                            ),
+                            const Text(
+                              'You can also load new images using drag and drop,\nor paste screenshots.',
+                            ),
+                            if (!isWindowVeryNarrow)
                               const Padding(
                                 padding: EdgeInsets.all(20.0),
-                                child: Icon(
-                                  Icons.file_open_outlined,
-                                  size: 30,
+                                child: SizedBox(
+                                  width: 30,
+                                  height: 30,
                                 ),
                               ),
-                              const Text(
-                                  'You can also load new images using drag and drop,\nor paste screenshots.'),
-                              if (!isWindowVeryNarrow)
-                                const Padding(
-                                  padding: EdgeInsets.all(20.0),
-                                  child: SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                )
-                            ],
-                          )),
-                    )
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -195,15 +207,15 @@ class ShortcutListItem extends StatelessWidget {
     String? text,
     required SingleActivator activator,
   }) : this(
-          key: key,
-          text: text,
-          keyLabel: activator.trigger.keyLabel,
-          modifier: Platform.isMacOS && activator.meta
-              ? cmdLabel
-              : activator.control
-                  ? ctrlLabel
-                  : null,
-        );
+         key: key,
+         text: text,
+         keyLabel: activator.trigger.keyLabel,
+         modifier: Platform.isMacOS && activator.meta
+             ? cmdLabel
+             : activator.control
+             ? ctrlLabel
+             : null,
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -254,9 +266,11 @@ class KeySymbol extends StatelessWidget {
   static const double borderRadius = 5;
   static const Color keyColor = Color(0xFF272727);
   static const Color keyLegendColor = Color.fromARGB(255, 235, 235, 235);
-  static const Border border = Border.fromBorderSide(BorderSide(
-    color: Color.fromARGB(87, 114, 114, 114),
-  ));
+  static const Border border = Border.fromBorderSide(
+    BorderSide(
+      color: Color.fromARGB(87, 114, 114, 114),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {

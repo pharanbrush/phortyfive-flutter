@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-typedef ClipboardCopyTextHandler = void Function(
-    {required String text, String? toastMessage});
+typedef ClipboardCopyTextHandler =
+    void Function({required String text, String? toastMessage});
 
 class ClipboardHandlers extends InheritedWidget {
   const ClipboardHandlers({

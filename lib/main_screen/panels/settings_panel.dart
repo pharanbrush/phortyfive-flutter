@@ -43,8 +43,9 @@ class SettingsPanel extends StatelessWidget {
     Widget themesWidgets(BuildContext context, {required Widget child}) {
       return DropdownMenuTheme(
         data: DropdownMenuThemeData(
-            menuStyle: const MenuStyle(alignment: Alignment.center),
-            textStyle: Theme.of(context).textTheme.labelLarge),
+          menuStyle: const MenuStyle(alignment: Alignment.center),
+          textStyle: Theme.of(context).textTheme.labelLarge,
+        ),
         child: child,
       );
     }
@@ -84,8 +85,10 @@ class SettingsPanel extends StatelessWidget {
                     direction: Axis.vertical,
                     spacing: 10,
                     children: [
-                      Text("Exclude folders ending in",
-                          style: Theme.of(context).textTheme.labelMedium),
+                      Text(
+                        "Exclude folders ending in",
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
                       Row(
                         children: [
                           SizedBox(width: 10),
@@ -201,7 +204,8 @@ class SettingsPanel extends StatelessWidget {
   }
 
   void promptUserClearRecentFolders(BuildContext context) async {
-    final userClickedYes = await showDialog<bool>(
+    final userClickedYes =
+        await showDialog<bool>(
           context: context,
           builder: (context) {
             return AlertDialog(
@@ -219,7 +223,7 @@ class SettingsPanel extends StatelessWidget {
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
                   child: Text("Never mind."),
-                )
+                ),
               ],
             );
           },
@@ -247,7 +251,7 @@ class SettingsPanel extends StatelessWidget {
 
     final material =
         Theme.of(context).extension<PfsAppTheme>()?.boxPanelMaterialBuilder ??
-            PfsAppTheme.defaultBoxPanelMaterial;
+        PfsAppTheme.defaultBoxPanelMaterial;
 
     return Positioned(
       top: top,

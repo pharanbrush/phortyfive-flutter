@@ -43,8 +43,9 @@ class WindowWrapper extends StatelessWidget {
     Widget titlebar() {
       final theme = Theme.of(context);
       final borderSide = theme.extension<PfsAppTheme>()?.appWindowBorderSide;
-      final titleBarColor =
-          borderSide == null ? Colors.transparent : borderSide.color;
+      final titleBarColor = borderSide == null
+          ? Colors.transparent
+          : borderSide.color;
 
       final isLeftSidedControls = Platform.isMacOS;
 
@@ -78,7 +79,9 @@ class WindowWrapper extends StatelessWidget {
                               const Text(
                                 PfsLocalization.appTitle,
                                 style: TextStyle(
-                                    color: Color(0x7E999999), fontSize: 12),
+                                  color: Color(0x7E999999),
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -138,7 +141,8 @@ class WindowWrapper extends StatelessWidget {
               shape: platformBorderRadius > 0
                   ? RoundedRectangleBorder(
                       borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(platformBorderRadius)),
+                        Radius.circular(platformBorderRadius),
+                      ),
                       side: borderSide,
                     )
                   : Border(
@@ -147,7 +151,7 @@ class WindowWrapper extends StatelessWidget {
                       right: borderSide,
                     ),
               child: const SizedBox.expand(),
-            )
+            ),
         ],
       );
     }
@@ -164,11 +168,13 @@ class WindowButtons extends StatelessWidget {
     final bool isLightTheme =
         Theme.of(context).colorScheme.brightness == Brightness.light;
 
-    final buttonColors =
-        isLightTheme ? buttonColorsOnLight : buttonColorsOnDark;
+    final buttonColors = isLightTheme
+        ? buttonColorsOnLight
+        : buttonColorsOnDark;
 
-    final closeButtonColors =
-        isLightTheme ? closeButtonColorsOnLight : closeButtonColorsOnDark;
+    final closeButtonColors = isLightTheme
+        ? closeButtonColorsOnLight
+        : closeButtonColorsOnDark;
 
     return Row(
       children: [
@@ -193,7 +199,7 @@ class KeepWindowOnTopButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: notifier,
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         return IconButton(
           style: const ButtonStyle(
             iconSize: WidgetStatePropertyAll(16),

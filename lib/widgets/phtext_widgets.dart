@@ -39,7 +39,7 @@ class _HyperlinkRichTextState extends State<HyperlinkRichText> {
               },
             onEnter: (_) => setState(() => _isHovered = true),
             onExit: (_) => setState(() => _isHovered = false),
-          )
+          ),
         ],
       ),
     );

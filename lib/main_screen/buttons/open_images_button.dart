@@ -33,7 +33,7 @@ class ImageSetButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListenableBuilder(
         listenable: model.imageListChangedNotifier,
-        builder: (context, __) {
+        builder: (context, _) {
           final fileCount = model.imageList.count;
           final lastFolder = model.lastFolder;
           final String tooltip =

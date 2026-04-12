@@ -32,8 +32,9 @@ void main(List<String> args) async {
     main_args.appFileToLoadFromMainArgs = args.first;
   }
 
-  final initialTheme = await pfs_preferences.themePreference
-      .getValue(defaultValue: PfsTheme.defaultTheme);
+  final initialTheme = await pfs_preferences.themePreference.getValue(
+    defaultValue: PfsTheme.defaultTheme,
+  );
 
   remember_window_size.appRememberWindowSizeNotifier.value =
       await remember_window_size.getRememberWindowSizePreference();
@@ -42,15 +43,18 @@ void main(List<String> args) async {
   const defaultWindowSize = Size(860, 1024);
   if (remember_window_size.appRememberWindowSizeNotifier.value) {
     windowSize = await remember_window_size.getWindowSizePreference(
-        defaultSize: defaultWindowSize);
+      defaultSize: defaultWindowSize,
+    );
   } else {
     windowSize = defaultWindowSize;
   }
 
-  runApp(MyApp(
-    appModel: PfsAppModel(),
-    initialTheme: initialTheme,
-  ));
+  runApp(
+    MyApp(
+      appModel: PfsAppModel(),
+      initialTheme: initialTheme,
+    ),
+  );
 
   doWhenWindowReady(() {
     appWindow
@@ -81,7 +85,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final mainTree = ValueListenableBuilder(
       valueListenable: theme,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,

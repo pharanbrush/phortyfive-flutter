@@ -74,7 +74,8 @@ class TimerDurationPanel extends StatelessWidget {
     const double narrowestNarrowWidth = 450;
     const double rightMarginNormal = 160;
     const double squeezeOffset = 5;
-    const double rightMarginNarrow = rightMarginNormal -
+    const double rightMarginNarrow =
+        rightMarginNormal -
         (widestNarrowWidth - narrowestNarrowWidth) +
         squeezeOffset;
 
@@ -108,10 +109,9 @@ class TimerDurationPanel extends StatelessWidget {
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
-    final bigLabelStyle = Theme.of(context)
-        .textTheme
-        .headlineSmall
-        ?.copyWith(color: labelStyle.color);
+    final bigLabelStyle = Theme.of(
+      context,
+    ).textTheme.headlineSmall?.copyWith(color: labelStyle.color);
 
     final panelMaterial = PfsAppTheme.pawPanelFrom(Theme.of(context));
 
@@ -120,53 +120,57 @@ class TimerDurationPanel extends StatelessWidget {
         Positioned(
           right: rightOffset,
           bottom: (-radius) + bottomOffset,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              tapToDismiss(
-                child: panelMaterial(
-                  child: SizedBox(
-                    width: diameter,
-                    height: diameter,
-                    child: DefaultTextStyle(
-                      style: labelStyle,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Timer duration", style: bigLabelStyle),
+          child:
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  tapToDismiss(
+                    child: panelMaterial(
+                      child: SizedBox(
+                        width: diameter,
+                        height: diameter,
+                        child: DefaultTextStyle(
+                          style: labelStyle,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Timer duration",
+                                  style: bigLabelStyle,
+                                ),
+                              ),
+                              secondsTextField,
+                              const SizedBox(height: 3),
+                              const Text('seconds'),
+                            ],
                           ),
-                          secondsTextField,
-                          const SizedBox(height: 3),
-                          const Text('seconds'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 500,
+                    width: 500,
+                    child: Stack(
+                      children: presetButtons().toList().animate(
+                        interval: const Duration(milliseconds: 30),
+                        delay: const Duration(milliseconds: 100),
+                        effects: const [
+                          Phanimations.slideUpEffect,
+                          Phanimations.fadeInEffect,
                         ],
                       ),
                     ),
                   ),
-                ),
+                ],
+              ).animate(
+                effects: const [
+                  Phanimations.growBottomEffect,
+                ],
               ),
-              SizedBox(
-                height: 500,
-                width: 500,
-                child: Stack(
-                  children: presetButtons().toList().animate(
-                    interval: const Duration(milliseconds: 30),
-                    delay: const Duration(milliseconds: 100),
-                    effects: const [
-                      Phanimations.slideUpEffect,
-                      Phanimations.fadeInEffect,
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ).animate(
-            effects: const [
-              Phanimations.growBottomEffect,
-            ],
-          ),
         ),
       ],
     );
@@ -230,10 +234,12 @@ class TimerPresetButton extends StatelessWidget {
 class TimerDurationEditor {
   TimerDurationEditor();
 
-  final TextEditingController _textEditingController =
-      TextEditingController(text: '');
-  final FocusNode _textFieldFocusNode =
-      FocusNode(debugLabel: 'Timer Text Editor');
+  final TextEditingController _textEditingController = TextEditingController(
+    text: '',
+  );
+  final FocusNode _textFieldFocusNode = FocusNode(
+    debugLabel: 'Timer Text Editor',
+  );
 
   Widget widget() {
     return TimerDurationPanel(
@@ -252,7 +258,9 @@ class TimerDurationEditor {
   }
 
   static void _selectAllText(TextEditingController controller) {
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: controller.text.length,
+    );
   }
 }

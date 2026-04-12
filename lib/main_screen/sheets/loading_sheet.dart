@@ -30,7 +30,7 @@ class LoadingSheet extends StatelessWidget {
               const SizedBox(height: 10),
               ValueListenableBuilder(
                 valueListenable: loadedFileCountListenable,
-                builder: (_, value, __) {
+                builder: (_, value, _) {
                   return Text("Listing $value images...");
                 },
               ),

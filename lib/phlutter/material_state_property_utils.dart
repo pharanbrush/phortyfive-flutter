@@ -5,7 +5,8 @@ WidgetStateProperty<Color> hoverColors({
   required Color hover,
 }) {
   return WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.hovered) ? hover : idle);
+    (states) => states.contains(WidgetState.hovered) ? hover : idle,
+  );
 }
 
 WidgetStateProperty<T> hoverProperty<T>({
@@ -13,7 +14,8 @@ WidgetStateProperty<T> hoverProperty<T>({
   required T hover,
 }) {
   return WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.hovered) ? hover : idle);
+    (states) => states.contains(WidgetState.hovered) ? hover : idle,
+  );
 }
 
 WidgetStateProperty<T> hoverActiveDisabledProperty<T>({

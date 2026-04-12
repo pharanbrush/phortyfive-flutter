@@ -162,7 +162,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
           Positioned.fill(
             child: ValueListenableBuilder(
               valueListenable: model.underlayColor,
-              builder: (_, modelUnderlayColor, __) {
+              builder: (_, modelUnderlayColor, _) {
                 return AnimatedContainer(
                   color: modelUnderlayColor,
                   duration: Duration(milliseconds: 600),
@@ -173,7 +173,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
           Center(
             child: ValueListenableBuilder(
               valueListenable: model.opacity,
-              builder: (_, opacityValue, __) {
+              builder: (_, opacityValue, _) {
                 return Opacity(
                   opacity: opacityValue,
                   child: widget.child,
@@ -243,7 +243,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
               },
               child: ValueListenableBuilder(
                 valueListenable: model.isStrokesVisible,
-                builder: (_, isStrokesVisibleValue, ___) {
+                builder: (_, isStrokesVisibleValue, _) {
                   return CustomPaint(
                     painter: AnnotationPainter(
                       repaint: model.strokesChangedListenable,

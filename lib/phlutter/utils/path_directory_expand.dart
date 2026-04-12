@@ -41,8 +41,9 @@ Future<List<String>> getExpandedList(
     final String? resolvedShortcutPath;
     if (Platform.isWindows &&
         p.extension(possibleShortcutFile) == windowsShortcutExtension) {
-      resolvedShortcutPath =
-          windows_shortcuts.resolveShortcut(possibleShortcutFile);
+      resolvedShortcutPath = windows_shortcuts.resolveShortcut(
+        possibleShortcutFile,
+      );
       // } else if (Platform.isMacOS &&
       //     possibleShortcutFile.endsWith(macosAliasDefaultSuffix)) {
       //   resolvedShortcutPath =
@@ -58,7 +59,8 @@ Future<List<String>> getExpandedList(
         final resolvedDirectory = Directory(resolvedShortcutPath);
         if (await resolvedDirectory.exists()) {
           debugPrint(
-              "Found shortcut and resolved. Adding to stack: $resolvedShortcutPath");
+            "Found shortcut and resolved. Adding to stack: $resolvedShortcutPath",
+          );
           return resolvedDirectory;
         }
         break;
@@ -132,7 +134,8 @@ Future<List<String>> getExpandedList(
         for (final suffix in ignoredSuffixes) {
           if (currentDirectoryPath.endsWith(suffix)) {
             debugPrint(
-                "Ignoring '$currentDirectoryPath' because of suffix: $suffix");
+              "Ignoring '$currentDirectoryPath' because of suffix: $suffix",
+            );
             ignoreFolder = true;
             break;
           }

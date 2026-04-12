@@ -77,8 +77,9 @@ class ColorMeterModel {
   void Function()? onStartColorMeter;
   void Function()? onEndColorMeter;
 
-  final startEndComponentsMode =
-      ValueNotifier<ColorComponentsMode>(ColorComponentsMode.none);
+  final startEndComponentsMode = ValueNotifier<ColorComponentsMode>(
+    ColorComponentsMode.none,
+  );
   bool isColorMetering = false;
 
   void cycleComponentsMode() {
@@ -250,8 +251,9 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
 
   static TextStyle blendModeLabelStyle(ThemeData theme) {
     final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
-    final labelTextColor =
-        theme.colorScheme.onSurface.withValues(alpha: _labelAlpha);
+    final labelTextColor = theme.colorScheme.onSurface.withValues(
+      alpha: _labelAlpha,
+    );
 
     return TextStyle(fontSize: labelTextSize, color: labelTextColor);
   }
@@ -312,26 +314,31 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       );
 
       Widget colorValue(String label, String value, String unit) {
-        return Row(children: [
-          SizedBox(
-            width: 20,
-            child: Center(
-              child: Text(label, style: lowPriorityLabelStyle),
+        return Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: Center(
+                child: Text(label, style: lowPriorityLabelStyle),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 1),
-            child: SizedBox(
-              width: 27,
-              child: Text(value,
-                  style: valueTextStyle, textAlign: TextAlign.right),
+            Padding(
+              padding: const EdgeInsets.only(right: 1),
+              child: SizedBox(
+                width: 27,
+                child: Text(
+                  value,
+                  style: valueTextStyle,
+                  textAlign: TextAlign.right,
+                ),
+              ),
             ),
-          ),
-          SizedBox(
-            width: 12,
-            child: Text(unit, style: lowPriorityLabelStyle),
-          ),
-        ]);
+            SizedBox(
+              width: 12,
+              child: Text(unit, style: lowPriorityLabelStyle),
+            ),
+          ],
+        );
       }
 
       switch (componentsMode) {
@@ -345,9 +352,15 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
               children: [
                 colorValue("H", hslColor.hue.toStringAsFixed(0), "°"),
                 colorValue(
-                    "S", (hslColor.saturation * 100).toStringAsFixed(0), "%"),
+                  "S",
+                  (hslColor.saturation * 100).toStringAsFixed(0),
+                  "%",
+                ),
                 colorValue(
-                    "L", (hslColor.lightness * 100).toStringAsFixed(1), "%"),
+                  "L",
+                  (hslColor.lightness * 100).toStringAsFixed(1),
+                  "%",
+                ),
               ],
             ),
           );
@@ -381,14 +394,16 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
       }
     }
 
-    Widget listeningValuesVertical(ValueListenable<Color> listenableColor,
-        CrossAxisAlignment crossAxisAlignment) {
+    Widget listeningValuesVertical(
+      ValueListenable<Color> listenableColor,
+      CrossAxisAlignment crossAxisAlignment,
+    ) {
       return ValueListenableBuilder(
         valueListenable: widget.model.startEndComponentsMode,
-        builder: (_, startEndNumbersModeValue, ___) {
+        builder: (_, startEndNumbersModeValue, _) {
           return ValueListenableBuilder(
             valueListenable: listenableColor,
-            builder: (_, value, ___) {
+            builder: (_, value, _) {
               return colorValuesVertical(
                 value,
                 startEndNumbersModeValue,
@@ -409,12 +424,16 @@ class _ColorMeterBottomBarState extends State<ColorMeterBottomBar> {
             ignorePointer: true,
             richMessage: TextSpan(
               children: [
-                TextSpan(text: """
-This color change meter calculates values in """),
                 TextSpan(
-                    text: "gamma space",
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                TextSpan(text: """.
+                  text: """
+This color change meter calculates values in """,
+                ),
+                TextSpan(
+                  text: "gamma space",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                TextSpan(
+                  text: """.
 This reflects how painting apps show their color pickers, and how they
 blend layers using modes like "Normal", "Multiply", and "Screen".
 Operating in gamma space is the standard way most current systems, everyday apps,
@@ -428,7 +447,8 @@ physical amount of light.
 
 Blending done in gamma space deviates significantly from real behavior of light.
 For more accurate and pleasing results, applications like modern games and 3D software
-take color values out of gamma space before doing color calculations.""")
+take color values out of gamma space before doing color calculations.""",
+                ),
               ],
             ),
             child: Icon(
@@ -458,13 +478,14 @@ take color values out of gamma space before doing color calculations.""")
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ValueListenableBuilder(
-                            valueListenable: isStartColorPicked,
-                            builder: (_, value, ___) {
-                              return listeningValuesVertical(
-                                value ? startColor : endColor,
-                                CrossAxisAlignment.end,
-                              );
-                            }),
+                          valueListenable: isStartColorPicked,
+                          builder: (_, value, _) {
+                            return listeningValuesVertical(
+                              value ? startColor : endColor,
+                              CrossAxisAlignment.end,
+                            );
+                          },
+                        ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -478,22 +499,23 @@ take color values out of gamma space before doing color calculations.""")
                       ],
                     ),
                     ValueListenableBuilder(
-                        valueListenable: isStartColorPicked,
-                        builder: (context, value, child) {
-                          if (value == false) {
-                            return SizedBox(width: 28, height: 39);
-                          }
+                      valueListenable: isStartColorPicked,
+                      builder: (context, value, child) {
+                        if (value == false) {
+                          return SizedBox(width: 28, height: 39);
+                        }
 
-                          return Padding(
-                            padding: EdgeInsetsGeometry.only(bottom: 15),
-                            child: _ColorMeterRightArrow(),
-                          ).animate(
-                            effects: [
-                              Phanimations.slideRightEffect,
-                              Phanimations.fadeInEffect
-                            ],
-                          );
-                        }),
+                        return Padding(
+                          padding: EdgeInsetsGeometry.only(bottom: 15),
+                          child: _ColorMeterRightArrow(),
+                        ).animate(
+                          effects: [
+                            Phanimations.slideRightEffect,
+                            Phanimations.fadeInEffect,
+                          ],
+                        );
+                      },
+                    ),
                     SizedBox(width: 5),
                   ],
                 ),
@@ -501,201 +523,216 @@ take color values out of gamma space before doing color calculations.""")
                 // Main middle block
                 //
                 ValueListenableBuilder(
-                    valueListenable: isStartColorPicked,
-                    builder: (context, value, _) {
-                      if (isStartColorPicked.value == false) {
-                        return SizedBox(
-                          width: 360,
-                          height: 78,
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10, right: 10, top: 0, bottom: 15),
-                                  child: Icon(Icons.colorize),
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 3,
-                                  children: [
-                                    Text(
-                                      PfsLocalization
-                                          .clickImageToPickStartingColor,
-                                    ),
-                                    Text(
-                                      PfsLocalization
-                                          .rightClickToExitColorMeter,
-                                      style: minorLabelStyle,
-                                    ),
-                                    SizedBox(height: baseSize * 0.7),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Column(
-                            spacing: 4,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                  valueListenable: isStartColorPicked,
+                  builder: (context, value, _) {
+                    if (isStartColorPicked.value == false) {
+                      return SizedBox(
+                        width: 360,
+                        height: 78,
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              //
-                              // Top row
-                              //
-                              Row(
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                  top: 0,
+                                  bottom: 15,
+                                ),
+                                child: Icon(Icons.colorize),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                spacing: 3,
                                 children: [
-                                  ...hslChangeMeterWidgets(),
+                                  Text(
+                                    PfsLocalization
+                                        .clickImageToPickStartingColor,
+                                  ),
+                                  Text(
+                                    PfsLocalization.rightClickToExitColorMeter,
+                                    style: minorLabelStyle,
+                                  ),
+                                  SizedBox(height: baseSize * 0.7),
                                 ],
                               ),
-                              //
-                              //
-                              const _ColorMeterDivider(),
-                              //
-                              // Bottom row
-                              //
-                              Row(
-                                children: [
-                                  SizedBox(
-                                      width: 100, child: _normalColorBox()),
-                                  SizedBox(width: 25),
-                                  SizedBox(
-                                    width: 225,
-                                    child: ValueListenableBuilder(
-                                      valueListenable:
-                                          widget.model.isBlendModeBoxesEnabled,
-                                      builder:
-                                          (context, isBlendModesVisible, ___) {
-                                        if (!isBlendModesVisible) {
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Column(
+                          spacing: 4,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children:
+                              [
+                                //
+                                // Top row
+                                //
+                                Row(
+                                  children: [
+                                    ...hslChangeMeterWidgets(),
+                                  ],
+                                ),
+                                //
+                                //
+                                const _ColorMeterDivider(),
+                                //
+                                // Bottom row
+                                //
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 100,
+                                      child: _normalColorBox(),
+                                    ),
+                                    SizedBox(width: 25),
+                                    SizedBox(
+                                      width: 225,
+                                      child: ValueListenableBuilder(
+                                        valueListenable: widget
+                                            .model
+                                            .isBlendModeBoxesEnabled,
+                                        builder: (context, isBlendModesVisible, _) {
+                                          if (!isBlendModesVisible) {
+                                            return SizedBox(
+                                              height: 33,
+                                              child: TextButton(
+                                                onPressed: () {
+                                                  widget
+                                                          .model
+                                                          .isBlendModeBoxesEnabled
+                                                          .value =
+                                                      true;
+                                                },
+                                                child: Row(
+                                                  children: const [
+                                                    Spacer(),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                        top: 2,
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.visibility,
+                                                        size: 15,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 6),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                        bottom: 1,
+                                                      ),
+                                                      child: Text(
+                                                        "Blend modes",
+                                                      ),
+                                                    ),
+                                                    Spacer(),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+
                                           return SizedBox(
                                             height: 33,
                                             child: TextButton(
                                               onPressed: () {
                                                 widget
-                                                    .model
-                                                    .isBlendModeBoxesEnabled
-                                                    .value = true;
+                                                        .model
+                                                        .isBlendModeBoxesEnabled
+                                                        .value =
+                                                    false;
                                               },
-                                              child: Row(
-                                                children: const [
-                                                  Spacer(),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.only(top: 2),
-                                                    child: Icon(
-                                                      Icons.visibility,
-                                                      size: 15,
-                                                    ),
+                                              style: ButtonStyle(
+                                                padding: WidgetStatePropertyAll(
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 0,
+                                                    horizontal: 2,
                                                   ),
-                                                  SizedBox(width: 6),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        bottom: 1),
-                                                    child: Text("Blend modes"),
-                                                  ),
-                                                  Spacer(),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }
-
-                                        return SizedBox(
-                                          height: 33,
-                                          child: TextButton(
-                                            onPressed: () {
-                                              widget
-                                                  .model
-                                                  .isBlendModeBoxesEnabled
-                                                  .value = false;
-                                            },
-                                            style: ButtonStyle(
-                                              padding: WidgetStatePropertyAll(
-                                                const EdgeInsets.symmetric(
-                                                  vertical: 0,
-                                                  horizontal: 2,
                                                 ),
                                               ),
+                                              child: _blendModeBoxes(),
                                             ),
-                                            child: _blendModeBoxes(),
-                                          ),
-                                        );
-                                      },
+                                          );
+                                        },
+                                      ),
                                     ),
-                                  ),
+                                  ],
+                                ),
+                              ].animate(
+                                effects: [
+                                  Phanimations.slideRightWideEffect,
+                                  Phanimations.fadeInEffect,
                                 ],
-                              )
-                            ].animate(
-                              effects: [
-                                Phanimations.slideRightWideEffect,
-                                Phanimations.fadeInEffect
-                              ],
-                              delay: Duration(milliseconds: 50),
-                              interval: Duration(milliseconds: 60),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 3,
-                          )
-                        ],
-                      );
-                    }),
+                                delay: Duration(milliseconds: 50),
+                                interval: Duration(milliseconds: 60),
+                              ),
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                      ],
+                    );
+                  },
+                ),
                 //
                 // Rightmost block
                 //
                 ValueListenableBuilder(
-                    valueListenable: isStartColorPicked,
-                    builder: (context, value, child) {
-                      if (value == false) {
-                        return Row(
-                          children: [
-                            SizedBox(width: 28),
-                            SizedBox(width: 48),
-                            SizedBox(width: 72),
-                          ],
-                        );
-                      }
-
+                  valueListenable: isStartColorPicked,
+                  builder: (context, value, child) {
+                    if (value == false) {
                       return Row(
                         children: [
-                          Padding(
-                            padding: EdgeInsetsGeometry.only(bottom: 15),
-                            child: _ColorMeterRightArrow(),
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _endColorBoxWidget(),
-                                  Text(
-                                    PfsLocalization.endColorLabel,
-                                    style: startEndLabelStyle,
-                                  ),
-                                ],
-                              ),
-                              listeningValuesVertical(
-                                endColor,
-                                CrossAxisAlignment.start,
-                              ),
-                            ],
-                          ),
-                        ].animate(
-                          effects: [
-                            Phanimations.slideRightEffect,
-                            Phanimations.fadeInEffect
-                          ],
-                          delay: Duration(milliseconds: 220),
-                          interval: Duration(milliseconds: 80),
-                        ),
+                          SizedBox(width: 28),
+                          SizedBox(width: 48),
+                          SizedBox(width: 72),
+                        ],
                       );
-                    }),
+                    }
+
+                    return Row(
+                      children:
+                          [
+                            Padding(
+                              padding: EdgeInsetsGeometry.only(bottom: 15),
+                              child: _ColorMeterRightArrow(),
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _endColorBoxWidget(),
+                                    Text(
+                                      PfsLocalization.endColorLabel,
+                                      style: startEndLabelStyle,
+                                    ),
+                                  ],
+                                ),
+                                listeningValuesVertical(
+                                  endColor,
+                                  CrossAxisAlignment.start,
+                                ),
+                              ],
+                            ),
+                          ].animate(
+                            effects: [
+                              Phanimations.slideRightEffect,
+                              Phanimations.fadeInEffect,
+                            ],
+                            delay: Duration(milliseconds: 220),
+                            interval: Duration(milliseconds: 80),
+                          ),
+                    );
+                  },
+                ),
                 SizedBox(width: barLeftRightPadding),
               ],
             ),
@@ -748,10 +785,10 @@ take color values out of gamma space before doing color calculations.""")
     return [
       ValueListenableBuilder(
         valueListenable: endColor,
-        builder: (_, __, ___) {
+        builder: (_, _, _) {
           return ValueListenableBuilder(
             valueListenable: startColor,
-            builder: (context, __, ___) {
+            builder: (context, _, _) {
               final start = startColor.value.hsl;
               final end = endColor.value.hsl;
 
@@ -778,19 +815,20 @@ take color values out of gamma space before doing color calculations.""")
               final lightnessPercent = (end.lightness / start.lightness) * 100;
               final lightnessPercentText =
                   (lightnessPercent.isInfinite || lightnessPercent.isNaN)
-                      ? "-"
-                      : lightnessPercent.toStringAsFixed(0);
+                  ? "-"
+                  : lightnessPercent.toStringAsFixed(0);
 
-              final hueDecimalCount = (hueDifference < 1.0 &&
+              final hueDecimalCount =
+                  (hueDifference < 1.0 &&
                       hueDifference > 1.0 &&
                       hueDifference != 0)
                   ? 1
                   : 0;
               final hueDifferenceText =
                   isSaturationInvalid || end.saturation == 0
-                      ? "-"
-                      : (hueDifference > 0 ? "+" : "") +
-                          hueDifference.toStringAsFixed(hueDecimalCount);
+                  ? "-"
+                  : (hueDifference > 0 ? "+" : "") +
+                        hueDifference.toStringAsFixed(hueDecimalCount);
 
               final theme = Theme.of(context);
               final baseSize = theme.textTheme.bodyMedium?.fontSize ?? 12;
@@ -799,8 +837,9 @@ take color values out of gamma space before doing color calculations.""")
                 fontSize: baseSize * 1.4,
               );
 
-              final percentTextStyle =
-                  theme.textTheme.labelMedium?.copyWith(color: textGray);
+              final percentTextStyle = theme.textTheme.labelMedium?.copyWith(
+                color: textGray,
+              );
 
               final percentLabel = Text("%", style: percentTextStyle);
 
@@ -846,59 +885,62 @@ take color values out of gamma space before doing color calculations.""")
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      hslItem(
-                        labelText: "hue ",
-                        tooltip:
-                            "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
-                        value: hueDifference,
-                        neutralValue: 0,
-                        increaseIcon: Icons.redo,
-                        decreaseIcon: Icons.undo,
-                        valueWidget: Text(hueDifferenceText),
-                        unitTextWidget: percentLabel,
-                        changeIconRightPadding: 3,
-                        valueSizedBoxWidth: 52,
-                      ),
-                      hslItem(
-                        labelText: "sat ",
-                        tooltip:
-                            "Change in saturation\nThe difference in saturation between the start and end colors.",
-                        value: saturationPercent,
-                        neutralValue: 1,
-                        increaseIcon: Icons.arrow_forward,
-                        decreaseIcon: Icons.arrow_back,
-                        valueWidget: Text(saturationDifferenceText),
-                        unitTextWidget: percentLabel,
-                        valueSizedBoxWidth: 50,
-                      ),
-                      hslItem(
-                        labelText: "lightness × ",
-                        tooltip:
-                            "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
-                        value: lightnessPercent,
-                        neutralValue: 100,
-                        increaseIcon: Icons.arrow_upward,
-                        decreaseIcon: Icons.arrow_downward,
-                        valueWidget: Padding(
-                          padding:
-                              const EdgeInsets.only(right: 1.55, bottom: 1),
-                          child: Text(
-                            lightnessPercentText,
-                            style: lightnessPercentTextStyle,
+                    children:
+                        [
+                          hslItem(
+                            labelText: "hue ",
+                            tooltip:
+                                "Percent towards to opposite hue\n100% means the exact opposite color.\nPositive is clockwise in a color wheel where\nRed, Yellow, Green, Cyan, Blue, Violet is clockwise.",
+                            value: hueDifference,
+                            neutralValue: 0,
+                            increaseIcon: Icons.redo,
+                            decreaseIcon: Icons.undo,
+                            valueWidget: Text(hueDifferenceText),
+                            unitTextWidget: percentLabel,
+                            changeIconRightPadding: 3,
+                            valueSizedBoxWidth: 52,
                           ),
+                          hslItem(
+                            labelText: "sat ",
+                            tooltip:
+                                "Change in saturation\nThe difference in saturation between the start and end colors.",
+                            value: saturationPercent,
+                            neutralValue: 1,
+                            increaseIcon: Icons.arrow_forward,
+                            decreaseIcon: Icons.arrow_back,
+                            valueWidget: Text(saturationDifferenceText),
+                            unitTextWidget: percentLabel,
+                            valueSizedBoxWidth: 50,
+                          ),
+                          hslItem(
+                            labelText: "lightness × ",
+                            tooltip:
+                                "Relative lightness percent\nThe amount of lightness the end color has in proportion to the start color.",
+                            value: lightnessPercent,
+                            neutralValue: 100,
+                            increaseIcon: Icons.arrow_upward,
+                            decreaseIcon: Icons.arrow_downward,
+                            valueWidget: Padding(
+                              padding: const EdgeInsets.only(
+                                right: 1.55,
+                                bottom: 1,
+                              ),
+                              child: Text(
+                                lightnessPercentText,
+                                style: lightnessPercentTextStyle,
+                              ),
+                            ),
+                            unitTextWidget: percentLabel,
+                            valueSizedBoxWidth: Platform.isMacOS ? 80 : 52,
+                          ),
+                        ].animate(
+                          effects: [
+                            Phanimations.slideRightEffect,
+                            Phanimations.fadeInEffect,
+                          ],
+                          delay: Duration(milliseconds: 30),
+                          interval: Duration(milliseconds: 60),
                         ),
-                        unitTextWidget: percentLabel,
-                        valueSizedBoxWidth: Platform.isMacOS ? 80 : 52,
-                      ),
-                    ].animate(
-                      effects: [
-                        Phanimations.slideRightEffect,
-                        Phanimations.fadeInEffect
-                      ],
-                      delay: Duration(milliseconds: 30),
-                      interval: Duration(milliseconds: 60),
-                    ),
                   ),
                 ),
               );
@@ -925,7 +967,7 @@ take color values out of gamma space before doing color calculations.""")
             width: width,
             child: ValueListenableBuilder(
               valueListenable: calculatedColors.alphaBlendColorPercent,
-              builder: (_, value, ___) {
+              builder: (_, value, _) {
                 if (value.isInfinite || value.isNaN || value == 0) {
                   return Text(" - ");
                 }
@@ -952,38 +994,43 @@ take color values out of gamma space before doing color calculations.""")
 
     return ValueListenableBuilder(
       valueListenable: calculatedColors.startEndColorDifference,
-      builder: (_, difference, __) {
+      builder: (_, difference, _) {
         if (difference == ColorDifference.allDarkerOrEqual) {
           return Row(
             children: [
               Row(
                 children: [
                   ColorBox.labeledListening(
-                      label: PfsLocalization.multiply,
-                      colorListenable: calculatedColors.multiplyColor),
+                    label: PfsLocalization.multiply,
+                    colorListenable: calculatedColors.multiplyColor,
+                  ),
                   SizedBox(width: 1),
                   ValueListenableBuilder(
-                      valueListenable: calculatedColors.multiplyMinimumAlpha,
-                      builder: (_, __, ___) {
-                        final multiplyPercentText =
-                            (calculatedColors.multiplyMinimumAlpha.value * 100)
-                                .toStringAsFixed(0);
+                    valueListenable: calculatedColors.multiplyMinimumAlpha,
+                    builder: (_, _, _) {
+                      final multiplyPercentText =
+                          (calculatedColors.multiplyMinimumAlpha.value * 100)
+                              .toStringAsFixed(
+                                0,
+                              );
 
-                        return ColorBox.conditionalLabeledListening(
-                          label: "$multiplyPercentText%",
-                          textSpace: 0,
-                          colorListenable:
-                              calculatedColors.multiplyWithAlphaColor,
-                          conditionListenable:
-                              calculatedColors.canMultiplyWithAlpha,
-                        );
-                      }),
+                      return ColorBox.conditionalLabeledListening(
+                        label: "$multiplyPercentText%",
+                        textSpace: 0,
+                        colorListenable:
+                            calculatedColors.multiplyWithAlphaColor,
+                        conditionListenable:
+                            calculatedColors.canMultiplyWithAlpha,
+                      );
+                    },
+                  ),
                 ],
               ),
               SizedBox(width: boxSpacing),
               ColorBox.labeledListening(
-                  label: PfsLocalization.linearBurn,
-                  colorListenable: calculatedColors.linearBurnColor),
+                label: PfsLocalization.linearBurn,
+                colorListenable: calculatedColors.linearBurnColor,
+              ),
             ],
           );
         } else if (difference == ColorDifference.allLighterOrEqual) {
@@ -991,12 +1038,14 @@ take color values out of gamma space before doing color calculations.""")
             spacing: boxSpacing,
             children: [
               ColorBox.labeledListening(
-                  label: PfsLocalization.screen,
-                  colorListenable: calculatedColors.screenColor),
+                label: PfsLocalization.screen,
+                colorListenable: calculatedColors.screenColor,
+              ),
               _colorDodgeBox(),
               ColorBox.labeledListening(
-                  label: PfsLocalization.add,
-                  colorListenable: calculatedColors.addColor),
+                label: PfsLocalization.add,
+                colorListenable: calculatedColors.addColor,
+              ),
             ],
           );
         }
@@ -1015,7 +1064,7 @@ take color values out of gamma space before doing color calculations.""")
   Widget _colorDodgeBox() {
     return ValueListenableBuilder(
       valueListenable: calculatedColors.canColorDodge,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return ColorBox.label(
           label: PfsLocalization.colorDodge,
           strikethrough: !calculatedColors.canColorDodge.value,
@@ -1044,7 +1093,7 @@ take color values out of gamma space before doing color calculations.""")
   Widget _startColorBoxWidget() {
     final innerWidget = ValueListenableBuilder(
       valueListenable: isStartColorPicked,
-      builder: (context, _, __) {
+      builder: (context, _, _) {
         if (isStartColorPicked.value == false) {
           return ColorBox.valueListening(
             endColor,
@@ -1132,8 +1181,9 @@ class ColorBox extends StatelessWidget {
       builder: (context) {
         final theme = Theme.of(context);
         final labelTextSize = theme.textTheme.labelSmall?.fontSize ?? 10.5;
-        final labelTextColor =
-            theme.colorScheme.onSurface.withValues(alpha: _labelAlpha);
+        final labelTextColor = theme.colorScheme.onSurface.withValues(
+          alpha: _labelAlpha,
+        );
 
         final labelStyle = TextStyle(
           fontSize: labelTextSize,
@@ -1162,7 +1212,7 @@ class ColorBox extends StatelessWidget {
   }) {
     return ValueListenableBuilder(
       valueListenable: conditionListenable,
-      builder: (_, isConditionTrue, __) {
+      builder: (_, isConditionTrue, _) {
         if (isConditionTrue) {
           return ColorBox.labeledListening(
             label: label,
@@ -1183,7 +1233,7 @@ class ColorBox extends StatelessWidget {
   }) {
     return ValueListenableBuilder(
       valueListenable: listenableColor,
-      builder: (_, colorValue, __) {
+      builder: (_, colorValue, _) {
         final isClipped =
             colorValue == Colors.white || colorValue == Colors.black;
 
@@ -1212,8 +1262,9 @@ class ColorBox extends StatelessWidget {
   static Widget disabled() {
     return Builder(
       builder: (context) {
-        final color =
-            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15);
+        final color = Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.15);
         return ColorBox.label(
           label: "             ",
           child: ColorBox(
@@ -1238,12 +1289,13 @@ class ColorBox extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-              shape: shape,
-              color: color,
-              border: Border.all(
-                color: borderColor,
-                width: borderWidth,
-              )),
+            shape: shape,
+            color: color,
+            border: Border.all(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
         ),
       ),
     );
@@ -1388,13 +1440,20 @@ class CalculatedColors {
         final double mr = r1 == 0 ? 0 : r2 / r1;
         final double mg = g1 == 0 ? 0 : g2 / g1;
         final double mb = b1 == 0 ? 0 : b2 / b1;
-        final outputMultiplyColor =
-            Color.from(alpha: 1, red: mr, green: mg, blue: mb);
+        final outputMultiplyColor = Color.from(
+          alpha: 1,
+          red: mr,
+          green: mg,
+          blue: mb,
+        );
 
         multiplyColor.value = outputMultiplyColor;
 
         double findAlphaWithMultiply(
-            double start, double end, double multiply) {
+          double start,
+          double end,
+          double multiply,
+        ) {
           if (start == end) return 0;
           if (start <= 0) return double.negativeInfinity;
           if (multiply == 1) return double.infinity;
@@ -1452,7 +1511,11 @@ class CalculatedColors {
         final double subg = g1 - g2;
         final double subb = b1 - b2;
         final outputLinearBurnColor = Color.from(
-            alpha: 1, red: 1 - subr, green: 1 - subg, blue: 1 - subb);
+          alpha: 1,
+          red: 1 - subr,
+          green: 1 - subg,
+          blue: 1 - subb,
+        );
 
         linearBurnColor.value = outputLinearBurnColor;
 
@@ -1460,15 +1523,23 @@ class CalculatedColors {
         final double ar = r2 - r1;
         final double ag = g2 - g1;
         final double ab = b2 - b1;
-        final outputAddColor =
-            Color.from(alpha: 1, red: ar, green: ag, blue: ab);
+        final outputAddColor = Color.from(
+          alpha: 1,
+          red: ar,
+          green: ag,
+          blue: ab,
+        );
         addColor.value = outputAddColor;
 
         final double sr = 1 - (1 - r2) / (1 - r1);
         final double sg = 1 - (1 - g2) / (1 - g1);
         final double sb = 1 - (1 - b2) / (1 - b1);
-        final outputScreenColor =
-            Color.from(alpha: 1, red: sr, green: sg, blue: sb);
+        final outputScreenColor = Color.from(
+          alpha: 1,
+          red: sr,
+          green: sg,
+          blue: sb,
+        );
         screenColor.value = outputScreenColor;
 
         const double tooSmallToDodge = 4.0 / 255.0;
@@ -1492,21 +1563,26 @@ class CalculatedColors {
         final double dg = safeDodgeDivide(g1, g2);
         final double db = safeDodgeDivide(b1, b2);
 
-        final cannotDoDodgeOperation = (
+        final cannotDoDodgeOperation =
+            (
             // Color dodge becomes wildly inaccurate if the start color has very low values.
             (r1 < tooSmallToDodge && r2 != r1) ||
-                (g1 < tooSmallToDodge && g2 != g1) ||
-                (b1 < tooSmallToDodge && b2 != b1) ||
-                // Color dodge doesn't work if the division results in a giant number
-                (dr > 1 || dg > 1 || db > 1));
+            (g1 < tooSmallToDodge && g2 != g1) ||
+            (b1 < tooSmallToDodge && b2 != b1) ||
+            // Color dodge doesn't work if the division results in a giant number
+            (dr > 1 || dg > 1 || db > 1));
 
         canColorDodge.value = !cannotDoDodgeOperation;
 
         final double cdr = 1 - dr;
         final double cdg = 1 - dg;
         final double cdb = 1 - db;
-        final outputDodgeColor =
-            Color.from(alpha: 1, red: cdr, green: cdg, blue: cdb);
+        final outputDodgeColor = Color.from(
+          alpha: 1,
+          red: cdr,
+          green: cdg,
+          blue: cdb,
+        );
         dodgeColor.value = outputDodgeColor;
 
       default:
@@ -1529,8 +1605,14 @@ class CalculatedColors {
     final vg = g2 - g1;
     final vb = b2 - b1;
 
-    final vectorScaleToEdge =
-        calculateSafeStretchFactor(r1, g1, b1, vr, vg, vb);
+    final vectorScaleToEdge = calculateSafeStretchFactor(
+      r1,
+      g1,
+      b1,
+      vr,
+      vg,
+      vb,
+    );
 
     // Scaled color difference vector that brings the base color to the edge of the colorspace when combined.
     final svr = vr * vectorScaleToEdge;
@@ -1548,7 +1630,13 @@ class CalculatedColors {
   }
 
   static double calculateSafeStretchFactor(
-      double r, double g, double b, double vr, double vg, double vb) {
+    double r,
+    double g,
+    double b,
+    double vr,
+    double vg,
+    double vb,
+  ) {
     // Distance to colorspace edge (candidate factors for stretching the vector)
     final dr = vr > 0 ? 1.0 - r : -r;
     final dg = vg > 0 ? 1.0 - g : -g;
@@ -1702,10 +1790,10 @@ class ColorComparerSampleLocationOverlay extends StatelessWidget {
     Widget singleColorWidget() {
       return ValueListenableBuilder(
         valueListenable: color,
-        builder: (_, __, ___) {
+        builder: (_, _, _) {
           return ValueListenableBuilder(
             valueListenable: position,
-            builder: (_, __, ___) {
+            builder: (_, _, _) {
               return Positioned(
                 left: position.value.dx,
                 top: position.value.dy,
@@ -1731,10 +1819,10 @@ class ColorComparerSampleLocationOverlay extends StatelessWidget {
         builder: (context, value, child) {
           return ValueListenableBuilder(
             valueListenable: color,
-            builder: (_, __, ___) {
+            builder: (_, _, _) {
               return ValueListenableBuilder(
                 valueListenable: position,
-                builder: (_, __, ___) {
+                builder: (_, _, _) {
                   return Positioned(
                     left: position.value.dx,
                     top: position.value.dy,
@@ -1758,7 +1846,7 @@ class ColorComparerSampleLocationOverlay extends StatelessWidget {
 
     final widget = ValueListenableBuilder(
       valueListenable: isSecondColorEnabled,
-      builder: (_, secondEnabled, __) =>
+      builder: (_, secondEnabled, _) =>
           secondEnabled ? doubleColorWidget() : singleColorWidget(),
     );
 
@@ -1793,10 +1881,10 @@ class ColorSampleLocationOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final widget = ValueListenableBuilder(
       valueListenable: color,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return ValueListenableBuilder(
           valueListenable: position,
-          builder: (_, __, ___) {
+          builder: (_, _, _) {
             return Positioned(
               left: position.value.dx,
               top: position.value.dy,
@@ -1870,8 +1958,8 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
     final stroke = isClipped
         ? redStroke
         : isDark
-            ? lightStroke
-            : darkStroke;
+        ? lightStroke
+        : darkStroke;
 
     if (surroundingColor == null) {
       canvas.drawCircle(Offset.zero, radius, fill);
@@ -1883,7 +1971,10 @@ class ColorSampleLocationMarkerPainter extends CustomPainter {
 
       canvas.drawCircle(Offset.zero, radius, secondFill);
       canvas.drawCircle(
-          Offset.zero, radius - (surroundingThickness ?? 5), fill);
+        Offset.zero,
+        radius - (surroundingThickness ?? 5),
+        fill,
+      );
       canvas.drawCircle(Offset.zero, radius, stroke);
     }
   }
@@ -1923,10 +2014,10 @@ class StartEndArrowOverlay extends StatelessWidget {
 
     final widget = ValueListenableBuilder(
       valueListenable: startPosition,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return ValueListenableBuilder(
           valueListenable: endPosition,
-          builder: (_, __, ___) {
+          builder: (_, _, _) {
             return Positioned(
               left: minX,
               top: minY,
@@ -2008,20 +2099,23 @@ class StartEndArrowPainter extends CustomPainter {
     );
 
     final drawnLength = length - (radius * 0.9);
-    final headSize =
-        arrowHeadSize > drawnLength ? drawnLength + 2 : arrowHeadSize;
+    final headSize = arrowHeadSize > drawnLength
+        ? drawnLength + 2
+        : arrowHeadSize;
     if (headSize < 2) return;
 
     const triangleAngle = math.pi / 6;
     final lineAngle = math.atan2(vector.y, vector.x);
 
-    final a2 = drawnEnd -
+    final a2 =
+        drawnEnd -
         Vector2(
           headSize * math.cos(lineAngle - triangleAngle),
           headSize * math.sin(lineAngle - triangleAngle),
         );
 
-    final a3 = drawnEnd -
+    final a3 =
+        drawnEnd -
         Vector2(
           headSize * math.cos(lineAngle + triangleAngle),
           headSize * math.sin(lineAngle + triangleAngle),

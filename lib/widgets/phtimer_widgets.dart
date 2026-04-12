@@ -114,7 +114,7 @@ class TimerBar extends StatelessWidget {
       height: 2,
       child: ListenableBuilder(
         listenable: timerModel.playPauseAndProgressNotifier,
-        builder: (_, __) {
+        builder: (_, _) {
           final barValueFromModel = (1.0 - timerModel.progressPercent);
           final Color barColor = timerModel.isRunning
               ? (barValueFromModel < TimerBar.almostZeroThreshold
@@ -126,7 +126,7 @@ class TimerBar extends StatelessWidget {
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutQuart,
             tween: Tween<double>(begin: 0, end: barValueFromModel),
-            builder: (_, value, __) {
+            builder: (_, value, _) {
               return LinearProgressIndicator(
                 backgroundColor: timerTheme.barBackgroundColor,
                 valueColor: AlwaysStoppedAnimation<Color>(barColor),
@@ -164,10 +164,10 @@ class PlayPauseTimerButton extends StatelessWidget {
 
     return ListenableBuilder(
         listenable: model.allowedControlsChanged,
-        builder: (_, __) {
+        builder: (_, _) {
           return ListenableBuilder(
               listenable: timerModel.playPauseNotifier,
-              builder: (_, __) {
+              builder: (_, _) {
                 final playButtonTooltip =
                     "Timer paused. $pressLabel to resume ($shortcutLabel)";
                 final pauseButtonTooltip =

@@ -48,8 +48,9 @@ class FilterPanel extends StatelessWidget {
   }
 
   void handleImageModeSelectionChanged(Set<ImageColorMode> newSelection) {
-    final isSelectionGrayscale =
-        newSelection.contains(ImageColorMode.grayscale);
+    final isSelectionGrayscale = newSelection.contains(
+      ImageColorMode.grayscale,
+    );
     imagePhviewer.isUsingGrayscale = isSelectionGrayscale;
   }
 
@@ -77,7 +78,8 @@ class FilterPanel extends StatelessWidget {
     const double narrowestNarrowWidth = 450;
     const double rightMarginNormal = 280;
     const double squeezeOffset = 5;
-    const double rightMarginNarrow = rightMarginNormal -
+    const double rightMarginNarrow =
+        rightMarginNormal -
         (widestNarrowWidth - narrowestNarrowWidth) +
         squeezeOffset;
 
@@ -120,7 +122,7 @@ class FlipControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: zoomPanner.flipHorizontalListenable,
-      builder: (_, isFlippedHorizontal, ___) {
+      builder: (_, isFlippedHorizontal, _) {
         final labelStyle = Theme.of(context).textTheme.labelMedium;
 
         return Row(
@@ -159,7 +161,7 @@ class ColorModeButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: filters.filtersChangeListenable,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return buttons();
       },
     );
@@ -174,13 +176,15 @@ class ColorModeButtons extends StatelessWidget {
         style: const ButtonStyle(visualDensity: VisualDensity.compact),
         segments: const [
           ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.color,
-              label: Text('Color'),
-              icon: Icon(Icons.color_lens)),
+            value: ImageColorMode.color,
+            label: Text('Color'),
+            icon: Icon(Icons.color_lens),
+          ),
           ButtonSegment<ImageColorMode>(
-              value: ImageColorMode.grayscale,
-              label: Text('Grayscale'),
-              icon: Icon(Icons.invert_colors)),
+            value: ImageColorMode.grayscale,
+            label: Text('Grayscale'),
+            icon: Icon(Icons.invert_colors),
+          ),
         ],
         selected: filters.isUsingGrayscale
             ? const {ImageColorMode.grayscale}
@@ -213,7 +217,7 @@ class BlurSlider extends StatelessWidget {
 
     return ValueListenableBuilder(
       valueListenable: filters.blurLevelListenable,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return ScrollListener(
           onScrollUp: () => filters.incrementBlurLevel(1),
           onScrollDown: () => filters.incrementBlurLevel(-1),
@@ -269,10 +273,9 @@ class FilterPanelHeading extends StatelessWidget {
         headingIcon,
         Text(
           "Filters",
-          style: Theme.of(context)
-              .textTheme
-              .labelLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -295,7 +298,7 @@ class ResetFiltersSwitch extends StatelessWidget {
       padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
       child: ValueListenableBuilder(
         valueListenable: filters.filtersChangeListenable,
-        builder: (_, __, ___) {
+        builder: (_, _, _) {
           final isSomeFiltersAreOn = filters.isFilterActive;
 
           return Tooltip(

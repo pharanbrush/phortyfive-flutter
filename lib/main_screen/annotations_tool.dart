@@ -74,7 +74,8 @@ class RulerStroke extends Stroke {
     final Offset delta;
     final Offset outputPointer;
     if (targetLength != null) {
-      delta = userDelta /
+      delta =
+          userDelta /
           userDelta.distance *
           targetLength! *
           (isCentered ? 0.5 : 1);
@@ -131,10 +132,7 @@ class RulerStroke extends Stroke {
         }
 
       case RulerType.circle:
-        final c = getCircleParams(
-          start: start,
-          end: end,
-        );
+        final c = getCircleParams(start: start, end: end);
 
         final rect = Rect.fromCircle(center: c.center, radius: c.radius);
         super.path
@@ -240,14 +238,14 @@ class RulerStroke extends Stroke {
         drawTickMark(end, tickMarkHalfLength);
 
       case RulerType.circle:
-        final c = getCircleParams(
-          start: start,
-          end: end,
-        );
+        final c = getCircleParams(start: start, end: end);
 
         canvas.drawLine(c.outputStart, c.outputEnd, thinnerPaint);
-        canvas.drawLine(c.center + c.radiusPerpendicular,
-            c.center - c.radiusPerpendicular, thinnerPaint);
+        canvas.drawLine(
+          c.center + c.radiusPerpendicular,
+          c.center - c.radiusPerpendicular,
+          thinnerPaint,
+        );
         drawTickmarksForLine();
         canvas.drawCircle(c.center, c.radius, rulerPaint);
 
@@ -269,10 +267,8 @@ class RulerStroke extends Stroke {
     Offset outputEnd,
     Offset delta,
     Offset radiusPerpendicular,
-  }) getCircleParams({
-    required Offset start,
-    required Offset end,
-  }) {
+  })
+  getCircleParams({required Offset start, required Offset end}) {
     final delta = end - start;
     final double radius = delta.distance * 0.5;
     final Offset center = (start + end) * 0.5;
@@ -460,13 +456,11 @@ class AnnotationsModel {
     }
 
     if (currentTool.value == AnnotationTool.rulers) {
-      setRulerType(
-        switch (currentRulerType.value) {
-          RulerType.line => RulerType.box,
-          RulerType.box => RulerType.circle,
-          _ => RulerType.line,
-        },
-      );
+      setRulerType(switch (currentRulerType.value) {
+        RulerType.line => RulerType.box,
+        RulerType.box => RulerType.circle,
+        _ => RulerType.line,
+      });
 
       return;
     }
@@ -727,8 +721,9 @@ class AnnotationsModel {
     if (isStrokesLocked) return;
 
     const eraserSize = 3.0;
-    final eraseableStrokes =
-        strokes.where((stroke) => hitTestStroke(stroke, point, eraserSize));
+    final eraseableStrokes = strokes.where(
+      (stroke) => hitTestStroke(stroke, point, eraserSize),
+    );
 
     final toEraseStrokes = eraseableStrokes.toList(growable: false);
     if (toEraseStrokes.isEmpty) return;
@@ -797,17 +792,16 @@ mixin MainScreenAnnotations on MainScreenPanels {
 }
 
 class AnnotationsInterface extends StatelessWidget {
-  const AnnotationsInterface({
-    super.key,
-  });
+  const AnnotationsInterface({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final panelMaterial = PfsAppTheme.boxPanelFrom(theme);
 
-    final smallNumberLabelStyle =
-        theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.outline);
+    final smallNumberLabelStyle = theme.textTheme.labelMedium?.copyWith(
+      color: theme.colorScheme.outline,
+    );
 
     final model = AnnotationsModel.of(context);
 
@@ -836,10 +830,7 @@ class AnnotationsInterface extends StatelessWidget {
           Phshortcuts.cycleAnnotationColors: model.cycleColor,
           Phshortcuts.clearAnnotations: model.clearAllStrokes,
         },
-        child: Focus(
-          focusNode: model.annotationsFocus,
-          child: Text(""),
-        ),
+        child: Focus(focusNode: model.annotationsFocus, child: Text("")),
       ),
     );
 
@@ -871,7 +862,7 @@ class AnnotationsInterface extends StatelessWidget {
                       children: [
                         ValueListenableBuilder(
                           valueListenable: model.currentTool,
-                          builder: (_, currentToolValue, __) {
+                          builder: (_, currentToolValue, _) {
                             const double pencilToolIconSize = 20;
 
                             return Flex(
@@ -884,10 +875,14 @@ class AnnotationsInterface extends StatelessWidget {
                                   onPressed: () =>
                                       model.setTool(AnnotationTool.draw),
                                   icon: currentToolValue == AnnotationTool.draw
-                                      ? Icon(FluentIcons.edit_20_filled,
-                                          size: pencilToolIconSize)
-                                      : Icon(FluentIcons.edit_20_regular,
-                                          size: pencilToolIconSize),
+                                      ? Icon(
+                                          FluentIcons.edit_20_filled,
+                                          size: pencilToolIconSize,
+                                        )
+                                      : Icon(
+                                          FluentIcons.edit_20_regular,
+                                          size: pencilToolIconSize,
+                                        ),
                                 ),
                                 if (!isShort)
                                   IconButton.filled(
@@ -899,8 +894,8 @@ class AnnotationsInterface extends StatelessWidget {
                                         model.setTool(AnnotationTool.line),
                                     icon:
                                         currentToolValue == AnnotationTool.line
-                                            ? Icon(FluentIcons.line_20_filled)
-                                            : Icon(FluentIcons.line_20_regular),
+                                        ? Icon(FluentIcons.line_20_filled)
+                                        : Icon(FluentIcons.line_20_regular),
                                   ),
                                 IconButton.filled(
                                   tooltip: "Proportion rulers\n(R)",
@@ -909,8 +904,8 @@ class AnnotationsInterface extends StatelessWidget {
                                   onPressed: () => model.selectToolRuler(),
                                   icon:
                                       currentToolValue == AnnotationTool.rulers
-                                          ? Icon(FluentIcons.ruler_20_filled)
-                                          : Icon(FluentIcons.ruler_20_regular),
+                                      ? Icon(FluentIcons.ruler_20_filled)
+                                      : Icon(FluentIcons.ruler_20_regular),
                                 ),
                                 IconButton.filled(
                                   tooltip: "Stroke Eraser  (E)",
@@ -923,14 +918,16 @@ class AnnotationsInterface extends StatelessWidget {
                                     effects: [Phanimations.toolPulseEffect],
                                     child:
                                         currentToolValue == AnnotationTool.erase
-                                            ? Icon(
-                                                FluentIcons
-                                                    .eraser_segment_20_filled,
-                                                size: 22)
-                                            : Icon(
-                                                FluentIcons
-                                                    .eraser_segment_20_regular,
-                                                size: 22),
+                                        ? Icon(
+                                            FluentIcons
+                                                .eraser_segment_20_filled,
+                                            size: 22,
+                                          )
+                                        : Icon(
+                                            FluentIcons
+                                                .eraser_segment_20_regular,
+                                            size: 22,
+                                          ),
                                   ),
                                 ),
                               ],
@@ -940,15 +937,20 @@ class AnnotationsInterface extends StatelessWidget {
                         Divider(),
                         ValueListenableBuilder(
                           valueListenable: model.color,
-                          builder: (_, modelColorValue, __) {
+                          builder: (_, modelColorValue, _) {
                             return ValueListenableBuilder(
                               valueListenable: model.strokeWidth,
-                              builder: (_, modelStrokeWidthValue, __) {
+                              builder: (_, modelStrokeWidthValue, _) {
                                 const double minScale = 0.2;
                                 const double maxScale = 1.5;
 
-                                double remap(double value, double iMin,
-                                    double iMax, double oMin, double oMax) {
+                                double remap(
+                                  double value,
+                                  double iMin,
+                                  double iMax,
+                                  double oMin,
+                                  double oMax,
+                                ) {
                                   return (value - iMin) /
                                           (iMax - iMin) *
                                           (oMax - oMin) +
@@ -978,7 +980,7 @@ class AnnotationsInterface extends StatelessWidget {
                         ),
                         ValueListenableBuilder(
                           valueListenable: model.strokeWidth,
-                          builder: (_, modelStrokeWidthValue, __) {
+                          builder: (_, modelStrokeWidthValue, _) {
                             return Text(
                               modelStrokeWidthValue.toStringAsFixed(1),
                               style: smallNumberLabelStyle,
@@ -1024,10 +1026,7 @@ class AnnotationsInterface extends StatelessWidget {
                     onPressed: model.strokes.isEmpty
                         ? null
                         : () => model.clearAllStrokes(),
-                    icon: Icon(
-                      Icons.delete,
-                      size: 20,
-                    ),
+                    icon: Icon(Icons.delete, size: 20),
                   ),
                 ),
               ),
@@ -1070,13 +1069,10 @@ class AnnotationsInterface extends StatelessWidget {
                           children: [
                             if (!isShort) SizedBox(height: 10),
                             if (!isShort)
-                              Icon(
-                                FluentIcons.ink_stroke_24_filled,
-                                size: 15,
-                              ),
+                              Icon(FluentIcons.ink_stroke_24_filled, size: 15),
                             ValueListenableBuilder(
                               valueListenable: model.isStrokesVisible,
-                              builder: (_, isStrokesVisibleValue, __) {
+                              builder: (_, isStrokesVisibleValue, _) {
                                 const double visibilityIconSize = 18;
 
                                 return IconButton(
@@ -1112,7 +1108,7 @@ class AnnotationsInterface extends StatelessWidget {
                             ),
                             ValueListenableBuilder(
                               valueListenable: model.underlayColor,
-                              builder: (context, underlayColorValue, __) {
+                              builder: (context, underlayColorValue, _) {
                                 final theme = Theme.of(context);
 
                                 return IconButton(
@@ -1151,368 +1147,374 @@ class AnnotationsInterface extends StatelessWidget {
       },
     );
 
-    final bottomPanel = Builder(builder: (context) {
-      final windowSize = MediaQuery.sizeOf(context);
+    final bottomPanel = Builder(
+      builder: (context) {
+        final windowSize = MediaQuery.sizeOf(context);
 
-      final windowIsNarrow = windowSize.width < 550;
-      final windowIsCompressed = windowSize.width < 640;
+        final windowIsNarrow = windowSize.width < 550;
+        final windowIsCompressed = windowSize.width < 640;
 
-      Widget duplicateRulerButton() {
-        return SizedBoxFitted(
-          height: 32,
-          child: ListenableBuilder(
-            listenable: model.undoRedoListenable,
-            builder: (context, child) {
-              return ValueListenableBuilder(
-                valueListenable: model.isRulerDuplicateMode,
-                builder: (_, isRulerDuplicateModeValue, __) {
-                  return IconButton.outlined(
-                    isSelected: isRulerDuplicateModeValue,
-                    tooltip: "Duplicate last ruler  (D)",
-                    onPressed: model.getLastRuler() == null
-                        ? null
-                        : () => model.trySetRulerDuplicateModeToggle(),
-                    icon: Icon(FluentIcons.copy_20_regular, size: 25),
-                    selectedIcon: Icon(FluentIcons.copy_20_filled, size: 25),
-                    color: isRulerDuplicateModeValue
-                        ? theme.colorScheme.tertiary
-                        : null,
-                  );
-                },
-              );
-            },
-          ),
-        );
-      }
+        Widget duplicateRulerButton() {
+          return SizedBoxFitted(
+            height: 32,
+            child: ListenableBuilder(
+              listenable: model.undoRedoListenable,
+              builder: (context, child) {
+                return ValueListenableBuilder(
+                  valueListenable: model.isRulerDuplicateMode,
+                  builder: (_, isRulerDuplicateModeValue, _) {
+                    return IconButton.outlined(
+                      isSelected: isRulerDuplicateModeValue,
+                      tooltip: "Duplicate last ruler  (D)",
+                      onPressed: model.getLastRuler() == null
+                          ? null
+                          : () => model.trySetRulerDuplicateModeToggle(),
+                      icon: Icon(FluentIcons.copy_20_regular, size: 25),
+                      selectedIcon: Icon(FluentIcons.copy_20_filled, size: 25),
+                      color: isRulerDuplicateModeValue
+                          ? theme.colorScheme.tertiary
+                          : null,
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        }
 
-      return Positioned(
-        bottom: -edgeOverflow,
-        left: 10,
-        right: 10,
-        child: RepaintBoundary(
-          child: panelMaterial(
-            child: SizedBox(
-              height: barHeight + edgeOverflow,
-              child: Stack(
-                children: [
-                  Builder(
-                    // Info tooltip
-                    builder: (context) {
-                      TextSpan heading(String text) {
-                        return TextSpan(
+        return Positioned(
+          bottom: -edgeOverflow,
+          left: 10,
+          right: 10,
+          child: RepaintBoundary(
+            child: panelMaterial(
+              child: SizedBox(
+                height: barHeight + edgeOverflow,
+                child: Stack(
+                  children: [
+                    Builder(
+                      // Info tooltip
+                      builder: (context) {
+                        TextSpan heading(String text) {
+                          return TextSpan(
                             text: text,
-                            style: TextStyle(fontWeight: FontWeight.w700));
-                      }
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          );
+                        }
 
-                      return Positioned(
-                        right: 11,
-                        bottom: 7 + edgeOverflow,
-                        child: Tooltip(
-                          ignorePointer: true,
-                          richMessage: TextSpan(
-                            children: [
-                              heading("Annotation tips!\n\n"),
-                              heading("Tools cycling\n"),
-                              TextSpan(text: """
+                        return Positioned(
+                          right: 11,
+                          bottom: 7 + edgeOverflow,
+                          child: Tooltip(
+                            ignorePointer: true,
+                            richMessage: TextSpan(
+                              children: [
+                                heading("Annotation tips!\n\n"),
+                                heading("Tools cycling\n"),
+                                TextSpan(
+                                  text: """
         Press B repeatedly to switch between drawing and line tools.
         Press R repeatedly to switch between ruler types.
-        """),
-                              heading("\nRulers\n"),
-                              TextSpan(text: """
+        """,
+                                ),
+                                heading("\nRulers\n"),
+                                TextSpan(
+                                  text: """
         Press D in ruler mode to duplicate the last ruler.
         Hold Alt to draw rulers from the center.
-        Hold Ctrl to draw a box ruler from the edge.""")
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.info_outlined,
-                            size: 13,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 4,
-                      right: 4,
-                      bottom: 4 + edgeOverflow,
-                      top: 4,
-                    ),
-                    child: Flex(
-                      direction: Axis.horizontal,
-                      //spacing: barItemSpacing,
-                      children: [
-                        SizedBox(width: 5),
-                        ListenableBuilder(
-                          listenable: model.undoRedoListenable,
-                          builder: (_, __) {
-                            return Flex(
-                              direction: Axis.horizontal,
-                              children: [
-                                IconButton(
-                                  tooltip: "Undo",
-                                  onPressed:
-                                      model.changes.canUndo ? model.undo : null,
-                                  icon: Icon(Icons.undo, size: 18),
-                                ),
-                                IconButton(
-                                  tooltip: "Redo",
-                                  onPressed:
-                                      model.changes.canRedo ? model.redo : null,
-                                  icon: Icon(Icons.redo, size: 18),
-                                ),
-                                IconButton(
-                                  tooltip: "Delete all strokes",
-                                  onPressed: model.strokes.isEmpty
-                                      ? null
-                                      : () => model.clearAllStrokes(),
-                                  icon: Icon(
-                                    Icons.delete,
-                                    size: 20,
-                                  ),
+        Hold Ctrl to draw a box ruler from the edge.""",
                                 ),
                               ],
-                            );
-                          },
-                        ),
-                        VerticalDivider(),
-                        ValueListenableBuilder(
-                          valueListenable: model.currentTool,
-                          builder: (context, currentToolValue, _) {
-                            if (currentToolValue != AnnotationTool.rulers) {
-                              return SizedBox.shrink();
-                            }
+                            ),
+                            child: Icon(Icons.info_outlined, size: 13),
+                          ),
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 4,
+                        right: 4,
+                        bottom: 4 + edgeOverflow,
+                        top: 4,
+                      ),
+                      child: Flex(
+                        direction: Axis.horizontal,
+                        //spacing: barItemSpacing,
+                        children: [
+                          SizedBox(width: 5),
+                          ListenableBuilder(
+                            listenable: model.undoRedoListenable,
+                            builder: (_, _) {
+                              return Flex(
+                                direction: Axis.horizontal,
+                                children: [
+                                  IconButton(
+                                    tooltip: "Undo",
+                                    onPressed: model.changes.canUndo
+                                        ? model.undo
+                                        : null,
+                                    icon: Icon(Icons.undo, size: 18),
+                                  ),
+                                  IconButton(
+                                    tooltip: "Redo",
+                                    onPressed: model.changes.canRedo
+                                        ? model.redo
+                                        : null,
+                                    icon: Icon(Icons.redo, size: 18),
+                                  ),
+                                  IconButton(
+                                    tooltip: "Delete all strokes",
+                                    onPressed: model.strokes.isEmpty
+                                        ? null
+                                        : () => model.clearAllStrokes(),
+                                    icon: Icon(Icons.delete, size: 20),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          VerticalDivider(),
+                          ValueListenableBuilder(
+                            valueListenable: model.currentTool,
+                            builder: (context, currentToolValue, _) {
+                              if (currentToolValue != AnnotationTool.rulers) {
+                                return SizedBox.shrink();
+                              }
 
-                            return Row(
-                              children: [
-                                ValueListenableBuilder(
-                                  valueListenable: model.currentRulerType,
-                                  builder: (context, rulerTypeValue, _) {
-                                    final label = Text(
-                                      "Rulers",
-                                      style: theme.textTheme.labelSmall,
-                                    );
-                                    return Row(
-                                      children: [
-                                        TextButton(
-                                          onPressed: null,
-                                          child: label,
-                                        ),
-                                        SizedBox(
-                                          width: 42 * 3,
-                                          child: SegmentedButton(
-                                            expandedInsets: EdgeInsets.all(0),
-                                            emptySelectionAllowed: false,
-                                            multiSelectionEnabled: false,
-                                            showSelectedIcon: false,
-                                            style: const ButtonStyle(
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                            ),
-                                            segments: const [
-                                              ButtonSegment(
+                              return Row(
+                                children: [
+                                  ValueListenableBuilder(
+                                    valueListenable: model.currentRulerType,
+                                    builder: (context, rulerTypeValue, _) {
+                                      final label = Text(
+                                        "Rulers",
+                                        style: theme.textTheme.labelSmall,
+                                      );
+                                      return Row(
+                                        children: [
+                                          TextButton(
+                                            onPressed: null,
+                                            child: label,
+                                          ),
+                                          SizedBox(
+                                            width: 42 * 3,
+                                            child: SegmentedButton(
+                                              expandedInsets: EdgeInsets.all(0),
+                                              emptySelectionAllowed: false,
+                                              multiSelectionEnabled: false,
+                                              showSelectedIcon: false,
+                                              style: const ButtonStyle(
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                              ),
+                                              segments: const [
+                                                ButtonSegment(
                                                   value: RulerType.line,
                                                   tooltip: "Line",
-                                                  icon: Icon(FluentIcons
-                                                      .line_20_regular)),
-                                              ButtonSegment(
+                                                  icon: Icon(
+                                                    FluentIcons.line_20_regular,
+                                                  ),
+                                                ),
+                                                ButtonSegment(
                                                   value: RulerType.box,
                                                   tooltip: "Box",
-                                                  icon: Icon(FluentIcons
-                                                      .border_all_16_regular)),
-                                              ButtonSegment(
-                                                value: RulerType.circle,
-                                                tooltip: "Circle",
-                                                icon: Stack(
-                                                  children: [
-                                                    Icon(Icons.circle_outlined),
-                                                    Icon(Icons.add),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                            selected: {rulerTypeValue},
-                                            onSelectionChanged: (newSelection) {
-                                              model.currentRulerType.value =
-                                                  newSelection.first;
-                                            },
-                                          ),
-                                        ),
-                                        if (!windowIsNarrow) SizedBox(width: 5),
-                                        if (!windowIsNarrow)
-                                          duplicateRulerButton(),
-                                        SizedBox(width: 10),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                // ValueListenableBuilder(
-                                //   valueListenable:
-                                //       model.isNextRulerAddsComparison,
-                                //   builder:
-                                //       (context, addComparisonRulerValue, child) {
-                                //     return Tooltip(
-                                //       message:
-                                //           "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
-                                //       child: AnimateOnListenable(
-                                //         listenable:
-                                //             model.comparisonAddedPulseListenable,
-                                //         effects: [Phanimations.toolPulseEffect],
-                                //         child: SizedBoxFitted(
-                                //           height: 32,
-                                //           width: 32,
-                                //           child: IconButton.outlined(
-                                //             onPressed: () => model
-                                //                 .isNextRulerAddsComparison
-                                //                 .toggle(),
-                                //             icon:
-                                //                 Icon(Icons.splitscreen, size: 25),
-                                //             isSelected: addComparisonRulerValue,
-                                //             selectedIcon: Icon(
-                                //               Icons.splitscreen,
-                                //               size: 20,
-                                //             ),
-                                //             color: addComparisonRulerValue
-                                //                 ? theme.colorScheme.tertiary
-                                //                 : null,
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     );
-                                //   },
-                                // ),
-                                VerticalDivider(),
-                                SizedBox(width: 10),
-                                if (windowIsNarrow)
-                                  Tooltip(
-                                    message: "... bottom bar items are hidden.",
-                                    child: Icon(
-                                      Icons.more_horiz,
-                                      size: 20,
-                                    ),
-                                  )
-                                else
-                                  ValueListenableBuilder(
-                                    valueListenable:
-                                        model.currentRulerDivisions,
-                                    builder: (context, divisionsValue, _) {
-                                      const min = 2;
-                                      const max = 8;
-
-                                      final divisionsText =
-                                          divisionsValue.toStringAsFixed(0);
-
-                                      return ScrollListener(
-                                        onScrollDown: () => model
-                                            .currentRulerDivisions
-                                            .incrementClamped(-1, min, max),
-                                        onScrollUp: () => model
-                                            .currentRulerDivisions
-                                            .incrementClamped(1, min, max),
-                                        child: Flex(
-                                          direction: Axis.horizontal,
-                                          children: [
-                                            windowIsCompressed
-                                                ? SizedBox.shrink()
-                                                : Text(
-                                                    "Divisions",
-                                                    style: theme
-                                                        .textTheme.labelMedium,
-                                                  ),
-                                            SizedBox(
-                                              width:
-                                                  windowIsCompressed ? 60 : 100,
-                                              child: SliderTheme(
-                                                data:
-                                                    theme.sliderTheme.copyWith(
-                                                  trackHeight: 3,
-                                                  thumbShape:
-                                                      RoundSliderThumbShape(
-                                                    enabledThumbRadius: 8,
+                                                  icon: Icon(
+                                                    FluentIcons
+                                                        .border_all_16_regular,
                                                   ),
                                                 ),
-                                                child: Slider(
-                                                  padding:
-                                                      EdgeInsets.only(left: 22),
-                                                  value:
-                                                      divisionsValue.toDouble(),
-                                                  min: min.toDouble(),
-                                                  max: max.toDouble(),
-                                                  divisions: max - min,
-                                                  onChanged: (newValue) {
-                                                    model.currentRulerDivisions
+                                                ButtonSegment(
+                                                  value: RulerType.circle,
+                                                  tooltip: "Circle",
+                                                  icon: Stack(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.circle_outlined,
+                                                      ),
+                                                      Icon(Icons.add),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                              selected: {rulerTypeValue},
+                                              onSelectionChanged:
+                                                  (newSelection) {
+                                                    model
+                                                            .currentRulerType
                                                             .value =
-                                                        newValue.toInt();
+                                                        newSelection.first;
                                                   },
-                                                ),
-                                              ),
                                             ),
-                                            IgnorePointer(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 15.0),
-                                                child: Text(
-                                                  divisionsText,
-                                                  style: theme
-                                                      .textTheme.labelMedium,
-                                                ),
-                                              ),
-                                            ),
-                                            windowIsCompressed
-                                                ? SizedBox.shrink()
-                                                : VerticalDivider(),
-                                          ],
-                                        ),
+                                          ),
+                                          if (!windowIsNarrow)
+                                            SizedBox(width: 5),
+                                          if (!windowIsNarrow)
+                                            duplicateRulerButton(),
+                                          SizedBox(width: 10),
+                                        ],
                                       );
                                     },
                                   ),
-                              ],
-                            ).animate(
-                              effects: const [
-                                Phanimations.slideRightWideEffect,
-                                Phanimations.fadeInEffect
-                              ],
-                            );
-                          },
-                        ),
-                      ],
+                                  // ValueListenableBuilder(
+                                  //   valueListenable:
+                                  //       model.isNextRulerAddsComparison,
+                                  //   builder:
+                                  //       (context, addComparisonRulerValue, child) {
+                                  //     return Tooltip(
+                                  //       message:
+                                  //           "Toggle to add a comparison overlay to the next ruler.\nFor comparing with the last created ruler.",
+                                  //       child: AnimateOnListenable(
+                                  //         listenable:
+                                  //             model.comparisonAddedPulseListenable,
+                                  //         effects: [Phanimations.toolPulseEffect],
+                                  //         child: SizedBoxFitted(
+                                  //           height: 32,
+                                  //           width: 32,
+                                  //           child: IconButton.outlined(
+                                  //             onPressed: () => model
+                                  //                 .isNextRulerAddsComparison
+                                  //                 .toggle(),
+                                  //             icon:
+                                  //                 Icon(Icons.splitscreen, size: 25),
+                                  //             isSelected: addComparisonRulerValue,
+                                  //             selectedIcon: Icon(
+                                  //               Icons.splitscreen,
+                                  //               size: 20,
+                                  //             ),
+                                  //             color: addComparisonRulerValue
+                                  //                 ? theme.colorScheme.tertiary
+                                  //                 : null,
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     );
+                                  //   },
+                                  // ),
+                                  VerticalDivider(),
+                                  SizedBox(width: 10),
+                                  if (windowIsNarrow)
+                                    Tooltip(
+                                      message:
+                                          "... bottom bar items are hidden.",
+                                      child: Icon(Icons.more_horiz, size: 20),
+                                    )
+                                  else
+                                    ValueListenableBuilder(
+                                      valueListenable:
+                                          model.currentRulerDivisions,
+                                      builder: (context, divisionsValue, _) {
+                                        const min = 2;
+                                        const max = 8;
+
+                                        final divisionsText = divisionsValue
+                                            .toStringAsFixed(0);
+
+                                        return ScrollListener(
+                                          onScrollDown: () => model
+                                              .currentRulerDivisions
+                                              .incrementClamped(-1, min, max),
+                                          onScrollUp: () => model
+                                              .currentRulerDivisions
+                                              .incrementClamped(1, min, max),
+                                          child: Flex(
+                                            direction: Axis.horizontal,
+                                            children: [
+                                              windowIsCompressed
+                                                  ? SizedBox.shrink()
+                                                  : Text(
+                                                      "Divisions",
+                                                      style: theme
+                                                          .textTheme
+                                                          .labelMedium,
+                                                    ),
+                                              SizedBox(
+                                                width: windowIsCompressed
+                                                    ? 60
+                                                    : 100,
+                                                child: SliderTheme(
+                                                  data: theme.sliderTheme.copyWith(
+                                                    trackHeight: 3,
+                                                    thumbShape:
+                                                        RoundSliderThumbShape(
+                                                          enabledThumbRadius: 8,
+                                                        ),
+                                                  ),
+                                                  child: Slider(
+                                                    padding: EdgeInsets.only(
+                                                      left: 22,
+                                                    ),
+                                                    value: divisionsValue
+                                                        .toDouble(),
+                                                    min: min.toDouble(),
+                                                    max: max.toDouble(),
+                                                    divisions: max - min,
+                                                    onChanged: (newValue) {
+                                                      model
+                                                          .currentRulerDivisions
+                                                          .value = newValue
+                                                          .toInt();
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              IgnorePointer(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 15.0,
+                                                      ),
+                                                  child: Text(
+                                                    divisionsText,
+                                                    style: theme
+                                                        .textTheme
+                                                        .labelMedium,
+                                                  ),
+                                                ),
+                                              ),
+                                              windowIsCompressed
+                                                  ? SizedBox.shrink()
+                                                  : VerticalDivider(),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                ],
+                              ).animate(
+                                effects: const [
+                                  Phanimations.slideRightWideEffect,
+                                  Phanimations.fadeInEffect,
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    top: 3,
-                    right: 5,
-                    child: PanelCloseButton(
-                      onPressed: () {
-                        ModalDismissContext.of(context)?.onDismiss?.call();
-                      },
+                    Positioned(
+                      top: 3,
+                      right: 5,
+                      child: PanelCloseButton(
+                        onPressed: () {
+                          ModalDismissContext.of(context)?.onDismiss?.call();
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    });
-
-    return Stack(
-      children: [
-        shortcuts,
-        leftPanel,
-        rightPanel,
-        bottomPanel,
-      ],
+        );
+      },
     );
+
+    return Stack(children: [shortcuts, leftPanel, rightPanel, bottomPanel]);
   }
 }
 
-enum PfsSliderLabelType {
-  none,
-  percent,
-  fixedOneDecimal,
-}
+enum PfsSliderLabelType { none, percent, fixedOneDecimal }
 
 class ListenableSlider extends StatelessWidget {
   const ListenableSlider({
@@ -1546,8 +1548,8 @@ class ListenableSlider extends StatelessWidget {
     final padding = icon == null
         ? const EdgeInsets.all(0)
         : direction == Axis.horizontal
-            ? const EdgeInsets.only(left: outerPadding)
-            : const EdgeInsets.only(top: outerPadding);
+        ? const EdgeInsets.only(left: outerPadding)
+        : const EdgeInsets.only(top: outerPadding);
 
     final int divisions = ((max - min) / interval).floor();
 
@@ -1568,13 +1570,13 @@ class ListenableSlider extends StatelessWidget {
             icon == null ? const SizedBox.shrink() : Icon(icon, size: 20),
             ValueListenableBuilder(
               valueListenable: listenable,
-              builder: (___, listenableValue, __) {
+              builder: (_, listenableValue, _) {
                 final label = switch (labelType) {
                   PfsSliderLabelType.percent =>
                     "${(listenableValue * 100).toStringAsFixed(0)}%",
                   PfsSliderLabelType.fixedOneDecimal =>
                     listenableValue.toStringAsFixed(1),
-                  _ => null
+                  _ => null,
                 };
 
                 return RotatedBox(
