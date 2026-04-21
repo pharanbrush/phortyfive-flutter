@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/widgets/phtext_widgets.dart';
+
+import '../../phlutter/hyperlink_rich_text.dart';
 
 class AboutSheet extends StatelessWidget {
   const AboutSheet({
@@ -44,7 +45,7 @@ class AboutSheet extends StatelessWidget {
         spacing,
         const Text("Build ${PfsLocalization.version}"),
         const HyperlinkRichText(
-          "For more info, visit: ",
+          text: "For more info, visit: ",
           urlText: pharanBrushUrl,
           url: "https://$pharanBrushUrl",
         ),

@@ -46,7 +46,7 @@ import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/widgets/clipboard_handlers.dart';
-import 'package:pfs2/widgets/hover_container.dart';
+import 'package:pfs2/phlutter/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/main_screen/buttons/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
