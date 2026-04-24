@@ -32,52 +32,53 @@ class ImageSetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-        listenable: model.imageListChangedNotifier,
-        builder: (context, _) {
-          final fileCount = model.imageList.count;
-          final lastFolder = model.lastFolder;
-          final String tooltip =
-              "${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: ...${Platform.pathSeparator}$lastFolder\n"
-              "$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded and shuffled";
+      listenable: model.imageListChangedNotifier,
+      builder: (context, _) {
+        final fileCount = model.imageList.count;
+        final lastFolder = model.lastFolder;
+        final String tooltip =
+            "${(extraTooltip != null ? "$extraTooltip\n\n" : "")}Folder: ...${Platform.pathSeparator}$lastFolder\n"
+            "$fileCount ${PfsLocalization.imageNoun(fileCount)} loaded and shuffled";
 
-          const double wideWidth = 80;
-          const double narrowWidth = 18;
+        const double wideWidth = 80;
+        const double narrowWidth = 18;
 
-          final double currentWidth = narrowButton ? narrowWidth : wideWidth;
+        final double currentWidth = narrowButton ? narrowWidth : wideWidth;
 
-          return Tooltip(
-            message: tooltip,
-            child: TextButton(
-              onPressed: () => _popupImagesMenu(model, pasteHandler),
-              child: AnimatedSizedBoxWidth(
-                defaultWidth: narrowWidth,
-                width: currentWidth,
-                height: 28,
-                duration: Phanimations.defaultDuration,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: OverflowBox(
-                    maxWidth: currentWidth,
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        narrowButton
-                            ? _icon
-                            : IconAndText(
-                                text: fileCount.toString(),
-                                icon: imageIcon,
-                                iconSize: _iconSize,
-                                gap: 3,
-                              ),
-                        const Spacer(),
-                      ],
-                    ),
+        return Tooltip(
+          message: tooltip,
+          child: TextButton(
+            onPressed: () => _popupImagesMenu(model, pasteHandler),
+            child: AnimatedSizedBoxWidth(
+              defaultWidth: narrowWidth,
+              width: currentWidth,
+              height: 28,
+              duration: Phanimations.defaultDuration,
+              child: Align(
+                alignment: Alignment.center,
+                child: OverflowBox(
+                  maxWidth: currentWidth,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      narrowButton
+                          ? _icon
+                          : IconAndText(
+                              text: fileCount.toString(),
+                              icon: imageIcon,
+                              iconSize: _iconSize,
+                              gap: 3,
+                            ),
+                      const Spacer(),
+                    ],
                   ),
                 ),
               ),
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -299,7 +300,7 @@ Future<Menu> _getOpenImagesMenu(
       onClick: (_) {
         model.openFilePickerForFolder(includeSubfolders: true);
       },
-    )
+    ),
   ];
 
   if (Platform.isMacOS) {
