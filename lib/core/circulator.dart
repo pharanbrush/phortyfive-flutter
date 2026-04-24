@@ -12,25 +12,24 @@ class Circulator with IndexCursor {
   int get currentOutputIndex =>
       isPopulated ? outputIndices[_currentInputIndex] : 0;
 
-  void startNewOrder(int count) {
+  void startNewOrder({
+    required int count,
+    required bool shuffle,
+  }) {
     if (count <= 0) {
       clear();
       return;
     }
 
-    void resetToDefaultOrder(int count) {
-      outputIndices.clear();
-      for (int i = 0; i < count; i++) {
-        outputIndices.add(i);
-      }
+    outputIndices.clear();
+    for (int i = 0; i < count; i++) {
+      outputIndices.add(i);
     }
 
-    void generateShuffledOrder() {
+    if (shuffle) {
       outputIndices.shuffle();
     }
 
-    resetToDefaultOrder(count);
-    generateShuffledOrder();
     resetCurrentInputIndex();
   }
 

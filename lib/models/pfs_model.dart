@@ -60,6 +60,8 @@ class PfsAppModel
 
   final currentImageChangedNotifier = SimpleNotifier();
 
+  bool shuffleOnListLoad = true;
+
   @override
   bool _canStartCountdown() => timerModel.isRunning; // && !isAnnotating;
 
@@ -161,7 +163,7 @@ class PfsAppModel
   @override
   void _onImagesLoaded() {
     final loadedCount = imageList.count;
-    circulator.startNewOrder(loadedCount);
+    circulator.startNewOrder(count: loadedCount, shuffle: shuffleOnListLoad);
 
     if (isInitialUseChoiceChosen.value) {
       reinitializeTimer();

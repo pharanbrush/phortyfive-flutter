@@ -291,6 +291,17 @@ Future<Menu> _getOpenImagesMenu(
               model.openFilePickerForFolder();
             },
           ),
+          MenuItem(
+            label: "Open folder without shuffling...",
+            onClick: (_) async {
+              try {
+                model.shuffleOnListLoad = false;
+                await model.openFilePickerForFolder();
+              } finally {
+                model.shuffleOnListLoad = true;
+              }
+            },
+          ),
         ],
       ),
     ),
