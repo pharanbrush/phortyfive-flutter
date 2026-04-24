@@ -40,8 +40,10 @@ class Circulator with IndexCursor {
   }
 
   int? getSurroundingOutputIndex(int increment) {
-    final possibleNewInputIndex =
-        _getIncrementedInputIndex(_currentInputIndex, increment);
+    final possibleNewInputIndex = _getIncrementedInputIndex(
+      _currentInputIndex,
+      increment,
+    );
     if (possibleNewInputIndex == null) return null;
 
     return outputIndices[possibleNewInputIndex];
@@ -79,8 +81,10 @@ mixin IndexCursor {
   }
 
   void moveCurrentInputIndexBy(int increment) {
-    final possibleNewInputIndex =
-        _getIncrementedInputIndex(_currentInputIndex, increment);
+    final possibleNewInputIndex = _getIncrementedInputIndex(
+      _currentInputIndex,
+      increment,
+    );
     if (possibleNewInputIndex == null) return;
 
     setCurrentInputIndex(possibleNewInputIndex);
