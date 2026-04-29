@@ -333,11 +333,11 @@ class MainScreenState extends State<MainScreen>
   }
 
   Future _loadSettings() async {
-    windowState.isSoundsEnabled.value =
-        await pfs_preferences.soundPreference.getValue(defaultValue: true);
+    windowState.isSoundsEnabled.value = await pfs_preferences.soundPreference
+        .getValue(defaultValue: true);
 
-    final loadedSuffixes =
-        await pfs_preferences.exlcudedSuffixesPreference.getValue();
+    final loadedSuffixes = await pfs_preferences.exlcudedSuffixesPreference
+        .getValue();
     widget.model.excludedSuffixes.clear();
     widget.model.excludedSuffixes.addAll(loadedSuffixes);
     widget.model.excludedSuffixesNotifier.notify();
@@ -403,21 +403,23 @@ class MainScreenState extends State<MainScreen>
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
-    windowState.isBottomBarMinimized
-        .addListener(() => _handleBottomBarMinimizedChanged());
+    windowState.isBottomBarMinimized.addListener(
+      () => _handleBottomBarMinimizedChanged(),
+    );
     _handleBottomBarMinimizedChanged();
 
     if (Platform.isMacOS) {
       macos_window_events.isWindowFullscreen.addListener(
         () => windowState.topBarHeight.value =
             macos_window_events.isWindowFullscreen.value
-                ? kWindowCollapsedTitleBarHeight
-                : kWindowTitleBarHeight,
+            ? kWindowCollapsedTitleBarHeight
+            : kWindowTitleBarHeight,
       );
     }
 
-    remember_window_size.appRememberWindowSizeNotifier
-        .addListener(() => _handleRememberWindowPositionChanged());
+    remember_window_size.appRememberWindowSizeNotifier.addListener(
+      () => _handleRememberWindowPositionChanged(),
+    );
 
     currentAppControlsMode.addListener(() => _handleAppControlsChanged());
 
@@ -580,7 +582,8 @@ class MainScreenState extends State<MainScreen>
           colorMeterPanel.open();
         } else {
           debugPrint(
-              "image widget not found. canceled opening color meter panel");
+            "image widget not found. canceled opening color meter panel",
+          );
           returnToHomeMode();
         }
 
@@ -671,10 +674,12 @@ class MainScreenState extends State<MainScreen>
     const Widget minimizedBottomBar = Positioned(
       bottom: 1,
       right: 10,
-      child: Row(children: [
-        TimerBar(key: TimerBar.mainScreenKey),
-        SizedBox(width: 140),
-      ]),
+      child: Row(
+        children: [
+          TimerBar(key: TimerBar.mainScreenKey),
+          SizedBox(width: 140),
+        ],
+      ),
     );
 
     if (windowState.isBottomBarMinimized.value) {
@@ -772,7 +777,7 @@ class MainScreenState extends State<MainScreen>
             final theme = Theme.of(context);
             final containerBorderRadius =
                 theme.extension<PfsAppTheme>()?.borderRadius ??
-                    BorderRadius.circular(25);
+                BorderRadius.circular(25);
 
             return HoverContainer(
               hoverBackgroundColor: theme.scaffoldBackgroundColor,
@@ -783,12 +788,15 @@ class MainScreenState extends State<MainScreen>
                   listenable: widget.model.imageListChangedNotifier,
                   builder: (context, child) {
                     return Row(
-                      children: imageBrowseBottomBarItems(
-                        spacing: spacing,
-                      ).animate(
-                        interval: const Duration(milliseconds: 25),
-                        effects: const [Phanimations.bottomBarSlideUpEffect],
-                      ),
+                      children:
+                          imageBrowseBottomBarItems(
+                            spacing: spacing,
+                          ).animate(
+                            interval: const Duration(milliseconds: 25),
+                            effects: const [
+                              Phanimations.bottomBarSlideUpEffect,
+                            ],
+                          ),
                     );
                   },
                 ),
@@ -812,8 +820,9 @@ class MainScreenState extends State<MainScreen>
   }
 
   void _handleBottomBarMinimizedChanged() {
-    windowState.bottomBarHeight.value =
-        windowState.isBottomBarMinimized.value ? 5 : 46;
+    windowState.bottomBarHeight.value = windowState.isBottomBarMinimized.value
+        ? 5
+        : 46;
   }
 
   void _initPlatformBindings() {
@@ -844,9 +853,11 @@ class MainScreenState extends State<MainScreen>
             members: [
               PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hide),
               PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.hideOtherApplications),
+                type: PlatformProvidedMenuItemType.hideOtherApplications,
+              ),
               PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.showAllApplications),
+                type: PlatformProvidedMenuItemType.showAllApplications,
+              ),
             ],
           ),
           PlatformMenuItemGroup(
@@ -913,7 +924,8 @@ class MainScreenState extends State<MainScreen>
 
     showRememberWindowToggleToast();
     remember_window_size.storeRememberWindowSizePreference(
-        remember_window_size.appRememberWindowSizeNotifier.value);
+      remember_window_size.appRememberWindowSizeNotifier.value,
+    );
   }
 
   void _handleIsLoadingImagesStateChanged() {
@@ -940,8 +952,8 @@ class MainScreenState extends State<MainScreen>
 }
 
 mixin PlayPauseAnimatedIcon on TickerProvider {
-  late final AnimationController _playPauseIconStateAnimator =
-      AnimationController(
+  late final AnimationController
+  _playPauseIconStateAnimator = AnimationController(
     duration: Phanimations.defaultDuration,
     // WORKAROUND: the default value: 0 causes the icon to have the wrong initial state when the timer first plays.
     value: 1,
@@ -1090,7 +1102,8 @@ mixin MainScreenClipboardFunctions on MainScreenToaster {
     } else if (currentImageData is ImageMemoryData) {
       try {
         await phclipboard.copyImageBytesToClipboardAsPng(
-            imageBytes: currentImageData.bytes!);
+          imageBytes: currentImageData.bytes!,
+        );
         showToast(
           message: "Image copied to clipboard",
           icon: Icons.copy,
@@ -1163,13 +1176,17 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       registerEscape("timer durations menu");
     },
     onOpened: () {
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          widget.model.timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(
+        timerDurationMenu.isOpen,
+        widget.model.timerModel.currentDurationSeconds,
+      );
     },
     onClosed: () {
       refocusMainWindow();
-      timerDurationEditor.setActive(timerDurationMenu.isOpen,
-          widget.model.timerModel.currentDurationSeconds);
+      timerDurationEditor.setActive(
+        timerDurationMenu.isOpen,
+        widget.model.timerModel.currentDurationSeconds,
+      );
     },
     builder: () => timerDurationEditor.widget(),
     transitionBuilder: Phanimations.bottomMenuTransition,
@@ -1326,10 +1343,11 @@ class ImageBrowseGestureControls extends StatelessWidget {
         const double beforeButtonWidth = 100;
         const double afterButtonWidth = 140;
 
-        Widget nextPreviousGestureButton(
-            {required double width,
-            required Function()? onPressed,
-            required Widget child}) {
+        Widget nextPreviousGestureButton({
+          required double width,
+          required Function()? onPressed,
+          required Widget child,
+        }) {
           return SizedBox(
             width: 100,
             child: Phbuttons.nextPreviousOnScrollListener(
