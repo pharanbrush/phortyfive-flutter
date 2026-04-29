@@ -67,10 +67,10 @@ class MainScreen extends StatefulWidget {
   final PfsWindowState windowState;
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainScreen> createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
+class MainScreenState extends State<MainScreen>
     with
         TickerProviderStateMixin,
         WindowListener,
@@ -118,6 +118,8 @@ class _MainScreenState extends State<MainScreen>
   ValueNotifier<PfsAppControlsMode> get currentAppControlsMode =>
       _currentAppControlsMode;
 
+  late final shortcuts = MainScreenShortcuts(this);
+
   @override
   String getCurrentImagePath() {
     final currentImageData = getCurrentImageFileData();
@@ -127,50 +129,6 @@ class _MainScreenState extends State<MainScreen>
 
     return "";
   }
-
-  final Map<Type, Action<Intent>> shortcutActions = {};
-  late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
-    (PreviousImageIntent, (_) => widget.model.previousImageNewTimer()),
-    (NextImageIntent, (_) => widget.model.nextImageNewTimer()),
-    (
-      VerticalPreviousImageIntent,
-      (_) => widget.model.previousImageNewTimer(axis: Axis.vertical)
-    ),
-    (
-      VerticalNextImageIntent,
-      (_) => widget.model.nextImageNewTimer(axis: Axis.vertical)
-    ),
-    (MaximizeIntent, (_) => _toggleMaximize()),
-    (PlayPauseIntent, (_) => widget.model.tryTogglePlayPauseTimer()),
-    (RestartTimerIntent, (_) => widget.model.timerModel.resetTimer()),
-    (OpenFilesIntent, (_) => widget.model.openFilePickerForImages()),
-    (OpenFolderIntent, (_) => widget.model.openFilePickerForFolder()),
-    (CopyFileIntent, (_) => copyCurrentImageToClipboard()),
-    (OpenTimerMenuIntent, (_) => _tryOpenTimerMenu()),
-    (HelpIntent, (_) => helpMenu.open()),
-    (BottomBarToggleIntent, (_) => windowState.isBottomBarMinimized.toggle()),
-    (AlwaysOnTopIntent, (_) => windowState.isAlwaysOnTop.toggle()),
-    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
-    (EscapeIntent, (_) => _tryEscape()),
-    (RevealInExplorerIntent, (_) => revealCurrentImageInExplorer()),
-    (OpenPreferencesIntent, (_) => settingsMenu.open()),
-    (ZoomInIntent, (_) => imagePhviewer.incrementZoomLevel(1)),
-    (FlipHorizontalIntent, (_) => imagePhviewer.flipHorizontal()),
-    (ZoomOutIntent, (_) => imagePhviewer.incrementZoomLevel(-1)),
-    (ZoomResetIntent, (_) => imagePhviewer.resetTransform()),
-    (PasteIntent, (_) => tryPaste()),
-    // (UndoIntent, (_) => tryUndo()),
-  ];
-
-  final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
-  late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
-      [
-    (EscapeIntent, (_) => _tryEscape()),
-    (HelpIntent, (_) => helpMenu.open()),
-    (OpenPreferencesIntent, (_) => settingsMenu.open()),
-    (ToggleSoundIntent, (_) => windowState.isSoundsEnabled.toggle()),
-    (PasteIntent, (_) => tryPaste()),
-  ];
 
   @override
   void initState() {
@@ -221,19 +179,20 @@ class _MainScreenState extends State<MainScreen>
 
   Widget overlayGestureControls(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: currentAppControlsMode,
-        builder: (_, currentAppControlsModeValue, _) {
-          if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
-            return SizedBox.shrink();
-          }
+      valueListenable: currentAppControlsMode,
+      builder: (_, currentAppControlsModeValue, _) {
+        if (currentAppControlsModeValue != PfsAppControlsMode.imageBrowse) {
+          return SizedBox.shrink();
+        }
 
-          return ImageBrowseGestureControls(
-            model: widget.model,
-            playPauseIconProgress: _playPauseIconStateAnimator,
-            imagePhviewer: imagePhviewer,
-            revealInExplorerHandler: revealCurrentImageInExplorer,
-          );
-        });
+        return ImageBrowseGestureControls(
+          model: widget.model,
+          playPauseIconProgress: _playPauseIconStateAnimator,
+          imagePhviewer: imagePhviewer,
+          revealInExplorerHandler: revealCurrentImageInExplorer,
+        );
+      },
+    );
   }
 
   Widget bottomControlBar(BuildContext context) {
@@ -250,16 +209,16 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     Widget loadingSheetLayer() => ValueListenableBuilder(
-          valueListenable: widget.model.isLoadingImages,
-          builder: (_, isLoading, _) {
-            return Visibility(
-              visible: isLoading,
-              child: LoadingSheet(
-                loadedFileCountListenable: widget.model.currentlyLoadingImages,
-              ),
-            );
-          },
+      valueListenable: widget.model.isLoadingImages,
+      builder: (_, isLoading, _) {
+        return Visibility(
+          visible: isLoading,
+          child: LoadingSheet(
+            loadedFileCountListenable: widget.model.currentlyLoadingImages,
+          ),
         );
+      },
+    );
 
     if (!widget.model.hasImagesLoaded) {
       final firstActionApp = Stack(
@@ -281,22 +240,11 @@ class _MainScreenState extends State<MainScreen>
         ],
       );
 
-      if (firstScreenShortcutActions.isEmpty) {
-        for (final (intentType, callback) in firstScreenShortcutIntentActions) {
-          firstScreenShortcutActions[intentType] =
-              CallbackAction(onInvoke: callback);
-        }
-      }
-
-      final wrappedFirstActionApp = Shortcuts(
-        shortcuts: Phshortcuts.intentMap,
-        child: Actions(
-          actions: firstScreenShortcutActions,
-          child: Focus(
-            focusNode: mainWindowFocus,
-            autofocus: true,
-            child: firstActionApp,
-          ),
+      final wrappedFirstActionApp = shortcuts.firstScreenShortcutsWrapper(
+        child: Focus(
+          focusNode: mainWindowFocus,
+          autofocus: true,
+          child: firstActionApp,
         ),
       );
 
@@ -320,28 +268,6 @@ class _MainScreenState extends State<MainScreen>
       return initialChoiceModeApp;
     }
 
-    Widget shortcutsWrapper({required Widget child}) {
-      if (shortcutActions.isEmpty) {
-        for (final (intentType, callback) in shortcutIntentActions) {
-          shortcutActions[intentType] = CallbackAction(onInvoke: callback);
-        }
-      }
-
-      final Widget wrappedWidget = Shortcuts(
-        shortcuts: Phshortcuts.intentMap,
-        child: Actions(
-          actions: shortcutActions,
-          child: Focus(
-            focusNode: mainWindowFocus,
-            autofocus: true,
-            child: child,
-          ),
-        ),
-      );
-
-      return wrappedWidget;
-    }
-
     Widget inheritedWidgetsWrapper({required Widget child}) {
       return ClipboardHandlers(
         copyText: _setClipboardText,
@@ -350,52 +276,56 @@ class _MainScreenState extends State<MainScreen>
       );
     }
 
-    final appWindowContent = inheritedWidgetsWrapper(
-      child: shortcutsWrapper(
-        child: Stack(
-          children: [
-            Overlay.wrap(
-              child: EyeDropperLayer(
-                key: eyeDropKey,
-                child: imagePhviewer.widget(
-                  bottomBarHeight: windowState.bottomBarHeight,
-                  topBarHeight: windowState.topBarHeight,
+    Widget appWindowContent() => inheritedWidgetsWrapper(
+      child: shortcuts.shortcutsWrapper(
+        child: Focus(
+          focusNode: mainWindowFocus,
+          autofocus: true,
+          child: Stack(
+            children: [
+              Overlay.wrap(
+                child: EyeDropperLayer(
+                  key: eyeDropKey,
+                  child: imagePhviewer.widget(
+                    bottomBarHeight: windowState.bottomBarHeight,
+                    topBarHeight: windowState.topBarHeight,
+                  ),
                 ),
               ),
-            ),
-            _fileDropZone(),
-            overlayGestureControls(context),
-            CountdownSheet(),
-            CornerWindowControls(
-              windowState: windowState,
-              zoomPanner: imagePhviewer,
-              helpMenu: helpMenu,
-              settingsMenu: settingsMenu,
-            ),
-            bottomControlBar(context),
-            ValueListenableBuilder(
-              valueListenable: currentAppControlsMode,
-              builder: (_, currentAppControlsModeValue, _) {
-                if (currentAppControlsModeValue ==
-                    PfsAppControlsMode.imageBrowse) {
-                  return WindowDockingControls(
-                    isBottomBarMinimized: windowState.isBottomBarMinimized,
-                  );
-                }
+              _fileDropZone(),
+              overlayGestureControls(context),
+              CountdownSheet(),
+              CornerWindowControls(
+                windowState: windowState,
+                zoomPanner: imagePhviewer,
+                helpMenu: helpMenu,
+                settingsMenu: settingsMenu,
+              ),
+              bottomControlBar(context),
+              ValueListenableBuilder(
+                valueListenable: currentAppControlsMode,
+                builder: (_, currentAppControlsModeValue, _) {
+                  if (currentAppControlsModeValue ==
+                      PfsAppControlsMode.imageBrowse) {
+                    return WindowDockingControls(
+                      isBottomBarMinimized: windowState.isBottomBarMinimized,
+                    );
+                  }
 
-                return SizedBox.shrink();
-              },
-            ),
-            colorMeterPanel.widget(),
-            annotationPanel.widget(),
-            ...modalPanelWidgets,
-            loadingSheetLayer(),
-          ],
+                  return SizedBox.shrink();
+                },
+              ),
+              colorMeterPanel.widget(),
+              annotationPanel.widget(),
+              ...modalPanelWidgets,
+              loadingSheetLayer(),
+            ],
+          ),
         ),
       ),
     );
 
-    return appWindowContent;
+    return appWindowContent();
   }
 
   void _toggleMaximize() {
@@ -1472,5 +1402,96 @@ class ImageBrowseGestureControls extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class MainScreenShortcuts {
+  MainScreenShortcuts(this.state);
+
+  final MainScreenState state;
+
+  final Map<Type, Action<Intent>> shortcutActions = {};
+  Iterable get shortcutIntentActions => <(Type, Object? Function(Intent))>[
+    (PreviousImageIntent, (_) => state.widget.model.previousImageNewTimer()),
+    (NextImageIntent, (_) => state.widget.model.nextImageNewTimer()),
+    (
+      VerticalPreviousImageIntent,
+      (_) => state.widget.model.previousImageNewTimer(axis: Axis.vertical),
+    ),
+    (
+      VerticalNextImageIntent,
+      (_) => state.widget.model.nextImageNewTimer(axis: Axis.vertical),
+    ),
+    (MaximizeIntent, (_) => state._toggleMaximize()),
+    (PlayPauseIntent, (_) => state.widget.model.tryTogglePlayPauseTimer()),
+    (RestartTimerIntent, (_) => state.widget.model.timerModel.resetTimer()),
+    (OpenFilesIntent, (_) => state.widget.model.openFilePickerForImages()),
+    (OpenFolderIntent, (_) => state.widget.model.openFilePickerForFolder()),
+    (CopyFileIntent, (_) => state.copyCurrentImageToClipboard()),
+    (OpenTimerMenuIntent, (_) => state._tryOpenTimerMenu()),
+    (HelpIntent, (_) => state.helpMenu.open()),
+    (
+      BottomBarToggleIntent,
+      (_) => state.windowState.isBottomBarMinimized.toggle(),
+    ),
+    (AlwaysOnTopIntent, (_) => state.windowState.isAlwaysOnTop.toggle()),
+    (ToggleSoundIntent, (_) => state.windowState.isSoundsEnabled.toggle()),
+    (EscapeIntent, (_) => state._tryEscape()),
+    (RevealInExplorerIntent, (_) => state.revealCurrentImageInExplorer()),
+    (OpenPreferencesIntent, (_) => state.settingsMenu.open()),
+    (ZoomInIntent, (_) => state.imagePhviewer.incrementZoomLevel(1)),
+    (FlipHorizontalIntent, (_) => state.imagePhviewer.flipHorizontal()),
+    (ZoomOutIntent, (_) => state.imagePhviewer.incrementZoomLevel(-1)),
+    (ZoomResetIntent, (_) => state.imagePhviewer.resetTransform()),
+    (PasteIntent, (_) => state.tryPaste()),
+    // (UndoIntent, (_) => state.tryUndo()),
+  ];
+
+  final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
+  late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
+      [
+        (EscapeIntent, (_) => state._tryEscape()),
+        (HelpIntent, (_) => state.helpMenu.open()),
+        (OpenPreferencesIntent, (_) => state.settingsMenu.open()),
+        (ToggleSoundIntent, (_) => state.windowState.isSoundsEnabled.toggle()),
+        (PasteIntent, (_) => state.tryPaste()),
+      ];
+
+  Widget firstScreenShortcutsWrapper({required Widget child}) {
+    if (firstScreenShortcutActions.isEmpty) {
+      for (final (intentType, callback) in firstScreenShortcutIntentActions) {
+        firstScreenShortcutActions[intentType] = CallbackAction(
+          onInvoke: callback,
+        );
+      }
+    }
+
+    return Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: firstScreenShortcutActions,
+        child: child,
+      ),
+    );
+  }
+
+  Widget shortcutsWrapper({required Widget child}) {
+    if (shortcutActions.isEmpty) {
+      for (final (intentType, callback) in shortcutIntentActions) {
+        shortcutActions[intentType] = CallbackAction(
+          onInvoke: callback,
+        );
+      }
+    }
+
+    final Widget wrappedWidget = Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: shortcutActions,
+        child: child,
+      ),
+    );
+
+    return wrappedWidget;
   }
 }
