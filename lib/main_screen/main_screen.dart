@@ -952,8 +952,7 @@ class MainScreenState extends State<MainScreen>
 }
 
 mixin PlayPauseAnimatedIcon on TickerProvider {
-  late final AnimationController
-  _playPauseIconStateAnimator = AnimationController(
+  late final _playPauseIconStateAnimator = AnimationController(
     duration: Phanimations.defaultDuration,
     // WORKAROUND: the default value: 0 causes the icon to have the wrong initial state when the timer first plays.
     value: 1,
