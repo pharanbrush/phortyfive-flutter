@@ -6,11 +6,12 @@ class ScrollListener extends StatelessWidget {
     super.key,
     this.onScrollDown,
     this.onScrollUp,
+    this.onMiddleClickDown,
     required this.child,
     this.behavior = HitTestBehavior.deferToChild,
   });
 
-  final Function()? onScrollUp, onScrollDown;
+  final Function()? onScrollUp, onScrollDown, onMiddleClickDown;
   final Widget? child;
   final HitTestBehavior behavior;
 
@@ -18,6 +19,7 @@ class ScrollListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return Listener(
       behavior: behavior,
+      onPointerDown: onMiddleClickDown == null ? null : _handlePointerDown,
       onPointerSignal: _handlePointerSignal,
       child: child,
     );
@@ -31,6 +33,12 @@ class ScrollListener extends StatelessWidget {
       } else if (dy < 0) {
         onScrollUp?.call();
       }
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent event) {
+    if (event.buttons == kMiddleMouseButton) {
+      onMiddleClickDown?.call();
     }
   }
 }
