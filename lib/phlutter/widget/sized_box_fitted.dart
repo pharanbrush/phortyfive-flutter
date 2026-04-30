@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+/// [SizedBoxFitted] forces a widget to resize when it doesn't resize according to SizedBox.
 class SizedBoxFitted extends StatelessWidget {
   const SizedBoxFitted({
     super.key,

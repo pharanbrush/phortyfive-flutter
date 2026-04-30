@@ -1,9 +1,10 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import 'package:url_launcher/url_launcher_string.dart';
 
-const Color hyperlinkColorPassive = Color.fromARGB(255, 84, 201, 255);
-const Color hyperlinkColorHovered = Colors.blue;
+const Color hyperlinkColorPassive = Color(0xFF54C9FF);
+const Color hyperlinkColorHovered = Color(0xFF2196F3);
 
 class HyperlinkRichText extends StatefulWidget {
   const HyperlinkRichText({

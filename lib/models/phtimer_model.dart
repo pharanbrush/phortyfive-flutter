@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:pfs2/core/phtimer.dart';
-import 'package:pfs2/phlutter/model_scope.dart';
-import 'package:pfs2/phlutter/simple_notifier.dart';
+import 'package:pfs2/phlutter/widget/model_scope.dart';
+import 'package:pfs2/phlutter/utils/simple_notifier.dart';
 
 class PhtimerModel {
   PhtimerModel({

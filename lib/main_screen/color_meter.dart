@@ -7,14 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/libraries/color_meter_cyclop.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
-import 'package:pfs2/phlutter/escape_route.dart';
-import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
+
+import '../phlutter/phmaterial/escape_route.dart';
+import '../phlutter/utils/simple_notifier.dart';
 
 const _labelAlpha = 0.50;
 

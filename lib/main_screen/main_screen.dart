@@ -30,29 +30,30 @@ import 'package:pfs2/main_screen/sheets/initial_use_choice_sheet.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/phlutter/escape_route.dart';
 import 'package:pfs2/phlutter/remember_window_size.dart'
     as remember_window_size;
-import 'package:pfs2/phlutter/simple_notifier.dart';
-import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart';
-import 'package:pfs2/phlutter/value_notifier_extensions.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/utils/image_from_file.dart';
-import 'package:pfs2/phlutter/utils/path_directory_expand.dart';
 import 'package:pfs2/phlutter/utils/phclipboard.dart' as phclipboard;
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/widgets/clipboard_handlers.dart';
-import 'package:pfs2/phlutter/hover_container.dart';
 import 'package:pfs2/widgets/image_drop_target.dart';
 import 'package:pfs2/main_screen/buttons/overlay_button.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtimer_widgets.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
+
+import '../phlutter/dart/windows_shortcut_files.dart';
+import '../phlutter/phmaterial/escape_route.dart';
+import '../phlutter/phmaterial/hover_container.dart';
+import '../phlutter/utils/image_from_file.dart';
+import '../phlutter/utils/path_directory_expand.dart';
+import '../phlutter/utils/simple_notifier.dart';
+import '../phlutter/utils/value_notifier_extensions.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({
@@ -1256,9 +1257,9 @@ class FiltersButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: imageFilters.filtersChangeListenable,
-      builder: (_, _, _) {
+    return ListenableBuilder(
+      listenable: imageFilters.filtersChangeListenable,
+      builder: (_, _) {
         const double filterIconSize = 15;
         const filterIconOff = Icon(
           Icons.contrast,

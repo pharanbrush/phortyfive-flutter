@@ -10,17 +10,17 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
-import 'package:pfs2/phlutter/escape_route.dart';
-import 'package:pfs2/phlutter/material_state_property_utils.dart';
-import 'package:pfs2/phlutter/utils/open_in_browser.dart' as open_in_browser;
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/values_notifier.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/libraries/annotation_overlay.dart';
 import 'package:pfs2/widgets/clipboard_handlers.dart';
-import 'package:pfs2/phlutter/scroll_listener.dart';
+
+import '../phlutter/dart/open_in_browser.dart' as open_in_browser;
+import '../phlutter/phmaterial/escape_route.dart';
+import '../phlutter/widget/scroll_listener.dart';
+import '../phlutter/widget/widget_state_property_utils.dart';
 
 final isTouchPanningInverted = ValueNotifier(true);
 
@@ -68,7 +68,7 @@ mixin ImageFilters {
   bool get isUsingGrayscale => usingGrayscaleListenable.value;
   set isUsingGrayscale(bool value) => usingGrayscaleListenable.value = value;
 
-  late final filtersChangeListenable = ValuesNotifier([
+  late final filtersChangeListenable = Listenable.merge([
     blurLevelListenable,
     usingGrayscaleListenable,
   ]);

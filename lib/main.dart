@@ -11,8 +11,8 @@ import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
-import 'package:pfs2/phlutter/escape_route.dart';
-import 'package:pfs2/phlutter/model_scope.dart';
+import 'package:pfs2/phlutter/phmaterial/escape_route.dart';
+import 'package:pfs2/phlutter/widget/model_scope.dart';
 import 'package:pfs2/phlutter/remember_window_size.dart'
     as remember_window_size;
 import 'package:pfs2/ui/pfs_localization.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 export 'package:flutter_animate/flutter_animate.dart';
-export 'package:pfs2/phlutter/animate_on_listenable.dart';
+export 'package:pfs2/phlutter/widget/animate_on_listenable.dart';
 
 class Phanimations {
   static const zoomTransitionDuration = Duration(milliseconds: 400);

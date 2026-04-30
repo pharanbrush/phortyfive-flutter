@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
-import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
+
+import '../phlutter/dart/windows_shortcut_files.dart' as windows_shortcut_files;
 
 abstract class ImageData {
   const ImageData();
@@ -41,7 +42,9 @@ Future<Iterable<String>?> tryGetUrls(ImageData imageData) async {
           "$parentFolder${Platform.pathSeparator}$linksShortcut";
       urlsFile = File(urlShortcutPath);
       if (await urlsFile.exists()) {
-        final resolvedUrlPath = resolveShortcut(urlShortcutPath);
+        final resolvedUrlPath = windows_shortcut_files.resolveShortcut(
+          urlShortcutPath,
+        );
         if (resolvedUrlPath != null &&
             resolvedUrlPath.endsWith(linksFilename)) {
           urlsFile = File(resolvedUrlPath);

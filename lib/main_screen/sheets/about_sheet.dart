@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 
-import '../../phlutter/hyperlink_rich_text.dart';
+import '../../phlutter/widget/hyperlink_rich_text.dart';
 
 class AboutSheet extends StatelessWidget {
   const AboutSheet({

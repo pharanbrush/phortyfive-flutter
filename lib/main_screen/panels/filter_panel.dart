@@ -4,7 +4,8 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
-import 'package:pfs2/phlutter/scroll_listener.dart';
+
+import '../../phlutter/widget/scroll_listener.dart';
 
 class FilterPanel extends StatelessWidget {
   const FilterPanel({
@@ -159,9 +160,9 @@ class ColorModeButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: filters.filtersChangeListenable,
-      builder: (_, _, _) {
+    return ListenableBuilder(
+      listenable: filters.filtersChangeListenable,
+      builder: (_, _) {
         return buttons();
       },
     );
@@ -296,9 +297,9 @@ class ResetFiltersSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
-      child: ValueListenableBuilder(
-        valueListenable: filters.filtersChangeListenable,
-        builder: (_, _, _) {
+      child: ListenableBuilder(
+        listenable: filters.filtersChangeListenable,
+        builder: (_, _) {
           final isSomeFiltersAreOn = filters.isFilterActive;
 
           return Tooltip(

@@ -3,10 +3,11 @@ import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/value_notifier_extensions.dart';
-import 'package:pfs2/phlutter/hover_container.dart';
 import 'package:pfs2/main_screen/image_phviewer.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
+
+import '../../phlutter/phmaterial/hover_container.dart';
+import '../../phlutter/utils/value_notifier_extensions.dart';
 
 class CornerWindowControls extends StatelessWidget {
   const CornerWindowControls({

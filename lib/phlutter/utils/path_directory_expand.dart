@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 // import 'package:pfs2/main_screen/macos/macos_alias_files.dart'
 //     as macos_alias_files;
-import 'package:pfs2/phlutter/utils/windows_shortcut_files.dart'
+import 'package:pfs2/phlutter/dart/windows_shortcut_files.dart'
     as windows_shortcuts;
 
 // Matches flutter/foundation.dart

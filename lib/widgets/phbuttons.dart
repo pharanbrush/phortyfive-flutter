@@ -4,12 +4,13 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
-import 'package:pfs2/phlutter/material_state_property_utils.dart';
-import 'package:pfs2/phlutter/sized_box_fitted.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
-import 'package:pfs2/phlutter/scroll_listener.dart';
+
+import '../phlutter/widget/scroll_listener.dart';
+import '../phlutter/widget/sized_box_fitted.dart';
+import '../phlutter/widget/widget_state_property_utils.dart';
 
 class Phbuttons {
   static Widget timerSettingsButton({
@@ -23,7 +24,8 @@ class Phbuttons {
         const iconSize = PfsTheme.timerButtonIconSize;
 
         return Tooltip(
-          message: "$currentTimerSeconds seconds per image.\n"
+          message:
+              "$currentTimerSeconds seconds per image.\n"
               "${PfsLocalization.pressCapital} to edit timer "
               "(${PfsLocalization.tooltipShortcut(Phshortcuts.openTimerMenu)})",
           child: TextButton(
@@ -194,8 +196,9 @@ class CollapseBottomBarButton extends StatelessWidget {
     const collapseIcon = Icons.expand_more_rounded;
     const expandIcon = Icons.expand_less_rounded;
 
-    final bottomBarShortcutKey =
-        PfsLocalization.tooltipShortcut(Phshortcuts.toggleBottomBar);
+    final bottomBarShortcutKey = PfsLocalization.tooltipShortcut(
+      Phshortcuts.toggleBottomBar,
+    );
 
     if (isMinimized) {
       return MinorWindowControlButton(
@@ -283,8 +286,9 @@ class NotifierSwitchItem extends StatelessWidget {
       builder: (_, notifierValue, _) {
         return MergeSemantics(
           child: ListTile(
-            onTap:
-                onChanged == null ? () => handleChange(!notifierValue) : null,
+            onTap: onChanged == null
+                ? () => handleChange(!notifierValue)
+                : null,
             trailing: ExcludeFocus(
               child: Phswitch(
                 value: notifierValue,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pfs2/main_window_wrapper.dart';
-import 'package:pfs2/phlutter/simple_notifier.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phtoasts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -8,6 +7,8 @@ import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 import 'package:pfs2/widgets/phtext_widgets.dart';
+
+import '../../phlutter/utils/simple_notifier.dart';
 
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({
