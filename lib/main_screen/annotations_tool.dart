@@ -785,7 +785,7 @@ mixin MainScreenAnnotations on MainScreenPanels {
     },
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,
-    builder: () {
+    builder: (_) {
       return AnnotationsInterface();
     },
   );

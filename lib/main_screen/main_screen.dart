@@ -1135,7 +1135,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       registerEscape("filters panel");
     },
     isUnderlayTransparent: true,
-    builder: () => FilterPanel(imagePhviewer: imagePhviewer),
+    builder: (_) => FilterPanel(imagePhviewer: imagePhviewer),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
@@ -1144,7 +1144,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       closeAllPanels(except: helpMenu);
       registerEscape("help menu");
     },
-    builder: () {
+    builder: (_) {
       return Theme(
         data: ThemeData.dark(useMaterial3: true),
         child: const HelpSheet(),
@@ -1157,7 +1157,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       closeAllPanels(except: settingsMenu);
       registerEscape("settings menu");
     },
-    builder: () {
+    builder: (_) {
       return SettingsPanel(
         themeNotifier: getThemeNotifier(),
         soundEnabledNotifier: getSoundEnabledNotifier(),
@@ -1188,7 +1188,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         widget.model.timerModel.currentDurationSeconds,
       );
     },
-    builder: () => timerDurationEditor.widget(),
+    builder: (_) => timerDurationEditor.widget(),
     transitionBuilder: Phanimations.bottomMenuTransition,
   );
 
@@ -1197,7 +1197,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
       closeAllPanels(except: aboutMenu);
       registerEscape("about menu");
     },
-    builder: () => const AboutSheet(),
+    builder: (_) => const AboutSheet(),
   );
 
   late final modalPanels = [

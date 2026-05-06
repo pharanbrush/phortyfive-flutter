@@ -49,7 +49,7 @@ mixin MainScreenColorMeter on MainScreenPanels {
     },
     useUnderlay: false,
     transitionBuilder: Phanimations.bottomMenuTransition,
-    builder: () {
+    builder: (_) {
       return ColorMeterBottomBar(
         eyeDropKey: eyeDropKey,
         model: colorMeterModel,

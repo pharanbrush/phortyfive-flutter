@@ -24,7 +24,7 @@ class ModalPanel {
   });
 
   final Key? key;
-  final Widget Function() builder;
+  final Widget Function(BuildContext context) builder;
   final Function()? onBeforeOpen;
   final Function()? onOpened;
   final Function()? onClosed;
@@ -89,7 +89,7 @@ class _ModalPanelWidget extends StatelessWidget {
   final bool isUnderlayTransparent;
   final bool useUnderlay;
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
-  final Widget Function() builder;
+  final Widget Function(BuildContext context) builder;
 
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
@@ -98,17 +98,17 @@ class _ModalPanelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isOpen,
-      builder: (_, value, _) {
-        final Widget panel = AnimatedSwitcher(
+      builder: (context, value, _) {
+        Widget panel() => AnimatedSwitcher(
           transitionBuilder: transitionBuilder,
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeOutCubic,
           duration: defaultDuration,
           reverseDuration: fastDuration,
-          child: value ? builder() : null,
+          child: value ? builder(context) : null,
         );
 
-        final Widget panelStack = Stack(
+        Widget panelStack() => Stack(
           children: useUnderlay
               ? [
                   AnimatedSwitcher(
@@ -119,14 +119,14 @@ class _ModalPanelWidget extends StatelessWidget {
                               : const ModalUnderlay())
                         : null,
                   ),
-                  panel,
+                  panel(),
                 ]
-              : [panel],
+              : [panel()],
         );
 
         return ModalDismissContext(
           onDismiss: close,
-          child: panelStack,
+          child: panelStack(),
         );
       },
     );
