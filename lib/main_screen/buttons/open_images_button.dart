@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/phlutter/utils/phclipboard.dart';
+import 'package:pfs2/phlutter/widget/secondary_tap_menu.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phanimations.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -111,131 +112,12 @@ Widget openFilesButton({
   );
 }
 
-// nativeapi API
-
-// void _popupImagesMenu(PfsAppModel model) {
-//   Menu getOpenImagesMenu(PfsAppModel model) {
-//     return Menu()
-//       ..addItem(
-//         MenuItem("Open images...")
-//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForImages()),
-//       )
-//       ..addSeparator()
-//       ..addItem(
-//         MenuItem("Open images...")
-//           ..on<MenuItemClickedEvent>((_) => model.openFilePickerForFolder())
-//       )
-//       ..addItem(
-//         MenuItem("Open folder and subfolders...")..on<MenuItemClickedEvent>(
-//           (_) => model.openFilePickerForFolder(includeSubfolders: true),
-//         ),
-//       );
-//   }
-
-//   final menu = getOpenImagesMenu(model);
-//   menu.open(PositioningStrategy.cursorPosition(), Placement.topStart);
-// }
-
-// Custom Popup Menu using OverlayEntry
-
-// OverlayEntry? overlayEntry;
-
-// void dummy(BuildContext context, PfsAppModel model) {
-//   final getRecentFolders =
-//       pfs_preferences.getRecentFolders().timeout(Duration(milliseconds: 1500));
-
-//   void closePopup() {
-//     if (overlayEntry != null) {
-//       overlayEntry!.remove();
-//       overlayEntry = null;
-//     }
-//   }
-
-//   final overlay = Overlay.of(context);
-//   overlayEntry = OverlayEntry(
-//     builder: (context) {
-//       final theme = Theme.of(context);
-
-//       return Stack(
-//         children: [
-//           ModalUnderlay.transparent(
-//             onDismiss: () => closePopup(),
-//           ),
-//           Positioned(
-//             bottom: 10,
-//             right: 10,
-//             child: Material(
-//               //color: theme.colorScheme.tertiary,
-//               elevation: 8,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(15.0),
-//                 child: DefaultTextStyle(
-//                   style: theme.textTheme.labelMedium!,
-//                   child: FutureBuilder(
-//                     future: getRecentFolders,
-//                     builder: (context, snapshot) {
-//                       final items = <Widget>[
-//                         if (snapshot.hasData) Text("Recent folders"),
-//                         if (snapshot.hasData)
-//                           ...snapshot.data!.map(
-//                             (folderItem) {
-//                               final shortenedPath =
-//                                   shortenFolderPath(folderItem.folderPath);
-
-//                               return InkWell(
-//                                 onTap: () {
-//                                   model.loadFolder(
-//                                     folderItem.folderPath,
-//                                     recursive: folderItem.includeSubfolders,
-//                                   );
-//                                   closePopup();
-//                                 },
-//                                 child: Padding(
-//                                   padding: const EdgeInsets.all(10.0),
-//                                   child: Padding(
-//                                     padding: const EdgeInsets.only(right: 20.0),
-//                                     child: IconAndText(
-//                                       text: shortenedPath,
-//                                       icon: FluentIcons.folder_16_regular,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               );
-//                             },
-//                           ),
-//                         if (!snapshot.hasData)
-//                           CircularProgressIndicator(
-//                             color: theme.colorScheme.onSurface,
-//                           ),
-//                         Text("Hello Item"),
-//                       ];
-
-//                       return IntrinsicWidth(
-//                         child: Column(
-//                           mainAxisSize: MainAxisSize.min,
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: items,
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 ),
-//               ),
-//             ).animate(effects: [Phanimations.slideUpEffectLarge]),
-//           ),
-//         ],
-//       );
-//     },
-//   );
-
-//   if (overlayEntry != null) {
-//     overlay.insert(overlayEntry!);
-//   }
-// }
-
 void _popupImagesMenu(PfsAppModel model, VoidCallback? pasteHandler) {
   _getOpenImagesMenu(model, pasteHandler).then(
-    (menu) => popUpContextualMenu(menu, placement: Placement.topLeft),
+    (menu) => menu.open(
+      .cursorPosition(),
+      .topEnd,
+    ),
   );
 }
 
@@ -260,40 +142,36 @@ Future<Menu> _getOpenImagesMenu(
     onTimeout: () => false,
   );
 
-  final baseMenuItems = [
-    if (pasteHandler != null)
-      MenuItem(
-        label: "Paste image from clipboard",
-        disabled: !canPasteFromClipboard,
-        onClick: (_) => pasteHandler(),
-      ),
-    if (pasteHandler != null) MenuItem.separator(),
-    MenuItem.submenu(
-      label: "Open special",
-      submenu: Menu(
-        items: [
-          MenuItem(
-            label: "Open random folder in folder...",
-            onClick: (_) {
-              model.openFilePickerForRandomFolderInFolder();
-            },
-          ),
-          MenuItem.separator(),
-          MenuItem(
-            label: "Open images...",
-            onClick: (_) {
-              model.openFilePickerForImages();
-            },
-          ),
-          MenuItem(
-            label: "Open folder without subfolders...",
-            onClick: (_) {
-              model.openFilePickerForFolder();
-            },
-          ),
-          MenuItem(
-            label: "Open folder without shuffling...",
-            onClick: (_) async {
+  Menu addBaseMenuItems(Menu menu) {
+    if (pasteHandler != null) {
+      menu
+              .addMenuItem(
+                "Paste image from clipboard",
+                onClick: () => pasteHandler(),
+              )
+              .enabled =
+          canPasteFromClipboard;
+      menu.addSeparator();
+    }
+
+    menu.addMenuItemObject(
+      MenuItem("Open special", .submenu)
+        ..submenu = (Menu()
+          ..addMenuItem(
+            "Open random folder in folder",
+            onClick: model.openFilePickerForRandomFolderInFolder,
+          )
+          ..addMenuItem(
+            "Open images...",
+            onClick: model.openFilePickerForImages,
+          )
+          ..addMenuItem(
+            "Open folder without subfolders...",
+            onClick: model.openFilePickerForFolder,
+          )
+          ..addMenuItem(
+            "Open folder without shuffling",
+            onClick: () async {
               try {
                 model.shuffleOnListLoad = false;
                 await model.openFilePickerForFolder();
@@ -301,23 +179,23 @@ Future<Menu> _getOpenImagesMenu(
                 model.shuffleOnListLoad = true;
               }
             },
-          ),
-        ],
-      ),
-    ),
-    MenuItem.separator(),
-    MenuItem(
-      label: "Open image folder...",
-      onClick: (_) {
-        model.openFilePickerForFolder(includeSubfolders: true);
-      },
-    ),
-  ];
+          )),
+    );
+    menu.addSeparator();
+    menu.addMenuItem(
+      "Open image folder...",
+      onClick: () => model.openFilePickerForFolder(includeSubfolders: true),
+    );
+
+    return menu;
+  }
 
   if (Platform.isMacOS) {
     // Disable recent folders feature until native recents can be implemented.
     // Otherwise, the app runs into folder permissions problems in a typical app sandbox.
-    return Menu(items: baseMenuItems);
+    final menu = Menu();
+    addBaseMenuItems(menu);
+    return menu;
   }
 
   try {
@@ -326,38 +204,36 @@ Future<Menu> _getOpenImagesMenu(
         .timeout(Duration(milliseconds: 1500));
 
     if (recentFolderEntries == null) {
-      return Menu(items: baseMenuItems);
+      final menu = Menu();
+      addBaseMenuItems(menu);
+      return menu;
     }
 
-    final menuItems = <MenuItem>[];
+    final menu = Menu();
+    final recentFolderEntriesCount = recentFolderEntries.length;
+    int i = recentFolderEntriesCount;
     for (final e in recentFolderEntries) {
       final shortenedPath = shortenFolderPath(e.folderPath);
-
-      menuItems.add(
-        MenuItem(
-          label: shortenedPath,
-          onClick: (menuItem) => model.openFolderCommandBasic(
-            folderPath: e.folderPath,
-            includeSubfolders: e.includeSubfolders,
-          ),
+      print(i);
+      print(e.toString());
+      menu.addMenuItem(
+        "$i    $shortenedPath",
+        onClick: () => model.openFolderCommandBasic(
+          folderPath: e.folderPath,
+          includeSubfolders: e.includeSubfolders,
         ),
       );
+      i--;
     }
 
-    if (menuItems.isNotEmpty) {
-      // Add number prefixes
-      for (final (i, item) in menuItems.reversed.indexed) {
-        item.label = "${i + 1}   ${item.label}";
-      }
-
-      // Add separator
-      menuItems.add(MenuItem.separator());
+    if (recentFolderEntriesCount != 0) {
+      menu.addSeparator();
     }
 
-    menuItems.addAll(baseMenuItems);
-
-    return Menu(items: menuItems);
+    addBaseMenuItems(menu);
+    return menu;
   } catch (e) {
-    return Menu(items: baseMenuItems);
+    final menu = Menu();
+    return addBaseMenuItems(menu);
   }
 }

@@ -2,14 +2,15 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:pfs2/core/image_memory_data.dart';
 import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/widget/secondary_tap_menu.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
@@ -451,78 +452,35 @@ class ImageRightClick extends StatelessWidget {
     final imageData = model.getCurrentImageData();
     final isFile = imageData is ImageFileData;
 
-    final copyImageItem = MenuItem(
-      label: PfsLocalization.copyImageToClipboard,
-      onClick: (menuItem) => handleCopyCurrentImage(),
-      disabled: imageData is image_data.InvalidImageData,
-    );
-
-    final copyFilename = MenuItem(
-      label: PfsLocalization.copyFileName,
-      onClick: (menuItem) => handleCopyFilename(),
-      disabled: !isFile,
-    );
-
-    final copyFilePathItem = MenuItem(
-      label: PfsLocalization.copyFilePath,
-      onClick: (menuItem) => handleCopyFilePath(),
-      disabled: !isFile,
-    );
-
-    final revealInExplorerItem = MenuItem(
-      label: PfsLocalization.revealInExplorer,
-      onClick: (menuItem) => revealInExplorerHandler(),
-      disabled: !isFile,
-    );
-
-    final contextMenu = Menu(
-      items: [
-        copyImageItem,
-        copyFilePathItem,
-        copyFilename,
-        MenuItem.separator(),
-        revealInExplorerItem,
-      ],
-    );
-
     // nativeapi API
     //
-    // Menu getContextMenu() {
-    //   final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
-    //     ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
-    //     ..enabled = imageData is! image_data.InvalidImageData;
+    Menu getContextMenu() {
+      final copyImage = MenuItem(PfsLocalization.copyImageToClipboard)
+        ..on<MenuItemClickedEvent>((_) => handleCopyCurrentImage())
+        ..enabled = imageData is! image_data.InvalidImageData;
 
-    //   final copyFilename = MenuItem(PfsLocalization.copyFileName)
-    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
-    //     ..enabled = isFile;
+      final copyFilename = MenuItem(PfsLocalization.copyFileName)
+        ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+        ..enabled = isFile;
 
-    //   final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
-    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
-    //     ..enabled = isFile;
+      final copyFilePath = MenuItem(PfsLocalization.copyFilePath)
+        ..on<MenuItemClickedEvent>((_) => handleCopyFilePath())
+        ..enabled = isFile;
 
-    //   final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
-    //     ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
-    //     ..enabled = isFile;
+      final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
+        ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+        ..enabled = isFile;
 
-    //   final colorChangeMode = MenuItem(PfsLocalization.openColorChangeMeter)
-    //     ..on<MenuItemClickedEvent>((_) => colorChangeModeHandler());
-
-    //   return Menu()
-    //     ..addItem(copyImage)
-    //     ..addItem(copyFilePath)
-    //     ..addItem(copyFilename)
-    //     ..addSeparator()
-    //     ..addItem(colorChangeMode)
-    //     ..addSeparator()
-    //     ..addItem(revealInExplorer);
-    // }
-
-    // void openContextMenu() {
-    //   getContextMenu().open(PositioningStrategy.cursorPosition());
-    // }
+      return Menu()
+        ..addMenuItemObject(copyImage)
+        ..addMenuItemObject(copyFilePath)
+        ..addMenuItemObject(copyFilename)
+        ..addSeparator()
+        ..addMenuItemObject(revealInExplorer);
+    }
 
     void openContextMenu() {
-      popUpContextualMenu(contextMenu);
+      getContextMenu().open(PositioningStrategy.cursorPosition());
     }
 
     return GestureDetector(
@@ -621,40 +579,39 @@ class ImageViewerStackWidget extends StatelessWidget {
                     if (urls == null) throw Exception("URLs was null");
                     if (urls.isEmpty) throw Exception("URLs was empty");
 
-                    Iterable<MenuItem> getMenuItems() sync* {
-                      yield MenuItem(
-                        label:
-                            "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
-                        disabled: true,
-                      );
-
+                    Iterable<({String label, VoidCallback onClick})>
+                    getMenuItems() sync* {
                       const linkLimitCount = 8;
                       const lastIndex = linkLimitCount - 1;
                       for (final (i, url) in urls.indexed) {
                         if (i > lastIndex) break;
-                        yield MenuItem(
+                        yield (
                           label: url.shortenWithEllipsis(50),
-                          onClick: (menuItem) =>
+                          onClick: () =>
                               open_in_browser.openInBrowser(Uri.parse(url)),
                         );
                       }
                     }
 
-                    final contextMenu = Menu(items: getMenuItems().toList());
+                    final menu = Menu();
 
-                    popUpContextualMenu(contextMenu);
-                  } catch (e) {
-                    popUpContextualMenu(
-                      Menu(
-                        items: [
-                          MenuItem(
-                            label: "Reveal in explorer",
-                            onClick: (menuItem) =>
-                                revealInExplorerHandler(imageData),
-                          ),
-                        ],
-                      ),
+                    final header = menu.addMenuItem(
+                      "URLs from '..${Platform.pathSeparator}${imageData.parentFolderName}${Platform.pathSeparator}${image_data.linksFilename}'",
                     );
+                    header.enabled = false;
+                    for (final item in getMenuItems()) {
+                      menu
+                          .addMenuItem(item.label)
+                          .on<MenuItemClickedEvent>((event) => item.onClick());
+                    }
+                    menu.open(.cursorPosition());
+                  } catch (e) {
+                    Menu()
+                      ..addMenuItem(
+                        "Reveal in explorer",
+                        onClick: () => revealInExplorerHandler(imageData),
+                      )
+                      ..open(.cursorPosition());
                   }
                 },
                 child: ImageClickableLabel(
