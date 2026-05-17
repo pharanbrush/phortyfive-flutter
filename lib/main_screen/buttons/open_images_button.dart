@@ -214,8 +214,8 @@ Future<Menu> _getOpenImagesMenu(
     int i = recentFolderEntriesCount;
     for (final e in recentFolderEntries) {
       final shortenedPath = shortenFolderPath(e.folderPath);
-      print(i);
-      print(e.toString());
+      // print(i);
+      // print(e.toString());
       menu.addMenuItem(
         "$i    $shortenedPath",
         onClick: () => model.openFolderCommandBasic(
