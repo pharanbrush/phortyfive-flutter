@@ -158,7 +158,7 @@ Future<Menu> _getOpenImagesMenu(
       MenuItem("Open special", .submenu)
         ..submenu = (Menu()
           ..addMenuItem(
-            "Open random folder in folder",
+            "Open random folder in folder...",
             onClick: model.openFilePickerForRandomFolderInFolder,
           )
           ..addMenuItem(
@@ -170,7 +170,7 @@ Future<Menu> _getOpenImagesMenu(
             onClick: model.openFilePickerForFolder,
           )
           ..addMenuItem(
-            "Open folder without shuffling",
+            "Open folder without shuffling...",
             onClick: () async {
               try {
                 model.shuffleOnListLoad = false;
