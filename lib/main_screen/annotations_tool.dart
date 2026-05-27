@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:pfs2/features/path_smoothing.dart';
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/widget/centered_vertically.dart';
@@ -25,8 +26,43 @@ enum AnnotationTool {
 }
 
 class Stroke {
-  Path path = Path();
+  final points = <Offset>[];
   bool updated = false;
+
+  final path = Path();
+
+  void updatePath() {
+    // This branch is not relevant because you can't remove the last X items in a Path to redo it.
+    // if (onlyLast) {
+    //   if (points.length > _lastUpdatedPathCount) {
+    //     for (int i = _lastUpdatedPathCount; i < points.length; i++) {
+    //       final point = points[i];
+    //       if (i == 0) {
+    //         path.moveTo(point.dx, point.dy);
+    //         continue;
+    //       }
+
+    //       path.lineTo(point.dx, point.dy);
+    //     }
+    //   }
+    //   _lastUpdatedPathCount = points.length;
+    // }
+    // _lastUpdatedPathCount = 0;
+
+    path.reset();
+    final first = points.first;
+    path.moveTo(first.dx, first.dy);
+
+    if (points.length == 1) {
+      path.relativeLineTo(0, 0.01);
+    } else {
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
+      }
+    }
+
+    // _lastUpdatedPathCount = points.length;
+  }
 }
 
 enum RulerType {
@@ -111,9 +147,9 @@ class RulerStroke extends Stroke {
   // }
 
   /// Path is used to determine how the ruler is erased. Not for drawing.
+  @override
   void updatePath() {
-    super.path.reset();
-    //comparisonRuler?.updatePath();
+    //super.path.reset();
 
     lineCache = null;
 
@@ -135,7 +171,7 @@ class RulerStroke extends Stroke {
         final c = getCircleParams(start: start, end: end);
 
         final rect = Rect.fromCircle(center: c.center, radius: c.radius);
-        super.path
+        path
           ..addArc(rect, 0, 2 * math.pi)
           ..addPath(
             Path()
@@ -157,7 +193,7 @@ class RulerStroke extends Stroke {
           );
 
       default:
-        super.path
+        path
           ..moveTo(start.dx, start.dy)
           ..lineTo(end.dx, end.dy);
     }
@@ -492,8 +528,11 @@ class AnnotationsModel {
       showStrokesLockedHint();
       return;
     }
-    currentStroke = Stroke()..path = Path();
-    currentStroke.path.moveTo(position.dx, position.dy);
+
+    // currentStroke = Stroke()..path = Path();
+    // currentStroke.path.moveTo(position.dx, position.dy);
+    currentStroke = Stroke();
+    currentStroke.points.add(position);
     strokes.add(currentStroke);
     currentStrokeStartPosition = position;
     repaint();
@@ -588,21 +627,47 @@ class AnnotationsModel {
     // currentRulerStroke.updateComparisonRuler();
   }
 
-  void resetCurrentStrokeWithSecondPoint(Offset point) {
+  void updateStrokeWithNewEndPoint(Offset point) {
     if (isStrokesLocked) return;
     currentStroke.updated = true;
-    currentStroke.path
-      ..reset()
-      ..moveTo(currentStrokeStartPosition.dx, currentStrokeStartPosition.dy)
-      ..lineTo(point.dx, point.dy);
+    currentStroke.points.clear();
+    currentStroke.points.add(currentStrokeStartPosition);
+    currentStroke.points.add(point);
+    currentStroke.updatePath();
+    // currentStroke.path
+    //   ..reset()
+    //   ..moveTo(currentStrokeStartPosition.dx, currentStrokeStartPosition.dy)
+    //   ..lineTo(point.dx, point.dy);
 
     repaint();
   }
 
-  void addPointToStroke(Offset point) {
+  static const int halfSmoothingWindow = 6;
+  static const smoothingLookBehind = 3;
+
+  void updateAddPointToStroke(Offset point) {
     if (isStrokesLocked) return;
     currentStroke.updated = true;
-    currentStroke.path.lineTo(point.dx, point.dy);
+    //currentStroke.path.lineTo(point.dx, point.dy);
+    currentStroke.points.add(point);
+
+    // TODO: Adjust Smoothing
+
+    const int smoothingWindowSize =
+        halfSmoothingWindow + halfSmoothingWindow + 1;
+
+    final smoothIndex = currentStroke.points.length - 1 - smoothingLookBehind;
+
+    if (smoothIndex > 0) {
+      currentStroke.points[smoothIndex] = getSmoothedPositionAtIndex(
+        currentStroke.points,
+        index: smoothIndex,
+        windowSize: smoothingWindowSize,
+      );
+    }
+
+    currentStroke.updatePath();
+
     repaint();
   }
 
@@ -654,11 +719,13 @@ class AnnotationsModel {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
 
-    if (currentStroke.updated == false) {
-      currentStroke.path.relativeLineTo(0, 0.01);
-    }
+    // if (currentStroke.updated == false) {
+    //   // Make the path a very short stroke to allow drawing points.
+    //   //currentStroke.path.relativeLineTo(0, 0.01);
+    // }
 
     final lastStroke = strokes.last;
+    lastStroke.updatePath();
     changes.add(
       Change(
         lastStroke,
@@ -738,7 +805,9 @@ class AnnotationsModel {
   static bool hitTestStroke(Stroke stroke, Offset point, double tolerance) {
     final squaredTolerance = tolerance * tolerance;
 
-    for (final metric in stroke.path.computeMetrics()) {
+    final path = stroke.path;
+
+    for (final metric in path.computeMetrics()) {
       for (double d = 0; d < metric.length; d += tolerance) {
         final pos = metric.getTangentForOffset(d)!.position;
         if ((pos - point).distanceSquared <= squaredTolerance) {
@@ -746,6 +815,7 @@ class AnnotationsModel {
         }
       }
     }
+
     return false;
   }
 

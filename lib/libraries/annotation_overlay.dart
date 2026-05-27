@@ -81,14 +81,14 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
   late final drawTool = PointerToolCallbacks(
     onPointerDown: (position) => setState(() => model.startNewStroke(position)),
     onPointerUpdate: (position) =>
-        setState(() => model.addPointToStroke(position)),
+        setState(() => model.updateAddPointToStroke(position)),
     onPointerUp: () => model.commitCurrentStroke(),
   );
 
   late final lineTool = PointerToolCallbacks(
     onPointerDown: (position) => setState(() => model.startNewStroke(position)),
     onPointerUpdate: (position) =>
-        setState(() => model.resetCurrentStrokeWithSecondPoint(position)),
+        setState(() => model.updateStrokeWithNewEndPoint(position)),
     onPointerUp: () => model.commitCurrentStroke(),
   );
 
@@ -214,7 +214,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                     details.buttons != kPrimaryMouseButton) {
                   final isPressingPanButton =
                       details.buttons == kTertiaryButton ||
-                          details.buttons == kSecondaryButton;
+                      details.buttons == kSecondaryButton;
 
                   if (isPressingPanButton) {
                     widget.zoomPanner.panImage(details.delta);
@@ -223,8 +223,9 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                   return;
                 }
 
-                currentToolCallbacks.onPointerUpdate
-                    ?.call(details.localPosition);
+                currentToolCallbacks.onPointerUpdate?.call(
+                  details.localPosition,
+                );
               },
               onPointerUp: (details) {
                 if (Phshortcuts.isPanModifierPressed()) {
@@ -268,11 +269,13 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     final image = widget.image;
     final completer = Completer<ui.Image>();
 
-    image.image.resolve(const ImageConfiguration()).addListener(
-      ImageStreamListener((ImageInfo info, bool _) {
-        completer.complete(info.image);
-      }),
-    );
+    image.image
+        .resolve(const ImageConfiguration())
+        .addListener(
+          ImageStreamListener((ImageInfo info, bool _) {
+            completer.complete(info.image);
+          }),
+        );
 
     final loadedImage = await completer.future;
     if (!mounted) return; //Prevents unmounted widget error from async call.
@@ -311,8 +314,8 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     if (imageSize != null) {
       final imageWidget = context.findRenderObject() as RenderBox?;
       final imagePosition = imageWidget?.localToGlobal(Offset.zero);
-      final widgetPosition =
-          (context.findRenderObject() as RenderBox).localToGlobal(Offset.zero);
+      final widgetPosition = (context.findRenderObject() as RenderBox)
+          .localToGlobal(Offset.zero);
       final offsetX = imagePosition!.dx - widgetPosition.dx;
       final offsetY = imagePosition.dy - widgetPosition.dy;
       setState(() {
