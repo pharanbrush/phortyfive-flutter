@@ -204,7 +204,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
                   ImagePhviewerPanListener.handlePanUpdate(
                     pointerDelta: details.delta,
                     zoomPanner: widget.zoomPanner,
-                    useZoomPannerScale: true,
+                    useZoomPannerScale: false,
                   );
 
                   return;
