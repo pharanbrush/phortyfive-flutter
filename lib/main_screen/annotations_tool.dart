@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:pfs2/features/path_smoothing.dart';
+import 'package:pfs2/features/path_smoothing.dart' as path_smoothing;
 import 'package:pfs2/main_screen/main_screen.dart';
 import 'package:pfs2/main_screen/panels/modal_panel.dart';
 import 'package:pfs2/phlutter/widget/centered_vertically.dart';
@@ -642,8 +642,15 @@ class AnnotationsModel {
     repaint();
   }
 
-  static const int halfSmoothingWindow = 6;
   static const smoothingLookBehind = 3;
+  static const int halfSmoothingWindow = 6;
+  static const int smoothingWindowSize =
+      halfSmoothingWindow + halfSmoothingWindow + 1;
+
+  final smoothingWeights = path_smoothing.getGaussianWeights(
+    smoothingWindowSize,
+    sigma: 9, // Increasing this increases smoothing effect and reduces details.
+  );
 
   void updateAddPointToStroke(Offset point) {
     if (isStrokesLocked) return;
@@ -651,19 +658,15 @@ class AnnotationsModel {
     //currentStroke.path.lineTo(point.dx, point.dy);
     currentStroke.points.add(point);
 
-    // TODO: Adjust Smoothing
-
-    const int smoothingWindowSize =
-        halfSmoothingWindow + halfSmoothingWindow + 1;
-
     final smoothIndex = currentStroke.points.length - 1 - smoothingLookBehind;
-
     if (smoothIndex > 0) {
-      currentStroke.points[smoothIndex] = getSmoothedPositionAtIndex(
-        currentStroke.points,
-        index: smoothIndex,
-        windowSize: smoothingWindowSize,
-      );
+      currentStroke.points[smoothIndex] = path_smoothing
+          .getSmoothedPositionAtIndex(
+            currentStroke.points,
+            index: smoothIndex,
+            windowSize: smoothingWindowSize,
+            weights: smoothingWeights,
+          );
     }
 
     currentStroke.updatePath();
@@ -715,7 +718,7 @@ class AnnotationsModel {
     repaint();
   }
 
-  void commitCurrentStroke() {
+  void commitCurrentStroke({bool simplifyStroke = false}) {
     if (isStrokesLocked) return;
     if (strokes.isEmpty) return;
 
@@ -725,7 +728,12 @@ class AnnotationsModel {
     // }
 
     final lastStroke = strokes.last;
+    if (simplifyStroke) {
+      path_smoothing.reduceStrokePointsByDistance(lastStroke.points);
+    }
+
     lastStroke.updatePath();
+
     changes.add(
       Change(
         lastStroke,

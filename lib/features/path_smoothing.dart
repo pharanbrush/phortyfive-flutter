@@ -57,6 +57,24 @@ List<double> getGaussianWeights(int windowSize, {double? sigma}) {
   return weights.map((w) => w / sum).toList();
 }
 
+void reduceStrokePointsByDistance(List<Offset> points) {
+  const minDistance = 0.4;
+  if (points.isEmpty) return;
+
+  final filteredPoints = [points.first];
+
+  const minDistanceSquared = minDistance * minDistance;
+  for (int i = 1; i < points.length; i++) {
+    final distanceSquared = (points[i] - filteredPoints.last).distanceSquared;
+    if (distanceSquared > minDistanceSquared) {
+      filteredPoints.add(points[i]);
+    }
+  }
+
+  points.clear();
+  points.addAll(filteredPoints);
+}
+
 
 // class StrokeData {
 //   const StrokeData({

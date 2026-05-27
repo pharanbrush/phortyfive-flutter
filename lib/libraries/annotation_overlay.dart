@@ -82,7 +82,7 @@ class _AnnotationOverlayState extends State<AnnotationOverlay> {
     onPointerDown: (position) => setState(() => model.startNewStroke(position)),
     onPointerUpdate: (position) =>
         setState(() => model.updateAddPointToStroke(position)),
-    onPointerUp: () => model.commitCurrentStroke(),
+    onPointerUp: () => model.commitCurrentStroke(simplifyStroke: true),
   );
 
   late final lineTool = PointerToolCallbacks(
