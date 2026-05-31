@@ -535,7 +535,7 @@ class ImageViewerStackWidget extends StatelessWidget {
                 if (imageNotReady) {
                   return DelayedBuilder(
                     key: Key(imageData.filePath),
-                    delay: const Duration(milliseconds: 500),
+                    delay: const Duration(milliseconds: 300),
                     builder: (_) => CircularProgressIndicator.adaptive(),
                   );
                 }
