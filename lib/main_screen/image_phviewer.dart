@@ -20,6 +20,7 @@ import 'package:pfs2/widgets/clipboard_handlers.dart';
 
 import '../phlutter/dart/open_in_browser.dart' as open_in_browser;
 import '../phlutter/phmaterial/escape_route.dart';
+import '../phlutter/widget/delayed_builder.dart';
 import '../phlutter/widget/scroll_listener.dart';
 import '../phlutter/widget/widget_state_property_utils.dart';
 
@@ -527,6 +528,20 @@ class ImageViewerStackWidget extends StatelessWidget {
             return Image.file(
               filterQuality: FilterQuality.medium,
               key: ImagePhviewer.imageWidgetKey,
+              frameBuilder: (_, child, frame, _) {
+                // Handles when the image is not ready despite being a file,
+                // like when it's listed but unsynced in a cloud folder.
+                final imageNotReady = (frame == null);
+                if (imageNotReady) {
+                  return DelayedBuilder(
+                    key: Key(imageData.filePath),
+                    delay: const Duration(milliseconds: 500),
+                    builder: (_) => CircularProgressIndicator.adaptive(),
+                  );
+                }
+
+                return child;
+              },
               imageFile,
             );
           } else if (imageData is ImageMemoryData) {
