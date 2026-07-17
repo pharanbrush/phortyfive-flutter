@@ -185,7 +185,7 @@ Future<Menu> _getOpenImagesMenu(
     );
     menu.addSeparator();
     menu.addMenuItem(
-      "Open image folder...",
+      "&Open image folder...",
       onClick: () => model.openFilePickerForFolder(includeSubfolders: true),
     );
 
@@ -219,7 +219,7 @@ Future<Menu> _getOpenImagesMenu(
       // print(i);
       // print(e.toString());
       menu.addMenuItem(
-        "$i    $shortenedPath",
+        "&$i    $shortenedPath",
         onClick: () => model.openFolderCommandBasic(
           folderPath: e.folderPath,
           includeSubfolders: e.includeSubfolders,
