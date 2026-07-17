@@ -57,7 +57,7 @@ class FirstActionSheet extends StatelessWidget {
                     firstActionIcon,
                     const SizedBox(height: 8),
                     Text(
-                      "Get started by loading images!",
+                      "Get started by opening a folder!",
                       style: titleStyle,
                       textAlign: TextAlign.center,
                     ),

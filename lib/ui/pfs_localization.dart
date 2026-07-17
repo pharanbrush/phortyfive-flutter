@@ -1,37 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 extension CapitalizeExtension on String {
   String capitalizeFirst() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
-}
-
-extension ShortenExtension on String {
-  String shortenWithEllipsis(int maxLength) {
-    if (length <= maxLength) {
-      return this;
-    }
-    return "${substring(0, maxLength)}...";
-  }
-}
-
-String shortenFolderPath(String folderPath) {
-  final separator = Platform.pathSeparator;
-  final split = folderPath.split(separator);
-  final splitLength = split.length;
-  if (splitLength <= 4) {
-    return folderPath;
-  }
-
-  final candidateFolderPath =
-      "${split.first}$separator...$separator${split[splitLength - 2]}$separator${split.last}";
-  if (candidateFolderPath.length > 50) {
-    return "${split.first}$separator...$separator${split.last}";
-  }
-
-  return candidateFolderPath;
 }
 
 class PfsLocalization {

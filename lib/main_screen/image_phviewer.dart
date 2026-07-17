@@ -19,6 +19,7 @@ import 'package:pfs2/libraries/annotation_overlay.dart';
 import 'package:pfs2/widgets/clipboard_handlers.dart';
 
 import '../phlutter/dart/open_in_browser.dart' as open_in_browser;
+import '../phlutter/dart/shorten_paths.dart';
 import '../phlutter/phmaterial/escape_route.dart';
 import '../phlutter/widget/delayed_builder.dart';
 import '../phlutter/widget/scroll_listener.dart';

@@ -12,6 +12,8 @@ import 'package:pfs2/ui/phshortcuts.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
+import '../../phlutter/dart/shorten_paths.dart';
+
 class ImageSetButton extends StatelessWidget {
   const ImageSetButton({
     super.key,
