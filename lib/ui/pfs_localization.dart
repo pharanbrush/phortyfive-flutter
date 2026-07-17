@@ -60,8 +60,9 @@ class PfsLocalization {
 
   static String get pressCapital => press.capitalizeFirst();
 
-  static const String secondaryPressCapital =
-      isDesktop ? "Right-click" : "Long-press";
+  static const String secondaryPressCapital = isDesktop
+      ? "Right-click"
+      : "Long-press";
 
   static String imageNoun(int count) {
     return count == 1 ? "image" : "images";
@@ -83,19 +84,21 @@ class PfsLocalization {
     return "$commandName (${tooltipShortcut(shortcut)})";
   }
 
-  static Text textWithMultiBold(
-      {required String text1,
-      String? boldText1,
-      String? text2,
-      String? boldText2,
-      String? text3}) {
+  static Text textWithMultiBold({
+    required String text1,
+    String? boldText1,
+    String? text2,
+    String? boldText2,
+    String? text3,
+  }) {
     return Text.rich(
       TextSpan(
         text: text1,
         children: [
           TextSpan(
-              text: boldText1,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+            text: boldText1,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           TextSpan(text: text2),
         ],
       ),
