@@ -470,7 +470,7 @@ class ImageRightClick extends StatelessWidget {
         ..enabled = isFile;
 
       final revealInExplorer = MenuItem(PfsLocalization.revealInExplorer)
-        ..on<MenuItemClickedEvent>((_) => handleCopyFilename())
+        ..on<MenuItemClickedEvent>((_) => revealInExplorerHandler())
         ..enabled = isFile;
 
       return Menu()
