@@ -9,7 +9,7 @@ extension CapitalizeExtension on String {
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
-  static const String version = '0.9.20260501b';
+  static const String version = '0.9.20260904b';
 
   static const String alwaysOnTop = "Keep window on top";
   static const String shortcutHelp = "Shortcut help...";
