@@ -651,13 +651,19 @@ class MainScreenState extends State<MainScreen>
               }
               if (filePaths.isEmpty) return;
 
-              model.loadImageFiles(filePaths, recursive: true).then(
-                (_) {
-                  if (model.hasImagesLoaded) {
-                    _onFileDropped();
-                  }
-                },
-              );
+              model
+                  .loadImageFiles(
+                    filePaths,
+                    recursive: true,
+                    resolveShortcuts: true,
+                  )
+                  .then(
+                    (_) {
+                      if (model.hasImagesLoaded) {
+                        _onFileDropped();
+                      }
+                    },
+                  );
             },
           ),
         );
