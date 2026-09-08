@@ -1,8 +1,16 @@
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
+import 'package:path/path.dart' as p;
 import 'package:win32/win32.dart';
 import 'dart:ffi';
+
+const windowsShortcutExtension = ".lnk";
+
+bool fileIsShortcut(String possibleShortcutFilePath) {
+  return Platform.isWindows &&
+      p.extension(possibleShortcutFilePath) == windowsShortcutExtension;
+}
 
 // Edited version of recommendation from https://github.com/halildurmus/win32/discussions/965
 String? resolveShortcut(String shortcutPath) {

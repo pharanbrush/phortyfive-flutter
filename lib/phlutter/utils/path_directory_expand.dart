@@ -35,13 +35,11 @@ Future<List<String>> getExpandedList(
   ) async {
     if (!resolveShortcuts) return null;
 
-    const windowsShortcutExtension = ".lnk";
     // const macosAliasDefaultSuffix = "alias";
     // debugPrint("[Shortcut] Trying to resolve $possibleShortcutFile");
 
     final String? resolvedShortcutPath;
-    if (Platform.isWindows &&
-        p.extension(possibleShortcutFile) == windowsShortcutExtension) {
+    if (windows_shortcuts.fileIsShortcut(possibleShortcutFile)) {
       resolvedShortcutPath = windows_shortcuts.resolveShortcut(
         possibleShortcutFile,
       );
