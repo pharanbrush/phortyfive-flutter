@@ -37,6 +37,7 @@ Future<List<String>> getExpandedList(
 
     const windowsShortcutExtension = ".lnk";
     // const macosAliasDefaultSuffix = "alias";
+    // debugPrint("[Shortcut] Trying to resolve $possibleShortcutFile");
 
     final String? resolvedShortcutPath;
     if (Platform.isWindows &&
@@ -96,10 +97,11 @@ Future<List<String>> getExpandedList(
 
     for (final path in filePaths) {
       if (path == null) continue;
+      // debugPrint("[Loading] Now processing $path");
 
       final directory = Directory(path);
       if (await directory.exists()) {
-        debugPrint("Adding $path to initial traversal");
+        // debugPrint("[Loading] Adding $path to initial traversal");
         directoryTraversalStack.add(directory);
         continue;
       }
