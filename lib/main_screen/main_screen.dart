@@ -647,6 +647,11 @@ class MainScreenState extends State<MainScreen>
                   filePaths.add(filePath);
                 } else if (pathIsDirectory(filePath)) {
                   filePaths.add(filePath);
+                } else if (fileIsShortcut(filePath)) {
+                  final resolvedShortcut = resolveShortcut(filePath);
+                  if (resolvedShortcut != null) {
+                    filePaths.add(resolvedShortcut);
+                  }
                 }
               }
               if (filePaths.isEmpty) return;
