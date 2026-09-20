@@ -17,6 +17,7 @@ class PfsLocalization {
   static const String copyFilePath = "Copy file path";
   static const String copyImageToClipboard = "Copy image";
   static const String copyFileName = "Copy filename";
+  static const String reloadCurrentFolder = "&Reload folder of current image";
 
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";

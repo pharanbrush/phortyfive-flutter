@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
+import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:pfs2/phlutter/utils/phclipboard.dart';
@@ -183,6 +184,7 @@ Future<Menu> _getOpenImagesMenu(
             },
           )),
     );
+
     menu.addSeparator();
     menu.addMenuItem(
       "&Open image folder...",
@@ -230,6 +232,24 @@ Future<Menu> _getOpenImagesMenu(
 
     if (recentFolderEntriesCount != 0) {
       menu.addSeparator();
+    }
+
+    if (model.imageList.isPopulated) {
+      final currentImage = model.getCurrentImageData();
+      if (currentImage is ImageFileData) {
+        if (currentImage.fileFolder.isNotEmpty) {
+          menu.addMenuItem(
+            PfsLocalization.reloadCurrentFolder,
+            onClick: () {
+              model.openFolderCommandBasic(
+                folderPath: currentImage.fileFolder,
+                includeSubfolders: true,
+              );
+            },
+          );
+          menu.addSeparator();
+        }
+      }
     }
 
     addBaseMenuItems(menu);
