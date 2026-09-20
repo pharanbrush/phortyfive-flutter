@@ -41,6 +41,11 @@ class Phshortcuts {
     LogicalKeyboardKey.keyD,
   );
 
+  static const openFolderMenu = SingleActivator(
+    LogicalKeyboardKey.keyF,
+    alt: true,
+  );
+
   static final undo = SingleActivator(
     LogicalKeyboardKey.keyZ,
     control: !Platform.isMacOS,
@@ -156,6 +161,7 @@ class Phshortcuts {
     Phshortcuts.next5: NextImageIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
     Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
+    Phshortcuts.openFolderMenu: OpenFolderMenuIntent(),
     Phshortcuts.restartTimer: RestartTimerIntent(),
     Phshortcuts.help: HelpIntent(),
     Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
@@ -290,6 +296,10 @@ class CopyFileIntent extends Intent {
 
 class PasteIntent extends Intent {
   const PasteIntent();
+}
+
+class OpenFolderMenuIntent extends Intent {
+  const OpenFolderMenuIntent();
 }
 
 class ColorMeterOpenIntent extends Intent {
