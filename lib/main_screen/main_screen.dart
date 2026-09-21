@@ -463,10 +463,10 @@ class MainScreenState extends State<MainScreen>
     final imageNoun = PfsLocalization.imageNoun(loadedCount);
 
     if (loadedCount == 1) {
-      Phtoasts.showWidget(
-        context,
-        child: Text("${imageNoun.capitalizeFirst()} loaded"),
-      );
+      // Phtoasts.showWidget(
+      //   context,
+      //   child: Text("${imageNoun.capitalizeFirst()} loaded"),
+      // );
     } else {
       Phtoasts.showWidget(
         context,
