@@ -28,6 +28,7 @@ import 'package:pfs2/main_screen/sheets/help_sheet.dart';
 import 'package:pfs2/main_screen/sheets/loading_sheet.dart';
 import 'package:pfs2/main_screen/sheets/initial_use_choice_sheet.dart';
 import 'package:pfs2/main_screen/annotations_tool.dart';
+import 'package:pfs2/main_single_instance.dart';
 import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/phlutter/remember_window_size.dart'
@@ -334,6 +335,8 @@ class MainScreenState extends State<MainScreen>
   }
 
   Future _loadSettings() async {
+    onSecondWindow = () => _checkAndLoadLaunchArgPath();
+
     windowState.isSoundsEnabled.value = await pfs_preferences.soundPreference
         .getValue(defaultValue: true);
 

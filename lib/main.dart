@@ -7,6 +7,7 @@ import 'package:pfs2/main_args.dart' as main_args;
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/main_screen/macos/macos_window_events.dart'
     as macos_window;
+import 'package:pfs2/main_single_instance.dart';
 import 'package:pfs2/main_window_wrapper.dart';
 import 'package:pfs2/models/pfs_model.dart';
 import 'package:pfs2/models/phtimer_model.dart';
@@ -19,10 +20,30 @@ import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/models/pfs_preferences.dart' as pfs_preferences;
 import 'package:window_manager/window_manager.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
+
+const appWindowIdentifier = 'phorty_five_seconds-${PfsLocalization.version}';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  appAllowMultipleInstances = await getAllowMultipleInstancePreference(
+    defaultAllowMultipleInstances: false,
+  );
+
+  if (!appAllowMultipleInstances) {
+    await WindowsSingleInstance.ensureSingleInstance(
+      args,
+      appWindowIdentifier,
+      onSecondWindow: (newArgs) {
+        if (newArgs.isNotEmpty) {
+          main_args.appFileToLoadFromMainArgs = newArgs[0];
+          onSecondWindow?.call();
+        }
+      },
+    );
+  }
 
   if (Platform.isMacOS) {
     await macos_window.bindWindowDelegate();
