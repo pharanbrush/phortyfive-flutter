@@ -370,7 +370,7 @@ class MainScreenState extends State<MainScreen>
 
       final fileExists = await File(possiblePath).exists();
       if (fileExists) {
-        await widget.model.loadImagesFromShell([possiblePath]);
+        await widget.model.loadImageFromShell(possiblePath);
         return;
       } else {
         final directoryExists = await Directory(possiblePath).exists();

@@ -47,6 +47,10 @@ class Circulator with IndexCursor {
 
     return outputIndices[possibleNewInputIndex];
   }
+
+  void setInternalCursorIndexTo(int index) {
+    _currentInputIndex = index;
+  }
 }
 
 mixin IndexCursor {

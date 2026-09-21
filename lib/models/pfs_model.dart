@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:async/async.dart';
 import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:pfs2/core/circulator.dart';
 import 'package:pfs2/core/image_data.dart';
 import 'package:pfs2/core/image_list.dart';
@@ -70,6 +71,42 @@ class PfsAppModel
     if (!imageList.isPopulated) return ImageData.invalid;
 
     return imageList.get(circulator.currentOutputIndex);
+  }
+
+  Future loadImageFromShell(String filePath) async {
+    isInitialUseChoiceChosen.value = true;
+    await loadImageFiles(
+      [filePath],
+      resolveShortcuts: true,
+      recursive: false,
+    );
+
+    shuffleOnListLoad = false;
+    await loadFolderWithInitialImage(filePath);
+  }
+
+  Future loadFolderWithInitialImage(String filePath) async {
+    final folderPath = path.dirname(filePath);
+    if (!await Directory(folderPath).exists()) return;
+
+    await loadFolder(
+      folderPath,
+      recursive: false,
+      resolveShortcuts: false,
+    );
+
+    final indexOfInitialImage = imageList.items.indexWhere(
+      (element) {
+        if (element is ImageFileData) {
+          return element.filePath == filePath;
+        }
+
+        return false;
+      },
+    );
+
+    if (indexOfInitialImage < 0) return;
+    circulator.setInternalCursorIndexTo(indexOfInitialImage);
   }
 
   void preloadSurroundingImages(BuildContext context) async {
@@ -492,14 +529,6 @@ mixin PfsImageListManager on SuffixExcludeList {
     if (isLoadingImages.value) {
       imageLoadingCanceledNotifier.value = true;
     }
-  }
-
-  Future loadImagesFromShell(List<String?> filePaths) {
-    return loadImageFiles(
-      filePaths,
-      resolveShortcuts: true,
-      recursive: false,
-    );
   }
 
   Future loadImageFiles(
