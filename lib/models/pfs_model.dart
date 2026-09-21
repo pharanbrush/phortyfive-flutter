@@ -494,6 +494,14 @@ mixin PfsImageListManager on SuffixExcludeList {
     }
   }
 
+  Future loadImagesFromShell(List<String?> filePaths) {
+    return loadImageFiles(
+      filePaths,
+      resolveShortcuts: true,
+      recursive: false,
+    );
+  }
+
   Future loadImageFiles(
     List<String?> filePaths, {
     bool recursive = false,

@@ -353,8 +353,8 @@ class MainScreenState extends State<MainScreen>
       if (Platform.isWindows) {
         if (possiblePath.endsWith(".lnk")) {
           final possibleFile = File(possiblePath);
-          final fileExists = await possibleFile.exists();
-          if (fileExists) {
+          final shortcutFileExists = await possibleFile.exists();
+          if (shortcutFileExists) {
             final possibleShortcutResolvedPath = resolveShortcut(possiblePath);
             if (possibleShortcutResolvedPath == null) {
               throw Exception("Shortcut does not point anywhere.");
@@ -365,16 +365,22 @@ class MainScreenState extends State<MainScreen>
         }
       }
 
-      final directoryExists = await Directory(possiblePath).exists();
+      final fileExists = await File(possiblePath).exists();
+      if (fileExists) {
+        await widget.model.loadImagesFromShell([possiblePath]);
+        return;
+      } else {
+        final directoryExists = await Directory(possiblePath).exists();
 
-      if (!directoryExists) {
-        throw PathNotFoundException(
-          "Path is not a folder $possiblePath",
-          OSError("Path is not a folder $possiblePath"),
-        );
+        if (!directoryExists) {
+          throw PathNotFoundException(
+            "Path is not a folder $possiblePath",
+            OSError("Path is not a folder $possiblePath"),
+          );
+        }
+
+        await widget.model.openFolderCommandBasic(folderPath: possiblePath);
       }
-
-      await widget.model.openFolderCommandBasic(folderPath: possiblePath);
     } catch (e) {
       await Future.delayed(Duration(seconds: 1));
       showToast(message: e.toString());
