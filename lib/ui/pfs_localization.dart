@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 extension CapitalizeExtension on String {
@@ -5,6 +7,8 @@ extension CapitalizeExtension on String {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
+
+final String windowsHotkey = Platform.isWindows ? "&" : "";
 
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
@@ -17,7 +21,8 @@ class PfsLocalization {
   static const String copyFilePath = "Copy file path";
   static const String copyImageToClipboard = "Copy image";
   static const String copyFileName = "Copy filename";
-  static const String reloadCurrentFolder = "&Reload folder of current image";
+  static final String reloadCurrentFolder =
+      "${windowsHotkey}Reload folder of current image";
 
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";
