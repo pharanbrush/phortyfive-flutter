@@ -23,6 +23,8 @@ class PfsLocalization {
   static const String copyFileName = "Copy filename";
   static final String reloadCurrentFolder =
       "${windowsHotkey}Reload folder of current image";
+  static final String loadFolderOfCurrentImage =
+      "Load folde${windowsHotkey}r of current image";
 
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";
