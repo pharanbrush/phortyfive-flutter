@@ -13,7 +13,7 @@ final String windowsHotkey = Platform.isWindows ? "&" : "";
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
-  static const String version = '0.9.20260921b';
+  static const String version = '0.9.20260924b';
 
   static const String alwaysOnTop = "Keep window on top";
   static const String shortcutHelp = "Shortcut help...";
