@@ -93,6 +93,7 @@ class PfsAppModel
       folderPath,
       recursive: false,
       resolveShortcuts: false,
+      addToRecentFolders: false,
     );
 
     final indexOfInitialImage = imageList.items.indexWhere(
