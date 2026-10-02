@@ -13,7 +13,7 @@ final String windowsHotkey = Platform.isWindows ? "&" : "";
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
-  static const String version = '0.9.20260924b';
+  static const String version = '0.9.20261003b';
 
   static const String alwaysOnTop = "Keep window on top";
   static const String shortcutHelp = "Shortcut help...";
@@ -28,6 +28,12 @@ class PfsLocalization {
 
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";
+
+  static const String overlayButton = "overlay button";
+  static final String disableOverlayButton =
+      "Disable $windowsHotkey$overlayButton";
+  static final String enableOverlayButton =
+      "Enable $windowsHotkey$overlayButton";
 
   static const String openColorChangeMeter = "Open color change meter";
   static const String colorChangeMeter = "Color change meter";
