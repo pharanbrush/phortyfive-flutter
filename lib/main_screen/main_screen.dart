@@ -1400,7 +1400,20 @@ class ImageBrowseGestureControls extends StatelessWidget {
                 builder: (_, _, _) {
                   return ImagePhviewerPanListener(
                     zoomPanner: imagePhviewer,
-                    child: playPauseButton(),
+                    child: ValueListenableBuilder(
+                      valueListenable: model.isBigPlayButtonEnabled,
+                      builder: (_, _, _) {
+                        if (!model.isBigPlayButtonEnabled.value) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                            ),
+                          );
+                        }
+
+                        return playPauseButton();
+                      },
+                    ),
                   );
                 },
               ),

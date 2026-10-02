@@ -10,6 +10,7 @@ import 'package:pfs2/core/image_data.dart' as image_data;
 import 'package:pfs2/core/image_data.dart' show ImageData, ImageFileData;
 import 'package:pfs2/main_screen/annotations_tool.dart';
 import 'package:pfs2/models/pfs_model.dart';
+import 'package:pfs2/phlutter/utils/value_notifier_extensions.dart';
 import 'package:pfs2/phlutter/widget/secondary_tap_menu.dart';
 import 'package:pfs2/ui/pfs_localization.dart';
 import 'package:pfs2/ui/phshortcuts.dart';
@@ -473,10 +474,25 @@ class ImageRightClick extends StatelessWidget {
         ..on<MenuItemClickedEvent>((_) => revealInExplorerHandler())
         ..enabled = isFile;
 
+      final isPlayButtonEnabled = model.isBigPlayButtonEnabled.value;
+      final toggleOverlayButton =
+          MenuItem(
+              isPlayButtonEnabled
+                  ? PfsLocalization.disableOverlayButton
+                  : PfsLocalization.enableOverlayButton,
+              MenuItemType.checkbox,
+            )
+            ..on<MenuItemClickedEvent>(
+              (_) => model.isBigPlayButtonEnabled.toggle(),
+            )
+            ..enabled = true;
+
       return Menu()
         ..addMenuItemObject(copyImage)
         ..addMenuItemObject(copyFilePath)
         ..addMenuItemObject(copyFilename)
+        ..addSeparator()
+        ..addMenuItemObject(toggleOverlayButton)
         ..addSeparator()
         ..addMenuItemObject(revealInExplorer);
     }
