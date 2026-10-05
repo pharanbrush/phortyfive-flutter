@@ -14,6 +14,7 @@ import 'package:pfs2/ui/themes/pfs_theme.dart';
 import 'package:pfs2/widgets/phbuttons.dart';
 
 import '../../phlutter/dart/shorten_paths.dart';
+import '../../phlutter/macos_bookmarks.dart' as macos_bookmarks;
 
 class ImageSetButton extends StatelessWidget {
   const ImageSetButton({
@@ -194,44 +195,75 @@ Future<Menu> _getOpenImagesMenu(
     return menu;
   }
 
-  if (Platform.isMacOS) {
-    // Disable recent folders feature until native recents can be implemented.
-    // Otherwise, the app runs into folder permissions problems in a typical app sandbox.
-    final menu = Menu();
-    addBaseMenuItems(menu);
-    return menu;
-  }
-
   try {
-    final recentFolderEntries = await pfs_preferences
-        .getRecentFolders()
-        .timeout(Duration(milliseconds: 1500));
+    final Menu menu;
+    if (Platform.isMacOS) {
+      final recentFolderEntries = await macos_bookmarks.getRecentFoldersList();
 
-    if (recentFolderEntries == null) {
-      final menu = Menu();
-      addBaseMenuItems(menu);
-      return menu;
-    }
+      if (recentFolderEntries == null) {
+        menu = Menu();
+        addBaseMenuItems(menu);
+        return menu;
+      }
 
-    final menu = Menu();
-    final recentFolderEntriesCount = recentFolderEntries.length;
-    int i = recentFolderEntriesCount;
-    for (final e in recentFolderEntries) {
-      final shortenedPath = shortenFolderPath(e.folderPath);
-      // print(i);
-      // print(e.toString());
-      menu.addMenuItem(
-        "$windowsHotkey$i    $shortenedPath",
-        onClick: () => model.openFolderCommandBasic(
-          folderPath: e.folderPath,
-          includeSubfolders: e.includeSubfolders,
-        ),
-      );
-      i--;
-    }
+      menu = Menu();
+      final recentFolderEntriesCount = recentFolderEntries.length;
+      int i = recentFolderEntriesCount;
+      for (final e in recentFolderEntries) {
+        final folderPath = macos_bookmarks.parseEntry(e).$1;
+        final shortenedPath = shortenFolderPath(
+          folderPath,
+        );
+        // print(i);
+        // print(e.toString());
+        menu.addMenuItem(
+          "$windowsHotkey$i    $shortenedPath",
+          onClick: () {
+            macos_bookmarks.accessRecentFolder(e, (dir) {
+              model.openFolderCommandBasic(
+                folderPath: dir.path,
+                includeSubfolders: true,
+              );
+            });
+          },
+        );
+        i--;
+      }
 
-    if (recentFolderEntriesCount != 0) {
-      menu.addSeparator();
+      if (recentFolderEntriesCount != 0) {
+        menu.addSeparator();
+      }
+    } else {
+      final recentFolderEntries = await pfs_preferences
+          .getRecentFolders()
+          .timeout(Duration(milliseconds: 1500));
+
+      if (recentFolderEntries == null) {
+        menu = Menu();
+        addBaseMenuItems(menu);
+        return menu;
+      }
+
+      menu = Menu();
+      final recentFolderEntriesCount = recentFolderEntries.length;
+      int i = recentFolderEntriesCount;
+      for (final e in recentFolderEntries) {
+        final shortenedPath = shortenFolderPath(e.folderPath);
+        // print(i);
+        // print(e.toString());
+        menu.addMenuItem(
+          "$windowsHotkey$i    $shortenedPath",
+          onClick: () => model.openFolderCommandBasic(
+            folderPath: e.folderPath,
+            includeSubfolders: e.includeSubfolders,
+          ),
+        );
+        i--;
+      }
+
+      if (recentFolderEntriesCount != 0) {
+        menu.addSeparator();
+      }
     }
 
     if (model.imageList.isPopulated) {

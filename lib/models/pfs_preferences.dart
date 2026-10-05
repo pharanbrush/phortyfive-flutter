@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../phlutter/macos_bookmarks.dart' as macos_bookmarks;
+
 const _themeKey = "theme";
 const _timerDurationKey = "timer_duration";
 const _soundKey = "sounds";
@@ -54,6 +56,11 @@ Future<void> pushRecentFolder({
 }) async {
   final folder = Directory(folderPath);
   if (await folder.exists()) {
+    if (Platform.isMacOS) {
+      macos_bookmarks.bookmarkFolder(folderPath);
+      return;
+    }
+
     // Load old list from preferences.
     final folderList =
         await _getRecentFolderEntryList().onError((_, _) => <String>[]) ??
