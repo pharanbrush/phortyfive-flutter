@@ -195,33 +195,34 @@ Future<Menu> _getOpenImagesMenu(
     return menu;
   }
 
+  Menu getBasicMenu() {
+    final menu = Menu();
+    addBaseMenuItems(menu);
+    return menu;
+  }
+
   try {
     final Menu menu;
+
     if (Platform.isMacOS) {
       final recentFolderEntries = await macos_bookmarks.getRecentFoldersList();
-
-      if (recentFolderEntries == null) {
-        menu = Menu();
-        addBaseMenuItems(menu);
-        return menu;
+      if (recentFolderEntries == null || recentFolderEntries.isEmpty) {
+        return getBasicMenu();
       }
 
       menu = Menu();
       final recentFolderEntriesCount = recentFolderEntries.length;
       int i = recentFolderEntriesCount;
-      for (final e in recentFolderEntries) {
-        final folderPath = macos_bookmarks.parseEntry(e)?.path;
+      for (final entry in recentFolderEntries) {
+        final folderPath = macos_bookmarks.parseEntry(entry)?.path;
         if (folderPath == null) continue;
 
-        final shortenedPath = shortenFolderPath(
-          folderPath,
-        );
-        // print(i);
-        // print(e.toString());
+        final shortenedPath = shortenFolderPath(folderPath);
+
         menu.addMenuItem(
           "$windowsHotkey$i    $shortenedPath",
           onClick: () {
-            macos_bookmarks.accessRecentFolder(e, (dir) {
+            macos_bookmarks.accessRecentFolder(entry, (dir) {
               model.openFolderCommandBasic(
                 folderPath: dir.path,
                 includeSubfolders: true,
@@ -231,19 +232,12 @@ Future<Menu> _getOpenImagesMenu(
         );
         i--;
       }
-
-      if (recentFolderEntriesCount != 0) {
-        menu.addSeparator();
-      }
     } else {
       final recentFolderEntries = await pfs_preferences
           .getRecentFolders()
           .timeout(Duration(milliseconds: 1500));
-
-      if (recentFolderEntries == null) {
-        menu = Menu();
-        addBaseMenuItems(menu);
-        return menu;
+      if (recentFolderEntries == null || recentFolderEntries.isEmpty) {
+        return getBasicMenu();
       }
 
       menu = Menu();
@@ -262,10 +256,10 @@ Future<Menu> _getOpenImagesMenu(
         );
         i--;
       }
+    }
 
-      if (recentFolderEntriesCount != 0) {
-        menu.addSeparator();
-      }
+    if (menu.itemCount > 0) {
+      menu.addSeparator();
     }
 
     if (model.imageList.isPopulated) {
@@ -289,7 +283,6 @@ Future<Menu> _getOpenImagesMenu(
     addBaseMenuItems(menu);
     return menu;
   } catch (e) {
-    final menu = Menu();
-    return addBaseMenuItems(menu);
+    return getBasicMenu();
   }
 }
