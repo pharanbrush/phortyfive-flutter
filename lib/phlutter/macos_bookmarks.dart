@@ -41,28 +41,30 @@ Future bookmarkFolder(String folderPath) async {
   }
 }
 
-(String path, String bookmarkToken) parseEntry(String recentEntry) {
+({String bookmarkToken, String path})? parseEntry(String recentEntry) {
   final parts = recentEntry.split(_divider);
-  if (parts.length < 2) return ("", "");
+  if (parts.length < 2) return null;
 
   final folderPath = parts[0];
   final bookmarkToken = parts[1];
-  return (folderPath, bookmarkToken);
+  return (path: folderPath, bookmarkToken: bookmarkToken);
 }
 
-String getPathFromEntry(String recentEntry) => parseEntry(recentEntry).$1;
+String? getPathFromEntry(String recentEntry) => parseEntry(recentEntry)?.path;
 
 Future<void> accessRecentFolder(
   String storedItem,
   Function(Directory) onReady,
 ) async {
-  final (folderPath, bookmarkToken) = parseEntry(storedItem);
+  final entry = parseEntry(storedItem);
+  if (entry == null) return;
+
   final secureBookmarks = SecureBookmarks();
 
   try {
     // Resolve the token back into a system File/Directory target
     final resolvedDirectory = await secureBookmarks.resolveBookmark(
-      bookmarkToken,
+      entry.bookmarkToken,
       isDirectory: true,
     );
 
@@ -76,7 +78,7 @@ Future<void> accessRecentFolder(
     debugPrint("[x] Error accessing secure recent folder: $e");
   } finally {
     // CRITICAL: Always release the system lock when done to avoid memory leaks
-    await secureBookmarks.stopAccessingSecurityScopedResource(File(folderPath));
+    await secureBookmarks.stopAccessingSecurityScopedResource(File(entry.path));
   }
 }
 
