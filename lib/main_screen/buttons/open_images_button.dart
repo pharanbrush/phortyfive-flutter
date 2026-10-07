@@ -214,7 +214,7 @@ Future<Menu> _getOpenImagesMenu(
       final recentFolderEntriesCount = recentFolderEntries.length;
       int i = recentFolderEntriesCount;
       for (final entry in recentFolderEntries) {
-        final folderPath = macos_bookmarks.parseEntry(entry)?.path;
+        final folderPath = macos_bookmarks.RecentFolderEntry.pathFrom(entry);
         if (folderPath == null) continue;
 
         final shortenedPath = shortenFolderPath(folderPath);
