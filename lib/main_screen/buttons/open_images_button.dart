@@ -222,8 +222,8 @@ Future<Menu> _getOpenImagesMenu(
         menu.addMenuItem(
           "$windowsHotkey$i    $shortenedPath",
           onClick: () {
-            macos_bookmarks.accessRecentFolder(entry, (dir) {
-              model.openFolderCommandBasic(
+            macos_bookmarks.accessRecentFolder(entry, (dir) async {
+              await model.openFolderCommandBasic(
                 folderPath: dir.path,
                 includeSubfolders: true,
               );

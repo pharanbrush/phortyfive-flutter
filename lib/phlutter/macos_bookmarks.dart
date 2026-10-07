@@ -12,50 +12,73 @@ const _divider = "|";
 
 Future bookmarkFolder(String folderPath) async {
   try {
+    debugPrint("[bookmarkFolder] started");
     final folder = Directory(folderPath);
     if (!await folder.exists()) return;
 
     final secureBookmarks = SecureBookmarks();
-    final bookmarkToken = await secureBookmarks.bookmark(
-      folder,
-    );
+    final bookmarkToken = await secureBookmarks.bookmark(folder);
 
     final prefs = await SharedPreferences.getInstance();
-    List<String> currentBookmarks =
-        prefs.getStringList(_recentFoldersKey) ?? [];
+    final recentFoldersList = prefs.getStringList(_recentFoldersKey) ?? [];
 
-    // Remove if it already exists to prevent duplicates, then insert at the top
-    currentBookmarks.removeWhere((item) => item.contains(folderPath));
+    recentFoldersList.removeWhere(
+      (item) => item.startsWith("$folderPath$_divider"),
+    );
 
-    // Combine path and token into a single string for storage (e.g., "path|token")
-    currentBookmarks.insert(0, "$folderPath$_divider$bookmarkToken");
-
-    // Limit recent folders to 10
-    if (currentBookmarks.length > folderLimitCount) {
-      currentBookmarks = currentBookmarks.sublist(0, folderLimitCount);
+    // Shorten if list is too long
+    if (recentFoldersList.length > pfs_preferences.maxRecentFoldersCount) {
+      recentFoldersList.removeAt(0);
     }
 
-    await prefs.setStringList(_recentFoldersKey, currentBookmarks);
+    // Combine path and token into a single string for storage (e.g., "path|token")
+    final newItem = "$folderPath$_divider$bookmarkToken";
+    // Add the item to the end
+    recentFoldersList.add(newItem);
+
+    await prefs.setStringList(_recentFoldersKey, recentFoldersList);
+
+    await replaceAccessLastFolder(folderPath);
   } catch (e) {
-    debugPrint("[x] Failed to bookmark folder: $folderPath");
+    debugPrint("[x] Failed to bookmark folder: $folderPath \n $e");
   }
 }
 
-({String bookmarkToken, String path})? parseEntry(String recentEntry) {
+({String path, String bookmarkToken})? parseEntry(String recentEntry) {
   final parts = recentEntry.split(_divider);
   if (parts.length < 2) return null;
 
-  final folderPath = parts[0];
-  final bookmarkToken = parts[1];
-  return (path: folderPath, bookmarkToken: bookmarkToken);
+  return (path: parts[0], bookmarkToken: parts[1]);
 }
 
 String? getPathFromEntry(String recentEntry) => parseEntry(recentEntry)?.path;
 
+String _lastAccessedFolder = "";
+
+Future<void> stopAccessingFolder(String folderPath) async {
+  if (folderPath.isEmpty) return;
+  // debugPrint("stopping access of previousFolder");
+  final secureBookmarks = SecureBookmarks();
+  await secureBookmarks.stopAccessingSecurityScopedResource(
+    Directory(folderPath),
+  );
+}
+
+Future<void> replaceAccessLastFolder(String newFolderPath) async {
+  // Is this necessary? What type of leak does this really cause?
+  // debugPrint("replaceAccessLastFolder: old path: $_lastAccessedFolder");
+  if (_lastAccessedFolder == newFolderPath) return;
+  await stopAccessingFolder(_lastAccessedFolder);
+  _lastAccessedFolder = newFolderPath;
+  // debugPrint("replaceAccessLastFolder: new path: $newFolderPath");
+}
+
 Future<void> accessRecentFolder(
   String storedItem,
-  Function(Directory) onReady,
+  Future Function(Directory) onReady,
 ) async {
+  debugPrint("[accessRecentFolder] started");
+
   final entry = parseEntry(storedItem);
   if (entry == null) return;
 
@@ -68,17 +91,20 @@ Future<void> accessRecentFolder(
       isDirectory: true,
     );
 
+    // debugPrint("accessRecentFolder: bookmark resolved");
+
     // CRITICAL: Gain temporary access through the sandbox hole
     await secureBookmarks.startAccessingSecurityScopedResource(
       resolvedDirectory,
     );
 
+    // debugPrint("accessRecentFolder: security scoped resource access started");
+    // debugPrint("accessRecentFolder: now calling onReady");
     await onReady(resolvedDirectory as Directory);
+
+    await replaceAccessLastFolder(resolvedDirectory.path);
   } catch (e) {
     debugPrint("[x] Error accessing secure recent folder: $e");
-  } finally {
-    // CRITICAL: Always release the system lock when done to avoid memory leaks
-    await secureBookmarks.stopAccessingSecurityScopedResource(File(entry.path));
   }
 }
 
