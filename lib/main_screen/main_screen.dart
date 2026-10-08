@@ -96,6 +96,10 @@ class MainScreenState extends State<MainScreen>
       remember_window_size.appRememberWindowSizeNotifier;
 
   @override
+  ValueNotifier<bool> getAllowCanvasPlayPauseNotifier() =>
+      widget.model.isCanvasPlayButtonEnabled;
+
+  @override
   SimpleNotifier getSuffixesChangedNotifier() =>
       widget.model.excludedSuffixesNotifier;
 
@@ -1143,6 +1147,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getSoundEnabledNotifier();
   ValueNotifier<bool> getRememberWindowNotifier();
   ValueNotifier<String> getThemeNotifier();
+  ValueNotifier<bool> getAllowCanvasPlayPauseNotifier();
   SimpleNotifier getSuffixesChangedNotifier();
   List<String> getExcludedSuffixes();
 
@@ -1184,6 +1189,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         rememberWindowEnabledNotifier: getRememberWindowNotifier(),
         excludedSuffixesNotifier: getSuffixesChangedNotifier(),
         exlcudedSuffixes: getExcludedSuffixes(),
+        canvasPlayPauseNotifier: getAllowCanvasPlayPauseNotifier(),
         aboutMenu: aboutMenu,
       );
     },
@@ -1401,9 +1407,9 @@ class ImageBrowseGestureControls extends StatelessWidget {
                   return ImagePhviewerPanListener(
                     zoomPanner: imagePhviewer,
                     child: ValueListenableBuilder(
-                      valueListenable: model.isBigPlayButtonEnabled,
+                      valueListenable: model.isCanvasPlayButtonEnabled,
                       builder: (_, _, _) {
-                        if (!model.isBigPlayButtonEnabled.value) {
+                        if (!model.isCanvasPlayButtonEnabled.value) {
                           return Container(
                             decoration: BoxDecoration(
                               color: Colors.transparent,

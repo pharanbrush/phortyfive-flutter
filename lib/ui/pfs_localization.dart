@@ -29,11 +29,9 @@ class PfsLocalization {
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";
 
-  static const String overlayButton = "overlay button";
-  static final String disableOverlayButton =
-      "Disable $windowsHotkey$overlayButton";
-  static final String enableOverlayButton =
-      "Enable $windowsHotkey$overlayButton";
+  static const String playPauseOnCanvas = "play/pause on canvas";
+  static final String allowPlayPauseOnCanvas =
+      "Allow $windowsHotkey$playPauseOnCanvas";
 
   static const String openColorChangeMeter = "Open color change meter";
   static const String colorChangeMeter = "Color change meter";

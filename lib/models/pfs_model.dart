@@ -42,7 +42,7 @@ class PfsAppModel
     PfsAppControlsMode.imageBrowse,
   );
 
-  final isBigPlayButtonEnabled = ValueNotifier(true);
+  final isCanvasPlayButtonEnabled = ValueNotifier(true);
 
   bool get isImageBrowseMode =>
       currentAppControlsMode.value == PfsAppControlsMode.imageBrowse;

@@ -19,10 +19,12 @@ class SettingsPanel extends StatelessWidget {
     required this.rememberWindowEnabledNotifier,
     required this.excludedSuffixesNotifier,
     required this.exlcudedSuffixes,
+    required this.canvasPlayPauseNotifier,
   });
 
   final ValueNotifier<String> themeNotifier;
   final ValueNotifier<bool> soundEnabledNotifier;
+  final ValueNotifier<bool> canvasPlayPauseNotifier;
   final ValueNotifier<bool> rememberWindowEnabledNotifier;
   final SimpleNotifier excludedSuffixesNotifier;
   final List<String> exlcudedSuffixes;
@@ -72,6 +74,13 @@ class SettingsPanel extends StatelessWidget {
                 title: const Text("Remember window size"),
                 tooltip:
                     "Remember the window size\nfor the next time the application is opened.",
+              ),
+              NotifierSwitchItem(
+                notifier: canvasPlayPauseNotifier,
+                title: const Text("Allow timer play/pause on canvas"),
+                tooltip:
+                    "Allow clicking on the central image area to play and pause the timer.\n"
+                    "Disabling this also hides the play/pause indicator when hovering over the central area.",
               ),
               divider,
               const SmallHeading('Appearance'),

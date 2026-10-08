@@ -474,17 +474,16 @@ class ImageRightClick extends StatelessWidget {
         ..on<MenuItemClickedEvent>((_) => revealInExplorerHandler())
         ..enabled = isFile;
 
-      final isPlayButtonEnabled = model.isBigPlayButtonEnabled.value;
+      final isPlayButtonEnabled = model.isCanvasPlayButtonEnabled.value;
       final toggleOverlayButton =
           MenuItem(
-              isPlayButtonEnabled
-                  ? PfsLocalization.disableOverlayButton
-                  : PfsLocalization.enableOverlayButton,
+              PfsLocalization.allowPlayPauseOnCanvas,
               MenuItemType.checkbox,
             )
             ..on<MenuItemClickedEvent>(
-              (_) => model.isBigPlayButtonEnabled.toggle(),
+              (_) => model.isCanvasPlayButtonEnabled.toggle(),
             )
+            ..state = isPlayButtonEnabled ? .checked : .unchecked
             ..enabled = true;
 
       return Menu()
