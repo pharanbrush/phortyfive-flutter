@@ -13,7 +13,7 @@ final String windowsHotkey = Platform.isWindows ? "&" : "";
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
-  static const String version = '0.9.20261008b';
+  static const String version = '0.9.20261010b';
 
   static const String alwaysOnTop = "Keep window on top";
   static const String shortcutHelp = "Shortcut help...";
@@ -29,7 +29,7 @@ class PfsLocalization {
   static const String timerPlaying = "Timer running";
   static const String timerPaused = "Timer paused";
 
-  static const String playPauseOnCanvas = "play/pause on canvas";
+  static const String playPauseOnCanvas = "play and pause on canvas";
   static final String allowPlayPauseOnCanvas =
       "Allow $windowsHotkey$playPauseOnCanvas";
 

@@ -77,10 +77,10 @@ class SettingsPanel extends StatelessWidget {
               ),
               NotifierSwitchItem(
                 notifier: canvasPlayPauseNotifier,
-                title: const Text("Allow timer play/pause on canvas"),
+                title: const Text("Allow timer play and pause on canvas"),
                 tooltip:
                     "Allow clicking on the central image area to play and pause the timer.\n"
-                    "Disabling this also hides the play/pause indicator when hovering over the central area.",
+                    "Disabling this also hides the play and pause indicator when hovering over the central area.",
               ),
               divider,
               const SmallHeading('Appearance'),
