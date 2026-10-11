@@ -139,6 +139,16 @@ class PfsAppModel
     }
   }
 
+  void initializeTimerSession() {
+    isUserChoseToStartTimer = true;
+    isCanvasPlayButtonEnabled.value = true;
+  }
+
+  void initializeBrowseSession() {
+    isUserChoseToStartTimer = false;
+    isCanvasPlayButtonEnabled.value = false;
+  }
+
   void tryPauseTimer() {
     if (timerModel.isRunning) {
       tryCancelCountdown();

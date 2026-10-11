@@ -25,12 +25,12 @@ class InitialUseChoiceSheet extends StatelessWidget {
     }
 
     void chooseTimerSession() {
-      model.isUserChoseToStartTimer = true;
+      model.initializeTimerSession();
       onChoseAnything();
     }
 
     void chooseBrowseSession() {
-      model.isUserChoseToStartTimer = false;
+      model.initializeBrowseSession();
       onChoseAnything();
     }
 
