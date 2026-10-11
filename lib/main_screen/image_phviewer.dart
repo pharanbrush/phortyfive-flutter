@@ -26,7 +26,7 @@ import '../phlutter/widget/delayed_builder.dart';
 import '../phlutter/widget/scroll_listener.dart';
 import '../phlutter/widget/widget_state_property_utils.dart';
 
-final isTouchPanningInverted = ValueNotifier(true);
+final isTouchPanningInverted = ValueNotifier(false);
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
 class ImagePhviewer with ImageZoomPanner, ImageFilters {
