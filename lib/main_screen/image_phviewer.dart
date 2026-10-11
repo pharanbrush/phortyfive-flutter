@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:pfs2/core/image_memory_data.dart';
@@ -181,6 +182,7 @@ mixin ImageFilters {
 mixin ImageZoomPanner {
   final flipHorizontalListenable = ValueNotifier<bool>(false);
   PointerDeviceKind? currentPointerDeviceKind;
+  int currentButtons = 0;
 
   bool get isUsingAnyTouchPointerDeviceKind =>
       currentPointerDeviceKind == PointerDeviceKind.touch ||
@@ -330,6 +332,7 @@ mixin ImageZoomPanner {
 
   void panRelease() {
     panDuration.value = Phanimations.zoomTransitionDuration;
+    currentButtons = 0;
   }
 
   Size getImageSize();
@@ -783,15 +786,20 @@ class ImagePhviewerPanListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onScaleStart: (details) =>
-          handleScaleStart(details: details, zoomPanner: zoomPanner),
-      onScaleUpdate: (details) =>
-          handleScaleUpdate(details: details, zoomPanner: zoomPanner),
-      onScaleEnd: (details) {
-        handleScaleEnd(details: details, zoomPanner: zoomPanner);
+    return Listener(
+      onPointerDown: (event) {
+        zoomPanner.currentButtons = event.buttons;
       },
-      child: child,
+      child: GestureDetector(
+        onScaleStart: (details) =>
+            handleScaleStart(details: details, zoomPanner: zoomPanner),
+        onScaleUpdate: (details) =>
+            handleScaleUpdate(details: details, zoomPanner: zoomPanner),
+        onScaleEnd: (details) {
+          handleScaleEnd(details: details, zoomPanner: zoomPanner);
+        },
+        child: child,
+      ),
     );
   }
 
@@ -851,6 +859,15 @@ class ImagePhviewerPanListener extends StatelessWidget {
     required ImageZoomPanner zoomPanner,
     bool useZoomPannerScale = false,
   }) {
+    if (zoomPanner.currentPointerDeviceKind == .mouse) {
+      final currentButtons = zoomPanner.currentButtons;
+      if (currentButtons != kPrimaryMouseButton &&
+          currentButtons != kSecondaryMouseButton &&
+          currentButtons != kMiddleMouseButton) {
+        return;
+      }
+    }
+
     if (Phshortcuts.isDragZoomModifierPressed()) {
       zoomPanner.incrementZoomAccumulator(pointerDelta.dx);
       zoomPanner.incrementZoomAccumulator(-pointerDelta.dy);

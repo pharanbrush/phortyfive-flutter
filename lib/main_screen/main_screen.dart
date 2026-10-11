@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pfs2/core/image_memory_data.dart';
@@ -1412,21 +1413,32 @@ class ImageBrowseGestureControls extends StatelessWidget {
               child: ValueListenableBuilder(
                 valueListenable: imagePhviewer.currentZoomScale,
                 builder: (_, _, _) {
-                  return ImagePhviewerPanListener(
-                    zoomPanner: imagePhviewer,
-                    child: ValueListenableBuilder(
-                      valueListenable: model.isCanvasPlayButtonEnabled,
-                      builder: (_, _, _) {
-                        if (!model.isCanvasPlayButtonEnabled.value) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                            ),
-                          );
-                        }
+                  return Listener(
+                    onPointerDown: (PointerDownEvent event) {
+                      // Detect special mouse buttons.
+                      switch (event.buttons) {
+                        case kForwardMouseButton:
+                          model.nextImageNewTimer();
+                        case kBackMouseButton:
+                          model.previousImageNewTimer();
+                      }
+                    },
+                    child: ImagePhviewerPanListener(
+                      zoomPanner: imagePhviewer,
+                      child: ValueListenableBuilder(
+                        valueListenable: model.isCanvasPlayButtonEnabled,
+                        builder: (_, _, _) {
+                          if (!model.isCanvasPlayButtonEnabled.value) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                              ),
+                            );
+                          }
 
-                        return playPauseButton();
-                      },
+                          return playPauseButton();
+                        },
+                      ),
                     ),
                   );
                 },
