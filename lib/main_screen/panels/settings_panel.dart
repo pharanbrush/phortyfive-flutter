@@ -20,12 +20,14 @@ class SettingsPanel extends StatelessWidget {
     required this.excludedSuffixesNotifier,
     required this.exlcudedSuffixes,
     required this.canvasPlayPauseNotifier,
+    required this.showBottomBar,
   });
 
   final ValueNotifier<String> themeNotifier;
   final ValueNotifier<bool> soundEnabledNotifier;
   final ValueNotifier<bool> canvasPlayPauseNotifier;
   final ValueNotifier<bool> rememberWindowEnabledNotifier;
+  final ValueNotifier<bool> showBottomBar;
   final SimpleNotifier excludedSuffixesNotifier;
   final List<String> exlcudedSuffixes;
   final ModalPanel aboutMenu;
@@ -74,6 +76,13 @@ class SettingsPanel extends StatelessWidget {
                 title: const Text("Remember window size"),
                 tooltip:
                     "Remember the window size\nfor the next time the application is opened.",
+              ),
+              NotifierSwitchItem(
+                notifier: showBottomBar,
+                title: const Text("Show bottom bar"),
+                tooltip:
+                    "Shows or hides the bottom bar that contains the controls for\n"
+                    "the image set, timer, filters, and other modes.",
               ),
               NotifierSwitchItem(
                 notifier: canvasPlayPauseNotifier,

@@ -184,11 +184,11 @@ class IconAndText extends StatelessWidget {
 class CollapseBottomBarButton extends StatelessWidget {
   const CollapseBottomBarButton({
     super.key,
-    required this.isMinimized,
+    required this.isExpanded,
     required this.onPressed,
   });
 
-  final bool isMinimized;
+  final bool isExpanded;
   final Function()? onPressed;
 
   @override
@@ -200,16 +200,16 @@ class CollapseBottomBarButton extends StatelessWidget {
       Phshortcuts.toggleBottomBar,
     );
 
-    if (isMinimized) {
+    if (isExpanded) {
       return MinorWindowControlButton(
-        icon: expandIcon,
-        tooltip: "Expand controls ($bottomBarShortcutKey)",
+        icon: collapseIcon,
+        tooltip: "Minimize controls ($bottomBarShortcutKey)",
         onPressed: onPressed,
       );
     } else {
       return MinorWindowControlButton(
-        icon: collapseIcon,
-        tooltip: "Minimize controls ($bottomBarShortcutKey)",
+        icon: expandIcon,
+        tooltip: "Expand controls ($bottomBarShortcutKey)",
         onPressed: onPressed,
       );
     }

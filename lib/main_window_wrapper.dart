@@ -16,7 +16,7 @@ class PfsWindowState {
   bool rightControlsOrientation = true;
   bool isTouch = false;
 
-  final isBottomBarMinimized = ValueNotifier(false);
+  final isShowBottomBar = ValueNotifier(true);
   final isAlwaysOnTop = ValueNotifier(false);
   final isSoundsEnabled = ValueNotifier(true);
 

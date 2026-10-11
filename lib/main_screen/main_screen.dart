@@ -100,6 +100,9 @@ class MainScreenState extends State<MainScreen>
       widget.model.isCanvasPlayButtonEnabled;
 
   @override
+  ValueNotifier<bool> getShowBottomBarNotifier() => windowState.isShowBottomBar;
+
+  @override
   SimpleNotifier getSuffixesChangedNotifier() =>
       widget.model.excludedSuffixesNotifier;
 
@@ -205,7 +208,7 @@ class MainScreenState extends State<MainScreen>
     final windowSize = MediaQuery.sizeOf(context);
 
     return ValueListenableBuilder(
-      valueListenable: windowState.isBottomBarMinimized,
+      valueListenable: windowState.isShowBottomBar,
       builder: (_, _, _) {
         return _bottomControls(windowWidth: windowSize.width);
       },
@@ -237,7 +240,7 @@ class MainScreenState extends State<MainScreen>
             settingsMenu: settingsMenu,
           ),
           ValueListenableBuilder(
-            valueListenable: windowState.isBottomBarMinimized,
+            valueListenable: windowState.isShowBottomBar,
             builder: (context, _, _) => _bottomControls(),
           ),
           _fileDropZone(),
@@ -314,7 +317,7 @@ class MainScreenState extends State<MainScreen>
                   if (currentAppControlsModeValue ==
                       PfsAppControlsMode.imageBrowse) {
                     return WindowDockingControls(
-                      isBottomBarMinimized: windowState.isBottomBarMinimized,
+                      isShowBottomBar: windowState.isShowBottomBar,
                     );
                   }
 
@@ -417,7 +420,7 @@ class MainScreenState extends State<MainScreen>
 
     windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
-    windowState.isBottomBarMinimized.addListener(
+    windowState.isShowBottomBar.addListener(
       () => _handleBottomBarMinimizedChanged(),
     );
     _handleBottomBarMinimizedChanged();
@@ -707,7 +710,7 @@ class MainScreenState extends State<MainScreen>
       ),
     );
 
-    if (windowState.isBottomBarMinimized.value) {
+    if (!windowState.isShowBottomBar.value) {
       return minimizedBottomBar;
     }
 
@@ -845,9 +848,12 @@ class MainScreenState extends State<MainScreen>
   }
 
   void _handleBottomBarMinimizedChanged() {
-    windowState.bottomBarHeight.value = windowState.isBottomBarMinimized.value
-        ? 5
-        : 46;
+    const double visibleBottomBarHeight = 46;
+    const double hiddenBottomBarHeight = 5;
+
+    windowState.bottomBarHeight.value = windowState.isShowBottomBar.value
+        ? visibleBottomBarHeight
+        : hiddenBottomBarHeight;
   }
 
   void _initPlatformBindings() {
@@ -1148,6 +1154,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
   ValueNotifier<bool> getRememberWindowNotifier();
   ValueNotifier<String> getThemeNotifier();
   ValueNotifier<bool> getAllowCanvasPlayPauseNotifier();
+  ValueNotifier<bool> getShowBottomBarNotifier();
   SimpleNotifier getSuffixesChangedNotifier();
   List<String> getExcludedSuffixes();
 
@@ -1190,6 +1197,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         excludedSuffixesNotifier: getSuffixesChangedNotifier(),
         exlcudedSuffixes: getExcludedSuffixes(),
         canvasPlayPauseNotifier: getAllowCanvasPlayPauseNotifier(),
+        showBottomBar: getShowBottomBarNotifier(),
         aboutMenu: aboutMenu,
       );
     },
@@ -1317,10 +1325,10 @@ class FiltersButton extends StatelessWidget {
 class WindowDockingControls extends StatelessWidget {
   const WindowDockingControls({
     super.key,
-    required this.isBottomBarMinimized,
+    required this.isShowBottomBar,
   });
 
-  final ValueNotifier<bool> isBottomBarMinimized;
+  final ValueNotifier<bool> isShowBottomBar;
   static const double cornerMargin = 3;
 
   @override
@@ -1329,11 +1337,11 @@ class WindowDockingControls extends StatelessWidget {
       bottom: cornerMargin,
       right: cornerMargin,
       child: ValueListenableBuilder(
-        valueListenable: isBottomBarMinimized,
+        valueListenable: isShowBottomBar,
         builder: (_, _, _) {
           return CollapseBottomBarButton(
-            isMinimized: isBottomBarMinimized.value,
-            onPressed: () => isBottomBarMinimized.toggle(),
+            isExpanded: isShowBottomBar.value,
+            onPressed: () => isShowBottomBar.toggle(),
           );
         },
       ),
@@ -1489,7 +1497,7 @@ class MainScreenShortcuts {
     (HelpIntent, (_) => state.helpMenu.open()),
     (
       BottomBarToggleIntent,
-      (_) => state.windowState.isBottomBarMinimized.toggle(),
+      (_) => state.windowState.isShowBottomBar.toggle(),
     ),
     (AlwaysOnTopIntent, (_) => state.windowState.isAlwaysOnTop.toggle()),
     (ToggleSoundIntent, (_) => state.windowState.isSoundsEnabled.toggle()),
