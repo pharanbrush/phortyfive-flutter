@@ -78,7 +78,7 @@ class TimerControls extends StatelessWidget {
                   nextButton,
                 ],
               ),
-            )
+            ),
           ],
         );
 
@@ -104,7 +104,8 @@ class TimerBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
+    final timerTheme =
+        Theme.of(context).extension<PhtimerTheme>() ??
         PhtimerTheme.defaultTheme;
 
     final timerModel = PhtimerModel.of(context);
@@ -118,8 +119,8 @@ class TimerBar extends StatelessWidget {
           final barValueFromModel = (1.0 - timerModel.progressPercent);
           final Color barColor = timerModel.isRunning
               ? (barValueFromModel < TimerBar.almostZeroThreshold
-                  ? timerTheme.almostZeroColor
-                  : timerTheme.runningColor)
+                    ? timerTheme.almostZeroColor
+                    : timerTheme.runningColor)
               : timerTheme.pausedColor;
 
           return TweenAnimationBuilder<double>(
@@ -152,88 +153,93 @@ class PlayPauseTimerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timerTheme = Theme.of(context).extension<PhtimerTheme>() ??
+    final timerTheme =
+        Theme.of(context).extension<PhtimerTheme>() ??
         PhtimerTheme.defaultTheme;
 
-    final shortcutLabel =
-        PfsLocalization.tooltipShortcut(Phshortcuts.playPause);
+    final shortcutLabel = PfsLocalization.tooltipShortcut(
+      Phshortcuts.playPause,
+    );
     final pressLabel = PfsLocalization.pressCapital;
 
     final model = PfsAppModel.of(context);
     final timerModel = model.timerModel;
 
     return ListenableBuilder(
-        listenable: model.allowedControlsChanged,
-        builder: (_, _) {
-          return ListenableBuilder(
-              listenable: timerModel.playPauseNotifier,
-              builder: (_, _) {
-                final playButtonTooltip =
-                    "Timer paused. $pressLabel to resume ($shortcutLabel)";
-                final pauseButtonTooltip =
-                    "Timer running. $pressLabel to pause ($shortcutLabel)";
-                final disabledButtonTooltip = "Timer disabled";
-                final icon = enabled
-                    ? ListenableBuilder(
-                        // Translucent [AnimatedIcons.play_pause] Workaround.
-                        // This [ListenableBuilder] prevents the semitransparent icon
-                        // from showing its overlaps in the play arrow state.
-                        listenable: iconProgress,
-                        builder: (context, child) {
-                          if (iconProgress.value <= 0) {
-                            return Icon(Icons.play_arrow);
-                          }
+      listenable: model.allowedControlsChanged,
+      builder: (_, _) {
+        return ListenableBuilder(
+          listenable: timerModel.playPauseNotifier,
+          builder: (_, _) {
+            final playButtonTooltip =
+                "Timer paused. $pressLabel to resume ($shortcutLabel)";
+            final pauseButtonTooltip =
+                "Timer running. $pressLabel to pause ($shortcutLabel)";
+            final disabledButtonTooltip = "Timer disabled";
+            final icon = enabled
+                ? ListenableBuilder(
+                    // Translucent [AnimatedIcons.play_pause] Workaround.
+                    // This [ListenableBuilder] prevents the semitransparent icon
+                    // from showing its overlaps in the play arrow state.
+                    listenable: iconProgress,
+                    builder: (context, child) {
+                      if (iconProgress.value <= 0) {
+                        return Icon(Icons.play_arrow);
+                      }
 
-                          return AnimatedIcon(
-                            icon: AnimatedIcons.play_pause,
-                            progress: iconProgress,
-                          );
-                        },
-                      )
-                    : Icon(Icons.play_arrow);
+                      return AnimatedIcon(
+                        icon: AnimatedIcons.play_pause,
+                        progress: iconProgress,
+                      );
+                    },
+                  )
+                : Icon(Icons.play_arrow);
 
-                final bool allowTimerControl = model.allowTimerPlayPause;
-                final Color buttonColor = allowTimerControl
-                    ? (timerModel.isRunning
-                        ? timerTheme.runningButton
-                        : timerTheme.pausedButton)
-                    : timerTheme.disabledColor;
+            final bool allowTimerControl = model.allowTimerPlayPause;
+            final Color buttonColor = allowTimerControl
+                ? (timerModel.isRunning
+                      ? timerTheme.runningButton
+                      : timerTheme.pausedButton)
+                : timerTheme.disabledColor;
 
-                final style = ButtonStyle(
-                  animationDuration: const Duration(milliseconds: 300),
-                  backgroundColor: WidgetStateProperty.resolveWith(
-                      (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.hovered)) {
-                      return buttonColor.withValues(alpha: 1.0);
-                    }
-                    return buttonColor;
-                  }),
-                  overlayColor:
-                      const WidgetStatePropertyAll(Colors.transparent),
-                  elevation: const WidgetStatePropertyAll(0),
-                );
+            final style = ButtonStyle(
+              animationDuration: const Duration(milliseconds: 300),
+              backgroundColor: WidgetStateProperty.resolveWith((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.hovered)) {
+                  return buttonColor.withValues(alpha: 1.0);
+                }
+                return buttonColor;
+              }),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              elevation: const WidgetStatePropertyAll(0),
+            );
 
-                final tooltipText = enabled
-                    ? (timerModel.isRunning
-                        ? pauseButtonTooltip
-                        : playButtonTooltip)
-                    : disabledButtonTooltip;
+            final tooltipText = enabled
+                ? (timerModel.isRunning
+                      ? pauseButtonTooltip
+                      : playButtonTooltip)
+                : disabledButtonTooltip;
 
-                return Tooltip(
-                  message: tooltipText,
-                  child: FilledButton(
-                    style: style,
-                    onPressed:
-                        enabled ? () => model.tryTogglePlayPauseTimer() : null,
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 50,
-                      child: icon,
-                    ),
-                  ),
-                );
-              });
-        });
+            return Tooltip(
+              message: tooltipText,
+              child: FilledButton(
+                style: style,
+                onPressed: enabled
+                    ? () => model.tryTogglePlayPauseTimer()
+                    : null,
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 50,
+                  child: icon,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
 
@@ -303,7 +309,9 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
 
   @override
   ThemeExtension<PhtimerTheme> lerp(
-      covariant ThemeExtension<PhtimerTheme>? other, double t) {
+    covariant ThemeExtension<PhtimerTheme>? other,
+    double t,
+  ) {
     if (other is! PhtimerTheme) {
       return this;
     }
@@ -313,8 +321,11 @@ class PhtimerTheme extends ThemeExtension<PhtimerTheme> {
       runningColor: Color.lerp(runningColor, other.runningColor, t)!,
       almostZeroColor: Color.lerp(almostZeroColor, other.almostZeroColor, t)!,
       disabledColor: Color.lerp(disabledColor, other.disabledColor, t)!,
-      barBackgroundColor:
-          Color.lerp(barBackgroundColor, other.barBackgroundColor, t)!,
+      barBackgroundColor: Color.lerp(
+        barBackgroundColor,
+        other.barBackgroundColor,
+        t,
+      )!,
       pausedButton: Color.lerp(pausedButton, other.pausedButton, t)!,
       runningButton: Color.lerp(runningButton, other.runningButton, t)!,
     );
