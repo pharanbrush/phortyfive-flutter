@@ -1530,6 +1530,7 @@ class MainScreenShortcuts {
         (EscapeIntent, (_) => state._tryEscape()),
         (HelpIntent, (_) => state.helpMenu.open()),
         (OpenPreferencesIntent, (_) => state.settingsMenu.open()),
+        (OpenFolderIntent, (_) => state.widget.model.openFilePickerForFolder()),
         (ToggleSoundIntent, (_) => state.windowState.isSoundsEnabled.toggle()),
         (PasteIntent, (_) => state.tryPaste()),
       ];
