@@ -84,9 +84,18 @@ class PfsLocalization {
     return count == 1 ? "file" : "files";
   }
 
+  static final metaKey = Platform.isMacOS
+      ? "Cmd"
+      : Platform.isWindows
+      ? "Win"
+      : "Meta";
+
   static String tooltipShortcut(SingleActivator shortcut) {
     final keyString = shortcut.trigger.keyLabel;
-    return "${shortcut.control ? "Ctrl+" : ""}${shortcut.shift ? "Shift+" : ""}$keyString";
+    return "${shortcut.meta ? "$metaKey+" : ""}"
+        "${shortcut.control ? "Ctrl+" : ""}"
+        "${shortcut.shift ? "Shift+" : ""}"
+        "$keyString";
   }
 
   static String buttonTooltip({
