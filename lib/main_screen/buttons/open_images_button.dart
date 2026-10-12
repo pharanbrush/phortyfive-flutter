@@ -93,7 +93,7 @@ Widget openFilesButton({
   VoidCallback? pasteHandler,
 }) {
   final toolTipText =
-      'Open images... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFiles)})';
+      "Open image folder... (${PfsLocalization.tooltipShortcut(Phshortcuts.openFolder)})";
 
   return Builder(
     builder: (context) {
