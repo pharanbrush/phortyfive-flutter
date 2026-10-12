@@ -117,7 +117,7 @@ Widget openFilesButton({
 }
 
 void _popupImagesMenu(PfsAppModel model, VoidCallback? pasteHandler) {
-  _getOpenImagesMenu(model, pasteHandler).then(
+  getOpenImagesMenu(model, pasteHandler).then(
     (menu) => menu.open(
       .cursorPosition(),
       .topEnd,
@@ -137,7 +137,7 @@ void openFolderCommandCallback(
   );
 }
 
-Future<Menu> _getOpenImagesMenu(
+Future<Menu> getOpenImagesMenu(
   PfsAppModel model,
   VoidCallback? pasteHandler,
 ) async {

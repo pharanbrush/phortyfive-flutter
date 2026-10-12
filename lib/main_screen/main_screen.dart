@@ -187,6 +187,31 @@ class MainScreenState extends State<MainScreen>
     );
   }
 
+  Future tryOpenFileMenu() async {
+    if (!widget.model.allowImageSetChange) return;
+
+    final menu = await image_set_button.getOpenImagesMenu(
+      widget.model,
+      tryPaste,
+    );
+
+    menu.open(
+      .cursorPosition(),
+    ); // WORKAROUND: Opens at mouse cursor instead of button.
+
+    // try {
+    //   final windowBounds = await WindowManager.instance.getBounds();
+    //   final bottomRight = Offset(
+    //     windowBounds.width,
+    //     windowBounds.height,
+    //   ); // WIP: These are incorrect coordinates.
+
+    //   menu.open(.absolute(bottomRight));
+    // } catch (e) {
+    //   menu.open(.absolute(Offset(0, 0)));
+    // }
+  }
+
   Widget overlayGestureControls(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: currentAppControlsMode,
@@ -1489,6 +1514,8 @@ class MainScreenShortcuts {
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   Iterable get shortcutIntentActions => <(Type, Object? Function(Intent))>[
+    (OpenFileMenuIntent, (_) => state.tryOpenFileMenu()),
+
     (PreviousImageIntent, (_) => state.widget.model.previousImageNewTimer()),
     (NextImageIntent, (_) => state.widget.model.nextImageNewTimer()),
     (
@@ -1527,6 +1554,7 @@ class MainScreenShortcuts {
   final Map<Type, Action<Intent>> firstScreenShortcutActions = {};
   late List<(Type, Object? Function(Intent))> firstScreenShortcutIntentActions =
       [
+        (OpenFileMenuIntent, (_) => state.tryOpenFileMenu()),
         (EscapeIntent, (_) => state._tryEscape()),
         (HelpIntent, (_) => state.helpMenu.open()),
         (OpenPreferencesIntent, (_) => state.settingsMenu.open()),

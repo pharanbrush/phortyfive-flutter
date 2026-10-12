@@ -41,7 +41,7 @@ class Phshortcuts {
     LogicalKeyboardKey.keyD,
   );
 
-  static const openFolderMenu = SingleActivator(
+  static const openFileMenu = SingleActivator(
     LogicalKeyboardKey.keyF,
     alt: true,
   );
@@ -147,6 +147,9 @@ class Phshortcuts {
   }
 
   static final intentMap = <ShortcutActivator, Intent>{
+    if (Platform.isWindows || Platform.isLinux)
+      Phshortcuts.openFileMenu: OpenFileMenuIntent(),
+
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousImageIntent(),
@@ -161,7 +164,6 @@ class Phshortcuts {
     Phshortcuts.next5: NextImageIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
     Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
-    Phshortcuts.openFolderMenu: OpenFolderMenuIntent(),
     Phshortcuts.restartTimer: RestartTimerIntent(),
     Phshortcuts.help: HelpIntent(),
     Phshortcuts.toggleBottomBar: BottomBarToggleIntent(),
@@ -298,8 +300,8 @@ class PasteIntent extends Intent {
   const PasteIntent();
 }
 
-class OpenFolderMenuIntent extends Intent {
-  const OpenFolderMenuIntent();
+class OpenFileMenuIntent extends Intent {
+  const OpenFileMenuIntent();
 }
 
 class ColorMeterOpenIntent extends Intent {
