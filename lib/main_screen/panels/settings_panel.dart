@@ -20,6 +20,7 @@ class SettingsPanel extends StatelessWidget {
     required this.excludedSuffixesNotifier,
     required this.exlcudedSuffixes,
     required this.canvasPlayPauseNotifier,
+    required this.invertTouchPanningNotifier,
     required this.showBottomBar,
   });
 
@@ -27,6 +28,7 @@ class SettingsPanel extends StatelessWidget {
   final ValueNotifier<bool> soundEnabledNotifier;
   final ValueNotifier<bool> canvasPlayPauseNotifier;
   final ValueNotifier<bool> rememberWindowEnabledNotifier;
+  final ValueNotifier<bool> invertTouchPanningNotifier;
   final ValueNotifier<bool> showBottomBar;
   final SimpleNotifier excludedSuffixesNotifier;
   final List<String> exlcudedSuffixes;
@@ -90,6 +92,13 @@ class SettingsPanel extends StatelessWidget {
                 tooltip:
                     "Allow clicking on the central image area to play and pause the timer.\n"
                     "Disabling this also hides the play and pause indicator when hovering over the central area.",
+              ),
+              NotifierSwitchItem(
+                notifier: invertTouchPanningNotifier,
+                title: const Text("Invert touch panning direction."),
+                tooltip:
+                    "When enabled, the app will invert the touch panning direction\n"
+                    "used by the operating system.",
               ),
               divider,
               const SmallHeading('Appearance'),

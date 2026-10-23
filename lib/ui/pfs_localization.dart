@@ -13,7 +13,7 @@ final String windowsHotkey = Platform.isWindows ? "&" : "";
 class PfsLocalization {
   static const appTitle = "Phorty-Five Seconds";
   static const bool isDesktop = true;
-  static const String version = "0.9.20261013b";
+  static const String version = "0.9.20261024b";
 
   static const String alwaysOnTop = "Keep window on top";
   static const String shortcutHelp = "Shortcut help...";
@@ -63,6 +63,10 @@ class PfsLocalization {
 
   static String soundsSwitched(bool enabled) =>
       enabled ? "Sounds enabled" : "Sounds muted";
+
+  static String touchPanInvertSwitched(bool enabled) => enabled
+      ? "Touch panning is now inverted"
+      : "Touch panning invert disabled";
 
   static String rememeberWindowSwitched(bool enabled) => enabled
       ? "Remember window size enabled"

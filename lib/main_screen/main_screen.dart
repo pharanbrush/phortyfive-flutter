@@ -370,8 +370,16 @@ class MainScreenState extends State<MainScreen>
   Future _loadSettings() async {
     onSecondWindow = () => _checkAndLoadLaunchArgPath();
 
+    isTouchPanningInverted.value = await pfs_preferences
+        .invertTouchPanningPreference
+        .getValue(defaultValue: false);
+    isTouchPanningInverted.addListener(
+      () => _handleTouchPanningInvertChanged(),
+    );
+
     windowState.isSoundsEnabled.value = await pfs_preferences.soundPreference
         .getValue(defaultValue: true);
+    windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
 
     final loadedSuffixes = await pfs_preferences.exlcudedSuffixesPreference
         .getValue();
@@ -444,7 +452,6 @@ class MainScreenState extends State<MainScreen>
 
     getSuffixesChangedNotifier().addListener(() => _handleNsfwExcludeChanged());
 
-    windowState.isSoundsEnabled.addListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.addListener(() => _handleAlwaysOnTopChanged());
     windowState.isShowBottomBar.addListener(
       () => _handleBottomBarMinimizedChanged(),
@@ -472,6 +479,9 @@ class MainScreenState extends State<MainScreen>
   }
 
   void _handleDisposeCallbacks() {
+    isTouchPanningInverted.removeListener(
+      () => _handleTouchPanningInvertChanged(),
+    );
     windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
   }
@@ -594,6 +604,25 @@ class MainScreenState extends State<MainScreen>
     mainWindowFocus.requestFocus();
 
     return previousMode != PfsAppControlsMode.imageBrowse;
+  }
+
+  void _handleTouchPanningInvertChanged() {
+    void showTouchInvertToast() {
+      final bool wasEnabled = isTouchPanningInverted.value;
+      final message = PfsLocalization.touchPanInvertSwitched(wasEnabled);
+      final icon = wasEnabled ? Icons.touch_app : Icons.touch_app;
+
+      showToast(
+        message: message,
+        icon: icon,
+        alignment: Phtoasts.topControlsAlign,
+      );
+    }
+
+    showTouchInvertToast();
+    pfs_preferences.invertTouchPanningPreference.setValue(
+      isTouchPanningInverted.value,
+    );
   }
 
   void _handleSoundChanged() {
@@ -1223,6 +1252,7 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         excludedSuffixesNotifier: getSuffixesChangedNotifier(),
         exlcudedSuffixes: getExcludedSuffixes(),
         canvasPlayPauseNotifier: getAllowCanvasPlayPauseNotifier(),
+        invertTouchPanningNotifier: isTouchPanningInverted,
         showBottomBar: getShowBottomBarNotifier(),
         aboutMenu: aboutMenu,
       );
