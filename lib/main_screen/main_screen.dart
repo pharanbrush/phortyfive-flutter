@@ -50,6 +50,7 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 import '../phlutter/dart/windows_shortcut_files.dart';
+import '../phlutter/invert_touch_pan.dart' as invert_touch_pan;
 import '../phlutter/phmaterial/escape_route.dart';
 import '../phlutter/phmaterial/hover_container.dart';
 import '../phlutter/utils/image_from_file.dart';
@@ -370,10 +371,8 @@ class MainScreenState extends State<MainScreen>
   Future _loadSettings() async {
     onSecondWindow = () => _checkAndLoadLaunchArgPath();
 
-    isTouchPanningInverted.value = await pfs_preferences
-        .invertTouchPanningPreference
-        .getValue(defaultValue: false);
-    isTouchPanningInverted.addListener(
+    await invert_touch_pan.isTouchPanningInverted.loadFromPreferences();
+    invert_touch_pan.isTouchPanningInverted.valueNotifier.addListener(
       () => _handleTouchPanningInvertChanged(),
     );
 
@@ -479,9 +478,7 @@ class MainScreenState extends State<MainScreen>
   }
 
   void _handleDisposeCallbacks() {
-    isTouchPanningInverted.removeListener(
-      () => _handleTouchPanningInvertChanged(),
-    );
+    invert_touch_pan.isTouchPanningInverted.dispose();
     windowState.isSoundsEnabled.removeListener(() => _handleSoundChanged());
     windowState.isAlwaysOnTop.removeListener(() => _handleAlwaysOnTopChanged());
   }
@@ -608,7 +605,7 @@ class MainScreenState extends State<MainScreen>
 
   void _handleTouchPanningInvertChanged() {
     void showTouchInvertToast() {
-      final bool wasEnabled = isTouchPanningInverted.value;
+      final bool wasEnabled = invert_touch_pan.isTouchPanningInverted.value;
       final message = PfsLocalization.touchPanInvertSwitched(wasEnabled);
       final icon = wasEnabled ? Icons.touch_app : Icons.touch_app;
 
@@ -620,9 +617,6 @@ class MainScreenState extends State<MainScreen>
     }
 
     showTouchInvertToast();
-    pfs_preferences.invertTouchPanningPreference.setValue(
-      isTouchPanningInverted.value,
-    );
   }
 
   void _handleSoundChanged() {
@@ -1252,7 +1246,8 @@ mixin MainScreenPanels on MainScreenModels, MainScreenWindow {
         excludedSuffixesNotifier: getSuffixesChangedNotifier(),
         exlcudedSuffixes: getExcludedSuffixes(),
         canvasPlayPauseNotifier: getAllowCanvasPlayPauseNotifier(),
-        invertTouchPanningNotifier: isTouchPanningInverted,
+        invertTouchPanningNotifier:
+            invert_touch_pan.isTouchPanningInverted.valueNotifier,
         showBottomBar: getShowBottomBarNotifier(),
         aboutMenu: aboutMenu,
       );

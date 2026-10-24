@@ -22,12 +22,11 @@ import 'package:pfs2/widgets/clipboard_handlers.dart';
 
 import '../phlutter/dart/open_in_browser.dart' as open_in_browser;
 import '../phlutter/dart/shorten_paths.dart';
+import '../phlutter/invert_touch_pan.dart';
 import '../phlutter/phmaterial/escape_route.dart';
 import '../phlutter/widget/delayed_builder.dart';
 import '../phlutter/widget/scroll_listener.dart';
 import '../phlutter/widget/widget_state_property_utils.dart';
-
-final isTouchPanningInverted = ValueNotifier(false);
 
 /// Contains image viewer functionality such as managing zooming, panning and applying filters to the image.
 class ImagePhviewer with ImageZoomPanner, ImageFilters {

@@ -7,7 +7,6 @@ import '../phlutter/macos_bookmarks.dart' as macos_bookmarks;
 const _themeKey = "theme";
 const _timerDurationKey = "timer_duration";
 const _soundKey = "sounds";
-const _invertTouchPanningKey = "invert touch panning";
 const recentFoldersKey = "recent_folders";
 const excludedSuffixesKey = "excluded_suffixes";
 
@@ -20,7 +19,6 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 final exlcudedSuffixesPreference = StringListPreference(excludedSuffixesKey);
 
-final invertTouchPanningPreference = BoolPreference(_invertTouchPanningKey);
 final soundPreference = BoolPreference(_soundKey);
 final themePreference = StringPreference(_themeKey);
 final timerDurationPreference = IntPreference(
