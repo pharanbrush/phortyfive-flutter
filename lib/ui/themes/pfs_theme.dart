@@ -33,6 +33,7 @@ class PfsTheme {
     "phriends": phriends,
     "phaint": clip,
     "philes": philesTen,
+    "pholders": darkWinTen,
     //'phish': () => lysaris.themeData,
   };
 
@@ -41,6 +42,7 @@ class PfsTheme {
     "phriends": "Phriends (Dark)",
     "phaint": "Phaint (Dark)",
     "philes": "Philes 10 (Light)",
+    "pholders": "Pholders 10 (Dark)",
     "phish": "Phish",
   };
 
@@ -87,8 +89,9 @@ class PfsTheme {
     const Color tooltipBackgroundColor = primary;
     const Color tooltipTextColor = Colors.white;
     const tooltipBoxDecoration = BoxDecoration(
-        color: tooltipBackgroundColor,
-        borderRadius: BorderRadius.all(Radius.circular(15)));
+      color: tooltipBackgroundColor,
+      borderRadius: BorderRadius.all(Radius.circular(15)),
+    );
     const tooltipTextStyle = TextStyle(
       fontSize: 12,
       color: tooltipTextColor,
@@ -204,7 +207,7 @@ class PfsTheme {
           barBackgroundColor: Color.fromARGB(15, 0, 0, 0),
           pausedButton: Color.fromARGB(90, 69, 153, 138),
           runningButton: Color.fromARGB(117, 95, 164, 185),
-        )
+        ),
       },
     );
 
@@ -258,8 +261,9 @@ class PfsTheme {
       ),
     );
 
-    final ButtonStyle buttonShapeAndColors =
-        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+    final ButtonStyle buttonShapeAndColors = buttonColorStyle.copyWith(
+      shape: buttonShapeStyle.shape,
+    );
 
     const Color selectedButton = Color.fromARGB(200, 150, 208, 255);
     const Color textColor = Color(0xEE000000);
@@ -322,7 +326,9 @@ class PfsTheme {
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: dullBlue),
         labelLarge: TextStyle(
-            fontWeight: FontWeight.normal, fontSize: 12), // Control labels
+          fontWeight: FontWeight.normal,
+          fontSize: 12,
+        ), // Control labels
       ),
       sliderTheme: SliderThemeData(
         thumbColor: sliderBlue,
@@ -379,37 +385,40 @@ class PfsTheme {
         ),
         PfsAppTheme(
           borderRadius: const BorderRadius.all(Radius.circular(buttonRadius)),
-          giantTextBoxBuilder: ({
-            required FocusNode focusNode,
-            required TextEditingController controller,
-            required Function(String) onSubmitted,
-          }) {
-            return SizedBox(
-              width: 100,
-              child: TextField(
-                controller: controller,
-                focusNode: focusNode,
-                autofocus: true,
-                autocorrect: false,
-                maxLength: 4,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                textAlign: TextAlign.center,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: const InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(2)),
+          giantTextBoxBuilder:
+              ({
+                required FocusNode focusNode,
+                required TextEditingController controller,
+                required Function(String) onSubmitted,
+              }) {
+                return SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    autofocus: true,
+                    autocorrect: false,
+                    maxLength: 4,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    textAlign: TextAlign.center,
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 5,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(2)),
+                      ),
+                      filled: true,
+                      counterText: "",
+                      counterStyle: TextStyle(fontSize: 1),
+                    ),
+                    style: PfsAppTheme.defaultLargeTextFieldTextStyle,
+                    onSubmitted: onSubmitted,
                   ),
-                  filled: true,
-                  counterText: "",
-                  counterStyle: TextStyle(fontSize: 1),
-                ),
-                style: PfsAppTheme.defaultLargeTextFieldTextStyle,
-                onSubmitted: onSubmitted,
-              ),
-            );
-          },
+                );
+              },
           boxPanelMaterialBuilder: ({required Widget child}) {
             return Material(
               type: MaterialType.canvas,
@@ -421,7 +430,7 @@ class PfsTheme {
               child: child,
             );
           },
-        )
+        ),
       },
     );
 
@@ -445,8 +454,9 @@ class PfsTheme {
     const Color tertiary = Color(0xFF23A55A);
     const Color buttonContentColor = Color(0xCC80848E);
     const Color buttonHoverColor = Color(0xFFDBDEE1);
-    final Color buttonActiveColor =
-        discordBlue.withAlpha(0x77); //Color(0x783D507C);
+    final Color buttonActiveColor = discordBlue.withAlpha(
+      0x77,
+    ); //Color(0x783D507C);
     final Color buttonDisabledColor = buttonContentColor.withAlpha(0x55);
 
     const Color buttonHoverOverlayColor = Color(0x11D4D4D4);
@@ -481,8 +491,9 @@ class PfsTheme {
       ),
     );
 
-    final ButtonStyle buttonShapeAndColors =
-        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+    final ButtonStyle buttonShapeAndColors = buttonColorStyle.copyWith(
+      shape: buttonShapeStyle.shape,
+    );
 
     const Color textColor = Color(0xDDF2F3F5);
     const Color textBoxColor = Color(0xFF383A40);
@@ -635,7 +646,232 @@ class PfsTheme {
               child: child,
             );
           },
-        )
+        ),
+      },
+    );
+
+    return newData;
+  }
+
+  static ThemeData darkWinTen() {
+    const Brightness themeBrightness = Brightness.dark;
+    const Color seedColor = Color(0xFF_313131);
+    const Color panelBackground = Color(0xFF_1F1F1F);
+    const Color appBackground = Color(0xFF_313131);
+    const Color popupBackground = Color(0xFF_1F1F1F);
+
+    // APP SPECIFIC
+    const Color accentBlue = Color(0xFF_2972B1);
+    const Color progressBlue = Color(0xFF_26A0DA);
+
+    const Color secondAccentBlue = progressBlue;
+
+    const Color primary = accentBlue;
+    const Color secondary = accentBlue;
+    const Color tertiary = Color(0xFF_45CF32);
+    const Color buttonContentColor = Color(0xAA_DDDDDD);
+    const Color buttonHoverColor = Color(0x53_FFFFFF);
+    final Color buttonActiveColor = accentBlue.withAlpha(
+      0x77,
+    ); //Color(0x783D507C);
+    final Color buttonDisabledColor = buttonContentColor.withAlpha(0x55);
+
+    const Color buttonHoverOverlayColor = Color(0x11_D4D4D4);
+    const buttonRadius = 2.0;
+    const buttonMaterialShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(buttonRadius)),
+    );
+
+    const double cardShapeRadius = 8;
+    const cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(cardShapeRadius)),
+    );
+
+    const ButtonStyle buttonShapeStyle = ButtonStyle(
+      shape: WidgetStatePropertyAll(buttonMaterialShape),
+    );
+
+    final ButtonStyle buttonColorStyle = ButtonStyle(
+      foregroundColor: hoverActiveDisabledProperty(
+        idle: buttonContentColor,
+        hover: buttonHoverColor,
+        active: buttonActiveColor,
+        disabled: buttonDisabledColor,
+      ),
+      backgroundColor: hoverColors(
+        idle: appBackground.withAlpha(0x00),
+        hover: appBackground.withAlpha(0x0A),
+      ),
+      overlayColor: hoverColors(
+        idle: buttonHoverOverlayColor.withAlpha(0x00),
+        hover: buttonHoverOverlayColor,
+      ),
+    );
+
+    final ButtonStyle buttonShapeAndColors = buttonColorStyle.copyWith(
+      shape: buttonShapeStyle.shape,
+    );
+
+    const Color textColor = Color(0xDD_FFFFFF);
+    const Color textBoxColor = Color(0xFF_1D1D1D);
+    const Color textSelectionColor = Color(0xFF_0078D7);
+
+    const Color selectedButton = primary;
+    const Color selectedButtonContentColor = textColor;
+
+    const Color cardColor = Color(0xFF_1F1F1F);
+    const Color outline = Color(0xC7_868686);
+
+    const Color tooltipBackgroundColor = Color(0xFF_2B2B2B);
+    const Color tooltipTextColor = Color(0xEE_FFFFFF);
+    const Color tooltipBorderColor = Color(0xFF_444444);
+
+    const Color filledbuttonContentColor = buttonContentColor;
+    const double panelElevation = 10;
+    const panelOutline = BorderSide(width: 1.0, color: Color(0xFF282A2E));
+
+    final newData = ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: appBackground,
+      cardColor: appBackground,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: themeBrightness,
+        seedColor: seedColor,
+        // background: panelBackground,
+        primary: primary,
+        tertiary: tertiary,
+        secondary: secondary,
+
+        onSecondary: Colors.white,
+        onSurfaceVariant: textColor.withAlpha(0xAA),
+        outline: outline,
+        surface: cardColor,
+        surfaceContainer: popupBackground, // cards and popup colors
+        scrim: const Color(0xB7000000),
+
+        // Most text
+        onSurface: textColor,
+
+        // Selected button text, slider value label text
+        onPrimary: selectedButtonContentColor,
+
+        // Slider thumb hover color (slider track uses primary)
+        primaryContainer: secondAccentBlue,
+
+        // Selected Segmented button
+        secondaryContainer: selectedButton,
+        onSecondaryContainer: textColor.withAlpha(0xFF),
+
+        // Text field background, slider background
+        surfaceContainerHighest: textBoxColor,
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: textSelectionColor,
+      ),
+      tooltipTheme: const TooltipThemeData(
+        verticalOffset: 26,
+        textStyle: TextStyle(
+          color: tooltipTextColor,
+          fontSize: 13,
+        ),
+        padding: EdgeInsets.only(
+          top: 2,
+          left: 8,
+          right: 8,
+          bottom: 4,
+        ),
+        decoration: BoxDecoration(
+          color: tooltipBackgroundColor,
+          border: Border.fromBorderSide(
+            BorderSide(
+              width: 1,
+              color: tooltipBorderColor,
+            ),
+          ),
+        ),
+      ),
+      filledButtonTheme: const FilledButtonThemeData(
+        style: buttonShapeStyle,
+      ),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(color: outline),
+        labelLarge: TextStyle(fontWeight: FontWeight.normal), // Control labels
+      ),
+      sliderTheme: SliderThemeData(
+        thumbColor: Colors.white,
+        trackShape: const RoundedRectSliderTrackShape(),
+        trackHeight: 7,
+        tickMarkShape: SliderTickMarkShape.noTickMark,
+        activeTrackColor: primary,
+        inactiveTrackColor: const Color(0xFF4E5058),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: Color(0xFF1E1F22),
+        actionTextColor: tertiary,
+        contentTextStyle: TextStyle(fontSize: 14, color: Color(0xFFB4B9C0)),
+        insetPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      badgeTheme: const BadgeThemeData(backgroundColor: primary),
+      textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
+      iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: buttonShapeStyle.copyWith(
+          iconColor: const WidgetStatePropertyAll(Color(0xBBB5BAC1)),
+        ),
+      ),
+      iconTheme: const IconThemeData(
+        color: filledbuttonContentColor,
+      ),
+      menuButtonTheme: const MenuButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(panelBackground),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        shape: cardShape,
+      ),
+      cardTheme: const CardThemeData(
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        shape: cardShape,
+      ),
+      extensions: {
+        const PhtimerTheme(
+          pausedColor: Color(0x55_FFFFFF),
+          runningColor: primary,
+          almostZeroColor: Color(0xDDF23F42),
+          disabledColor: Color.fromARGB(255, 26, 26, 26),
+          barBackgroundColor: Color(0xDD707070),
+          runningButton: Color(0x7852545C),
+          pausedButton: Color(0x7852545C),
+        ),
+        PfsAppTheme(
+          borderRadius: const BorderRadius.all(Radius.circular(buttonRadius)),
+          boxPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: panelElevation,
+              shape: const RoundedRectangleBorder(
+                side: panelOutline,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              surfaceTintColor: null,
+              child: child,
+            );
+          },
+          pawPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: panelElevation,
+              shape: const RoundedRectangleBorder(
+                side: panelOutline,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(300)),
+              ),
+              surfaceTintColor: null,
+              child: child,
+            );
+          },
+        ),
       },
     );
 
@@ -691,8 +927,9 @@ class PfsTheme {
       ),
     );
 
-    final ButtonStyle buttonShapeAndColors =
-        buttonColorStyle.copyWith(shape: buttonShapeStyle.shape);
+    final ButtonStyle buttonShapeAndColors = buttonColorStyle.copyWith(
+      shape: buttonShapeStyle.shape,
+    );
 
     const Color cspSelectedButton = Color(0xFF707A90);
     const Color cspTextColor = Color(0xDDE1E1E1);
@@ -709,8 +946,10 @@ class PfsTheme {
       color: cspWindowBorderColor,
       width: 3,
     );
-    const cspWindowBorderSideTop =
-        BorderSide(color: cspWindowBorderColor, width: 6);
+    const cspWindowBorderSideTop = BorderSide(
+      color: cspWindowBorderColor,
+      width: 6,
+    );
     const cardShape = Border(
       top: cspWindowBorderSideTop,
       bottom: cspWindowBorderSide,
@@ -764,7 +1003,9 @@ class PfsTheme {
       textTheme: const TextTheme(
         titleMedium: TextStyle(color: outline),
         labelLarge: TextStyle(
-            fontWeight: FontWeight.normal, fontSize: 12), // Control labels
+          fontWeight: FontWeight.normal,
+          fontSize: 12,
+        ), // Control labels
       ),
       sliderTheme: SliderThemeData(
         trackShape: const RectangularSliderTrackShape(),
@@ -787,8 +1028,9 @@ class PfsTheme {
       badgeTheme: const BadgeThemeData(backgroundColor: buttonActiveColor),
       textButtonTheme: TextButtonThemeData(style: buttonShapeAndColors),
       iconButtonTheme: IconButtonThemeData(style: buttonShapeAndColors),
-      segmentedButtonTheme:
-          const SegmentedButtonThemeData(style: buttonShapeStyle),
+      segmentedButtonTheme: const SegmentedButtonThemeData(
+        style: buttonShapeStyle,
+      ),
       iconTheme: const IconThemeData(
         color: filledbuttonContentColor,
       ),
@@ -817,60 +1059,64 @@ class PfsTheme {
           runningButton: Color(0x665F687D),
         ),
         PfsAppTheme(
-            borderRadius:
-                const BorderRadius.all(Radius.circular(cspButtonRadius)),
-            giantTextBoxBuilder: ({
-              required FocusNode focusNode,
-              required TextEditingController controller,
-              required Function(String) onSubmitted,
-            }) {
-              return SizedBox(
-                width: 100,
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  autofocus: true,
-                  autocorrect: false,
-                  maxLength: 4,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  textAlign: TextAlign.center,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(cspButtonRadius),
+          ),
+          giantTextBoxBuilder:
+              ({
+                required FocusNode focusNode,
+                required TextEditingController controller,
+                required Function(String) onSubmitted,
+              }) {
+                return SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    autofocus: true,
+                    autocorrect: false,
+                    maxLength: 4,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    textAlign: TextAlign.center,
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 5,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(2)),
+                      ),
+                      filled: true,
+                      counterText: "",
+                      counterStyle: TextStyle(fontSize: 1),
                     ),
-                    filled: true,
-                    counterText: "",
-                    counterStyle: TextStyle(fontSize: 1),
+                    style: PfsAppTheme.defaultLargeTextFieldTextStyle,
+                    onSubmitted: onSubmitted,
                   ),
-                  style: PfsAppTheme.defaultLargeTextFieldTextStyle,
-                  onSubmitted: onSubmitted,
-                ),
-              );
-            },
-            appWindowBorderSide: cspWindowBorderSide.copyWith(width: 4),
-            boxPanelMaterialBuilder: ({required Widget child}) {
-              return Material(
-                type: MaterialType.canvas,
-                elevation: cspPanelElevation,
-                shape: const Border.fromBorderSide(cspWindowBorderSide),
-                child: child,
-              );
-            },
-            pawPanelMaterialBuilder: ({required Widget child}) {
-              return Material(
-                type: MaterialType.canvas,
-                elevation: cspPanelElevation,
-                shape: const RoundedRectangleBorder(
-                  side: cspWindowBorderSide,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(300)),
-                ),
-                child: child,
-              );
-            }),
+                );
+              },
+          appWindowBorderSide: cspWindowBorderSide.copyWith(width: 4),
+          boxPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: cspPanelElevation,
+              shape: const Border.fromBorderSide(cspWindowBorderSide),
+              child: child,
+            );
+          },
+          pawPanelMaterialBuilder: ({required Widget child}) {
+            return Material(
+              type: MaterialType.canvas,
+              elevation: cspPanelElevation,
+              shape: const RoundedRectangleBorder(
+                side: cspWindowBorderSide,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(300)),
+              ),
+              child: child,
+            );
+          },
+        ),
       },
     );
 
@@ -970,7 +1216,7 @@ class PfsTheme {
           barBackgroundColor: Colors.black12,
           pausedButton: tertiary,
           runningButton: Color.fromARGB(140, 167, 148, 140),
-        )
+        ),
       },
     );
 
@@ -983,21 +1229,26 @@ class PfsTheme {
   static final pfsIconBytes = const Base64Decoder().convert(PfsTheme.pfsIcon);
 
   static const double _nextPreviousLargeButtonSize = 100;
-  static const Icon beforeGestureIcon =
-      Icon(Icons.navigate_before, size: _nextPreviousLargeButtonSize);
-  static const Icon nextGestureIcon =
-      Icon(Icons.navigate_next, size: _nextPreviousLargeButtonSize);
+  static const Icon beforeGestureIcon = Icon(
+    Icons.navigate_before,
+    size: _nextPreviousLargeButtonSize,
+  );
+  static const Icon nextGestureIcon = Icon(
+    Icons.navigate_next,
+    size: _nextPreviousLargeButtonSize,
+  );
 
   // FIRST ACTION
   static const IconData downIcon = Icons.keyboard_double_arrow_down_rounded;
   static const double timerButtonIconSize = 18;
 }
 
-typedef TextBoxBuilderFunction = Widget Function({
-  required FocusNode focusNode,
-  required TextEditingController controller,
-  required Function(String) onSubmitted,
-});
+typedef TextBoxBuilderFunction =
+    Widget Function({
+      required FocusNode focusNode,
+      required TextEditingController controller,
+      required Function(String) onSubmitted,
+    });
 
 typedef MaterialBuilderFunction = Material Function({required Widget child});
 
@@ -1031,7 +1282,9 @@ class PfsAppTheme extends ThemeExtension<PfsAppTheme> {
 
   @override
   ThemeExtension<PfsAppTheme> lerp(
-      covariant ThemeExtension<PfsAppTheme>? other, double t) {
+    covariant ThemeExtension<PfsAppTheme>? other,
+    double t,
+  ) {
     return other ?? this;
   }
 
@@ -1215,14 +1468,20 @@ class RectangleSliderThumbShape extends SliderComponentShape {
     final Color color = colorTween.evaluate(enableAnimation)!;
     final double width = widthTween.evaluate(enableAnimation);
 
-    final Tween<double> elevationTween =
-        Tween<double>(begin: elevation, end: pressedElevation);
+    final Tween<double> elevationTween = Tween<double>(
+      begin: elevation,
+      end: pressedElevation,
+    );
 
-    final double evaluatedElevation =
-        elevationTween.evaluate(activationAnimation);
+    final double evaluatedElevation = elevationTween.evaluate(
+      activationAnimation,
+    );
 
-    final rect =
-        Rect.fromCenter(center: center, width: width, height: width * 0.5);
+    final rect = Rect.fromCenter(
+      center: center,
+      width: width,
+      height: width * 0.5,
+    );
     final Path path = Path()..addRect(rect);
 
     bool paintShadows = true;
