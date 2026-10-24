@@ -33,7 +33,7 @@ class PfsTheme {
     "phriends": phriends,
     "phaint": clip,
     "philes": philesTen,
-    "pholders": darkWinTen,
+    "pholders": pholdersTen,
     //'phish': () => lysaris.themeData,
   };
 
@@ -653,7 +653,7 @@ class PfsTheme {
     return newData;
   }
 
-  static ThemeData darkWinTen() {
+  static ThemeData pholdersTen() {
     const Brightness themeBrightness = Brightness.dark;
     const Color seedColor = Color(0xFF_313131);
     const Color panelBackground = Color(0xFF_1F1F1F);
