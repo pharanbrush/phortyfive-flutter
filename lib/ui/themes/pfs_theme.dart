@@ -68,7 +68,7 @@ class PfsTheme {
     ),
   );
 
-  static const Color hyperlinkColorPassive = Color.fromARGB(255, 84, 201, 255);
+  static const Color hyperlinkColorPassive = Color(0xFF_54C9FF);
   static const Color hyperlinkColorHovered = Colors.blue;
 
   static ThemeData lysaris() {
