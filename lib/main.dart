@@ -53,9 +53,15 @@ void main(List<String> args) async {
     main_args.appFileToLoadFromMainArgs = args.first;
   }
 
-  final initialTheme = await pfs_preferences.themePreference.getValue(
+  final loadedTheme = await pfs_preferences.themePreference.getValue(
     defaultValue: PfsTheme.defaultTheme,
   );
+  final themeExists = PfsTheme.themeMap.keys.contains(loadedTheme);
+  if (!themeExists) {
+    await pfs_preferences.themePreference.setValue(PfsTheme.defaultTheme);
+  }
+
+  final initialTheme = themeExists ? loadedTheme : PfsTheme.defaultTheme;
 
   remember_window_size.appRememberWindowSizeNotifier.value =
       await remember_window_size.getRememberWindowSizePreference();

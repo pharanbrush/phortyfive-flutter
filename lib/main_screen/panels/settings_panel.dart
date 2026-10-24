@@ -194,10 +194,18 @@ class SettingsPanel extends StatelessWidget {
         const Spacer(),
         ValueListenableBuilder(
           valueListenable: themeNotifier,
-          builder: (context, value, child) {
+          builder: (context, _, child) {
+            final value = themeNotifier.value;
+            final items = getThemeMenuItems();
+            final valueExists = items.any((element) => element.value == value);
+
+            if (!valueExists) {
+              pfs_preferences.themePreference.setValue(PfsTheme.defaultTheme);
+            }
+
             return DropdownButton(
-              value: themeNotifier.value,
-              items: getThemeMenuItems(),
+              value: valueExists ? value : PfsTheme.defaultTheme,
+              items: items,
               underline: const SizedBox.shrink(),
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
               borderRadius: const BorderRadius.all(Radius.circular(radius)),

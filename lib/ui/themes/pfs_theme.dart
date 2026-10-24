@@ -27,9 +27,11 @@ class PfsTheme {
         phashion();
   }
 
-  static const defaultTheme = 'phashion';
+  static const phashionKey =
+      "phasion"; // Const to ensure correctness of the default theme key.
+  static const defaultTheme = phashionKey;
   static final themeMap = <String, ThemeData Function()>{
-    "phashion": phashion,
+    phashionKey: phashion,
     "phriends": phriends,
     "phaint": clip,
     "philes": philesTen,
@@ -38,7 +40,7 @@ class PfsTheme {
   };
 
   static const themeNames = <String, String>{
-    "phashion": "Phashion (Light)",
+    phashionKey: "Phashion (Light)",
     "phriends": "Phriends (Dark)",
     "phaint": "Phaint (Dark)",
     "philes": "Philes 10 (Light)",
