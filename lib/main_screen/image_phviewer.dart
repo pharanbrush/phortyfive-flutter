@@ -815,14 +815,18 @@ class ImagePhviewerPanListener extends StatelessWidget {
     required ImageZoomPanner zoomPanner,
   }) {
     final isUsingAnyTouch = zoomPanner.isUsingAnyTouchPointerDeviceKind;
+
+    final Offset focalPointDelta;
     if (isUsingAnyTouch) {
       final newZoom = zoomPanner.gestureStartZoomScale * details.scale;
       zoomPanner.currentZoomScale.value = newZoom;
-    }
 
-    final focalPointDelta = isUsingAnyTouch && isTouchPanningInverted.value
-        ? -details.focalPointDelta
-        : details.focalPointDelta;
+      focalPointDelta = isTouchPanningInverted.value
+          ? -details.focalPointDelta
+          : details.focalPointDelta;
+    } else {
+      focalPointDelta = details.focalPointDelta;
+    }
 
     handlePanUpdate(pointerDelta: focalPointDelta, zoomPanner: zoomPanner);
   }
