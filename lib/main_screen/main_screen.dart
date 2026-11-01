@@ -157,9 +157,13 @@ class MainScreenState extends State<MainScreen>
           final didReturnToHomeMode = returnToHomeMode();
           final didCloseAnyPanel = closeAllPanels();
 
+          if (didCloseAnyPanel || didReturnToHomeMode) return;
           if (Platform.isMacOS) {
-            if (didCloseAnyPanel || didReturnToHomeMode) return;
             macos_window_events.tryExitFullScreen();
+          } else if (Platform.isWindows) {
+            if (main_args.lastOperationIsFromArgs) {
+              handleCloseAppIntent();
+            }
           }
         },
         willPopOnEscape: false,
@@ -388,6 +392,7 @@ class MainScreenState extends State<MainScreen>
   }
 
   Future _checkAndLoadLaunchArgPath() async {
+    // This is also called when an open window is reused to open a file from the OS shell.
     if (main_args.appFileToLoadFromMainArgs.isEmpty) return;
 
     try {
@@ -411,6 +416,7 @@ class MainScreenState extends State<MainScreen>
       final fileExists = await File(possiblePath).exists();
       if (fileExists) {
         await widget.model.loadImageFromShell(possiblePath);
+        _setShellImageStateEnabled();
         return;
       } else {
         final directoryExists = await Directory(possiblePath).exists();
@@ -423,12 +429,31 @@ class MainScreenState extends State<MainScreen>
         }
 
         await widget.model.openFolderCommandBasic(folderPath: possiblePath);
+        _setShellImageStateEnabled();
       }
     } catch (e) {
       await Future.delayed(Duration(seconds: 1));
       showToast(message: e.toString());
       rethrow;
     }
+  }
+
+  /// This makes the app remember that it was launched from the OS shell.
+  /// This is to enable behaviors like quickly closing the app by pressing Esc.
+  /// The app also needs to recognize when to "forget" that it was launched from the shell,
+  /// like when the user opens a different image set from inside the app.
+  void _setShellImageStateEnabled() {
+    main_args.lastOperationIsFromArgs = true;
+    widget.model.imageListChangedNotifier.addListener(
+      _handleShellImageStateReplaced,
+    );
+  }
+
+  void _handleShellImageStateReplaced() {
+    main_args.lastOperationIsFromArgs = false;
+    widget.model.imageListChangedNotifier.removeListener(
+      _handleShellImageStateReplaced,
+    );
   }
 
   void _bindModelCallbacks() {
@@ -634,6 +659,10 @@ class MainScreenState extends State<MainScreen>
 
     showSoundToggleToast();
     pfs_preferences.soundPreference.setValue(windowState.isSoundsEnabled.value);
+  }
+
+  void handleCloseAppIntent() async {
+    await windowManager.close();
   }
 
   void _handleAppControlsChanged() {
@@ -1573,6 +1602,7 @@ class MainScreenShortcuts {
     (ZoomOutIntent, (_) => state.imagePhviewer.incrementZoomLevel(-1)),
     (ZoomResetIntent, (_) => state.imagePhviewer.resetTransform()),
     (PasteIntent, (_) => state.tryPaste()),
+    (CloseAppIntent, (_) => state.handleCloseAppIntent()),
     // (UndoIntent, (_) => state.tryUndo()),
   ];
 
@@ -1585,6 +1615,7 @@ class MainScreenShortcuts {
         (OpenPreferencesIntent, (_) => state.settingsMenu.open()),
         (OpenFolderIntent, (_) => state.widget.model.openFilePickerForFolder()),
         (ToggleSoundIntent, (_) => state.windowState.isSoundsEnabled.toggle()),
+        (CloseAppIntent, (_) => state.handleCloseAppIntent()),
         (PasteIntent, (_) => state.tryPaste()),
       ];
 

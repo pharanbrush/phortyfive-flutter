@@ -69,6 +69,12 @@ class Phshortcuts {
     meta: Platform.isMacOS,
   );
 
+  static final closeApp = SingleActivator(
+    LogicalKeyboardKey.keyQ,
+    control: !Platform.isMacOS,
+    meta: Platform.isMacOS,
+  );
+
   static const flipHorizontal = SingleActivator(LogicalKeyboardKey.keyH);
   static const zoomInNumpad = SingleActivator(LogicalKeyboardKey.numpadAdd);
   static const zoomOutNumpad = SingleActivator(
@@ -150,6 +156,7 @@ class Phshortcuts {
     if (Platform.isWindows || Platform.isLinux)
       Phshortcuts.openFileMenu: OpenFileMenuIntent(),
 
+    Phshortcuts.closeApp: CloseAppIntent(),
     Phshortcuts.openFiles: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousImageIntent(),
@@ -306,4 +313,8 @@ class OpenFileMenuIntent extends Intent {
 
 class ColorMeterOpenIntent extends Intent {
   const ColorMeterOpenIntent();
+}
+
+class CloseAppIntent extends Intent {
+  const CloseAppIntent();
 }
